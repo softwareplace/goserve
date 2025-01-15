@@ -1,6 +1,6 @@
 package main
 
-import "http-utils/server"
+import "github.com/softwareplace/http-utils/server"
 
 func main() {
 	serverApi := server.New()

@@ -1,7 +1,7 @@
 package server
 
 import (
-	"http-utils/security"
+	"github.com/softwareplace/http-utils/security"
 	"net/http"
 )
 

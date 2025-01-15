@@ -2,7 +2,7 @@ package server
 
 import (
 	"encoding/json"
-	"http-utils/error_handler"
+	"github.com/softwareplace/http-utils/error_handler"
 	"log"
 	"net/http"
 	"time"
