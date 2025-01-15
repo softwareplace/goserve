@@ -25,7 +25,7 @@ type apiRouterHandlerImpl struct {
 }
 
 func (a *apiRouterHandlerImpl) Router() *mux.Router {
-	return a.Router()
+	return a.router
 }
 
 func New() ApiRouterHandler {
