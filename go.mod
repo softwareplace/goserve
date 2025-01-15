@@ -1,4 +1,4 @@
-module http-utils
+module github.com/softwareplace/http-utils
 
 go 1.23
 
