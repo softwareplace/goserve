@@ -16,25 +16,30 @@ type ApiRouterHandler interface {
 	Patch(handler ApiContextHandler, path string, requiredRoles ...string)
 	Options(handler ApiContextHandler, path string, requiredRoles ...string)
 	Head(handler ApiContextHandler, path string, requiredRoles ...string)
+	Router() *mux.Router
 	StartServer()
 }
 
 type apiRouterHandlerImpl struct {
-	Router *mux.Router
+	router *mux.Router
+}
+
+func (a *apiRouterHandlerImpl) Router() *mux.Router {
+	return a.Router()
 }
 
 func New() ApiRouterHandler {
 	api := &apiRouterHandlerImpl{
-		Router: mux.NewRouter(),
+		router: mux.NewRouter(),
 	}
-	api.Router.Use(rootAppMiddleware)
+	api.router.Use(rootAppMiddleware)
 	return api
 }
 
 func NewApiWith(router *mux.Router) ApiRouterHandler {
 	api := &apiRouterHandlerImpl{
-		Router: router,
+		router: router,
 	}
-	api.Router.Use(rootAppMiddleware)
+	api.router.Use(rootAppMiddleware)
 	return api
 }
