@@ -12,8 +12,7 @@ import (
 
 func (a *apiSecurityServiceImpl[T]) Validation(
 	ctx api_context.ApiRequestContext[T],
-	next func(requestContext api_context.ApiRequestContext[T],
-) (*T, bool)) (*T, bool) {
+	next func(requestContext api_context.ApiRequestContext[T]) (*T, bool)) (*T, bool) {
 	success := a.ExtractJWTClaims(ctx)
 
 	if !success {
