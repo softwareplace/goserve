@@ -9,7 +9,7 @@ var (
 	matcher      = `:[a-zA-Z]+` // Matches dynamic segments like ":param".
 	re           = regexp.MustCompile(matcher)
 	roles        = make(map[string][]string)
-	openPath     []string
+	openPaths    []string
 	openPathLock sync.RWMutex
 )
 
@@ -17,7 +17,7 @@ var (
 func AddOpenPath(path string) {
 	openPathLock.Lock()
 	defer openPathLock.Unlock()
-	openPath = append(openPath, path)
+	openPaths = append(openPaths, path)
 }
 
 // AddRoles associates a path with required roles.

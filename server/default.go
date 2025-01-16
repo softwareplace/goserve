@@ -5,36 +5,10 @@ import (
 	"github.com/softwareplace/http-utils/api_context"
 )
 
-type DefaultContext struct{}
-
-func Default() ApiRouterHandler[DefaultContext] {
-	api := &apiRouterHandlerImpl[DefaultContext]{
+func Default() ApiRouterHandler[api_context.DefaultContext] {
+	api := &apiRouterHandlerImpl[api_context.DefaultContext]{
 		router: mux.NewRouter(),
 	}
 	api.router.Use(rootAppMiddleware)
 	return api
-}
-
-func (d DefaultContext) SetAuthorizationClaims(map[string]interface{}) {
-
-}
-
-func (d DefaultContext) SetApiKeyId(string) {
-
-}
-
-func (d DefaultContext) SetAccessId(string) {
-
-}
-
-func (d DefaultContext) Data(api_context.ApiContextData) {
-
-}
-
-func (d DefaultContext) Salt() string {
-	return ""
-}
-
-func (d DefaultContext) Roles() []string {
-	return []string{}
 }

@@ -1,9 +1,12 @@
 package shared
 
 import (
+	"github.com/softwareplace/http-utils/api_context"
 	"net/http"
+	"net/http/httptest"
 	"net/url"
 	"reflect"
+	"strconv"
 	"testing"
 )
 
@@ -17,7 +20,6 @@ func TestGetRolesForPath(t *testing.T) {
 		expectedExists bool
 	}{
 		{
-			name:           "Pattern match for POST::/product/:id/add-review",
 			method:         "POST",
 			path:           "/user/:userId/catalogs/:catalogId/view",
 			requestPath:    "/user/lswvctezynpdfnhkycyugyk/catalogs/vpchihrnkzbrzvomzytwfvd/view",
@@ -25,7 +27,6 @@ func TestGetRolesForPath(t *testing.T) {
 			expectedExists: true,
 		},
 		{
-			name:           "Exact match for GET::/user/profile",
 			method:         "GET",
 			path:           "/user/profile",
 			requestPath:    "/user/profile",
@@ -33,7 +34,6 @@ func TestGetRolesForPath(t *testing.T) {
 			expectedExists: true,
 		},
 		{
-			name:           "Exact match for POST::/user/update",
 			method:         "POST",
 			path:           "/user/update",
 			requestPath:    "/user/update",
@@ -41,7 +41,6 @@ func TestGetRolesForPath(t *testing.T) {
 			expectedExists: true,
 		},
 		{
-			name:           "Pattern match for GET::/product/:id",
 			method:         "GET",
 			path:           "/product/:productId",
 			requestPath:    "/product/123",
@@ -49,7 +48,6 @@ func TestGetRolesForPath(t *testing.T) {
 			expectedExists: true,
 		},
 		{
-			name:           "Pattern match for POST::/product/:id/add-review",
 			method:         "POST",
 			path:           "/product/:productId/add-review",
 			requestPath:    "/product/456/add-review",
@@ -57,7 +55,6 @@ func TestGetRolesForPath(t *testing.T) {
 			expectedExists: true,
 		},
 		{
-			name:           "No match for non-existent route",
 			method:         "GET",
 			path:           "/nonexistent/path",
 			requestPath:    "/nonexistent/path",
@@ -67,20 +64,21 @@ func TestGetRolesForPath(t *testing.T) {
 	}
 	for _, tt := range tests {
 		path := tt.method + "::" + tt.path
-		AddOpenPath(path)
 		AddRoles(path, tt.expectedRoles...)
 	}
 
 	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+		t.Run("given__"+tt.path+"==>"+tt.requestPath+"__must_return__"+strconv.FormatBool(tt.expectedExists), func(t *testing.T) {
+
 			// Create a mock request
-			req := &http.Request{
+
+			ctx := api_context.Of[api_context.DefaultContext](httptest.NewRecorder(), &http.Request{
 				Method: tt.method,
 				URL:    &url.URL{Path: tt.requestPath},
-			}
+			}, "")
 
 			// Call the function
-			gotRoles, gotExists := GetRolesForPath(req)
+			gotRoles, gotExists := GetRolesForPath(ctx)
 
 			// Compare results
 			if !reflect.DeepEqual(gotRoles, tt.expectedRoles) {
@@ -91,4 +89,65 @@ func TestGetRolesForPath(t *testing.T) {
 			}
 		})
 	}
+}
+
+// Test for IsPublicPath method
+func TestForPublicPaths(t *testing.T) {
+	t.Run("Test IsPublicPath implementation", func(t *testing.T) {
+		tests := []struct {
+			name           string
+			method         string
+			path           string
+			requestPath    string
+			expectedResult bool
+		}{
+			{
+				method:         "GET",
+				path:           "/public/info",
+				requestPath:    "/public/info",
+				expectedResult: true,
+			},
+			{
+				method:         "POST",
+				path:           "/user/restricted-access",
+				requestPath:    "/user/restricted-access",
+				expectedResult: false,
+			},
+			{
+				method:         "GET",
+				path:           "/api/:version/doc",
+				requestPath:    "/api/v2/doc",
+				expectedResult: true,
+			},
+			{
+				method:         "GET",
+				path:           "/admin/:id",
+				requestPath:    "/admin/158",
+				expectedResult: false,
+			},
+		}
+		for _, tt := range tests {
+			path := tt.method + "::" + tt.path
+			if tt.expectedResult {
+				AddOpenPath(path) // Add the path to open/public paths
+			}
+		}
+
+		for _, tt := range tests {
+			t.Run("given__"+tt.path+"==>"+tt.requestPath+"__must_return__"+strconv.FormatBool(tt.expectedResult), func(t *testing.T) {
+
+				// Create mock request
+				ctx := api_context.Of[api_context.DefaultContext](httptest.NewRecorder(), &http.Request{
+					Method: tt.method,
+					URL:    &url.URL{Path: tt.requestPath},
+				}, "")
+				// Call the function
+				isPublic := IsPublicPath(ctx)
+				// Compare results
+				if isPublic != tt.expectedResult {
+					t.Errorf("expected public %v, got %v", tt.expectedResult, isPublic)
+				}
+			})
+		}
+	})
 }
