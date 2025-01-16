@@ -18,6 +18,7 @@ type ApiContextData interface {
 	SetApiKeyId(apiKeyId string)
 	SetAccessId(accessId string)
 	Data(data ApiContextData)
+	SetRoles(roles []string)
 	Salt() string
 	Roles() []string
 }

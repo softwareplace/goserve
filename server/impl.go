@@ -2,13 +2,13 @@ package server
 
 import (
 	"github.com/softwareplace/http-utils/api_context"
-	"github.com/softwareplace/http-utils/security/shared"
+	"github.com/softwareplace/http-utils/security/validator"
 	"net/http"
 )
 
 func (a *apiRouterHandlerImpl[T]) PublicRouter(handler ApiContextHandler[T], path string, method string) {
 	a.Add(handler, path, method)
-	shared.AddOpenPath(method + "::" + ContextPath + path)
+	validator.AddOpenPath(method + "::" + ContextPath + path)
 }
 
 func (a *apiRouterHandlerImpl[T]) Add(handler ApiContextHandler[T], path string, method string, requiredRoles ...string) {
@@ -17,7 +17,7 @@ func (a *apiRouterHandlerImpl[T]) Add(handler ApiContextHandler[T], path string,
 		handler(&ctx)
 	}).Methods(method)
 
-	shared.AddRoles(method+"::"+ContextPath+path, requiredRoles...)
+	validator.AddRoles(method+"::"+ContextPath+path, requiredRoles...)
 }
 
 func (a *apiRouterHandlerImpl[T]) Get(handler ApiContextHandler[T], path string, requiredRoles ...string) {

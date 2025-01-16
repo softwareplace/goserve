@@ -1,4 +1,4 @@
-package shared
+package validator
 
 import (
 	"github.com/softwareplace/http-utils/api_context"
@@ -72,7 +72,7 @@ func TestGetRolesForPath(t *testing.T) {
 
 			// Create a mock request
 
-			ctx := api_context.Of[api_context.DefaultContext](httptest.NewRecorder(), &http.Request{
+			ctx := api_context.Of[*api_context.DefaultContext](httptest.NewRecorder(), &http.Request{
 				Method: tt.method,
 				URL:    &url.URL{Path: tt.requestPath},
 			}, "")
@@ -137,7 +137,7 @@ func TestForPublicPaths(t *testing.T) {
 			t.Run("given__"+tt.path+"==>"+tt.requestPath+"__must_return__"+strconv.FormatBool(tt.expectedResult), func(t *testing.T) {
 
 				// Create mock request
-				ctx := api_context.Of[api_context.DefaultContext](httptest.NewRecorder(), &http.Request{
+				ctx := api_context.Of[*api_context.DefaultContext](httptest.NewRecorder(), &http.Request{
 					Method: tt.method,
 					URL:    &url.URL{Path: tt.requestPath},
 				}, "")
@@ -150,4 +150,97 @@ func TestForPublicPaths(t *testing.T) {
 			})
 		}
 	})
+}
+
+// Test for HasResourceAccessRight function
+func TestHasResourceAccessRight(t *testing.T) {
+	tests := []struct {
+		name           string
+		method         string
+		path           string
+		requestPath    string
+		userRoles      []string
+		requiredRoles  []string
+		isRoleRequired bool
+		expectedResult bool
+	}{
+		{
+			name:           "User with matching role has access",
+			method:         "GET",
+			path:           "/admin/panel",
+			requestPath:    "/admin/panel",
+			userRoles:      []string{"admin"},
+			requiredRoles:  []string{"admin"},
+			isRoleRequired: true,
+			expectedResult: true,
+		},
+		{
+			name:           "User without matching role does not have access",
+			method:         "POST",
+			path:           "/user/create",
+			requestPath:    "/user/create",
+			userRoles:      []string{"user"},
+			requiredRoles:  []string{"admin"},
+			isRoleRequired: true,
+			expectedResult: false,
+		},
+		{
+			name:           "Path does not require roles, access granted",
+			method:         "GET",
+			path:           "/public/info",
+			requestPath:    "/public/info",
+			userRoles:      []string{},
+			requiredRoles:  nil,
+			isRoleRequired: false,
+			expectedResult: true,
+		},
+		{
+			name:           "Path requires roles but user has none",
+			method:         "GET",
+			path:           "/restricted/data",
+			requestPath:    "/restricted/data",
+			userRoles:      []string{},
+			requiredRoles:  []string{"user"},
+			isRoleRequired: true,
+			expectedResult: false,
+		},
+		{
+			name:           "User has one of the required roles",
+			method:         "GET",
+			path:           "/validator/resource",
+			requestPath:    "/validator/resource",
+			userRoles:      []string{"user", "editor"},
+			requiredRoles:  []string{"admin", "editor"},
+			isRoleRequired: true,
+			expectedResult: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Add roles for the path
+			path := tt.method + "::" + tt.path
+			if tt.isRoleRequired && len(tt.requiredRoles) > 0 {
+				AddRoles(path, tt.requiredRoles...)
+			}
+
+			// Create mock context
+			ctx := api_context.Of[*api_context.DefaultContext](httptest.NewRecorder(), &http.Request{
+				Method: tt.method,
+				URL:    &url.URL{Path: tt.requestPath},
+			}, "")
+
+			ctx.RequestData = &api_context.DefaultContext{}
+
+			ctx.RequestData.SetRoles(tt.userRoles)
+
+			// Call the function
+			result := HasResourceAccessRight(ctx)
+
+			// Compare results
+			if result != tt.expectedResult {
+				t.Errorf("expected result %v, got %v", tt.expectedResult, result)
+			}
+		})
+	}
 }
