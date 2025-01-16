@@ -2,13 +2,19 @@ package server
 
 import (
 	"encoding/json"
+	"github.com/softwareplace/http-utils/api_context"
 	"net/http"
 )
 
-type OnSuccess[T any] func(ctx *ApiRequestContext, body T)
-type OnError func(ctx *ApiRequestContext, err error)
+type OnSuccess[B any, T api_context.ApiContextData] func(ctx *api_context.ApiRequestContext[T], body B)
+type OnError[T api_context.ApiContextData] func(ctx *api_context.ApiRequestContext[T], err error)
 
-func GetRequestBody[T any](ctx *ApiRequestContext, target T, onSuccess OnSuccess[T], onError OnError) {
+func GetRequestBody[B any, T api_context.ApiContextData](
+	ctx *api_context.ApiRequestContext[T],
+	target B,
+	onSuccess OnSuccess[B, T],
+	onError OnError[T],
+) {
 	err := json.NewDecoder(ctx.Request.Body).Decode(&target)
 	if err != nil {
 		onError(ctx, err)
@@ -17,6 +23,6 @@ func GetRequestBody[T any](ctx *ApiRequestContext, target T, onSuccess OnSuccess
 	}
 }
 
-func FailedToLoadBody(ctx *ApiRequestContext, _ error) {
+func FailedToLoadBody[T api_context.ApiContextData](ctx *api_context.ApiRequestContext[T], _ error) {
 	ctx.Error("Invalid request data", http.StatusBadRequest)
 }

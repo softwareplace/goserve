@@ -1,4 +1,4 @@
-package server
+package api_context
 
 import (
 	"context"
@@ -13,36 +13,48 @@ const (
 	Authorization       = "Authorization"
 )
 
-type ApiRequestContext struct {
+type ApiContextData interface {
+	SetAuthorizationClaims(authorizationClaims map[string]interface{})
+	SetApiKeyId(apiKeyId string)
+	SetAccessId(accessId string)
+	Data(data ApiContextData)
+	Salt() string
+	Roles() []string
+}
+
+type ApiRequestContext[T ApiContextData] struct {
 	Writer        http.ResponseWriter
 	Request       *http.Request
 	ApiKey        string
 	Authorization string
-	RequestData   any
+	RequestData   T
 	sessionId     string
 }
 
-func Of(w http.ResponseWriter, r *http.Request, reference string) ApiRequestContext {
+func Of[T ApiContextData](w http.ResponseWriter, r *http.Request, reference string) ApiRequestContext[T] {
 	currentContext := r.Context().Value(apiAccessContextKey)
 
 	if currentContext != nil {
-		var ctx *ApiRequestContext
-		ctx = currentContext.(*ApiRequestContext)
+		var ctx *ApiRequestContext[T]
+		ctx = currentContext.(*ApiRequestContext[T])
 		ctx.updateContext(r)
 		return *ctx
 	}
 
-	return createNewContext(w, r, reference)
+	return createNewContext[T](w, r, reference)
 }
 
-func (ctx *ApiRequestContext) Flush() {
+func (ctx *ApiRequestContext[T]) Flush() {
 	ctx.Writer = nil
 	ctx.Request = nil
 }
 
-func createNewContext(w http.ResponseWriter, r *http.Request, reference string) ApiRequestContext {
+func createNewContext[T ApiContextData](
+	w http.ResponseWriter,
+	r *http.Request, reference string,
+) ApiRequestContext[T] {
 	w.Header().Set("Content-Type", "application/json")
-	ctx := ApiRequestContext{
+	ctx := ApiRequestContext[T]{
 		Writer:        w,
 		Request:       r,
 		sessionId:     uuid.New().String(),
@@ -55,15 +67,15 @@ func createNewContext(w http.ResponseWriter, r *http.Request, reference string) 
 	return ctx
 }
 
-func (ctx *ApiRequestContext) updateContext(r *http.Request) {
+func (ctx *ApiRequestContext[T]) updateContext(r *http.Request) {
 	apiRequestContext := context.WithValue(ctx.Request.Context(), apiAccessContextKey, ctx)
 	ctx.Request = r.WithContext(apiRequestContext)
 }
 
-func (ctx *ApiRequestContext) GetSessionId() string {
+func (ctx *ApiRequestContext[T]) GetSessionId() string {
 	return ctx.sessionId
 }
 
-func (ctx *ApiRequestContext) Next(next http.Handler) {
+func (ctx *ApiRequestContext[T]) Next(next http.Handler) {
 	next.ServeHTTP(ctx.Writer, ctx.Request)
 }

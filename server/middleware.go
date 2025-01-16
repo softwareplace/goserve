@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"github.com/softwareplace/http-utils/api_context"
 	"github.com/softwareplace/http-utils/error_handler"
 	"log"
 	"net/http"
@@ -13,7 +14,7 @@ func rootAppMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		error_handler.Handler(func() {
 			start := time.Now() // Record the start time
-			ctx := Of(w, r, "MIDDLEWARE/ROOT_APP")
+			ctx := api_context.Of[api_context.ApiContextData](w, r, "MIDDLEWARE/ROOT_APP")
 
 			log.Printf("[%s]:: Incoming request: %s %s from %s", ctx.GetSessionId(), r.Method, r.URL.Path, r.RemoteAddr)
 

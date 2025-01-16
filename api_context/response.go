@@ -1,4 +1,4 @@
-package server
+package api_context
 
 import (
 	"encoding/json"
@@ -7,43 +7,43 @@ import (
 	"time"
 )
 
-func (ctx *ApiRequestContext) InternalServerError(message string) {
+func (ctx *ApiRequestContext[T]) InternalServerError(message string) {
 	ctx.Error(message, http.StatusInternalServerError)
 }
 
-func (ctx *ApiRequestContext) Forbidden(message string) {
+func (ctx *ApiRequestContext[T]) Forbidden(message string) {
 	ctx.Error(message, http.StatusForbidden)
 }
 
-func (ctx *ApiRequestContext) Unauthorized() {
+func (ctx *ApiRequestContext[T]) Unauthorized() {
 	ctx.Error("Unauthorized", http.StatusUnauthorized)
 }
 
-func (ctx *ApiRequestContext) InvalidInput() {
+func (ctx *ApiRequestContext[T]) InvalidInput() {
 	ctx.BadRequest("Invalid input")
 }
 
-func (ctx *ApiRequestContext) BadRequest(message string) {
+func (ctx *ApiRequestContext[T]) BadRequest(message string) {
 	ctx.Error(message, http.StatusBadRequest)
 }
 
-func (ctx *ApiRequestContext) Ok(body any) {
+func (ctx *ApiRequestContext[T]) Ok(body any) {
 	ctx.Response(body, http.StatusOK)
 }
 
-func (ctx *ApiRequestContext) Created(body any) {
+func (ctx *ApiRequestContext[T]) Created(body any) {
 	ctx.Response(body, http.StatusCreated)
 }
 
-func (ctx *ApiRequestContext) NoContent(body any) {
+func (ctx *ApiRequestContext[T]) NoContent(body any) {
 	ctx.Response(body, http.StatusNoContent)
 }
 
-func (ctx *ApiRequestContext) NotFount(body any) {
+func (ctx *ApiRequestContext[T]) NotFount(body any) {
 	ctx.Response(body, http.StatusNotFound)
 }
 
-func (ctx *ApiRequestContext) Error(message string, status int) {
+func (ctx *ApiRequestContext[T]) Error(message string, status int) {
 	ctx.Writer.WriteHeader(status)
 	responseBody := map[string]interface{}{
 		"message":    message,
@@ -54,7 +54,7 @@ func (ctx *ApiRequestContext) Error(message string, status int) {
 	ctx.Response(responseBody, status)
 }
 
-func (ctx *ApiRequestContext) Response(body any, status int) {
+func (ctx *ApiRequestContext[T]) Response(body any, status int) {
 	ctx.Writer.WriteHeader(status)
 	err := json.NewEncoder(ctx.Writer).Encode(body)
 	if err != nil {

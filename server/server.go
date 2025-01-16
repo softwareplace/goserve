@@ -26,7 +26,7 @@ func apiPort() string {
 	return "8080"
 }
 
-func (a *apiRouterHandlerImpl) StartServer() {
+func (a *apiRouterHandlerImpl[T]) StartServer() {
 	log.Printf("Server started at http://localhost:%s%s", Port, ContextPath)
 	log.Fatal(http.ListenAndServe(":"+Port, apiRoute))
 }
