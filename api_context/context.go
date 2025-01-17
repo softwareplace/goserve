@@ -82,7 +82,7 @@ type ApiRequestContext[T ApiContextData] struct {
 	//
 	// This can be used for implementing role-based access control dynamically.
 	// The function, if provided, is expected to return a slice of strings representing the roles.
-	AccessRolesLoader *func() []string
+	AccessRolesLoader *func(ApiRequestContext[T]) []string
 }
 
 // Of retrieves the ApiRequestContext object from the request's context if it already exists.

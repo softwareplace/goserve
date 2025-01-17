@@ -234,8 +234,8 @@ func TestHasResourceAccessRight(t *testing.T) {
 
 			ctx.RequestData.SetRoles(tt.userRoles)
 
-			rolesLoader := func() []string {
-				return tt.userRoles
+			rolesLoader := func(ctx api_context.ApiRequestContext[*api_context.DefaultContext]) []string {
+				return ctx.RequestData.Roles()
 			}
 
 			ctx.AccessRolesLoader = &rolesLoader
