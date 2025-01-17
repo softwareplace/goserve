@@ -44,7 +44,7 @@ func (ctx *ApiRequestContext[T]) NotFount(body any) {
 }
 
 func (ctx *ApiRequestContext[T]) Error(message string, status int) {
-	ctx.Writer.WriteHeader(status)
+	(*ctx.Writer).WriteHeader(status)
 	responseBody := map[string]interface{}{
 		"message":    message,
 		"statusCode": status,
@@ -55,8 +55,8 @@ func (ctx *ApiRequestContext[T]) Error(message string, status int) {
 }
 
 func (ctx *ApiRequestContext[T]) Response(body any, status int) {
-	ctx.Writer.WriteHeader(status)
-	err := json.NewEncoder(ctx.Writer).Encode(body)
+	(*ctx.Writer).WriteHeader(status)
+	err := json.NewEncoder(*ctx.Writer).Encode(body)
 	if err != nil {
 		log.Printf("Error encoding response: %v", err)
 	}

@@ -24,7 +24,7 @@ type ApiContextData interface {
 }
 
 type ApiRequestContext[T ApiContextData] struct {
-	Writer        http.ResponseWriter
+	Writer        *http.ResponseWriter
 	Request       *http.Request
 	ApiKey        string
 	Authorization string
@@ -55,7 +55,7 @@ func createNewContext[T ApiContextData](
 ) *ApiRequestContext[T] {
 	w.Header().Set("Content-Type", "application/json")
 	ctx := ApiRequestContext[T]{
-		Writer:        w,
+		Writer:        &w,
 		Request:       r,
 		sessionId:     uuid.New().String(),
 		ApiKey:        r.Header.Get(XApiKey),
@@ -77,5 +77,5 @@ func (ctx *ApiRequestContext[T]) GetSessionId() string {
 }
 
 func (ctx *ApiRequestContext[T]) Next(next http.Handler) {
-	next.ServeHTTP(ctx.Writer, ctx.Request)
+	next.ServeHTTP(*ctx.Writer, ctx.Request)
 }
