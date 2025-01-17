@@ -78,7 +78,7 @@ func TestGetRolesForPath(t *testing.T) {
 			}, "")
 
 			// Call the function
-			gotRoles, gotExists := GetRolesForPath(ctx)
+			gotRoles, gotExists := GetRolesForPath(*ctx)
 
 			// Compare results
 			if !reflect.DeepEqual(gotRoles, tt.expectedRoles) {
@@ -142,7 +142,7 @@ func TestForPublicPaths(t *testing.T) {
 					URL:    &url.URL{Path: tt.requestPath},
 				}, "")
 				// Call the function
-				isPublic := IsPublicPath(ctx)
+				isPublic := IsPublicPath(*ctx)
 				// Compare results
 				if isPublic != tt.expectedResult {
 					t.Errorf("expected public %v, got %v", tt.expectedResult, isPublic)
@@ -234,8 +234,14 @@ func TestHasResourceAccessRight(t *testing.T) {
 
 			ctx.RequestData.SetRoles(tt.userRoles)
 
+			rolesLoader := func() []string {
+				return tt.userRoles
+			}
+
+			ctx.AccessRolesLoader = &rolesLoader
+
 			// Call the function
-			result := HasResourceAccessRight(ctx)
+			result := HasResourceAccessRight(*ctx)
 
 			// Compare results
 			if result != tt.expectedResult {

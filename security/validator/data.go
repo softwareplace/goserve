@@ -18,7 +18,7 @@ import (
 //
 //	bool - True if the user has the required roles or if the path does not require roles, false otherwise.
 func HasResourceAccessRight[T api_context.ApiContextData](ctx api_context.ApiRequestContext[T]) bool {
-	userRoles := ctx.RequestData.Roles()
+	userRoles := (*ctx.AccessRolesLoader)()
 	requiredRoles, isRoleRequired := GetRolesForPath(ctx)
 
 	for _, requiredRole := range requiredRoles {
