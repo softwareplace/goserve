@@ -7,7 +7,7 @@ import (
 )
 
 type ApiContextHandler[T api_context.ApiContextData] func(ctx *api_context.ApiRequestContext[T])
-type ApiMiddleware[T api_context.ApiContextData] func(api_context.ApiRequestContext[T]) (doNext bool)
+type ApiMiddleware[T api_context.ApiContextData] func(*api_context.ApiRequestContext[T]) (doNext bool)
 
 type ApiRouterHandler[T api_context.ApiContextData] interface {
 	PublicRouter(handler ApiContextHandler[T], path string, method string)
@@ -38,18 +38,29 @@ func (a *apiRouterHandlerImpl[T]) Use(middleware ApiMiddleware[T], name string) 
 	})
 }
 
-func New[T api_context.ApiContextData]() ApiRouterHandler[T] {
+func New[T api_context.ApiContextData](topMiddlewares ...ApiMiddleware[T]) ApiRouterHandler[T] {
+	router := mux.NewRouter()
+	router.Use(rootAppMiddleware[T])
+
 	api := &apiRouterHandlerImpl[T]{
-		router: mux.NewRouter(),
+		router: router,
 	}
-	api.router.Use(rootAppMiddleware)
+
+	for _, middleware := range topMiddlewares {
+		api.Use(middleware, "")
+	}
+
+	router.Use(HasResourceAccess[T])
 	return api
 }
 
 func NewApiWith[T api_context.ApiContextData](router *mux.Router) ApiRouterHandler[T] {
+	router.Use(rootAppMiddleware[T])
+	router.Use(HasResourceAccess[T])
+
 	api := &apiRouterHandlerImpl[T]{
 		router: router,
 	}
-	api.router.Use(rootAppMiddleware)
+
 	return api
 }

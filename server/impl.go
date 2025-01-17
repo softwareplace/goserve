@@ -12,9 +12,9 @@ func (a *apiRouterHandlerImpl[T]) PublicRouter(handler ApiContextHandler[T], pat
 }
 
 func (a *apiRouterHandlerImpl[T]) Add(handler ApiContextHandler[T], path string, method string, requiredRoles ...string) {
-	apiRoute.HandleFunc(ContextPath+path, func(writer http.ResponseWriter, req *http.Request) {
+	a.router.HandleFunc(ContextPath+path, func(writer http.ResponseWriter, req *http.Request) {
 		ctx := api_context.Of[T](writer, req, "ROUTER/HANDLER")
-		handler(&ctx)
+		handler(ctx)
 	}).Methods(method)
 
 	validator.AddRoles(method+"::"+ContextPath+path, requiredRoles...)

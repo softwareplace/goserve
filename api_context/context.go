@@ -32,14 +32,13 @@ type ApiRequestContext[T ApiContextData] struct {
 	sessionId     string
 }
 
-func Of[T ApiContextData](w http.ResponseWriter, r *http.Request, reference string) ApiRequestContext[T] {
+func Of[T ApiContextData](w http.ResponseWriter, r *http.Request, reference string) *ApiRequestContext[T] {
 	currentContext := r.Context().Value(apiAccessContextKey)
 
 	if currentContext != nil {
-		var ctx *ApiRequestContext[T]
-		ctx = currentContext.(*ApiRequestContext[T])
+		ctx := currentContext.(*ApiRequestContext[T])
 		ctx.updateContext(r)
-		return *ctx
+		return ctx
 	}
 
 	return createNewContext[T](w, r, reference)
@@ -53,7 +52,7 @@ func (ctx *ApiRequestContext[T]) Flush() {
 func createNewContext[T ApiContextData](
 	w http.ResponseWriter,
 	r *http.Request, reference string,
-) ApiRequestContext[T] {
+) *ApiRequestContext[T] {
 	w.Header().Set("Content-Type", "application/json")
 	ctx := ApiRequestContext[T]{
 		Writer:        w,
@@ -65,7 +64,7 @@ func createNewContext[T ApiContextData](
 
 	log.Printf("%s -> initialized a context with session id: %s", reference, ctx.sessionId)
 	ctx.updateContext(r)
-	return ctx
+	return &ctx
 }
 
 func (ctx *ApiRequestContext[T]) updateContext(r *http.Request) {

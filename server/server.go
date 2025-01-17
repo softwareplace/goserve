@@ -1,14 +1,12 @@
 package server
 
 import (
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"os"
 )
 
 var (
-	apiRoute    = mux.NewRouter()
 	ContextPath = apiContextPath()
 	Port        = apiPort()
 )
@@ -28,5 +26,5 @@ func apiPort() string {
 
 func (a *apiRouterHandlerImpl[T]) StartServer() {
 	log.Printf("Server started at http://localhost:%s%s", Port, ContextPath)
-	log.Fatal(http.ListenAndServe(":"+Port, apiRoute))
+	log.Fatal(http.ListenAndServe(":"+Port, a.router))
 }
