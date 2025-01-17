@@ -44,7 +44,6 @@ func (ctx *ApiRequestContext[T]) NotFount(body any) {
 }
 
 func (ctx *ApiRequestContext[T]) Error(message string, status int) {
-	(*ctx.Writer).WriteHeader(status)
 	responseBody := map[string]interface{}{
 		"message":    message,
 		"statusCode": status,
