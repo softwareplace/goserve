@@ -86,9 +86,7 @@ func (a *apiSecurityServiceImpl[T]) Secret() []byte {
 	return []byte(secret)
 }
 
-// GenerateJWT creates a JWT token with the username and role
-func (a *apiSecurityServiceImpl[T]) GenerateJWT(data T) (map[string]interface{}, error) {
-	duration := time.Minute * 15
+func (a *apiSecurityServiceImpl[T]) GenerateJWT(data T, duration time.Duration) (map[string]interface{}, error) {
 	expiration := time.Now().Add(duration).Unix()
 	requestBy, err := a.Encrypt(data.Salt())
 

@@ -15,6 +15,7 @@ const (
 
 type ApiContextData interface {
 	SetAuthorizationClaims(authorizationClaims map[string]interface{})
+	SetApiKeyClaims(authorizationClaims map[string]interface{})
 	SetApiKeyId(apiKeyId string)
 	SetAccessId(accessId string)
 	Data(data ApiContextData)

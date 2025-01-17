@@ -8,6 +8,10 @@ func (d *DefaultContext) SetAuthorizationClaims(map[string]interface{}) {
 
 }
 
+func (d *DefaultContext) SetApiKeyClaims(map[string]interface{}) {
+
+}
+
 func (d *DefaultContext) SetApiKeyId(string) {
 
 }

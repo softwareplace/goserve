@@ -5,7 +5,6 @@ import (
 	"time"
 )
 
-// GenerateApiSecretJWT creates a JWT token with the username and role
 func (a *apiSecurityServiceImpl[T]) GenerateApiSecretJWT(jwtInfo ApiJWTInfo) (string, error) {
 	secret := a.Secret()
 
@@ -14,11 +13,11 @@ func (a *apiSecurityServiceImpl[T]) GenerateApiSecretJWT(jwtInfo ApiJWTInfo) (st
 		return "", err
 	}
 
-	duration := time.Hour * jwtInfo.Expiration
+	duration := jwtInfo.Expiration
 	expiration := time.Now().Add(duration).Unix()
 	claims := jwt.MapClaims{
 		"client": jwtInfo.Client,
-		"key":    encryptedKey,
+		"apiKey": encryptedKey,
 		"exp":    expiration,
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
