@@ -1,4 +1,4 @@
-package auth
+package security
 
 import (
 	"crypto/ecdsa"
@@ -6,68 +6,67 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"github.com/softwareplace/http-utils/api_context"
-	"github.com/softwareplace/http-utils/security"
-	"github.com/softwareplace/http-utils/server"
+	"github.com/softwareplace/http-utils/security/principal"
 	"log"
 	"net/http"
 	"os"
 )
 
-type ApiSecretKeyLoader[T api_context.ApiContextData] func(ctx *api_context.ApiRequestContext[T]) (string, error)
+const (
+	ApiSecretAccessHandlerError = "API_SECRET_ACCESS_HANDLER_ERROR"
+	ApiSecretAccessHandlerName  = "API_SECRET_MIDDLEWARE"
+)
 
-type ApiSecretAccessHandler[T api_context.ApiContextData] interface {
+type ApiSecretKeyLoader[T api_context.ApiPrincipalContext] func(ctx *api_context.ApiRequestContext[T]) (string, error)
+
+type ApiSecretAccessHandler[T api_context.ApiPrincipalContext] interface {
+	Handler(ctx *api_context.ApiRequestContext[T]) bool
 }
 
-type apiSecurityHandlerImpl[T api_context.ApiContextData] struct {
-	secretKey string
-	service   *security.ApiSecurityService[T]
-	apiSecret any
-	loader    ApiSecretKeyLoader[T]
+type apiSecurityHandlerImpl[T api_context.ApiPrincipalContext] struct {
+	secretKey        string
+	service          ApiSecurityService[T]
+	apiSecret        any
+	loader           ApiSecretKeyLoader[T]
+	principalService *principal.PService[T]
 }
 
-// Handler creates a new instance of ApiSecretAccessHandler, which is a middleware security handler
-// responsible for managing API security using a private key and an optional loader for resolving API secret keys.
+// ApiSecretAccessHandlerBuild apiSecurityHandlerImpl is an implementation of the ApiSecretAccessHandler interface which manages
+// security-related operations for API requests, such as validating API keys and initializing
+// cryptographic keys. It encapsulates the logic for validating an API secret key and restricting
+// unauthorized access to resources.
 //
-// Args:
+// Type Parameters:
+//   - T: A type that satisfies the `api_context.ApiPrincipalContext` interface, providing API principal-specific context.
 //
-//	  secretKey (string):
-//		 - A file path to the private key file that will be used to initialize the API secret.
-//		 - The private key must be in PKCS8 format and supported types are ECDSA and RSA.
-//	  loader (ApiSecretKeyLoader[T]):
-//		 - A function responsible for loading the API secret key, which is often used to decrypt or verify API-related data.
-//		 - Can be nil if no custom secret key loading functionality is needed.
-//	  service (*security.ApiSecurityService[T]):
-//		 - An instance of ApiSecurityService used for JWT claim extraction, encryption, and decryption operations.
-//		 - This service acts as the main utility for security tasks within the API.
+// Fields:
+//   - secretKey: The file path to the secret key used for cryptographic operations.
+//   - service: An instance of ApiSecurityService responsible for cryptographic and security services.
+//   - apiSecret: Holder of the parsed private key, supporting either ECDSA or RSA key types.
+//   - loader: A function responsible for loading the API secret key for access validation.
+//   - principalService: A service managing API principal claims and IDs to ensure request security.
 //
-// Returns:
-//
-//	  ApiSecretAccessHandler[T]:
-//		 - An implementation of the ApiSecretAccessHandler interface that provides security validation middleware.
-//
-// Example Usage:
-//
-//	service := &security.ApiSecurityService[YourContext]{}
-//	handler := Handler("path/to/private-key.pem", yourSecretKeyLoader, service)
-//	isAuthorized := handler.apiSecretMiddleware(apiRequestContext)
-func Handler[T api_context.ApiContextData](
+// This struct provides methods to initialize the secret key, validate the public key against the private key,
+// and enforce access security middleware, ensuring requests are authorized with proper credentials.
+func ApiSecretAccessHandlerBuild[T api_context.ApiPrincipalContext](
 	secretKey string,
 	loader ApiSecretKeyLoader[T],
-	service *security.ApiSecurityService[T],
-	routerHandler server.ApiRouterHandler[T],
-) {
+	service ApiSecurityService[T],
+) ApiSecretAccessHandler[T] {
 	handler := &apiSecurityHandlerImpl[T]{
 		secretKey: secretKey,
 		service:   service,
 		loader:    loader,
 	}
 	handler.initAPISecretKey()
-	routerHandler.Use(handler.apiSecretMiddleware, "API_SECRET_MIDDLEWARE")
+	return handler
 }
 
-func (a *apiSecurityHandlerImpl[T]) apiSecretMiddleware(ctx *api_context.ApiRequestContext[T]) bool {
+func (a *apiSecurityHandlerImpl[T]) Handler(ctx *api_context.ApiRequestContext[T]) bool {
 	if !a.apiSecretKeyValidation(ctx) {
-		ctx.Error("You are not allowed to access this resource", http.StatusUnauthorized)
+		a.service.handlerErrorOrElse(ctx, nil, ApiSecretAccessHandlerError, func() {
+			ctx.Error("You are not allowed to access this resource", http.StatusUnauthorized)
+		})
 		return false
 	}
 	return true
@@ -138,24 +137,23 @@ func (a *apiSecurityHandlerImpl[T]) initAPISecretKey() {
 //		 - `false` if the public key is invalid or the validation fails.
 func (a *apiSecurityHandlerImpl[T]) apiSecretKeyValidation(ctx *api_context.ApiRequestContext[T]) bool {
 	// Decode the Base64-encoded public key
-	claims, err := (*a.service).JWTClaims(*ctx)
-
-	if err != nil {
-		log.Printf("JWT/CLAIMS_EXTRACT: Authorization failed: %v", err)
-		return false
-	}
-	apiContext := ctx.RequestData
-
-	apiContext.SetApiKeyClaims(claims)
-
-	apiKey, err := (*a.service).Decrypt(claims["apiKey"].(string))
+	claims, err := a.service.JWTClaims(*ctx)
 
 	if err != nil {
 		log.Printf("JWT/CLAIMS_EXTRACT: Authorization failed: %v", err)
 		return false
 	}
 
-	apiContext.SetApiKeyId(apiKey)
+	(*a.principalService).SetApiKeyClaims(claims)
+
+	apiKey, err := a.service.Decrypt(claims["apiKey"].(string))
+
+	if err != nil {
+		log.Printf("JWT/CLAIMS_EXTRACT: Authorization failed: %v", err)
+		return false
+	}
+
+	(*a.principalService).SetApiKeyId(apiKey)
 
 	apiAccessKey, err := a.loader(ctx)
 	if err != nil {
@@ -164,7 +162,7 @@ func (a *apiSecurityHandlerImpl[T]) apiSecretKeyValidation(ctx *api_context.ApiR
 	}
 
 	// Decode the PEM-encoded public key
-	decryptKey, err := (*a.service).Decrypt(apiAccessKey)
+	decryptKey, err := a.service.Decrypt(apiAccessKey)
 	if err != nil {
 		log.Printf("API_SECRET_DECRYPT: Authorization failed: %v", err)
 		return false

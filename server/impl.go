@@ -7,13 +7,13 @@ import (
 	"net/http"
 )
 
-type apiRouterHandlerImpl[T api_context.ApiContextData] struct {
+type apiRouterHandlerImpl[T api_context.ApiPrincipalContext] struct {
 	router           *mux.Router
 	principalService *principal.PService[T]
 	errorHandler     *ApiErrorHandler[T]
 }
 
-func (a *apiRouterHandlerImpl[T]) Use(middleware ApiMiddleware[T], name string) ApiRouterHandler[T] {
+func (a *apiRouterHandlerImpl[T]) RegisterMiddleware(middleware ApiMiddleware[T], name string) ApiRouterHandler[T] {
 	a.router.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := api_context.Of[T](w, r, name)
@@ -30,7 +30,7 @@ func (a *apiRouterHandlerImpl[T]) WithErrorHandler(handler *ApiErrorHandler[T]) 
 	return a
 }
 
-func New[T api_context.ApiContextData](topMiddlewares ...ApiMiddleware[T]) ApiRouterHandler[T] {
+func New[T api_context.ApiPrincipalContext](topMiddlewares ...ApiMiddleware[T]) ApiRouterHandler[T] {
 	router := mux.NewRouter()
 	router.Use(rootAppMiddleware[T])
 
@@ -41,7 +41,7 @@ func New[T api_context.ApiContextData](topMiddlewares ...ApiMiddleware[T]) ApiRo
 	router.Use(api.errorHandlerWrapper)
 
 	for _, middleware := range topMiddlewares {
-		api.Use(middleware, "")
+		api.RegisterMiddleware(middleware, "")
 	}
 	return api
 }
@@ -54,7 +54,7 @@ func (a *apiRouterHandlerImpl[T]) WithPrincipalService(service *principal.PServi
 	return a
 }
 
-func NewApiWith[T api_context.ApiContextData](router *mux.Router) ApiRouterHandler[T] {
+func NewApiWith[T api_context.ApiPrincipalContext](router *mux.Router) ApiRouterHandler[T] {
 	router.Use(rootAppMiddleware[T])
 	api := &apiRouterHandlerImpl[T]{
 		router: router,

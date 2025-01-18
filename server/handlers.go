@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-type ApiErrorHandler[T api_context.ApiContextData] interface {
+type ApiErrorHandler[T api_context.ApiPrincipalContext] interface {
 	Handler(ctx *api_context.ApiRequestContext[T], err error, source string)
 }
 

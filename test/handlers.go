@@ -8,8 +8,32 @@ import (
 type principalServiceImpl struct {
 }
 
-func (p *principalServiceImpl) Roles(ctx api_context.ApiRequestContext[*api_context.DefaultContext]) []string {
-	return []string{"admin"}
+func (d *principalServiceImpl) LoadPrincipal(ctx api_context.ApiRequestContext[*api_context.DefaultContext]) (*api_context.DefaultContext, bool) {
+	return &api_context.DefaultContext{}, true
+}
+
+func (d *principalServiceImpl) SetData(*api_context.DefaultContext) {
+
+}
+
+func (d *principalServiceImpl) GetRoles(ctx api_context.ApiRequestContext[*api_context.DefaultContext]) []string {
+	return []string{"admin", "GET", "test:v2"}
+}
+
+func (d *principalServiceImpl) SetAuthorizationClaims(map[string]interface{}) {
+
+}
+
+func (d *principalServiceImpl) SetApiKeyClaims(map[string]interface{}) {
+
+}
+
+func (d *principalServiceImpl) SetApiKeyId(string) {
+
+}
+
+func (d *principalServiceImpl) SetAccessId(string) {
+
 }
 
 type errorHandlerImpl struct {

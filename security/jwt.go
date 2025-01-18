@@ -10,29 +10,37 @@ import (
 	"time"
 )
 
-func (a *apiSecurityServiceImpl[T]) Validation(
-	ctx api_context.ApiRequestContext[T],
-	next func(requestContext api_context.ApiRequestContext[T]) (*T, bool)) (*T, bool) {
+const (
+	JWTLoadPrincipalError = "JWT/LOAD_PRINCIPAL_ERROR"
+	JWTExtractClaimsError = "JWT/EXTRACT_CLAIMS_ERROR"
+)
+
+func (a *apiSecurityServiceImpl[T]) Validation(ctx api_context.ApiRequestContext[T], loadPrincipal func(ctx api_context.ApiRequestContext[T]) (T, bool)) (*T, bool) {
 	success := a.ExtractJWTClaims(ctx)
 
 	if !success {
+		a.handlerErrorOrElse(&ctx, nil, JWTLoadPrincipalError, func() {
+			ctx.Error("Authorization failed", http.StatusForbidden)
+		})
+
 		return nil, success
 	}
 
-	data, success := next(ctx)
+	principal, success := loadPrincipal(ctx)
 
 	if !success {
-		ctx.Error("Authorization failed", http.StatusForbidden)
+		a.handlerErrorOrElse(&ctx, nil, JWTLoadPrincipalError, func() {
+			ctx.Error("Authorization failed", http.StatusForbidden)
+		})
+
 		return nil, success
 	}
-	accessUserContext := ctx.RequestData
 
-	accessUserContext.Data(*data)
-	return data, success
+	(*a.PService).SetData(principal)
+	return &principal, success
 }
 
 func (a *apiSecurityServiceImpl[T]) ExtractJWTClaims(ctx api_context.ApiRequestContext[T]) bool {
-	apiContext := ctx.RequestData
 
 	token, err := jwt.Parse(ctx.Authorization, func(token *jwt.Token) (interface{}, error) {
 		return a.Secret(), nil
@@ -40,28 +48,33 @@ func (a *apiSecurityServiceImpl[T]) ExtractJWTClaims(ctx api_context.ApiRequestC
 
 	if err != nil {
 		log.Printf("JWT/PARSE: Authorization failed: %v", err)
-		ctx.Error("Authorization failed", http.StatusForbidden)
 		return false
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		apiContext.SetAuthorizationClaims(claims)
+		(*a.PService).SetAuthorizationClaims(claims)
 
 		requester, err := a.Decrypt(claims["request"].(string))
 
 		if err != nil {
-			log.Printf("JWT/CLAIMS_EXTRACT: Authorization failed: %v", err)
-			ctx.Error("Authorization failed", http.StatusForbidden)
+			log.Printf("%s: Authorization failed: %v", JWTExtractClaimsError, err)
+			a.handlerErrorOrElse(&ctx, err, JWTExtractClaimsError, func() {
+				ctx.Error("Authorization failed", http.StatusForbidden)
+			})
 			return false
 		}
 
-		apiContext.SetAccessId(requester)
+		(*a.PService).SetAccessId(requester)
 
 		return true
 	}
 
 	log.Printf("JWT/CLAIMS_EXTRACT: failed with error_handler: %v", err)
-	ctx.Error("Authorization failed", http.StatusForbidden)
+
+	a.handlerErrorOrElse(&ctx, err, JWTExtractClaimsError, func() {
+		ctx.Error("Authorization failed", http.StatusForbidden)
+	})
+
 	return false
 }
 
@@ -88,10 +101,10 @@ func (a *apiSecurityServiceImpl[T]) Secret() []byte {
 
 func (a *apiSecurityServiceImpl[T]) GenerateJWT(data T, duration time.Duration) (map[string]interface{}, error) {
 	expiration := time.Now().Add(duration).Unix()
-	requestBy, err := a.Encrypt(data.Salt())
+	requestBy, err := a.Encrypt(data.GetSalt())
 
 	var encryptedRoles []string
-	for _, role := range data.Roles() {
+	for _, role := range data.GetRoles() {
 		encryptedRole, err := a.Encrypt(role)
 		if err != nil {
 			return nil, err

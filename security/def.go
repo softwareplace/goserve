@@ -2,13 +2,19 @@ package security
 
 import (
 	"github.com/softwareplace/http-utils/api_context"
+	"github.com/softwareplace/http-utils/security/principal"
+	"github.com/softwareplace/http-utils/server"
 	"time"
 )
 
-type ApiSecurityService[T api_context.ApiContextData] interface {
+const (
+	ApiSecurityHandlerName = "API_SECURITY_MIDDLEWARE"
+)
+
+type ApiSecurityService[T api_context.ApiPrincipalContext] interface {
 
 	// Secret retrieves the secret key used to sign and validate JWT tokens.
-	// This function ensures consistent access to the secret key across the service.
+	// This function ensures consistent access to the secret key across the PService.
 	//
 	// Returns:
 	//   - A byte slice containing the secret key.
@@ -55,7 +61,7 @@ type ApiSecurityService[T api_context.ApiContextData] interface {
 	// and then its claims are extracted into a map of string to interface{}.
 	//
 	// This function relies on the jwt-go library for processing the token. It uses the Secret()
-	// method of the service to provide the secret necessary for verifying the JWT signature.
+	// method of the PService to provide the secret necessary for verifying the JWT signature.
 	//
 	// Parameters:
 	// - ctx: The ApiRequestContext containing the API key (JWT token to be parsed).
@@ -79,19 +85,19 @@ type ApiSecurityService[T api_context.ApiContextData] interface {
 	//
 	// Validation is performed using the provided JWT token, ensuring that the
 	// claims and tokens are properly extracted, decrypted, and stored within the
-	// API context. The service also handles error cases and ensures secure access
+	// API context. The PService also handles error cases and ensures secure access
 	// control across APIs.
 	//
 	// The jwt-go library is utilized for parsing, validating, and generating JWT tokens.
 	//
 	// All cryptographic and encoding operations are expected to be implemented
-	// within the `Encrypt` and `Decrypt` methods of this service implementation.
+	// within the `Encrypt` and `Decrypt` methods of this PService implementation.
 	//
 	// Usage example for GenerateJWT:
 	//
 	//	data := YourDataObject{
 	//		Salt:  "your_salt",
-	//		Roles: []string{"role1", "role2"},
+	//		GetRoles: []string{"role1", "role2"},
 	//	}
 	//	securityService := &apiSecurityServiceImpl{} // Properly initialize implementation
 	//	tokenDetails, err := securityService.GenerateJWT(data, time.Hour*24)
@@ -100,11 +106,11 @@ type ApiSecurityService[T api_context.ApiContextData] interface {
 	//	}
 	//	fmt.Printf("Generated JWT: %v", tokenDetails)
 	//
-	// The `GenerateJWT` method securely encrypts the `Salt` and `Roles` from the
+	// The `GenerateJWT` method securely encrypts the `Salt` and `GetRoles` from the
 	// provided data, embeds this information as claims in the token, and generates
 	// the JWT that is configured with an expiration time.
 	//
-	// This service ensures that errors during the JWT process are logged and result
+	// This PService ensures that errors during the JWT process are logged and result
 	// in appropriate HTTP error responses.
 	//
 	// Special Notes:
@@ -137,7 +143,7 @@ type ApiSecurityService[T api_context.ApiContextData] interface {
 	// working with JSON Web Tokens (JWT) such as validation, claim extraction,
 	// and token generation.
 	//
-	// This service ensures secure mechanisms for API authorization and maintains
+	// This PService ensures secure mechanisms for API authorization and maintains
 	// strict validation and processing of JWT tokens using the `jwt-go` library.
 	// All cryptographic operations like encryption and decryption are implemented
 	// via the Encrypt and Decrypt methods.
@@ -152,10 +158,16 @@ type ApiSecurityService[T api_context.ApiContextData] interface {
 	// - Proper error handling and logging are implemented for fault tolerance.
 	// - Secret rotation policies and encryption standards should be followed.
 	// - Always ensure sensitive information is never exposed in logs or error messages.
-	Validation(
-		ctx api_context.ApiRequestContext[T],
-		next func(ctx api_context.ApiRequestContext[T]) (*T, bool),
-	) (*T, bool)
+	Validation(ctx api_context.ApiRequestContext[T], loadPrincipal func(ctx api_context.ApiRequestContext[T]) (T, bool)) (*T, bool)
+
+	handlerErrorOrElse(
+		ctx *api_context.ApiRequestContext[T],
+		error error,
+		executionContext string,
+		handlerNotFound func(),
+	)
+
+	Handler(ctx *api_context.ApiRequestContext[T]) (doNext bool)
 }
 
 type ApiJWTInfo struct {
@@ -165,18 +177,39 @@ type ApiJWTInfo struct {
 	Expiration time.Duration //
 }
 
-type apiSecurityServiceImpl[T api_context.ApiContextData] struct {
+type apiSecurityServiceImpl[T api_context.ApiPrincipalContext] struct {
 	ApiSecretAuthorization string
+	ErrorHandler           *server.ApiErrorHandler[T]
+	PService               *principal.PService[T]
 }
 
-var (
-	instance apiSecurityServiceImpl[api_context.ApiContextData]
-)
-
-func GetApiSecurityService[T api_context.ApiContextData](apiSecretAuthorization string) ApiSecurityService[T] {
-	instance.Secret()
-	instance := apiSecurityServiceImpl[T]{
-		ApiSecretAuthorization: apiSecretAuthorization,
+func (a *apiSecurityServiceImpl[T]) handlerErrorOrElse(
+	ctx *api_context.ApiRequestContext[T],
+	error error,
+	executionContext string,
+	handlerNotFound func(),
+) {
+	if a.ErrorHandler != nil {
+		(*a.ErrorHandler).Handler(ctx, error, executionContext)
+	} else {
+		handlerNotFound()
 	}
-	return &instance
+}
+
+func ApiSecurityServiceBuild[T api_context.ApiPrincipalContext](
+	apiSecretAuthorization string,
+	service *principal.PService[T],
+) ApiSecurityService[T] {
+	return &apiSecurityServiceImpl[T]{
+		ApiSecretAuthorization: apiSecretAuthorization,
+		PService:               service,
+	}
+}
+
+func (a *apiSecurityServiceImpl[T]) Handler(ctx *api_context.ApiRequestContext[T]) (doNext bool) {
+	if principal.IsPublicPath[T](*ctx) {
+		return true
+	}
+	_, success := a.Validation(*ctx, (*a.PService).LoadPrincipal)
+	return success
 }

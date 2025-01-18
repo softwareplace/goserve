@@ -5,11 +5,11 @@ import (
 	"github.com/softwareplace/http-utils/security/principal"
 )
 
-type ApiContextHandler[T api_context.ApiContextData] func(ctx *api_context.ApiRequestContext[T])
+type ApiContextHandler[T api_context.ApiPrincipalContext] func(ctx *api_context.ApiRequestContext[T])
 
-type ApiMiddleware[T api_context.ApiContextData] func(*api_context.ApiRequestContext[T]) (doNext bool)
+type ApiMiddleware[T api_context.ApiPrincipalContext] func(*api_context.ApiRequestContext[T]) (doNext bool)
 
-type ApiRouterHandler[T api_context.ApiContextData] interface {
+type ApiRouterHandler[T api_context.ApiPrincipalContext] interface {
 	// PublicRouter registers a public route handler that does not require authentication or authorization.
 	// It allows unrestricted access from any client.
 	//
@@ -112,7 +112,7 @@ type ApiRouterHandler[T api_context.ApiContextData] interface {
 	// - ApiRouterHandler: The router handler for chaining further route configurations.
 	Head(handler ApiContextHandler[T], path string, requiredRoles ...string) ApiRouterHandler[T]
 
-	// Use adds a middleware function to the API router.
+	// RegisterMiddleware adds a middleware function to the API router.
 	// Middleware intercepts requests and can perform tasks like authentication, logging, etc.
 	//
 	// Parameters:
@@ -121,7 +121,7 @@ type ApiRouterHandler[T api_context.ApiContextData] interface {
 	//
 	// Returns:
 	// - ApiRouterHandler: The router handler for chaining further route configurations.
-	Use(middleware ApiMiddleware[T], name string) ApiRouterHandler[T]
+	RegisterMiddleware(middleware ApiMiddleware[T], name string) ApiRouterHandler[T]
 
 	// WithPrincipalService assigns a principal service to the router.
 	// This service provides role-based access control and other principal-related features.

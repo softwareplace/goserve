@@ -4,31 +4,11 @@ type DefaultContext struct {
 	roles []string
 }
 
-func (d *DefaultContext) SetAuthorizationClaims(map[string]interface{}) {
-
-}
-
-func (d *DefaultContext) SetApiKeyClaims(map[string]interface{}) {
-
-}
-
-func (d *DefaultContext) SetApiKeyId(string) {
-
-}
-
-func (d *DefaultContext) SetAccessId(string) {
-
-}
-
-func (d *DefaultContext) Data(ApiContextData) {
-
-}
-
-func (d *DefaultContext) Salt() string {
+func (d *DefaultContext) GetSalt() string {
 	return ""
 }
 
-func (d *DefaultContext) Roles() []string {
+func (d *DefaultContext) GetRoles() []string {
 	return d.roles
 }
 

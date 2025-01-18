@@ -13,69 +13,18 @@ const (
 	Authorization       = "Authorization"
 )
 
-type ApiContextData interface {
-	// SetAuthorizationClaims sets the authorization claims for the current context.
-	// These claims typically contain information related to user permissions or access rights.
-	//
-	// Parameters:
-	//   - authorizationClaims: A map containing key-value pairs of the authorization claims.
-	SetAuthorizationClaims(authorizationClaims map[string]interface{})
-
-	// SetApiKeyClaims sets the claims associated with the API key.
-	// These claims may define the permissions or metadata associated with the API key.
-	//
-	// Parameters:
-	//   - authorizationClaims: A map containing key-value pairs of the API key claims.
-	SetApiKeyClaims(authorizationClaims map[string]interface{})
-
-	// SetApiKeyId sets the unique identifier of the API key being used in the request.
-	//
-	// Parameters:
-	//   - apiKeyId: A string representing the API key ID.
-	SetApiKeyId(apiKeyId string)
-
-	// SetAccessId sets the access ID associated with the current context.
-	// The access ID typically represents a user or system entity allowed access to certain resources.
-	//
-	// Parameters:
-	//   - accessId: A string representing the access ID.
-	SetAccessId(accessId string)
-
-	// Data adds or updates the contextual data for the current instance.
-	// This method is useful for storing additional metadata or API-related information.
-	//
-	// Parameters:
-	//   - data: An instance implementing the ApiContextData interface, containing the information to store.
-	Data(data ApiContextData)
-
-	// SetRoles defines the roles associated with the current context.
-	// These roles are typically used for role-based access control in the system.
-	//
-	// Parameters:
-	//   - roles: A slice of strings representing the roles.
-	SetRoles(roles []string)
-
-	// Salt retrieves a string salt value used for securing operations, such as hashing.
-	//
-	// Returns:
-	//   - A string representing the salt value.
-	Salt() string
-
-	// Roles retrieves the list of roles associated with the current context.
-	// These roles define the access rights or permissions of the current user or entity.
-	//
-	// Returns:
-	//   - A slice of strings representing the roles.
-	Roles() []string
+type ApiPrincipalContext interface {
+	GetSalt() string
+	GetRoles() []string
 }
 
-type ApiRequestContext[T ApiContextData] struct {
+type ApiRequestContext[T ApiPrincipalContext] struct {
 	Writer        *http.ResponseWriter
 	Request       *http.Request
-	ApiKey        string
-	Authorization string
-	RequestData   T
-	sessionId     string
+	ApiKey        string // The API key extracted from the HTTP request header.
+	Authorization string // The authorization token extracted from the HTTP request header.
+	Principal     T      // The principal context containing user or session-specific data.
+	sessionId     string // A unique identifier for the current API session.
 }
 
 // Of retrieves the ApiRequestContext object from the request's context if it already exists.
@@ -87,7 +36,7 @@ type ApiRequestContext[T ApiContextData] struct {
 // context is linked to the request to facilitate data sharing throughout the request's lifecycle.
 //
 // Type Parameters:
-//   - T: A type that implements the ApiContextData interface, which facilitates the storage
+//   - T: A type that implements the ApiPrincipalContext interface, which facilitates the storage
 //     and management of additional API-related data for the request.
 //
 // Parameters:
@@ -102,7 +51,7 @@ type ApiRequestContext[T ApiContextData] struct {
 //
 //	ctx := Of[MyContextData](w, r, "MyReference")
 //	ctx.GetSessionId() // Access session id
-func Of[T ApiContextData](w http.ResponseWriter, r *http.Request, reference string) *ApiRequestContext[T] {
+func Of[T ApiPrincipalContext](w http.ResponseWriter, r *http.Request, reference string) *ApiRequestContext[T] {
 	currentContext := r.Context().Value(apiAccessContextKey)
 
 	if currentContext != nil {
@@ -119,7 +68,7 @@ func (ctx *ApiRequestContext[T]) Flush() {
 	ctx.Request = nil
 }
 
-func createNewContext[T ApiContextData](
+func createNewContext[T ApiPrincipalContext](
 	w http.ResponseWriter,
 	r *http.Request, reference string,
 ) *ApiRequestContext[T] {
