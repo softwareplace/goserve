@@ -57,7 +57,7 @@ func isWorking(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) 
 }
 
 func shutdown(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
-	ctx.Response(map[string]string{"message": "Application will be top in one second"}, 200)
+	ctx.Response(map[string]string{"message": "Shutting down in one second"}, 200)
 
 	go func() {
 		time.Sleep(1 * time.Second)
