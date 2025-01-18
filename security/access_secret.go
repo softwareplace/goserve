@@ -20,6 +20,27 @@ const (
 type ApiSecretKeyLoader[T api_context.ApiPrincipalContext] func(ctx *api_context.ApiRequestContext[T]) (string, error)
 
 type ApiSecretAccessHandler[T api_context.ApiPrincipalContext] interface {
+
+	// Handler is the core function of the ApiSecretAccessHandler interface that is responsible for
+	// validating API secret keys to ensure secure access to API resources.
+	//
+	// This method enforces access security by leveraging the following mechanisms:
+	//   - Validates the API key against the stored private key to confirm its authenticity.
+	//   - Handles any errors that occur during the validation process, responding with appropriate
+	//	 HTTP status codes and error messages if validation fails.
+	//
+	// The function works as follows:
+	//   1. Calls the `apiSecretKeyValidation` method to validate the API key and public/private key pair.
+	//   2. If the validation fails, invokes the `handlerErrorOrElse` method from the ApiSecurityService to handle
+	//	  the failure, typically responding with `http.StatusUnauthorized`.
+	//   3. If validation is successful, allows the request to proceed by returning `true`.
+	//
+	// Args:
+	//   - ctx (*api_context.ApiRequestContext[T]): The context of the incoming API request that carries
+	//	 all necessary information for validation, such as JWT claims and keys.
+	//
+	// Returns:
+	//   - bool: `true` if the API key is valid and access is granted; `false` otherwise.
 	Handler(ctx *api_context.ApiRequestContext[T]) bool
 }
 
