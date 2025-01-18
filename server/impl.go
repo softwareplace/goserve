@@ -3,6 +3,7 @@ package server
 import (
 	"github.com/gorilla/mux"
 	"github.com/softwareplace/http-utils/api_context"
+	"github.com/softwareplace/http-utils/error_handler"
 	"github.com/softwareplace/http-utils/security/principal"
 	"net/http"
 )
@@ -10,7 +11,8 @@ import (
 type apiRouterHandlerImpl[T api_context.ApiPrincipalContext] struct {
 	router           *mux.Router
 	principalService *principal.PService[T]
-	errorHandler     *ApiErrorHandler[T]
+	errorHandler     *error_handler.ApiErrorHandler[T]
+	loginService     *LoginService[T]
 }
 
 func (a *apiRouterHandlerImpl[T]) RegisterMiddleware(middleware ApiMiddleware[T], name string) ApiRouterHandler[T] {
@@ -25,8 +27,14 @@ func (a *apiRouterHandlerImpl[T]) RegisterMiddleware(middleware ApiMiddleware[T]
 	return a
 }
 
-func (a *apiRouterHandlerImpl[T]) WithErrorHandler(handler *ApiErrorHandler[T]) ApiRouterHandler[T] {
+func (a *apiRouterHandlerImpl[T]) WithErrorHandler(handler *error_handler.ApiErrorHandler[T]) ApiRouterHandler[T] {
 	a.errorHandler = handler
+	return a
+}
+
+func (a *apiRouterHandlerImpl[T]) WithLoginResource(loginService *LoginService[T]) ApiRouterHandler[T] {
+	a.loginService = loginService
+	a.PublicRouter(a.Login, "login", "POST")
 	return a
 }
 

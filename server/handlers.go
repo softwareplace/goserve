@@ -6,10 +6,6 @@ import (
 	"net/http"
 )
 
-type ApiErrorHandler[T api_context.ApiPrincipalContext] interface {
-	Handler(ctx *api_context.ApiRequestContext[T], err error, source string)
-}
-
 const ErrorHandlerWrapper = "ERROR/HANDLER/WRAPPER"
 
 func (a *apiRouterHandlerImpl[T]) errorHandlerWrapper(next http.Handler) http.Handler {

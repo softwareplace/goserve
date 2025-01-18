@@ -2,6 +2,7 @@ package error_handler
 
 import (
 	"fmt"
+	"github.com/softwareplace/http-utils/api_context"
 	"runtime"
 )
 
@@ -30,4 +31,8 @@ func Wrapper(err error, message string) error {
 		return fmt.Errorf("%s: %w", message, err)
 	}
 	return fmt.Errorf("%s (%s:%d): %w", message, file, line, err)
+}
+
+type ApiErrorHandler[T api_context.ApiPrincipalContext] interface {
+	Handler(ctx *api_context.ApiRequestContext[T], err error, source string)
 }

@@ -1,0 +1,40 @@
+#!/bin/bash
+
+set -e 
+
+go mod tidy
+mkdir ".temp/" || true
+
+go build -o ./.temp/runner example/main.go
+
+
+./.temp/runner  2>&1 &
+
+sleep 1
+
+response=$(curl --write-out '%{http_code}' --silent --output body.txt --location 'http://localhost:8080/server/app/v1/login' \
+--header 'Content-Type: application/json' \
+--data '{
+    "username": "my-username",
+    "password": "ynT9558iiMga&ayTVGs3Gc6ug1"
+}')
+
+if [ "$response" -eq 200 ]; then
+  echo "Login request successful (Status Code: 200)"
+  echo
+  cat body.txt | jq
+  echo
+else
+  echo "Login request failed (Status Code: $response)"
+  exit 1
+fi
+
+response=$(curl --write-out '%{http_code}'  --silent --output body.txt --location 'http://localhost:8080/server/app/v1/shutdown')
+
+if [ "$response" -eq 200 ]; then
+  echo "Shutdown request successful (Status Code: 200)"
+  cat body.txt | jq
+else
+  echo "Shutdown request failed (Status Code: $response)"
+fi
+

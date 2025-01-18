@@ -2,6 +2,7 @@ package server
 
 import (
 	"github.com/softwareplace/http-utils/api_context"
+	"github.com/softwareplace/http-utils/error_handler"
 	"github.com/softwareplace/http-utils/security/principal"
 )
 
@@ -141,7 +142,22 @@ type ApiRouterHandler[T api_context.ApiPrincipalContext] interface {
 	//
 	// Returns:
 	// - ApiRouterHandler: The router handler for chaining further route configurations.
-	WithErrorHandler(handler *ApiErrorHandler[T]) ApiRouterHandler[T]
+	WithErrorHandler(handler *error_handler.ApiErrorHandler[T]) ApiRouterHandler[T]
+
+	// WithLoginResource sets the login service for the API router and registers a public
+	// route for the login functionality. This route is accessible without requiring any
+	// authentication or additional middleware.
+	//
+	// Parameters:
+	//   - loginService: A pointer to the LoginService instance used to handle login functionality.
+	//
+	// This method internally registers a public POST endpoint at the path "/login" by linking
+	// it to the `Login` handler method. The login service defined here allows managing and
+	// validating user login flows.
+	//
+	// Returns:
+	//   ApiRouterHandler[T]: This allows chaining additional configuration or service registrations.
+	WithLoginResource(loginService *LoginService[T]) ApiRouterHandler[T]
 
 	// StartServer starts the HTTP server with the configured routes and middleware.
 	// This method blocks the current execution until the server terminates.
