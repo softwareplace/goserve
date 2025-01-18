@@ -15,13 +15,13 @@ func Handler(try func(), catch func(err any)) {
 			} else {
 				errMessage = fmt.Sprintf("panic occurred - %v", r)
 			}
-			catch(wrapError(fmt.Errorf(errMessage), "Recovered panic"))
+			catch(Wrapper(fmt.Errorf(errMessage), "Recovered panic"))
 		}
 	}()
 	try()
 }
 
-func wrapError(err error, message string) error {
+func Wrapper(err error, message string) error {
 	if err == nil {
 		return nil
 	}
