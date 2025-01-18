@@ -3,24 +3,18 @@ package principal
 import "github.com/softwareplace/http-utils/api_context"
 
 type PService[T api_context.ApiPrincipalContext] interface {
-	// GetRoles retrieves the roles assigned to the principal for the given API request context.
-	//
-	// Parameters:
-	//   - ctx: The API request context containing user information and metadata.
-	//
-	// Returns:
-	//   - A slice of strings representing the roles assigned to the principal.
-	GetRoles(ctx api_context.ApiRequestContext[T]) []string
 
-	// LoadPrincipal loads and returns the principal associated with the given API request context.
+	// LoadPrincipal loads the principal information for the given API request context.
+	// This method is responsible for extracting and validating the user or session-specific
+	// data from the incoming request, ensuring that the request is associated with a valid principal.
 	//
 	// Parameters:
-	//   - ctx: The API request context containing authentication and user-related information.
+	//   - ctx: The API request context containing the necessary metadata and headers.
 	//
 	// Returns:
-	//   - A pointer to the principal of type T if successful, or nil otherwise.
-	//   - A boolean indicating whether the operation succeeded.
-	LoadPrincipal(ctx api_context.ApiRequestContext[T]) (T, bool)
+	//   - A boolean value indicating whether the principal was successfully loaded.
+	//	 Returns true if the principal is valid and loaded successfully; otherwise, false.
+	LoadPrincipal(ctx api_context.ApiRequestContext[T]) bool
 
 	// SetAuthorizationClaims sets the authorization claims for the current service instance.
 	// These claims are used to define access control rules and permissions.
@@ -47,10 +41,4 @@ type PService[T api_context.ApiPrincipalContext] interface {
 	// Parameters:
 	//   - accessId: A string representing the Access ID.
 	SetAccessId(accessId string)
-
-	// SetData attaches context-specific data of type T to the current service instance.
-	//
-	// Parameters:
-	//   - data: The context-specific data to associate with the principal.
-	SetData(data T)
 }

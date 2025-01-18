@@ -21,7 +21,7 @@ type ApiSecretKeyLoader[T api_context.ApiPrincipalContext] func(ctx *api_context
 
 type ApiSecretAccessHandler[T api_context.ApiPrincipalContext] interface {
 
-	// Handler is the core function of the ApiSecretAccessHandler interface that is responsible for
+	// HandlerSecretAccess is the core function of the ApiSecretAccessHandler interface that is responsible for
 	// validating API secret keys to ensure secure access to API resources.
 	//
 	// This method enforces access security by leveraging the following mechanisms:
@@ -41,18 +41,30 @@ type ApiSecretAccessHandler[T api_context.ApiPrincipalContext] interface {
 	//
 	// Returns:
 	//   - bool: `true` if the API key is valid and access is granted; `false` otherwise.
-	Handler(ctx *api_context.ApiRequestContext[T]) bool
+	HandlerSecretAccess(ctx *api_context.ApiRequestContext[T]) bool
+
+	// DisableForPublicPath sets whether validation should be skipped for public API paths.
+	//
+	// This method allows configuring the API secret handler to bypass validation for requests
+	// targeting public endpoints. When enabled, security mechanisms such as API key validation
+	// may not be enforced on these paths, allowing unauthenticated access as needed.
+	//
+	// Args:
+	//   - ignore (bool): A flag indicating whether to ignore validation for public paths.
+	//	 Set to `true` to skip validation; set to `false` to enforce validation.
+	DisableForPublicPath(ignore bool) ApiSecretAccessHandler[T]
 }
 
-type apiSecurityHandlerImpl[T api_context.ApiPrincipalContext] struct {
-	secretKey        string
-	service          ApiSecurityService[T]
-	apiSecret        any
-	loader           ApiSecretKeyLoader[T]
-	principalService *principal.PService[T]
+type apiSecretHandlerImpl[T api_context.ApiPrincipalContext] struct {
+	secretKey                      string
+	service                        ApiSecurityService[T]
+	apiSecret                      any
+	loader                         ApiSecretKeyLoader[T]
+	principalService               *principal.PService[T]
+	ignoreValidationForPublicPaths bool
 }
 
-// ApiSecretAccessHandlerBuild apiSecurityHandlerImpl is an implementation of the ApiSecretAccessHandler interface which manages
+// ApiSecretAccessHandlerBuild apiSecretHandlerImpl is an implementation of the ApiSecretAccessHandler interface which manages
 // security-related operations for API requests, such as validating API keys and initializing
 // cryptographic keys. It encapsulates the logic for validating an API secret key and restricting
 // unauthorized access to resources.
@@ -74,7 +86,7 @@ func ApiSecretAccessHandlerBuild[T api_context.ApiPrincipalContext](
 	loader ApiSecretKeyLoader[T],
 	service ApiSecurityService[T],
 ) ApiSecretAccessHandler[T] {
-	handler := &apiSecurityHandlerImpl[T]{
+	handler := &apiSecretHandlerImpl[T]{
 		secretKey: secretKey,
 		service:   service,
 		loader:    loader,
@@ -83,7 +95,16 @@ func ApiSecretAccessHandlerBuild[T api_context.ApiPrincipalContext](
 	return handler
 }
 
-func (a *apiSecurityHandlerImpl[T]) Handler(ctx *api_context.ApiRequestContext[T]) bool {
+func (a *apiSecretHandlerImpl[T]) DisableForPublicPath(ignore bool) ApiSecretAccessHandler[T] {
+	a.ignoreValidationForPublicPaths = ignore
+	return a
+}
+
+func (a *apiSecretHandlerImpl[T]) HandlerSecretAccess(ctx *api_context.ApiRequestContext[T]) bool {
+	if a.ignoreValidationForPublicPaths && principal.IsPublicPath[T](*ctx) {
+		return true
+	}
+
 	if !a.apiSecretKeyValidation(ctx) {
 		a.service.handlerErrorOrElse(ctx, nil, ApiSecretAccessHandlerError, func() {
 			ctx.Error("You are not allowed to access this resource", http.StatusUnauthorized)
@@ -100,10 +121,10 @@ func (a *apiSecurityHandlerImpl[T]) Handler(ctx *api_context.ApiRequestContext[T
 // - Decodes the PEM block from the file data.
 // - Parses the private key from the PEM data using PKCS8 format.
 // - Validates the type of the private key (either ECDSA or RSA).
-// - Stores the private key in the `apiSecret` field of the `apiSecurityHandlerImpl` struct.
+// - Stores the private key in the `apiSecret` field of the `apiSecretHandlerImpl` struct.
 //
 // Logs an error and terminates the application if any of the above steps fail.
-func (a *apiSecurityHandlerImpl[T]) initAPISecretKey() {
+func (a *apiSecretHandlerImpl[T]) initAPISecretKey() {
 	// Load private key from the provided secretKey file path
 	privateKeyData, err := os.ReadFile(a.secretKey)
 	if err != nil {
@@ -156,12 +177,12 @@ func (a *apiSecurityHandlerImpl[T]) initAPISecretKey() {
 //	  bool:
 //		 - `true` if the public key is valid and corresponds to the private key.
 //		 - `false` if the public key is invalid or the validation fails.
-func (a *apiSecurityHandlerImpl[T]) apiSecretKeyValidation(ctx *api_context.ApiRequestContext[T]) bool {
+func (a *apiSecretHandlerImpl[T]) apiSecretKeyValidation(ctx *api_context.ApiRequestContext[T]) bool {
 	// Decode the Base64-encoded public key
 	claims, err := a.service.JWTClaims(*ctx)
 
 	if err != nil {
-		log.Printf("JWT/CLAIMS_EXTRACT: Authorization failed: %v", err)
+		log.Printf("JWT/CLAIMS_EXTRACT: AuthorizationHandler failed: %v", err)
 		return false
 	}
 
@@ -170,7 +191,7 @@ func (a *apiSecurityHandlerImpl[T]) apiSecretKeyValidation(ctx *api_context.ApiR
 	apiKey, err := a.service.Decrypt(claims["apiKey"].(string))
 
 	if err != nil {
-		log.Printf("JWT/CLAIMS_EXTRACT: Authorization failed: %v", err)
+		log.Printf("JWT/CLAIMS_EXTRACT: AuthorizationHandler failed: %v", err)
 		return false
 	}
 
@@ -178,14 +199,14 @@ func (a *apiSecurityHandlerImpl[T]) apiSecretKeyValidation(ctx *api_context.ApiR
 
 	apiAccessKey, err := a.loader(ctx)
 	if err != nil {
-		log.Printf("API_SECRET_LOADER: Authorization failed: %v", err)
+		log.Printf("API_SECRET_LOADER: AuthorizationHandler failed: %v", err)
 		return false
 	}
 
 	// Decode the PEM-encoded public key
 	decryptKey, err := a.service.Decrypt(apiAccessKey)
 	if err != nil {
-		log.Printf("API_SECRET_DECRYPT: Authorization failed: %v", err)
+		log.Printf("API_SECRET_DECRYPT: AuthorizationHandler failed: %v", err)
 		return false
 	}
 	block, _ := pem.Decode([]byte(decryptKey))

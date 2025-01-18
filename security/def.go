@@ -36,7 +36,7 @@ type ApiSecurityService[T api_context.ApiPrincipalContext] interface {
 
 	// ExtractJWTClaims validates and extracts the JWT claims from the API request context.
 	//
-	// This function processes the JWT token provided in the `Authorization` header of the request.
+	// This function processes the JWT token provided in the `AuthorizationHandler` header of the request.
 	// It performs the following steps:
 	// 1. Parses the JWT token using the configured `Secret` to verify the signature.
 	// 2. Extracts claims from the validated token and sets them in the API context if valid.
@@ -46,7 +46,7 @@ type ApiSecurityService[T api_context.ApiPrincipalContext] interface {
 	// it logs the error and sends an appropriate HTTP error response to the client.
 	//
 	// Parameters:
-	// - ctx: The API request context containing the `Authorization` JWT token.
+	// - ctx: The API request context containing the `AuthorizationHandler` JWT token.
 	//
 	// Returns:
 	// - bool: True if JWT claims are successfully extracted and valid; False otherwise.
@@ -139,28 +139,22 @@ type ApiSecurityService[T api_context.ApiPrincipalContext] interface {
 	//   and not exposed in logs or error messages.
 	Decrypt(encrypted string) (string, error)
 
-	// Validation apiSecurityServiceImpl handles API security by providing methods for
-	// working with JSON Web Tokens (JWT) such as validation, claim extraction,
-	// and token generation.
+	// Validation validates the incoming API request by performing the following steps:
+	// 1. Extracts and verifies the JWT claims from the request's authorization header using ExtractJWTClaims.
+	// 2. If JWT claim extraction fails, it invokes the error handler or responds with an authorization error.
+	// 3. Loads and validates the principal (user or session-specific context) by invoking the provided loadPrincipal function.
+	// 4. If loading the principal fails, it invokes the error handler or responds with an authorization error.
 	//
-	// This PService ensures secure mechanisms for API authorization and maintains
-	// strict validation and processing of JWT tokens using the `jwt-go` library.
-	// All cryptographic operations like encryption and decryption are implemented
-	// via the Encrypt and Decrypt methods.
+	// Parameters:
+	// - ctx: The API request context containing the request and response objects.
+	// - loadPrincipal: A function that loads and validates the principal based on the request context.
 	//
-	// Key Responsibilities:
-	// - Validates JWT tokens for API requests and ensures proper claims extraction.
-	// - Generates JWT tokens with custom claims and lifespan.
-	// - Handles token signature validation using a configured secret.
-	// - Ensures secure access control to the APIs.
-	//
-	// Notes:
-	// - Proper error handling and logging are implemented for fault tolerance.
-	// - Secret rotation policies and encryption standards should be followed.
-	// - Always ensure sensitive information is never exposed in logs or error messages.
-	Validation(ctx api_context.ApiRequestContext[T], loadPrincipal func(ctx api_context.ApiRequestContext[T]) (T, bool)) (*T, bool)
+	// Returns:
+	// - A boolean indicating whether the validation was successful. True if both JWT claims extraction
+	//   and principal loading succeed, false otherwise.
+	Validation(ctx api_context.ApiRequestContext[T], loadPrincipal func(ctx api_context.ApiRequestContext[T]) bool) bool
 
-	// Handler
+	// AuthorizationHandler
 	// This method is invoked to handle API requests and manage security validation processes.
 	// It determines whether the request can proceed further (doNext) based on:
 	// 1. Whether the request is made to a public path.
@@ -180,7 +174,7 @@ type ApiSecurityService[T api_context.ApiPrincipalContext] interface {
 	// - This function leverages methods like Validation and IsPublicPath to make security decisions.
 	// - Ensure that all sensitive operations and data are securely processed.
 	// - Public paths bypass validation by default, so it's critical to properly define such paths to avoid security issues.
-	Handler(ctx *api_context.ApiRequestContext[T]) (doNext bool)
+	AuthorizationHandler(ctx *api_context.ApiRequestContext[T]) (doNext bool)
 
 	handlerErrorOrElse(
 		ctx *api_context.ApiRequestContext[T],
@@ -219,10 +213,9 @@ func ApiSecurityServiceBuild[T api_context.ApiPrincipalContext](
 	}
 }
 
-func (a *apiSecurityServiceImpl[T]) Handler(ctx *api_context.ApiRequestContext[T]) (doNext bool) {
+func (a *apiSecurityServiceImpl[T]) AuthorizationHandler(ctx *api_context.ApiRequestContext[T]) (doNext bool) {
 	if principal.IsPublicPath[T](*ctx) {
 		return true
 	}
-	_, success := a.Validation(*ctx, (*a.PService).LoadPrincipal)
-	return success
+	return a.Validation(*ctx, (*a.PService).LoadPrincipal)
 }

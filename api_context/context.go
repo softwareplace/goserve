@@ -10,7 +10,7 @@ import (
 const (
 	apiAccessContextKey = "apiAccessContext"
 	XApiKey             = "X-Api-Key"
-	Authorization       = "Authorization"
+	Authorization       = "AuthorizationHandler"
 )
 
 type ApiPrincipalContext interface {

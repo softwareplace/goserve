@@ -29,9 +29,11 @@ func main() {
 		securityService,
 	)
 
+	secretHandler.DisableForPublicPath(true)
+
 	server.Default().
-		RegisterMiddleware(secretHandler.Handler, security.ApiSecretAccessHandlerName).
-		RegisterMiddleware(securityService.Handler, security.ApiSecurityHandlerName).
+		RegisterMiddleware(secretHandler.HandlerSecretAccess, security.ApiSecretAccessHandlerName).
+		RegisterMiddleware(securityService.AuthorizationHandler, security.ApiSecurityHandlerName).
 		PublicRouter(isWorking, "test", "GET").
 		Get(isWorkingV2, "test/v2", "GET", "test:v2").
 		WithErrorHandler(&errorHandler).
