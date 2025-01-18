@@ -10,10 +10,6 @@ import (
 	"strings"
 )
 
-const (
-	SampleEncryptKey = "hM73zhLE78tzoBAeENp0ACuy"
-)
-
 func Encrypt(value string, secret []byte) (string, error) {
 	block, err := aes.NewCipher(secret)
 	if err != nil {

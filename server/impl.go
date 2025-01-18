@@ -30,7 +30,7 @@ func (a *apiRouterHandlerImpl[T]) WithErrorHandler(handler *ApiErrorHandler[T]) 
 	return a
 }
 
-func New[T api_context.ApiPrincipalContext](topMiddlewares ...ApiMiddleware[T]) ApiRouterHandler[T] {
+func CreateApiRouter[T api_context.ApiPrincipalContext](topMiddlewares ...ApiMiddleware[T]) ApiRouterHandler[T] {
 	router := mux.NewRouter()
 	router.Use(rootAppMiddleware[T])
 
@@ -54,7 +54,7 @@ func (a *apiRouterHandlerImpl[T]) WithPrincipalService(service *principal.PServi
 	return a
 }
 
-func NewApiWith[T api_context.ApiPrincipalContext](router *mux.Router) ApiRouterHandler[T] {
+func CreateApiRouterWith[T api_context.ApiPrincipalContext](router *mux.Router) ApiRouterHandler[T] {
 	router.Use(rootAppMiddleware[T])
 	api := &apiRouterHandlerImpl[T]{
 		router: router,

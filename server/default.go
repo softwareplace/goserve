@@ -5,5 +5,5 @@ import (
 )
 
 func Default(topMiddlewares ...ApiMiddleware[*api_context.DefaultContext]) ApiRouterHandler[*api_context.DefaultContext] {
-	return New[*api_context.DefaultContext](topMiddlewares...)
+	return CreateApiRouter[*api_context.DefaultContext](topMiddlewares...)
 }
