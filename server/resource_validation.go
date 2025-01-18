@@ -10,9 +10,12 @@ func HasResourceAccess[T api_context.ApiContextData](next http.Handler) http.Han
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := api_context.Of[T](w, r, "SECURITY/VALIDATOR/RESOURCE_ACCESS")
 
-		resourceAccessRight := validator.HasResourceAccessRight[T](*ctx)
-		isPublicPath := validator.IsPublicPath[T](*ctx)
-		if isPublicPath || resourceAccessRight {
+		if validator.IsPublicPath[T](*ctx) {
+			ctx.Next(next)
+			return
+		}
+
+		if validator.HasResourceAccessRight[T](*ctx) {
 			ctx.Next(next)
 			return
 		}
