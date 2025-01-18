@@ -17,9 +17,6 @@ func HasResourceAccess[T api_context.ApiContextData](next http.Handler) http.Han
 
 		if validator.HasResourceAccessRight[T](*ctx) {
 			ctx.Next(next)
-			return
 		}
-
-		ctx.Error("Access denied", http.StatusForbidden)
 	})
 }
