@@ -8,25 +8,9 @@ import (
 type PrincipalServiceImpl struct {
 }
 
-func (d *PrincipalServiceImpl) LoadPrincipal(ctx api_context.ApiRequestContext[*api_context.DefaultContext]) bool {
+func (d *PrincipalServiceImpl) LoadPrincipal(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) bool {
 	ctx.Principal = &api_context.DefaultContext{}
 	return true
-}
-
-func (d *PrincipalServiceImpl) SetAuthorizationClaims(map[string]interface{}) {
-
-}
-
-func (d *PrincipalServiceImpl) SetApiKeyClaims(map[string]interface{}) {
-
-}
-
-func (d *PrincipalServiceImpl) SetApiKeyId(string) {
-
-}
-
-func (d *PrincipalServiceImpl) SetAccessId(string) {
-
 }
 
 type ErrorHandlerImpl struct {

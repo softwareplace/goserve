@@ -56,8 +56,8 @@ func main() {
 		RegisterMiddleware(secretHandler.HandlerSecretAccess, security.ApiSecretAccessHandlerName).
 		RegisterMiddleware(securityService.AuthorizationHandler, security.ApiSecurityHandlerName).
 		WithLoginResource(&loginService).
-		PublicRouter(isWorking, "example", "GET").
-		Get(isWorkingV2, "example/v2", "GET", "example:v2").
+		PublicRouter(isWorking, "test", "GET").
+		Get(isWorkingV2, "test/v2", "api:example:admin").
 		WithErrorHandler(&errorHandler).
 		StartServer()
 }

@@ -179,14 +179,14 @@ func (a *apiSecretHandlerImpl[T]) initAPISecretKey() {
 //		 - `false` if the public key is invalid or the validation fails.
 func (a *apiSecretHandlerImpl[T]) apiSecretKeyValidation(ctx *api_context.ApiRequestContext[T]) bool {
 	// Decode the Base64-encoded public key
-	claims, err := a.service.JWTClaims(*ctx)
+	claims, err := a.service.JWTClaims(ctx)
 
 	if err != nil {
 		log.Printf("JWT/CLAIMS_EXTRACT: AuthorizationHandler failed: %v", err)
 		return false
 	}
 
-	(*a.principalService).SetApiKeyClaims(claims)
+	ctx.ApiKeyClaims = claims
 
 	apiKey, err := a.service.Decrypt(claims["apiKey"].(string))
 
@@ -195,7 +195,7 @@ func (a *apiSecretHandlerImpl[T]) apiSecretKeyValidation(ctx *api_context.ApiReq
 		return false
 	}
 
-	(*a.principalService).SetApiKeyId(apiKey)
+	ctx.ApiKeyId = apiKey
 
 	apiAccessKey, err := a.loader(ctx)
 	if err != nil {

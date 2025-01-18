@@ -22,24 +22,13 @@ type ApiJWTInfo struct {
 	Expiration time.Duration //
 }
 
-func (a *apiSecurityServiceImpl[T]) Validation(
-	ctx api_context.ApiRequestContext[T],
-	loadPrincipal func(ctx api_context.ApiRequestContext[T]) bool,
+func (a *apiSecurityServiceImpl[T]) Principal(
+	ctx *api_context.ApiRequestContext[T],
 ) bool {
-	success := a.ExtractJWTClaims(ctx)
+	success := (*a.PService).LoadPrincipal(ctx)
 
 	if !success {
-		a.handlerErrorOrElse(&ctx, nil, JWTLoadPrincipalError, func() {
-			ctx.Error("AuthorizationHandler failed", http.StatusForbidden)
-		})
-
-		return success
-	}
-
-	success = loadPrincipal(ctx)
-
-	if !success {
-		a.handlerErrorOrElse(&ctx, nil, JWTLoadPrincipalError, func() {
+		a.handlerErrorOrElse(ctx, nil, JWTLoadPrincipalError, func() {
 			ctx.Error("AuthorizationHandler failed", http.StatusForbidden)
 		})
 
@@ -49,7 +38,7 @@ func (a *apiSecurityServiceImpl[T]) Validation(
 	return success
 }
 
-func (a *apiSecurityServiceImpl[T]) ExtractJWTClaims(ctx api_context.ApiRequestContext[T]) bool {
+func (a *apiSecurityServiceImpl[T]) ExtractJWTClaims(ctx *api_context.ApiRequestContext[T]) bool {
 
 	token, err := jwt.Parse(ctx.Authorization, func(token *jwt.Token) (interface{}, error) {
 		return a.Secret(), nil
@@ -61,33 +50,33 @@ func (a *apiSecurityServiceImpl[T]) ExtractJWTClaims(ctx api_context.ApiRequestC
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		(*a.PService).SetAuthorizationClaims(claims)
+		ctx.AuthorizationClaims = claims
 
 		requester, err := a.Decrypt(claims["request"].(string))
 
 		if err != nil {
 			log.Printf("%s: AuthorizationHandler failed: %v", JWTExtractClaimsError, err)
-			a.handlerErrorOrElse(&ctx, err, JWTExtractClaimsError, func() {
+			a.handlerErrorOrElse(ctx, err, JWTExtractClaimsError, func() {
 				ctx.Error("AuthorizationHandler failed", http.StatusForbidden)
 			})
 			return false
 		}
 
-		(*a.PService).SetAccessId(requester)
+		ctx.AccessId = requester
 
 		return true
 	}
 
 	log.Printf("JWT/CLAIMS_EXTRACT: failed with error_handler: %v", err)
 
-	a.handlerErrorOrElse(&ctx, err, JWTExtractClaimsError, func() {
+	a.handlerErrorOrElse(ctx, err, JWTExtractClaimsError, func() {
 		ctx.Error("AuthorizationHandler failed", http.StatusForbidden)
 	})
 
 	return false
 }
 
-func (a *apiSecurityServiceImpl[T]) JWTClaims(ctx api_context.ApiRequestContext[T]) (map[string]interface{}, error) {
+func (a *apiSecurityServiceImpl[T]) JWTClaims(ctx *api_context.ApiRequestContext[T]) (map[string]interface{}, error) {
 	token, err := jwt.Parse(ctx.ApiKey, func(token *jwt.Token) (interface{}, error) {
 		return a.Secret(), nil
 	})
