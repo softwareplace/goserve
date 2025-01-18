@@ -5,7 +5,7 @@ import (
 	"runtime"
 )
 
-func Handler(try func(), catch func(err any)) {
+func Handler(try func(), catch func(err error)) {
 	defer func() {
 		if r := recover(); r != nil {
 			_, file, line, ok := runtime.Caller(2) // Adjust caller depth to log where the error originates

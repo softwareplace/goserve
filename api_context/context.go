@@ -76,13 +76,6 @@ type ApiRequestContext[T ApiContextData] struct {
 	Authorization string
 	RequestData   T
 	sessionId     string
-
-	// AccessRolesLoader is a function pointer that allows dynamic loading
-	// of roles that have access to specific API functionalities.
-	//
-	// This can be used for implementing role-based access control dynamically.
-	// The function, if provided, is expected to return a slice of strings representing the roles.
-	AccessRolesLoader *func(ApiRequestContext[T]) []string
 }
 
 // Of retrieves the ApiRequestContext object from the request's context if it already exists.

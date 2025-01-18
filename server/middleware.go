@@ -28,10 +28,10 @@ func rootAppMiddleware[T api_context.ApiContextData](next http.Handler) http.Han
 				duration,
 			)
 
-			error_handler.Handler(ctx.Flush, func(err any) {
+			error_handler.Handler(ctx.Flush, func(err error) {
 				log.Printf("[%s]:: Error flushing response: %v", ctx.GetSessionId(), err)
 			})
-		}, func(err any) {
+		}, func(err error) {
 			onError(err, w)
 		})
 	})

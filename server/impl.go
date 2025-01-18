@@ -1,49 +1,64 @@
 package server
 
 import (
+	"github.com/gorilla/mux"
 	"github.com/softwareplace/http-utils/api_context"
-	"github.com/softwareplace/http-utils/security/validator"
+	"github.com/softwareplace/http-utils/security/principal"
 	"net/http"
 )
 
-func (a *apiRouterHandlerImpl[T]) PublicRouter(handler ApiContextHandler[T], path string, method string) {
-	a.Add(handler, path, method)
-	validator.AddOpenPath(method + "::" + ContextPath + path)
+type apiRouterHandlerImpl[T api_context.ApiContextData] struct {
+	router           *mux.Router
+	principalService *principal.PService[T]
+	errorHandler     *ApiErrorHandler[T]
 }
 
-func (a *apiRouterHandlerImpl[T]) Add(handler ApiContextHandler[T], path string, method string, requiredRoles ...string) {
-	a.router.HandleFunc(ContextPath+path, func(writer http.ResponseWriter, req *http.Request) {
-		ctx := api_context.Of[T](writer, req, "ROUTER/HANDLER")
-		handler(ctx)
-	}).Methods(method)
-
-	validator.AddRoles(method+"::"+ContextPath+path, requiredRoles...)
+func (a *apiRouterHandlerImpl[T]) Use(middleware ApiMiddleware[T], name string) ApiRouterHandler[T] {
+	a.router.Use(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx := api_context.Of[T](w, r, name)
+			if middleware(ctx) {
+				ctx.Next(next)
+			}
+		})
+	})
+	return a
 }
 
-func (a *apiRouterHandlerImpl[T]) Get(handler ApiContextHandler[T], path string, requiredRoles ...string) {
-	a.Add(handler, path, "GET", requiredRoles...)
+func (a *apiRouterHandlerImpl[T]) WithErrorHandler(handler *ApiErrorHandler[T]) ApiRouterHandler[T] {
+	a.errorHandler = handler
+	return a
 }
 
-func (a *apiRouterHandlerImpl[T]) Post(handler ApiContextHandler[T], path string, requiredRoles ...string) {
-	a.Add(handler, path, "POST", requiredRoles...)
+func New[T api_context.ApiContextData](topMiddlewares ...ApiMiddleware[T]) ApiRouterHandler[T] {
+	router := mux.NewRouter()
+	router.Use(rootAppMiddleware[T])
+
+	api := &apiRouterHandlerImpl[T]{
+		router: router,
+	}
+
+	router.Use(api.errorHandlerWrapper)
+
+	for _, middleware := range topMiddlewares {
+		api.Use(middleware, "")
+	}
+	return api
 }
 
-func (a *apiRouterHandlerImpl[T]) Put(handler ApiContextHandler[T], path string, requiredRoles ...string) {
-	a.Add(handler, path, "PUT", requiredRoles...)
+func (a *apiRouterHandlerImpl[T]) WithPrincipalService(service *principal.PService[T]) ApiRouterHandler[T] {
+	a.principalService = service
+	if a.principalService != nil {
+		a.router.Use(a.hasResourceAccess)
+	}
+	return a
 }
 
-func (a *apiRouterHandlerImpl[T]) Delete(handler ApiContextHandler[T], path string, requiredRoles ...string) {
-	a.Add(handler, path, "DELETE", requiredRoles...)
-}
+func NewApiWith[T api_context.ApiContextData](router *mux.Router) ApiRouterHandler[T] {
+	router.Use(rootAppMiddleware[T])
+	api := &apiRouterHandlerImpl[T]{
+		router: router,
+	}
 
-func (a *apiRouterHandlerImpl[T]) Patch(handler ApiContextHandler[T], path string, requiredRoles ...string) {
-	a.Add(handler, path, "PATCH", requiredRoles...)
-}
-
-func (a *apiRouterHandlerImpl[T]) Options(handler ApiContextHandler[T], path string, requiredRoles ...string) {
-	a.Add(handler, path, "OPTIONS", requiredRoles...)
-}
-
-func (a *apiRouterHandlerImpl[T]) Head(handler ApiContextHandler[T], path string, requiredRoles ...string) {
-	a.Add(handler, path, "HEAD", requiredRoles...)
+	return api
 }

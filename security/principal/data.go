@@ -1,36 +1,10 @@
-package validator
+package principal
 
 import (
 	"github.com/softwareplace/http-utils/api_context"
 	"regexp"
 	"strings"
 )
-
-// HasResourceAccessRight checks if the user has the necessary roles to access the requested resource.
-// It compares the roles assigned to the user with those required for the resource's path.
-// If the path does not require any roles, the function returns true.
-//
-// Parameters:
-//
-//	ctx - The API request context containing user roles and request metadata.
-//
-// Returns:
-//
-//	bool - True if the user has the required roles or if the path does not require roles, false otherwise.
-func HasResourceAccessRight[T api_context.ApiContextData](ctx api_context.ApiRequestContext[T]) bool {
-	userRoles := (*ctx.AccessRolesLoader)(ctx)
-	requiredRoles, isRoleRequired := GetRolesForPath(ctx)
-
-	for _, requiredRole := range requiredRoles {
-		for _, userRole := range userRoles {
-			if requiredRole == userRole {
-				return true
-			}
-		}
-	}
-
-	return !isRoleRequired
-}
 
 // GetRolesForPath retrieves the roles associated with a request path.
 //
