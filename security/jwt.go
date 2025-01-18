@@ -15,6 +15,13 @@ const (
 	JWTExtractClaimsError = "JWT/EXTRACT_CLAIMS_ERROR"
 )
 
+type ApiJWTInfo struct {
+	Client string
+	Key    string
+	// Expiration in hours
+	Expiration time.Duration //
+}
+
 func (a *apiSecurityServiceImpl[T]) Validation(ctx api_context.ApiRequestContext[T], loadPrincipal func(ctx api_context.ApiRequestContext[T]) (T, bool)) (*T, bool) {
 	success := a.ExtractJWTClaims(ctx)
 

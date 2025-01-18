@@ -160,21 +160,34 @@ type ApiSecurityService[T api_context.ApiPrincipalContext] interface {
 	// - Always ensure sensitive information is never exposed in logs or error messages.
 	Validation(ctx api_context.ApiRequestContext[T], loadPrincipal func(ctx api_context.ApiRequestContext[T]) (T, bool)) (*T, bool)
 
+	// Handler
+	// This method is invoked to handle API requests and manage security validation processes.
+	// It determines whether the request can proceed further (doNext) based on:
+	// 1. Whether the request is made to a public path.
+	// 2. The success of the JWT token validation process, which involves:
+	//   - Principal extraction.
+	//   - Validation of token claims.
+	//   - Ensuring proper API authorization.
+	//
+	// Parameters:
+	// - ctx: The ApiRequestContext containing the context information for the API request.
+	//
+	// Returns:
+	// - `true` (doNext) if the request is allowed to continue processing.
+	// - `false` if the request fails validation or is unauthorized.
+	//
+	// Notes:
+	// - This function leverages methods like Validation and IsPublicPath to make security decisions.
+	// - Ensure that all sensitive operations and data are securely processed.
+	// - Public paths bypass validation by default, so it's critical to properly define such paths to avoid security issues.
+	Handler(ctx *api_context.ApiRequestContext[T]) (doNext bool)
+
 	handlerErrorOrElse(
 		ctx *api_context.ApiRequestContext[T],
 		error error,
 		executionContext string,
 		handlerNotFound func(),
 	)
-
-	Handler(ctx *api_context.ApiRequestContext[T]) (doNext bool)
-}
-
-type ApiJWTInfo struct {
-	Client string
-	Key    string
-	// Expiration in hours
-	Expiration time.Duration //
 }
 
 type apiSecurityServiceImpl[T api_context.ApiPrincipalContext] struct {

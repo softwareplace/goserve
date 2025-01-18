@@ -133,6 +133,14 @@ type ApiRouterHandler[T api_context.ApiPrincipalContext] interface {
 	// - ApiRouterHandler: The router handler for chaining further route configurations.
 	WithPrincipalService(service *principal.PService[T]) ApiRouterHandler[T]
 
+	// WithErrorHandler assigns a custom error handler to the router.
+	// This handler is used to process API errors and provide appropriate responses.
+	//
+	// Parameters:
+	// - handler: An instance of ApiErrorHandler that defines custom error-handling logic.
+	//
+	// Returns:
+	// - ApiRouterHandler: The router handler for chaining further route configurations.
 	WithErrorHandler(handler *ApiErrorHandler[T]) ApiRouterHandler[T]
 
 	// StartServer starts the HTTP server with the configured routes and middleware.
