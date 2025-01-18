@@ -10,31 +10,38 @@ go build -o ./.temp/runner example/main.go
 
 ./.temp/runner  2>&1 &
 
-sleep 1
+EXIT_CODE=0
 
-response=$(curl --write-out '%{http_code}' --silent --output ./.temp/login.json --location 'http://localhost:8080/server/app/v1/login' \
---header 'Content-Type: application/json' \
---data '{
-    "username": "my-username",
-    "password": "ynT9558iiMga&ayTVGs3Gc6ug1"
-}')
+validate() {
+  expectedCode="$1"
+  sleep 1
 
-if [ "$response" -eq 200 ]; then
-  echo "Login request successful (Status Code: 200)"
-  echo
-  cat ./.temp/login.json | jq
-  echo
-else
-  echo "Login request failed (Status Code: $response)"
-  exit 1
-fi
+  response=$(curl --write-out '%{http_code}' --silent --output ./.temp/request-$expectedCode.json --location 'http://localhost:8080/server/app/v1/login' \
+  --header 'Content-Type: application/json' \
+  --data '{
+      "username": "my-username",
+      "password": "ynT9558iiMga&ayTVGs3Gc6ug1"
+  }')
 
-response=$(curl --write-out '%{http_code}'  --silent --output ./.temp/shutdown.json --location 'http://localhost:8080/server/app/v1/shutdown')
+  if [ "$response" -eq $expectedCode ]; then
+    echo
+    echo "Request successful (Status Code: $expectedCode)"
+    echo
+    cat ./.temp/request-"$expectedCode".json | jq || true
+    echo
+  else
+    echo "Request failed (Status Code: $response)"
+    EXIT_CODE=1
+  fi
+  # Kill any process running on port 8080
+  kill -9 $(lsof -t -i:8080) 2>/dev/null || true
+}
 
-if [ "$response" -eq 200 ]; then
-  echo "Shutdown request successful (Status Code: 200)"
-  cat ./.temp/shutdown.json | jq
-else
-  echo "Shutdown request failed (Status Code: $response)"
-fi
 
+validate 200
+
+./.temp/runner --d false 2>&1 &
+
+validate 401
+
+exit $EXIT_CODE

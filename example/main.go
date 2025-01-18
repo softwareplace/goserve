@@ -7,11 +7,13 @@ import (
 	"github.com/softwareplace/http-utils/security"
 	"github.com/softwareplace/http-utils/security/principal"
 	"github.com/softwareplace/http-utils/server"
+	"log"
 	"os"
 	"time"
 )
 
 func main() {
+
 	var service principal.PService[*api_context.DefaultContext]
 	service = &impl.PrincipalServiceImpl{}
 
@@ -35,14 +37,26 @@ func main() {
 
 	secretHandler.DisableForPublicPath(true)
 
+	for _, arg := range os.Args {
+		if arg == "--d" || arg == "-d" {
+			log.Println("Setting public path requires access with api secret key.")
+			secretHandler.DisableForPublicPath(false)
+		}
+	}
+
 	loginService := impl.New(securityService)
+
+	go func() {
+		log.Println("Application will be shut down in 5 seconds.")
+		time.Sleep(5 * time.Second)
+		os.Exit(0)
+	}()
 
 	server.Default().
 		RegisterMiddleware(secretHandler.HandlerSecretAccess, security.ApiSecretAccessHandlerName).
 		RegisterMiddleware(securityService.AuthorizationHandler, security.ApiSecurityHandlerName).
 		WithLoginResource(&loginService).
 		PublicRouter(isWorking, "example", "GET").
-		PublicRouter(shutdown, "shutdown", "GET").
 		Get(isWorkingV2, "example/v2", "GET", "example:v2").
 		WithErrorHandler(&errorHandler).
 		StartServer()
@@ -54,13 +68,4 @@ func isWorkingV2(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]
 
 func isWorking(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
 	ctx.Response(map[string]string{"message": "It's working"}, 200)
-}
-
-func shutdown(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
-	ctx.Response(map[string]string{"message": "Shutting down in one second"}, 200)
-
-	go func() {
-		time.Sleep(1 * time.Second)
-		os.Exit(0)
-	}()
 }
