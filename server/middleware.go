@@ -17,8 +17,12 @@ func rootAppMiddleware[T api_context.ApiPrincipalContext](next http.Handler) htt
 		error_handler.Handler(func() {
 			start := time.Now() // Record the start time
 			ctx = api_context.Of[T](w, r, "MIDDLEWARE/ROOT_APP")
+			queryParam := ""
+			if r.URL.RawQuery != "" {
+				queryParam = "?" + r.URL.RawQuery
+			}
 
-			log.Printf("[%s]:: Incoming request: %s %s from %s", ctx.GetSessionId(), r.Method, r.URL.Path, r.RemoteAddr)
+			log.Printf("[%s]:: Incoming request: %s %s from %s", ctx.GetSessionId(), r.Method, r.URL.Path+queryParam, r.RemoteAddr)
 
 			ctx.Next(next)
 
@@ -27,7 +31,7 @@ func rootAppMiddleware[T api_context.ApiPrincipalContext](next http.Handler) htt
 			log.Printf("[%s]:: => request processed: %s %s in %v",
 				ctx.GetSessionId(),
 				r.Method,
-				r.URL.Path,
+				r.URL.Path+queryParam,
 				duration,
 			)
 
