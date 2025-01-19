@@ -25,7 +25,7 @@ func (a *apiRouterHandlerImpl[T]) Login(ctx *api_context.ApiRequestContext[T]) {
 
 func (a *apiRouterHandlerImpl[T]) loginDataHandler(ctx *api_context.ApiRequestContext[T], loginEntryData LoginEntryData) {
 
-	loginService := *a.loginService
+	loginService := a.loginService
 	decrypt, err := loginService.SecurityService().Decrypt(loginEntryData.Password)
 	if err != nil {
 		log.Printf("LOGIN/DECRYPT: Failed to decrypt password: %v", err)

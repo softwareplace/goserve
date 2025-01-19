@@ -27,7 +27,7 @@ func (a *apiRouterHandlerImpl[T]) hasResourceAccess(next http.Handler) http.Hand
 		}
 
 		if a.errorHandler != nil {
-			(*a.errorHandler).Handler(ctx, nil, SecurityValidatorResourceAccess)
+			a.errorHandler.Handler(ctx, nil, SecurityValidatorResourceAccess)
 		}
 	})
 }

@@ -15,7 +15,7 @@ func (a *apiRouterHandlerImpl[T]) errorHandlerWrapper(next http.Handler) http.Ha
 			ctx.Next(next)
 		}, func(err error) {
 			if a.errorHandler != nil {
-				(*a.errorHandler).Handler(ctx, err, ErrorHandlerWrapper)
+				a.errorHandler.Handler(ctx, err, ErrorHandlerWrapper)
 			} else {
 				ctx.Error("Failed to handle the request", http.StatusInternalServerError)
 			}
