@@ -12,15 +12,18 @@ import (
 // rootAppMiddleware logs each incoming request's method, path, and remote address
 func rootAppMiddleware[T api_context.ApiPrincipalContext](next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var ctx *api_context.ApiRequestContext[T]
+
 		error_handler.Handler(func() {
 			start := time.Now() // Record the start time
-			ctx := api_context.Of[T](w, r, "MIDDLEWARE/ROOT_APP")
+			ctx = api_context.Of[T](w, r, "MIDDLEWARE/ROOT_APP")
 
 			log.Printf("[%s]:: Incoming request: %s %s from %s", ctx.GetSessionId(), r.Method, r.URL.Path, r.RemoteAddr)
 
 			ctx.Next(next)
 
 			duration := time.Since(start)
+
 			log.Printf("[%s]:: => request processed: %s %s in %v",
 				ctx.GetSessionId(),
 				r.Method,
@@ -28,12 +31,16 @@ func rootAppMiddleware[T api_context.ApiPrincipalContext](next http.Handler) htt
 				duration,
 			)
 
-			error_handler.Handler(ctx.Flush, func(err error) {
-				log.Printf("[%s]:: Error flushing response: %v", ctx.GetSessionId(), err)
-			})
 		}, func(err error) {
 			onError(err, w)
 		})
+
+		defer func() {
+			error_handler.Handler(ctx.Flush, func(err error) {
+				log.Printf("Error flushing context: %v", err)
+			})
+			ctx = nil
+		}()
 	})
 }
 

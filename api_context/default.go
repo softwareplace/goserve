@@ -4,6 +4,10 @@ type DefaultContext struct {
 	roles []string
 }
 
+func NewDefaultCtx() *DefaultContext {
+	return &DefaultContext{}
+}
+
 func (d *DefaultContext) GetSalt() string {
 	return "081162586c7f4f77b877fbca0f09cb7f"
 }

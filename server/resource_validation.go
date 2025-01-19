@@ -45,7 +45,7 @@ func (a *apiRouterHandlerImpl[T]) hasResourceAccess(next http.Handler) http.Hand
 //	bool - True if the user has the required roles or if the path does not require roles, false otherwise.
 func (a *apiRouterHandlerImpl[T]) hasResourceAccessRight(ctx api_context.ApiRequestContext[T]) bool {
 	requiredRoles, isRoleRequired := principal.GetRolesForPath(ctx)
-	userRoles := ctx.Principal.GetRoles()
+	userRoles := (*ctx.Principal).GetRoles()
 
 	if userRoles == nil || len(userRoles) == 0 {
 		log.Printf("Error: User roles are nil. Required roles: %v\n", requiredRoles)

@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	apiAccessContextKey = "apiAccessContext"
+	ApiAccessContextKey = "apiAccessContext"
 	XApiKey             = "X-Api-Key"
 	Authorization       = "Authorization"
 )
@@ -24,7 +24,7 @@ type ApiRequestContext[T ApiPrincipalContext] struct {
 	ApiKey              string                 // The API key extracted from the HTTP request header. This is used to identify and authenticate the client making the API request.
 	ApiKeyId            string                 // The unique identifier associated with the API key used in the request. Helps in tracking and logging API key usage.
 	Authorization       string                 // The bearer token or other authorization token extracted from the HTTP request header. Used to authenticate the user of the API.
-	Principal           T                      // The principal context containing user or session-specific data, representing the authenticated entity in the request.
+	Principal           *T                     // The principal context containing user or session-specific data, representing the authenticated entity in the request.
 	sessionId           string                 // A unique identifier for the current API session. Used to track the lifecycle of requests in a session.
 	AuthorizationClaims map[string]interface{} // A set of claims derived from the authorization token, providing additional metadata about the requester (e.g., roles, permissions, expiration).
 	ApiKeyClaims        map[string]interface{} // A set of claims derived from the API key, detailing metadata associated with the key (e.g., usage limits, allowed resources).
@@ -56,7 +56,7 @@ type ApiRequestContext[T ApiPrincipalContext] struct {
 //	ctx := Of[MyContextData](w, r, "MyReference")
 //	ctx.GetSessionId() // Access session id
 func Of[T ApiPrincipalContext](w http.ResponseWriter, r *http.Request, reference string) *ApiRequestContext[T] {
-	currentContext := r.Context().Value(apiAccessContextKey)
+	currentContext := r.Context().Value(ApiAccessContextKey)
 
 	if currentContext != nil {
 		ctx := currentContext.(*ApiRequestContext[T])
@@ -67,9 +67,33 @@ func Of[T ApiPrincipalContext](w http.ResponseWriter, r *http.Request, reference
 	return createNewContext[T](w, r, reference)
 }
 
+// Flush clears all the fields in the ApiRequestContext, effectively resetting
+// the context to its default state. This can be useful to prevent accidental
+// reuse of sensitive data or to prepare for cleanup at the end of a request.
+//
+// This function clears sensitive information such as API key, authorization
+// tokens, claims, and other metadata. It also nils out the Writer and Request
+// pointers to avoid accidental usage after the flush.
+//
+// Usage Example:
+//
+//	ctx := Of[MyPrincipalContext](w, r, "ExampleReference")
+//	// Process request here...
+//	ctx.Flush() // Reset the context to its default state for cleanup.
 func (ctx *ApiRequestContext[T]) Flush() {
+	apiRequestContext := context.WithValue(ctx.Request.Context(), ApiAccessContextKey, nil)
+	ctx.Request = ctx.Request.WithContext(apiRequestContext)
+
 	ctx.Writer = nil
 	ctx.Request = nil
+	ctx.AuthorizationClaims = nil
+	ctx.ApiKeyClaims = nil
+	ctx.Authorization = ""
+	ctx.ApiKeyId = ""
+	ctx.ApiKey = ""
+	ctx.sessionId = ""
+	ctx.AccessId = ""
+	ctx.Principal = nil
 }
 
 func createNewContext[T ApiPrincipalContext](
@@ -91,7 +115,7 @@ func createNewContext[T ApiPrincipalContext](
 }
 
 func (ctx *ApiRequestContext[T]) updateContext(r *http.Request) {
-	apiRequestContext := context.WithValue(ctx.Request.Context(), apiAccessContextKey, ctx)
+	apiRequestContext := context.WithValue(ctx.Request.Context(), ApiAccessContextKey, ctx)
 	ctx.Request = r.WithContext(apiRequestContext)
 }
 

@@ -9,7 +9,8 @@ type PrincipalServiceImpl struct {
 }
 
 func (d *PrincipalServiceImpl) LoadPrincipal(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) bool {
-	ctx.Principal = &api_context.DefaultContext{}
+	context := api_context.NewDefaultCtx()
+	ctx.Principal = &context
 	return true
 }
 
