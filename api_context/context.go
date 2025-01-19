@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	ApiAccessContextKey = "apiAccessContext"
+	apiAccessContextKey = "apiAccessContext"
 	XApiKey             = "X-Api-Key"
 	Authorization       = "Authorization"
 )
@@ -56,7 +56,7 @@ type ApiRequestContext[T ApiPrincipalContext] struct {
 //	ctx := Of[MyContextData](w, r, "MyReference")
 //	ctx.GetSessionId() // Access session id
 func Of[T ApiPrincipalContext](w http.ResponseWriter, r *http.Request, reference string) *ApiRequestContext[T] {
-	currentContext := r.Context().Value(ApiAccessContextKey)
+	currentContext := r.Context().Value(apiAccessContextKey)
 
 	if currentContext != nil {
 		ctx := currentContext.(*ApiRequestContext[T])
@@ -81,7 +81,7 @@ func Of[T ApiPrincipalContext](w http.ResponseWriter, r *http.Request, reference
 //	// Process request here...
 //	ctx.Flush() // Reset the context to its default state for cleanup.
 func (ctx *ApiRequestContext[T]) Flush() {
-	apiRequestContext := context.WithValue(ctx.Request.Context(), ApiAccessContextKey, nil)
+	apiRequestContext := context.WithValue(ctx.Request.Context(), apiAccessContextKey, nil)
 	ctx.Request = ctx.Request.WithContext(apiRequestContext)
 
 	ctx.Writer = nil
@@ -115,7 +115,7 @@ func createNewContext[T ApiPrincipalContext](
 }
 
 func (ctx *ApiRequestContext[T]) updateContext(r *http.Request) {
-	apiRequestContext := context.WithValue(ctx.Request.Context(), ApiAccessContextKey, ctx)
+	apiRequestContext := context.WithValue(ctx.Request.Context(), apiAccessContextKey, ctx)
 	ctx.Request = r.WithContext(apiRequestContext)
 }
 
