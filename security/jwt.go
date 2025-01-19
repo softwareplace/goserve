@@ -25,7 +25,7 @@ type ApiJWTInfo struct {
 func (a *apiSecurityServiceImpl[T]) Principal(
 	ctx *api_context.ApiRequestContext[T],
 ) bool {
-	success := (*a.PService).LoadPrincipal(ctx)
+	success := a.PService.LoadPrincipal(ctx)
 
 	if !success {
 		a.handlerErrorOrElse(ctx, nil, JWTLoadPrincipalError, func() {

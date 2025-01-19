@@ -190,8 +190,8 @@ type ApiSecurityService[T api_context.ApiPrincipalContext] interface {
 
 type apiSecurityServiceImpl[T api_context.ApiPrincipalContext] struct {
 	ApiSecretAuthorization string
-	ErrorHandler           *error_handler.ApiErrorHandler[T]
-	PService               *principal.PService[T]
+	ErrorHandler           error_handler.ApiErrorHandler[T]
+	PService               principal.PService[T]
 }
 
 func (a *apiSecurityServiceImpl[T]) handlerErrorOrElse(
@@ -201,7 +201,7 @@ func (a *apiSecurityServiceImpl[T]) handlerErrorOrElse(
 	handlerNotFound func(),
 ) {
 	if a.ErrorHandler != nil {
-		(*a.ErrorHandler).Handler(ctx, error, executionContext)
+		a.ErrorHandler.Handler(ctx, error, executionContext)
 	} else {
 		handlerNotFound()
 	}
@@ -209,7 +209,7 @@ func (a *apiSecurityServiceImpl[T]) handlerErrorOrElse(
 
 func ApiSecurityServiceBuild[T api_context.ApiPrincipalContext](
 	apiSecretAuthorization string,
-	service *principal.PService[T],
+	service principal.PService[T],
 ) ApiSecurityService[T] {
 	return &apiSecurityServiceImpl[T]{
 		ApiSecretAuthorization: apiSecretAuthorization,

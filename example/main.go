@@ -67,7 +67,7 @@ func main() {
 
 	securityService := security.ApiSecurityServiceBuild(
 		"ue1pUOtCGaYS7Z1DLJ80nFtZ",
-		&service,
+		service,
 	)
 
 	secretProvider := &secretProviderImpl{}
