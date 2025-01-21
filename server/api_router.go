@@ -4,6 +4,7 @@ import (
 	"github.com/softwareplace/http-utils/api_context"
 	"github.com/softwareplace/http-utils/error_handler"
 	"github.com/softwareplace/http-utils/security/principal"
+	"net/http"
 )
 
 type ApiContextHandler[T api_context.ApiPrincipalContext] func(ctx *api_context.ApiRequestContext[T])
@@ -123,6 +124,31 @@ type ApiRouterHandler[T api_context.ApiPrincipalContext] interface {
 	// Returns:
 	// - ApiRouterHandler: The router handler for chaining further route configurations.
 	RegisterMiddleware(middleware ApiMiddleware[T], name string) ApiRouterHandler[T]
+
+	// RegisterCustomMiddleware is a method that allows for registering a custom middleware function
+	// with the API router. This function wraps an HTTP handler and can be used to implement custom
+	// functionality, such as modifying the request or response, logging, or adding additional
+	// security checks.
+	//
+	// Parameters:
+	// - next: The next HTTP handler in the middleware chain. It represents the subsequent middleware
+	//		 or the final handler that should be invoked after the custom middleware logic.
+	//
+	// Example usage:
+	// ```go
+	// router := NewApiRouter()
+	// router.RegisterCustomMiddleware(func(next http.Handler) http.Handler {
+	//	 return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	//		 // Custom middleware logic here
+	//		 log.Println("Before handler")
+	//		 next.ServeHTTP(w, r) // Call the next handler
+	//		 log.Println("After handler")
+	//	 })
+	// })
+	// ```
+	//
+	// This method does not return any value and directly modifies the middleware chain for the API router.
+	RegisterCustomMiddleware(func(next http.Handler) http.Handler) ApiRouterHandler[T]
 
 	// WithPrincipalService assigns a principal service to the router.
 	// This service provides role-based access control and other principal-related features.

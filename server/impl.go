@@ -27,6 +27,11 @@ func (a *apiRouterHandlerImpl[T]) RegisterMiddleware(middleware ApiMiddleware[T]
 	return a
 }
 
+func (a *apiRouterHandlerImpl[T]) RegisterCustomMiddleware(middleware func(next http.Handler) http.Handler) ApiRouterHandler[T] {
+	a.router.Use(middleware)
+	return a
+}
+
 func (a *apiRouterHandlerImpl[T]) WithErrorHandler(handler error_handler.ApiErrorHandler[T]) ApiRouterHandler[T] {
 	a.errorHandler = handler
 	return a
