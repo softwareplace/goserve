@@ -1,6 +1,7 @@
 package server
 
 import (
+	"github.com/gorilla/mux"
 	"github.com/softwareplace/http-utils/api_context"
 	"github.com/softwareplace/http-utils/error_handler"
 	"github.com/softwareplace/http-utils/security/principal"
@@ -184,6 +185,20 @@ type ApiRouterHandler[T api_context.ApiPrincipalContext] interface {
 	// Returns:
 	//   ApiRouterHandler[T]: This allows chaining additional configuration or service registrations.
 	WithLoginResource(loginService LoginService[T]) ApiRouterHandler[T]
+
+	// Router retrieves the underlying *mux.Router instance.
+	// This method provides direct access to the Gorilla Mux router, allowing you to add custom
+	// routes, middleware, or additional configurations that are not covered by the ApiRouterHandler methods.
+	//
+	// Returns:
+	// - *mux.Router: The Gorilla Mux router instance.
+	//
+	// Example usage:
+	// ```go
+	// routerHandler := apiRouter.Router()
+	// routerHandler.HandleFunc("/custom-path", customHandlerFunction)
+	// ```
+	Router() *mux.Router
 
 	// StartServer starts the HTTP server with the configured routes and middleware.
 	// This method blocks the current execution until the server terminates.
