@@ -222,6 +222,31 @@ type ApiRouterHandler[T api_context.ApiPrincipalContext] interface {
 	// implementation into the existing API router configuration pipeline.
 	RouterHandler(handler RouterHandler) ApiRouterHandler[T]
 
+	// EmbeddedServer allows embedding of an HTTP server within the application and enables
+	// configuration of API routes, middleware, and other server settings through a handler function.
+	//
+	// Parameters:
+	// - handler: A function that accepts an ApiRouterHandler[T] and is used to configure the
+	//			server's routes, middleware, and other features. This provides a flexible way
+	//			to set up the server before starting it.
+	//
+	// Returns:
+	// - ApiRouterHandler[T]: The configured API router handler, allowing further chaining of
+	//						configurations after embedding the server.
+	//
+	// Example usage:
+	// ```go
+	// apiRouter := api.EmbeddedServer(func(router api.ApiRouterHandler[T]) {
+	//	 router.Get(myHandlerFunc, "/example-path")
+	//	 router.Post(anotherHandlerFunc, "/post-path", "admin")
+	// })
+	// apiRouter.StartServer()
+	// ```
+	//
+	// This can be used to create self-contained server setups for microservices, testing, or
+	// other embedded server use cases.
+	EmbeddedServer(handler func(ApiRouterHandler[T])) ApiRouterHandler[T]
+
 	// StartServer starts the HTTP server with the configured routes and middleware.
 	// This method blocks the current execution until the server terminates.
 	StartServer()

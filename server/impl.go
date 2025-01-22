@@ -84,3 +84,8 @@ func (a *apiRouterHandlerImpl[T]) RouterHandler(handler RouterHandler) ApiRouter
 	handler(a.router)
 	return a
 }
+
+func (a *apiRouterHandlerImpl[T]) EmbeddedServer(handler func(ApiRouterHandler[T])) ApiRouterHandler[T] {
+	handler(a)
+	return a
+}
