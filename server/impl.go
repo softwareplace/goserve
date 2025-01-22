@@ -79,3 +79,8 @@ func CreateApiRouterWith[T api_context.ApiPrincipalContext](router mux.Router) A
 func (a *apiRouterHandlerImpl[T]) Router() *mux.Router {
 	return a.router
 }
+
+func (a *apiRouterHandlerImpl[T]) RouterHandler(handler RouterHandler) ApiRouterHandler[T] {
+	handler(a.router)
+	return a
+}

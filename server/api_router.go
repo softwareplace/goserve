@@ -12,6 +12,8 @@ type ApiContextHandler[T api_context.ApiPrincipalContext] func(ctx *api_context.
 
 type ApiMiddleware[T api_context.ApiPrincipalContext] func(*api_context.ApiRequestContext[T]) (doNext bool)
 
+type RouterHandler func(*mux.Router)
+
 type ApiRouterHandler[T api_context.ApiPrincipalContext] interface {
 	// PublicRouter registers a public route handler that does not require authentication or authorization.
 	// It allows unrestricted access from any client.
@@ -199,6 +201,26 @@ type ApiRouterHandler[T api_context.ApiPrincipalContext] interface {
 	// routerHandler.HandleFunc("/custom-path", customHandlerFunction)
 	// ```
 	Router() *mux.Router
+
+	// RouterHandler assigns a custom RouterHandler interface to the API router.
+	// This can be used to provide advanced or application-specific routing logic,
+	// allowing greater flexibility in handling requests.
+	//
+	// Parameters:
+	// - handler: The custom RouterHandler instance to use for routing logic.
+	//
+	// Returns:
+	// - ApiRouterHandler: The router handler for chaining further route configurations.
+	//
+	// Example usage:
+	// ```go
+	// customHandler := NewCustomRouterHandler()
+	// apiRouter.RouterHandler(customHandler)
+	// ```
+	//
+	// This method provides a mechanism to integrate a custom router handler
+	// implementation into the existing API router configuration pipeline.
+	RouterHandler(handler RouterHandler) ApiRouterHandler[T]
 
 	// StartServer starts the HTTP server with the configured routes and middleware.
 	// This method blocks the current execution until the server terminates.
