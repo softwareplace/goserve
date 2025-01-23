@@ -24,11 +24,6 @@ func ApiRequestHandler(service service.Service, handler server.ApiRouterHandler[
 	}
 }
 
-// GetDocV1 operation middleware
-func (siw *_serverInterfaceDoc) GetDocV1(w http.ResponseWriter, r *http.Request) {
-
-}
-
 // PostLogin operation middleware
 func (siw *_serverInterfaceDoc) PostLogin(w http.ResponseWriter, r *http.Request) {
 
