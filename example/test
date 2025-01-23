@@ -7,6 +7,7 @@ mkdir ".temp/" || true
 
 go build -o ./.temp/runner example/main.go
 
+export CONTEXT_PATH="/api/example/v1/"
 
 ./.temp/runner  2>&1 &
 
@@ -16,7 +17,7 @@ validate() {
   expectedCode="$1"
   sleep 1
 
-  response=$(curl --write-out '%{http_code}' --silent --output ./.temp/request-$expectedCode.json --location 'http://localhost:8080/server/app/v1/login' \
+  response=$(curl --write-out '%{http_code}' --silent --output ./.temp/request-$expectedCode.json --location 'http://localhost:8080/api/example/v1/login' \
   --header 'Content-Type: application/json' \
   --data '{
       "username": "my-username",
@@ -40,8 +41,12 @@ validate() {
 
 validate 200
 
-./.temp/runner --d false 2>&1 &
 
-validate 401
 
+if [ "$EXIT_CODE" -ne 1 ]; then
+  ./.temp/runner --d false 2>&1 &
+  validate 401
+fi
+
+unset CONTEXT_PATH
 exit $EXIT_CODE

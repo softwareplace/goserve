@@ -3,11 +3,15 @@ package main
 import (
 	"github.com/softwareplace/http-utils/api_context"
 	"github.com/softwareplace/http-utils/error_handler"
+	"github.com/softwareplace/http-utils/example/gen"
+	"github.com/softwareplace/http-utils/example/pkg/domain"
+	"github.com/softwareplace/http-utils/example/pkg/service"
 	"github.com/softwareplace/http-utils/security"
 	"github.com/softwareplace/http-utils/security/principal"
 	"github.com/softwareplace/http-utils/server"
 	"log"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -39,6 +43,11 @@ type principalServiceImpl struct {
 }
 
 func (d *principalServiceImpl) LoadPrincipal(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) bool {
+	if ctx.Authorization == "" {
+		return false
+
+	}
+
 	context := api_context.NewDefaultCtx()
 	ctx.Principal = &context
 	return true
@@ -59,15 +68,15 @@ func (p *errorHandlerImpl) Handler(ctx *api_context.ApiRequestContext[*api_conte
 
 func main() {
 
-	var service principal.PService[*api_context.DefaultContext]
-	service = &principalServiceImpl{}
+	var userPrincipalService principal.PService[*api_context.DefaultContext]
+	userPrincipalService = &principalServiceImpl{}
 
 	var errorHandler error_handler.ApiErrorHandler[*api_context.DefaultContext]
 	errorHandler = &errorHandlerImpl{}
 
 	securityService := security.ApiSecurityServiceBuild(
 		"ue1pUOtCGaYS7Z1DLJ80nFtZ",
-		service,
+		userPrincipalService,
 	)
 
 	secretProvider := &secretProviderImpl{}
@@ -91,26 +100,20 @@ func main() {
 		securityService: securityService,
 	}
 
-	go func() {
-		log.Println("Application will be shut down in 5 seconds.")
-		time.Sleep(5 * time.Second)
-		os.Exit(0)
-	}()
-
 	server.Default().
+		SetupSwagger(gen.GetSwagger).
+		EmbeddedServer(embeddedHandler()).
 		RegisterMiddleware(secretHandler.HandlerSecretAccess, security.ApiSecretAccessHandlerName).
 		RegisterMiddleware(securityService.AuthorizationHandler, security.ApiSecurityHandlerName).
 		WithLoginResource(loginService).
-		PublicRouter(isWorking, "test", "GET").
-		Get(isWorkingV2, "test/v2", "api:example:admin").
 		WithErrorHandler(errorHandler).
 		StartServer()
 }
 
-func isWorkingV2(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
-	ctx.Response(map[string]string{"message": "It's working"}, 200)
-}
-
-func isWorking(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
-	ctx.Response(map[string]string{"message": "It's working"}, 200)
+func embeddedHandler() func(handler server.ApiRouterHandler[*api_context.DefaultContext]) {
+	return func(handler server.ApiRouterHandler[*api_context.DefaultContext]) {
+		var contextPath = strings.TrimSuffix(server.ContextPath, "/")
+		requestHandler := domain.ApiRequestHandler(service.NewService(), handler)
+		gen.HandlerFromMuxWithBaseURL(requestHandler, handler.Router(), contextPath)
+	}
 }

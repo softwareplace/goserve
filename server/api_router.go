@@ -1,6 +1,7 @@
 package server
 
 import (
+	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/gorilla/mux"
 	"github.com/softwareplace/http-utils/api_context"
 	"github.com/softwareplace/http-utils/error_handler"
@@ -246,6 +247,26 @@ type ApiRouterHandler[T api_context.ApiPrincipalContext] interface {
 	// This can be used to create self-contained server setups for microservices, testing, or
 	// other embedded server use cases.
 	EmbeddedServer(handler func(ApiRouterHandler[T])) ApiRouterHandler[T]
+
+	// SetupSwagger sets up the Swagger UI and handles serving the
+	// Swagger JSON documentation. It accepts a function to retrieve
+	// the OpenAPI 3.0 specification.
+	//
+	// Parameters:
+	//   - getSwagger: A function that returns the Swagger specification
+	//	 (*openapi3.T) or an error if the specification cannot be loaded.
+	//
+	// Behavior:
+	//   - The function retrieves the Swagger specification using getSwagger.
+	//   - If retrieving the specification fails, it writes the error to
+	//	 standard error and terminates the program.
+	//   - Removes any server information from the Swagger specification to
+	//	 prevent exposing unnecessary details.
+	//   - Configures an HTTP handler to serve Swagger UI documentation.
+	//   - Registers the Swagger UI handler under the "swagger/" path and
+	//	 provides an endpoint for serving the raw Swagger JSON located at
+	//	 "doc" using the context path configured.
+	SetupSwagger(getSwagger func() (swagger *openapi3.T, err error)) ApiRouterHandler[T]
 
 	// StartServer starts the HTTP server with the configured routes and middleware.
 	// This method blocks the current execution until the server terminates.

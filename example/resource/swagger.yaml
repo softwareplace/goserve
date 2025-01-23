@@ -1,0 +1,167 @@
+openapi: 3.0.3
+info:
+  title: HTTP-UTILS - Custom Gorilla Mux API
+  description: Example API running with a custom Gorilla Mux implementation.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080/app/example/v1/
+    description: Local development server
+
+security:
+  - ApiSecretKey: [ ]
+  - BearerAuth: [ ]
+  - OAuth2: [ ]
+
+components:
+  securitySchemes:
+    ApiSecretKey:
+      type: apiKey
+      in: header
+      name: X-API-KEY
+
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+    OAuth2:
+      type: oauth2
+      flows:
+        password:
+          tokenUrl: http://172.17.0.1:8080
+          scopes:
+            "api:example:admin": Access test/v2 resource
+  schemas:
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+      required:
+        - username
+        - password
+    BaseResponse:
+      type: object
+      properties:
+        timestamp:
+          type: integer
+        message:
+          type: string
+        success:
+          type: boolean
+        code:
+          type: integer
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        expires:
+          type: integer
+          example: 900
+
+paths:
+  /login:
+    post:
+      tags:
+        - Authorization
+      summary: Authentication endpoint
+      description: Authenticate a user and respond with an access token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BaseResponse"
+
+  /doc/v1:
+    get:
+      tags:
+        - Doc
+      summary: Public endpoint
+      description: Test if the public route is working.
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BaseResponse"
+  /test:
+    get:
+      tags:
+        - Test
+      summary: Public endpoint
+      description: Test if the public route is working.
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "It's working"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BaseResponse"
+  /test/v2:
+    get:
+      tags:
+        - Test
+      summary: Secured endpoint
+      description: Test if the secured route is working. Requires the role `api:example:admin`.
+      security:
+        - OAuth2:
+            - api:example:admin
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "It's working"
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BaseResponse"
+        '403':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BaseResponse"
