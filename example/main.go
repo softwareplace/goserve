@@ -63,54 +63,6 @@ func (p *errorHandlerImpl) Handler(ctx *api_context.ApiRequestContext[*api_conte
 	}
 }
 
-func main() {
-
-	var userPrincipalService principal.PService[*api_context.DefaultContext]
-	userPrincipalService = &principalServiceImpl{}
-
-	var errorHandler error_handler.ApiErrorHandler[*api_context.DefaultContext]
-	errorHandler = &errorHandlerImpl{}
-
-	securityService := security.ApiSecurityServiceBuild(
-		"ue1pUOtCGaYS7Z1DLJ80nFtZ",
-		userPrincipalService,
-	)
-
-	secretProvider := &secretProviderImpl{}
-
-	secretHandler := security.ApiSecretAccessHandlerBuild(
-		"./example/secret/private.key",
-		secretProvider,
-		securityService,
-	)
-
-	secretHandler.DisableForPublicPath(true)
-
-	for _, arg := range os.Args {
-		if arg == "--d" || arg == "-d" {
-			log.Println("Setting public path requires access with api secret key.")
-			secretHandler.DisableForPublicPath(false)
-		}
-	}
-
-	loginService := &loginServiceImpl{
-		securityService: securityService,
-	}
-
-	server.Default().
-		WithLoginResource(loginService).
-		EmbeddedServer(embeddedHandler()).
-		RegisterMiddleware(secretHandler.HandlerSecretAccess, security.ApiSecretAccessHandlerName).
-		RegisterMiddleware(securityService.AuthorizationHandler, security.ApiSecurityHandlerName).
-		WithErrorHandler(errorHandler).
-		StartServer()
-}
-
-type Service interface {
-	IsWorkingV2() gen.BaseResponse
-	IsWorking() gen.BaseResponse
-}
-
 type _service struct {
 }
 
@@ -154,4 +106,47 @@ func embeddedHandler() func(handler server.ApiRouterHandler[*api_context.Default
 	return func(handler server.ApiRouterHandler[*api_context.DefaultContext]) {
 		gen.ResourcesHandler(handler, &_service{})
 	}
+}
+
+func main() {
+
+	var userPrincipalService principal.PService[*api_context.DefaultContext]
+	userPrincipalService = &principalServiceImpl{}
+
+	var errorHandler error_handler.ApiErrorHandler[*api_context.DefaultContext]
+	errorHandler = &errorHandlerImpl{}
+
+	securityService := security.ApiSecurityServiceBuild(
+		"ue1pUOtCGaYS7Z1DLJ80nFtZ",
+		userPrincipalService,
+	)
+
+	secretProvider := &secretProviderImpl{}
+
+	secretHandler := security.ApiSecretAccessHandlerBuild(
+		"./example/secret/private.key",
+		secretProvider,
+		securityService,
+	)
+
+	secretHandler.DisableForPublicPath(true)
+
+	for _, arg := range os.Args {
+		if arg == "--d" || arg == "-d" {
+			log.Println("Setting public path requires access with api secret key.")
+			secretHandler.DisableForPublicPath(false)
+		}
+	}
+
+	loginService := &loginServiceImpl{
+		securityService: securityService,
+	}
+
+	server.Default().
+		WithLoginResource(loginService).
+		EmbeddedServer(embeddedHandler()).
+		RegisterMiddleware(secretHandler.HandlerSecretAccess, security.ApiSecretAccessHandlerName).
+		RegisterMiddleware(securityService.AuthorizationHandler, security.ApiSecurityHandlerName).
+		WithErrorHandler(errorHandler).
+		StartServer()
 }
