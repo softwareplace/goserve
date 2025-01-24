@@ -6,22 +6,19 @@ package gen
 import (
 	"bytes"
 	"compress/gzip"
-	"context"
 	"encoding/base64"
 	"fmt"
-	"net/http"
 	"net/url"
 	"path"
 	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
-	"github.com/gorilla/mux"
+	"github.com/softwareplace/http-utils/api_context"
+	"github.com/softwareplace/http-utils/server"
 )
 
 const (
-	ApiSecretKeyScopes = "ApiSecretKey.Scopes"
-	BearerAuthScopes   = "BearerAuth.Scopes"
-	OAuth2Scopes       = "OAuth2.Scopes"
+	OAuth2Scopes = "OAuth2.Scopes"
 )
 
 // BaseResponse defines model for BaseResponse.
@@ -44,88 +41,26 @@ type LoginResponse struct {
 	Token   *string `json:"token,omitempty"`
 }
 
+// GetTestV2Params defines parameters for GetTestV2.
+type GetTestV2Params struct {
+	// Authorization jwt
+	Authorization string `json:"Authorization"`
+}
+
 // PostLoginJSONRequestBody defines body for PostLogin for application/json ContentType.
 type PostLoginJSONRequestBody = LoginRequest
 
-// ServerInterface represents all server handlers.
-type ServerInterface interface {
+// ServerInterface represents all server handlers represents all server handlers..
+type ServerInterface[T api_context.ApiPrincipalContext] interface {
 	// Authentication endpoint
 	// (POST /login)
-	PostLogin(w http.ResponseWriter, r *http.Request)
+	PostLogin(ctx *api_context.ApiRequestContext[T])
 	// Public endpoint
 	// (GET /test)
-	GetTest(w http.ResponseWriter, r *http.Request)
+	GetTest(ctx *api_context.ApiRequestContext[T])
 	// Secured endpoint
 	// (GET /test/v2)
-	GetTestV2(w http.ResponseWriter, r *http.Request)
-}
-
-// ServerInterfaceWrapper converts contexts to parameters.
-type ServerInterfaceWrapper struct {
-	Handler            ServerInterface
-	HandlerMiddlewares []MiddlewareFunc
-	ErrorHandlerFunc   func(w http.ResponseWriter, r *http.Request, err error)
-}
-
-type MiddlewareFunc func(http.Handler) http.Handler
-
-// PostLogin operation middleware
-func (siw *ServerInterfaceWrapper) PostLogin(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, ApiSecretKeyScopes, []string{})
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	ctx = context.WithValue(ctx, OAuth2Scopes, []string{})
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.PostLogin(w, r)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r.WithContext(ctx))
-}
-
-// GetTest operation middleware
-func (siw *ServerInterfaceWrapper) GetTest(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, ApiSecretKeyScopes, []string{})
-
-	ctx = context.WithValue(ctx, BearerAuthScopes, []string{})
-
-	ctx = context.WithValue(ctx, OAuth2Scopes, []string{})
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetTest(w, r)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r.WithContext(ctx))
-}
-
-// GetTestV2 operation middleware
-func (siw *ServerInterfaceWrapper) GetTestV2(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	ctx = context.WithValue(ctx, OAuth2Scopes, []string{"api:example:admin"})
-
-	handler := http.Handler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		siw.Handler.GetTestV2(w, r)
-	}))
-
-	for _, middleware := range siw.HandlerMiddlewares {
-		handler = middleware(handler)
-	}
-
-	handler.ServeHTTP(w, r.WithContext(ctx))
+	GetTestV2(ctx *api_context.ApiRequestContext[T])
 }
 
 type UnescapedCookieParamError struct {
@@ -197,77 +132,57 @@ func (e *TooManyValuesForParamError) Error() string {
 	return fmt.Sprintf("Expected one value for %s, got %d", e.ParamName, e.Count)
 }
 
-// Handler creates http.Handler with routing matching OpenAPI spec.
-func Handler(si ServerInterface) http.Handler {
-	return HandlerWithOptions(si, GorillaServerOptions{})
-}
+//PostLogin operation middleware test execution
+//GetTest operation middleware test execution
+//GetTestV2 operation middleware test execution
 
-type GorillaServerOptions struct {
-	BaseURL          string
-	BaseRouter       *mux.Router
-	Middlewares      []MiddlewareFunc
-	ErrorHandlerFunc func(w http.ResponseWriter, r *http.Request, err error)
-}
+// ResourcesHandler registers API endpoints and sets up the Swagger documentation.
+//
+// This function takes an instance of `ApiRouterHandler` and `ServerInterface`,
+// and configures the following:
+// - Sets up Swagger documentation using the provided `GetSwagger` function.
+// - PostLogin
+// - GetTest
+// - GetTestV2
+// Parameters:
+//   - apiServer: The API router handler used for setting up routes and middleware.
+//   - server: The server interface implementation containing the endpoint handlers.
+//
+// Generics:
+//   - T: A type that satisfies the `ApiPrincipalContext` interface, representing the principal/context
+//     involved in the API operations.
+func ResourcesHandler[T api_context.ApiPrincipalContext](apiServer server.ApiRouterHandler[T], server ServerInterface[T]) {
+	apiServer.SetupSwagger(GetSwagger)
 
-// HandlerFromMux creates http.Handler with routing matching OpenAPI spec based on the provided mux.
-func HandlerFromMux(si ServerInterface, r *mux.Router) http.Handler {
-	return HandlerWithOptions(si, GorillaServerOptions{
-		BaseRouter: r,
-	})
-}
+	apiServer.Add(server.PostLogin, "/login", "POST", []string{}...)
 
-func HandlerFromMuxWithBaseURL(si ServerInterface, r *mux.Router, baseURL string) http.Handler {
-	return HandlerWithOptions(si, GorillaServerOptions{
-		BaseURL:    baseURL,
-		BaseRouter: r,
-	})
-}
+	apiServer.Add(server.GetTest, "/test", "GET", []string{}...)
 
-// HandlerWithOptions creates http.Handler with additional options
-func HandlerWithOptions(si ServerInterface, options GorillaServerOptions) http.Handler {
-	r := options.BaseRouter
+	apiServer.Add(server.GetTestV2, "/test/v2", "GET", []string{"api:example:admin", "api:example:admin:v2"}...)
 
-	if r == nil {
-		r = mux.NewRouter()
-	}
-	if options.ErrorHandlerFunc == nil {
-		options.ErrorHandlerFunc = func(w http.ResponseWriter, r *http.Request, err error) {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-		}
-	}
-	wrapper := ServerInterfaceWrapper{
-		Handler:            si,
-		HandlerMiddlewares: options.Middlewares,
-		ErrorHandlerFunc:   options.ErrorHandlerFunc,
-	}
-
-	r.HandleFunc(options.BaseURL+"/login", wrapper.PostLogin).Methods("POST")
-
-	r.HandleFunc(options.BaseURL+"/test", wrapper.GetTest).Methods("GET")
-
-	r.HandleFunc(options.BaseURL+"/test/v2", wrapper.GetTestV2).Methods("GET")
-
-	return r
 }
 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

@@ -17,6 +17,11 @@ var (
 func AddOpenPath(path string) {
 	openPathLock.Lock()
 	defer openPathLock.Unlock()
+	for _, existingPath := range openPaths {
+		if existingPath == path {
+			return
+		}
+	}
 	openPaths = append(openPaths, path)
 }
 

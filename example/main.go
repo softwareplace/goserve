@@ -4,14 +4,11 @@ import (
 	"github.com/softwareplace/http-utils/api_context"
 	"github.com/softwareplace/http-utils/error_handler"
 	"github.com/softwareplace/http-utils/example/gen"
-	"github.com/softwareplace/http-utils/example/pkg/domain"
-	"github.com/softwareplace/http-utils/example/pkg/service"
 	"github.com/softwareplace/http-utils/security"
 	"github.com/softwareplace/http-utils/security/principal"
 	"github.com/softwareplace/http-utils/server"
 	"log"
 	"os"
-	"strings"
 	"time"
 )
 
@@ -101,19 +98,60 @@ func main() {
 	}
 
 	server.Default().
-		SetupSwagger(gen.GetSwagger).
+		WithLoginResource(loginService).
 		EmbeddedServer(embeddedHandler()).
 		RegisterMiddleware(secretHandler.HandlerSecretAccess, security.ApiSecretAccessHandlerName).
 		RegisterMiddleware(securityService.AuthorizationHandler, security.ApiSecurityHandlerName).
-		WithLoginResource(loginService).
 		WithErrorHandler(errorHandler).
 		StartServer()
 }
 
+type Service interface {
+	IsWorkingV2() gen.BaseResponse
+	IsWorking() gen.BaseResponse
+}
+
+type _service struct {
+}
+
+func (s *_service) PostLogin(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+
+}
+
+func (s *_service) GetTest(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+	message := "It's working"
+	code := 200
+	success := true
+	timestamp := 1625867200
+
+	response := gen.BaseResponse{
+		Message:   &message,
+		Code:      &code,
+		Success:   &success,
+		Timestamp: &timestamp,
+	}
+
+	ctx.Response(response, 200)
+}
+
+func (s *_service) GetTestV2(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+	message := "Test v2 it's working"
+	code := 200
+	success := true
+	timestamp := 1625867200
+
+	response := gen.BaseResponse{
+		Message:   &message,
+		Code:      &code,
+		Success:   &success,
+		Timestamp: &timestamp,
+	}
+
+	ctx.Response(response, 200)
+}
+
 func embeddedHandler() func(handler server.ApiRouterHandler[*api_context.DefaultContext]) {
 	return func(handler server.ApiRouterHandler[*api_context.DefaultContext]) {
-		var contextPath = strings.TrimSuffix(server.ContextPath, "/")
-		requestHandler := domain.ApiRequestHandler(service.NewService(), handler)
-		gen.HandlerFromMuxWithBaseURL(requestHandler, handler.Router(), contextPath)
+		gen.ResourcesHandler(handler, &_service{})
 	}
 }

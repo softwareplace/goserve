@@ -4,6 +4,6 @@ generate:
   gorilla-server: true
   models: true
   embedded-spec: true
-output: ./gen/api.gen.go
+output: ./example/gen/api.gen.go
 #compatibility:
 #  apply-gorilla-middleware-first-to-last: true

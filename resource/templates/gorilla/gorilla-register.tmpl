@@ -1,0 +1,21 @@
+// ResourcesHandler registers API endpoints and sets up the Swagger documentation.
+//
+// This function takes an instance of `ApiRouterHandler` and `ServerInterface`,
+// and configures the following:
+// - Sets up Swagger documentation using the provided `GetSwagger` function.
+{{range .}}// - {{.OperationId}}
+{{end}}// Parameters:
+//   - apiServer: The API router handler used for setting up routes and middleware.
+//   - server: The server interface implementation containing the endpoint handlers.
+//
+// Generics:
+//   - T: A type that satisfies the `ApiPrincipalContext` interface, representing the principal/context
+//		involved in the API operations.
+func ResourcesHandler[T api_context.ApiPrincipalContext](apiServer server.ApiRouterHandler[T], server ServerInterface[T])  {
+apiServer.SetupSwagger(GetSwagger)
+{{range .}}
+apiServer.Add(server.{{.OperationId}}, "{{.Path | swaggerUriToGorillaUri }}", "{{.Method }}", {{range .SecurityDefinitions}}{{toStringArray .Scopes}}...{{end}})
+{{end}}
+}
+
+

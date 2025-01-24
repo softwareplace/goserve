@@ -30,7 +30,6 @@ require (
 	github.com/swaggo/swag v1.16.4 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	golang.org/x/net v0.34.0 // indirect
-	golang.org/x/sys v0.29.0 // indirect
 	golang.org/x/tools v0.29.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

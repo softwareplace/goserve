@@ -1,0 +1,7 @@
+// ServerInterface represents all server handlers represents all server handlers..
+type ServerInterface[T api_context.ApiPrincipalContext] interface {
+{{range .}}{{.SummaryAsComment }}
+// ({{.Method}} {{.Path}})
+{{.OperationId}}(ctx *api_context.ApiRequestContext[T])
+{{end}}
+}
