@@ -19,66 +19,66 @@ go get -u github.com/softwareplace/http-utils
 package main
 
 import (
-   "github.com/softwareplace/http-utils/api_context"
-   "github.com/softwareplace/http-utils/error_handler"
-   "github.com/softwareplace/http-utils/example/gen"
-   "github.com/softwareplace/http-utils/security"
-   "github.com/softwareplace/http-utils/security/principal"
-   "github.com/softwareplace/http-utils/server"
-   "log"
-   "os"
-   "time"
+	"github.com/softwareplace/http-utils/api_context"
+	"github.com/softwareplace/http-utils/error_handler"
+	"github.com/softwareplace/http-utils/example/gen"
+	"github.com/softwareplace/http-utils/security"
+	"github.com/softwareplace/http-utils/security/principal"
+	"github.com/softwareplace/http-utils/server"
+	"log"
+	"os"
+	"time"
 )
 
 type loginServiceImpl struct {
-   securityService security.ApiSecurityService[*api_context.DefaultContext]
+	securityService security.ApiSecurityService[*api_context.DefaultContext]
 }
 
 func (l *loginServiceImpl) SecurityService() security.ApiSecurityService[*api_context.DefaultContext] {
-   return l.securityService
+	return l.securityService
 }
 
 func (l *loginServiceImpl) Login(user server.LoginEntryData) (*api_context.DefaultContext, error) {
-   result := &api_context.DefaultContext{}
-   result.SetRoles("api:example:user", "api:example:admin")
-   return result, nil
+	result := &api_context.DefaultContext{}
+	result.SetRoles("api:example:user", "api:example:admin")
+	return result, nil
 }
 
 func (l *loginServiceImpl) TokenDuration() time.Duration {
-   return time.Minute * 15
+	return time.Minute * 15
 }
 
 type secretProviderImpl []struct{}
 
 func (s *secretProviderImpl) Get(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) (string, error) {
-   return "", nil
+	return "", nil
 }
 
 type principalServiceImpl struct {
 }
 
 func (d *principalServiceImpl) LoadPrincipal(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) bool {
-   if ctx.Authorization == "" {
-      return false
+	if ctx.Authorization == "" {
+		return false
 
-   }
+	}
 
-   context := api_context.NewDefaultCtx()
-   ctx.Principal = &context
-   return true
+	context := api_context.NewDefaultCtx()
+	ctx.Principal = &context
+	return true
 }
 
 type errorHandlerImpl struct {
 }
 
 func (p *errorHandlerImpl) Handler(ctx *api_context.ApiRequestContext[*api_context.DefaultContext], _ error, source string) {
-   if source == server.ErrorHandlerWrapper {
-      ctx.InternalServerError("Internal server error")
-   }
+	if source == server.ErrorHandlerWrapper {
+		ctx.InternalServerError("Internal server error")
+	}
 
-   if source == server.SecurityValidatorResourceAccess {
-      ctx.Unauthorized()
-   }
+	if source == server.SecurityValidatorResourceAccess {
+		ctx.Unauthorized()
+	}
 }
 
 type _service struct {
@@ -89,110 +89,110 @@ func (s *_service) PostLoginRequest(body gen.LoginRequest, ctx *api_context.ApiR
 }
 
 func (s *_service) GetTestRequest(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
-   message := "It's working"
-   code := 200
-   success := true
-   timestamp := 1625867200
+	message := "It's working"
+	code := 200
+	success := true
+	timestamp := 1625867200
 
-   response := gen.BaseResponse{
-      Message:   &message,
-      Code:      &code,
-      Success:   &success,
-      Timestamp: &timestamp,
-   }
+	response := gen.BaseResponse{
+		Message:   &message,
+		Code:      &code,
+		Success:   &success,
+		Timestamp: &timestamp,
+	}
 
-   ctx.Response(response, 200)
+	ctx.Response(response, 200)
 }
 
 func (s *_service) GetTestVersionRequest(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
-   message := "Test v2 it's working"
-   code := 200
-   success := true
-   timestamp := 1625867200
+	message := "Test v2 it's working"
+	code := 200
+	success := true
+	timestamp := 1625867200
 
-   response := gen.BaseResponse{
-      Message:   &message,
-      Code:      &code,
-      Success:   &success,
-      Timestamp: &timestamp,
-   }
+	response := gen.BaseResponse{
+		Message:   &message,
+		Code:      &code,
+		Success:   &success,
+		Timestamp: &timestamp,
+	}
 
-   ctx.Response(response, 200)
+	ctx.Response(response, 200)
 }
 
 func (s *_service) PostTestVersionRequest(body gen.PostTestRequest, ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
-   timestamp := 1625867200
-   message := "Provided message was => " + body.Message
-   response := gen.BaseResponse{
-      Message:   &message,
-      Code:      &body.Code,
-      Success:   &body.Success,
-      Timestamp: &timestamp,
-   }
+	timestamp := 1625867200
+	message := "Provided message was => " + body.Message
+	response := gen.BaseResponse{
+		Message:   &message,
+		Code:      &body.Code,
+		Success:   &body.Success,
+		Timestamp: &timestamp,
+	}
 
-   ctx.Response(response, 200)
+	ctx.Response(response, 200)
 }
 
 func (s *_service) GetTestV2(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
-   message := "Test v2 it's working"
-   code := 200
-   success := true
-   timestamp := 1625867200
+	message := "Test v2 it's working"
+	code := 200
+	success := true
+	timestamp := 1625867200
 
-   response := gen.BaseResponse{
-      Message:   &message,
-      Code:      &code,
-      Success:   &success,
-      Timestamp: &timestamp,
-   }
+	response := gen.BaseResponse{
+		Message:   &message,
+		Code:      &code,
+		Success:   &success,
+		Timestamp: &timestamp,
+	}
 
-   ctx.Response(response, 200)
+	ctx.Response(response, 200)
 }
 
 func main() {
 
-   var userPrincipalService principal.PService[*api_context.DefaultContext]
-   userPrincipalService = &principalServiceImpl{}
+	var userPrincipalService principal.PService[*api_context.DefaultContext]
+	userPrincipalService = &principalServiceImpl{}
 
-   var errorHandler error_handler.ApiErrorHandler[*api_context.DefaultContext]
-   errorHandler = &errorHandlerImpl{}
+	var errorHandler error_handler.ApiErrorHandler[*api_context.DefaultContext]
+	errorHandler = &errorHandlerImpl{}
 
-   securityService := security.ApiSecurityServiceBuild(
-      "ue1pUOtCGaYS7Z1DLJ80nFtZ",
-      userPrincipalService,
-   )
+	securityService := security.ApiSecurityServiceBuild(
+		"ue1pUOtCGaYS7Z1DLJ80nFtZ",
+		userPrincipalService,
+	)
 
-   secretProvider := &secretProviderImpl{}
+	secretProvider := &secretProviderImpl{}
 
-   secretHandler := security.ApiSecretAccessHandlerBuild(
-      "./example/secret/private.key",
-      secretProvider,
-      securityService,
-   )
+	secretHandler := security.ApiSecretAccessHandlerBuild(
+		"./example/secret/private.key",
+		secretProvider,
+		securityService,
+	)
 
-   secretHandler.DisableForPublicPath(true)
+	secretHandler.DisableForPublicPath(true)
 
-   for _, arg := range os.Args {
-      if arg == "--d" || arg == "-d" {
-         log.Println("Setting public path requires access with api secret key.")
-         secretHandler.DisableForPublicPath(false)
-      }
-   }
+	for _, arg := range os.Args {
+		if arg == "--d" || arg == "-d" {
+			log.Println("Setting public path requires access with api secret key.")
+			secretHandler.DisableForPublicPath(false)
+		}
+	}
 
-   loginService := &loginServiceImpl{
-      securityService: securityService,
-   }
+	loginService := &loginServiceImpl{
+		securityService: securityService,
+	}
 
-   server.Default().
-      WithLoginResource(loginService).
-      EmbeddedServer(gen.ApiResourceHandler(&_service{})).
-      SwaggerDocHandler("example/resource/swagger.yaml").
-      //SwaggerDocHandler("example/resource/swagger-with-api-key.yaml").
-      RegisterMiddleware(secretHandler.HandlerSecretAccess, security.ApiSecretAccessHandlerName).
-      RegisterMiddleware(securityService.AuthorizationHandler, security.ApiSecurityHandlerName).
-      WithErrorHandler(errorHandler).
-      NotFoundHandler().
-      StartServer()
+	server.Default().
+		WithLoginResource(loginService).
+		EmbeddedServer(gen.ApiResourceHandler(&_service{})).
+		SwaggerDocHandler("example/resource/swagger.yaml").
+		//SwaggerDocHandler("example/resource/swagger-with-api-key.yaml").
+		RegisterMiddleware(secretHandler.HandlerSecretAccess, security.ApiSecretAccessHandlerName).
+		RegisterMiddleware(securityService.AuthorizationHandler, security.ApiSecurityHandlerName).
+		WithErrorHandler(errorHandler).
+		NotFoundHandler().
+		StartServer()
 }
 
 ```
@@ -299,6 +299,83 @@ load and serve Swagger files for your API. It leverages the **`kin-openapi`** li
 
 4. **Interactive UI**: The Swagger UI allows users to interact with the API documentation, test endpoints, and view
    detailed information about each API operation.
+   Here's an improved version of the documentation with clearer instructions and additional context:
+
+---
+
+## Code Generation Compatibility with `http-utils` Library
+
+To ensure that the generated code is compatible with this library, you need to configure and generate your API code
+using the [oapi-codegen](https://github.com/oapi-codegen/oapi-codegen) tool. This tool converts OpenAPI specifications
+into Go code that works seamlessly with the `http-utils` library.
+
+### Configuration
+
+Below is an example of how to configure the code generation process using a custom YAML config file. This configuration
+defines the necessary templates and options for generating Go code that works with the `http-utils` library.
+
+```yaml
+package: gen
+
+generate:
+  gorilla-server: true  # Generate server code using Gorilla Mux
+  models: true           # Generate models from the Swagger spec
+#  embedded-spec: true   # Optionally embed the Swagger spec directly in the generated code
+output: ./gen/api.gen.go  # Output path for the generated code
+
+output-options:
+  user-templates:
+    param-types.tmpl: https://raw.githubusercontent.com/softwareplace/http-utils/refs/heads/main/resource/templates/param-types.tmpl
+    additional-properties.tmpl: https://raw.githubusercontent.com/softwareplace/http-utils/refs/heads/main/resource/templates/additional-properties.tmpl
+    request-bodies.tmpl: https://raw.githubusercontent.com/softwareplace/http-utils/refs/heads/main/resource/templates/request-bodies.tmpl
+    typedef.tmpl: https://raw.githubusercontent.com/softwareplace/http-utils/refs/heads/main/resource/templates/typedef.tmpl
+    gorilla/gorilla-register.tmpl: https://raw.githubusercontent.com/softwareplace/http-utils/refs/heads/main/resource/templates/gorilla/gorilla-register.tmpl
+    gorilla/gorilla-middleware.tmpl: https://raw.githubusercontent.com/softwareplace/http-utils/refs/heads/main/resource/templates/gorilla/gorilla-middleware.tmpl
+    gorilla/gorilla-interface.tmpl: https://raw.githubusercontent.com/softwareplace/http-utils/refs/heads/main/resource/templates/gorilla/gorilla-interface.tmpl
+
+compatibility:
+  apply-gorilla-middleware-first-to-last: true  # Ensure middleware is applied in the correct order
+```
+
+### Steps for Code Generation
+
+1. **Create the Configuration File**:
+   Create a YAML file based on the structure above. Make sure to define paths for the required templates and set the
+   appropriate options for code generation.
+
+2. **Run oapi-codegen**:
+   Once you have your configuration file ready, use the following command to generate the Go code:
+
+   ```shell
+   oapi-codegen --config path/to/config.yaml path/to/swagger.yaml
+   ```
+
+    - Replace `path/to/config.yaml` with the path to your config file.
+    - Replace `path/to/swagger.yaml` with the path to your OpenAPI/Swagger specification file.
+
+3. **Generated Code**:
+   The generated Go code will be output to the specified `output` path (e.g., `./gen/api.gen.go`), ready to be
+   integrated with your application.
+
+### Important Notes:
+
+- **Template Customization**: This configuration specifies custom templates that align the generated code with the
+  structure expected by the `http-utils` library. The templates are hosted in a GitHub repository and are referenced by
+  URLs.
+
+- **Gorilla Mux Server**: The `gorilla-server` option ensures that the generated server code is compatible with the
+  Gorilla Mux router, which is supported by `http-utils`.
+
+- **Middleware**: The `apply-gorilla-middleware-first-to-last` option ensures that the middleware is applied in the
+  correct order to all generated routes.
+
+By following these steps and using the correct configuration, you can generate Go code that works seamlessly with the
+`http-utils` library and the associated templates.
+
+---
+
+This improved documentation provides more context on how to configure and generate the code, highlighting important
+aspects such as templates and the middleware application order.
 
 ### Example Workflow:
 
