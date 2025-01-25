@@ -66,11 +66,11 @@ func (p *errorHandlerImpl) Handler(ctx *api_context.ApiRequestContext[*api_conte
 type _service struct {
 }
 
-func (s *_service) PostLoginRequest(body gen.LoginRequest, request gen.PostLoginRequestParams, ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+func (s *_service) PostLoginRequest(body gen.LoginRequest, ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
 
 }
 
-func (s *_service) GetTestRequest(request gen.GetTestRequestParams, ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+func (s *_service) GetTestRequest(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
 	message := "It's working"
 	code := 200
 	success := true
@@ -86,7 +86,7 @@ func (s *_service) GetTestRequest(request gen.GetTestRequestParams, ctx *api_con
 	ctx.Response(response, 200)
 }
 
-func (s *_service) GetTestVersionRequest(request gen.GetTestVersionRequestParams, ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+func (s *_service) GetTestVersionRequest(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
 	message := "Test v2 it's working"
 	code := 200
 	success := true
@@ -102,10 +102,11 @@ func (s *_service) GetTestVersionRequest(request gen.GetTestVersionRequestParams
 	ctx.Response(response, 200)
 }
 
-func (s *_service) PostTestVersionRequest(body gen.PostTestRequest, request gen.PostTestVersionRequestParams, ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+func (s *_service) PostTestVersionRequest(body gen.PostTestRequest, ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
 	timestamp := 1625867200
+	message := "Provided message was => " + body.Message
 	response := gen.BaseResponse{
-		Message:   &body.Message,
+		Message:   &message,
 		Code:      &body.Code,
 		Success:   &body.Success,
 		Timestamp: &timestamp,
@@ -114,7 +115,7 @@ func (s *_service) PostTestVersionRequest(body gen.PostTestRequest, request gen.
 	ctx.Response(response, 200)
 }
 
-func (s *_service) GetTestV2(request gen.GetTestRequestParams, ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+func (s *_service) GetTestV2(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
 	message := "Test v2 it's working"
 	code := 200
 	success := true
@@ -174,8 +175,8 @@ func main() {
 		WithLoginResource(loginService).
 		EmbeddedServer(embeddedHandler()).
 		SwaggerDocHandler("example/resource/swagger.yaml").
-		//RegisterMiddleware(secretHandler.HandlerSecretAccess, security.ApiSecretAccessHandlerName).
-		//RegisterMiddleware(securityService.AuthorizationHandler, security.ApiSecurityHandlerName).
+		RegisterMiddleware(secretHandler.HandlerSecretAccess, security.ApiSecretAccessHandlerName).
+		RegisterMiddleware(securityService.AuthorizationHandler, security.ApiSecurityHandlerName).
 		WithErrorHandler(errorHandler).
 		NotFoundHandler().
 		StartServer()

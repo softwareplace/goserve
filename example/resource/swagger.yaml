@@ -198,9 +198,7 @@ paths:
           description: Any data
           required: true
           schema:
-            type: array
-            items:
-              type: string
+            type: string
         - in: path
           name: version
           description: the target version

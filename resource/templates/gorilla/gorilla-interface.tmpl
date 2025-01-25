@@ -12,9 +12,10 @@ type ServiceRequestHandler[T api_context.ApiPrincipalContext] interface {
 {{range .Bodies}}
     {{if .IsSupported -}}
     {{$contentType := .ContentType -}}
-    {{$opid}}Request(requestBody {{.Schema.TypeDecl}}, requestParams {{$opid}}RequestParams,ctx *api_context.ApiRequestContext[T])
+    //{{$opid}}Request(requestBody {{.Schema.TypeDecl}}, requestParams {{$opid}}RequestParams,ctx *api_context.ApiRequestContext[T])
+    {{$opid}}Request(requestBody {{.Schema.TypeDecl}}, ctx *api_context.ApiRequestContext[T])
     {{end}}
-    {{else}}{{$opid}}Request(requestParams {{$opid}}RequestParams,ctx *api_context.ApiRequestContext[T])
+    {{else}}{{$opid}}Request(ctx *api_context.ApiRequestContext[T])
     {{end}}
     {{end}}
 }

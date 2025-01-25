@@ -46,10 +46,10 @@ func (rh *requestHandlerImpl[T]) PostLogin(ctx *api_context.ApiRequestContext[T]
 
 	requestBody := LoginRequest{}
 	server.GetRequestBody(ctx, requestBody, func(ctx *api_context.ApiRequestContext[T], body LoginRequest) {
-		request := PostLoginRequestParams{}
-		server.PopulateFieldsFromRequest(ctx, &request)
-		rh.Service.PostLoginRequest(body, request, ctx)
-		server.PopulateFieldsFromRequest(ctx, &request)
+		//request := PostLoginRequestParams{}
+		//server.PopulateFieldsFromRequest(ctx, &request)
+		//rh.Service.PostLoginRequest(body, request, ctx)
+		rh.Service.PostLoginRequest(body, ctx)
 	}, func(ctx *api_context.ApiRequestContext[T], err error) {
 		ctx.InternalServerError("Internal server error")
 	})
@@ -60,9 +60,9 @@ type GetTestRequestParams struct {
 }
 
 func (rh *requestHandlerImpl[T]) GetTest(ctx *api_context.ApiRequestContext[T]) {
-	request := GetTestRequestParams{}
-	server.PopulateFieldsFromRequest(ctx, &request)
-	rh.Service.GetTestRequest(request, ctx)
+	//request := GetTestRequestParams{}
+	// server.PopulateFieldsFromRequest(ctx, &request)
+	rh.Service.GetTestRequest(ctx)
 
 }
 
@@ -75,15 +75,15 @@ type GetTestVersionRequestParams struct {
 }
 
 func (rh *requestHandlerImpl[T]) GetTestVersion(ctx *api_context.ApiRequestContext[T]) {
-	request := GetTestVersionRequestParams{}
-	server.PopulateFieldsFromRequest(ctx, &request)
-	rh.Service.GetTestVersionRequest(request, ctx)
+	//request := GetTestVersionRequestParams{}
+	// server.PopulateFieldsFromRequest(ctx, &request)
+	rh.Service.GetTestVersionRequest(ctx)
 
 }
 
 type PostTestVersionRequestParams struct {
 	// Ref Any data
-	Ref []string `form:"ref" json:"ref"`
+	Ref string `form:"ref" json:"ref"`
 
 	// Authorization jwt
 	Authorization string `json:"Authorization"`
@@ -93,10 +93,10 @@ func (rh *requestHandlerImpl[T]) PostTestVersion(ctx *api_context.ApiRequestCont
 
 	requestBody := PostTestRequest{}
 	server.GetRequestBody(ctx, requestBody, func(ctx *api_context.ApiRequestContext[T], body PostTestRequest) {
-		request := PostTestVersionRequestParams{}
-		server.PopulateFieldsFromRequest(ctx, &request)
-		rh.Service.PostTestVersionRequest(body, request, ctx)
-		server.PopulateFieldsFromRequest(ctx, &request)
+		//request := PostTestVersionRequestParams{}
+		//server.PopulateFieldsFromRequest(ctx, &request)
+		//rh.Service.PostTestVersionRequest(body, request, ctx)
+		rh.Service.PostTestVersionRequest(body, ctx)
 	}, func(ctx *api_context.ApiRequestContext[T], err error) {
 		ctx.InternalServerError("Internal server error")
 	})
@@ -130,13 +130,16 @@ type RequestHandler[T api_context.ApiPrincipalContext] interface {
 }
 
 type ServiceRequestHandler[T api_context.ApiPrincipalContext] interface {
-	PostLoginRequest(requestBody LoginRequest, requestParams PostLoginRequestParams, ctx *api_context.ApiRequestContext[T])
 
-	GetTestRequest(requestParams GetTestRequestParams, ctx *api_context.ApiRequestContext[T])
+	//PostLoginRequest(requestBody LoginRequest, requestParams PostLoginRequestParams,ctx *api_context.ApiRequestContext[T])
+	PostLoginRequest(requestBody LoginRequest, ctx *api_context.ApiRequestContext[T])
 
-	GetTestVersionRequest(requestParams GetTestVersionRequestParams, ctx *api_context.ApiRequestContext[T])
+	GetTestRequest(ctx *api_context.ApiRequestContext[T])
 
-	PostTestVersionRequest(requestBody PostTestRequest, requestParams PostTestVersionRequestParams, ctx *api_context.ApiRequestContext[T])
+	GetTestVersionRequest(ctx *api_context.ApiRequestContext[T])
+
+	//PostTestVersionRequest(requestBody PostTestRequest, requestParams PostTestVersionRequestParams,ctx *api_context.ApiRequestContext[T])
+	PostTestVersionRequest(requestBody PostTestRequest, ctx *api_context.ApiRequestContext[T])
 }
 
 type requestHandlerImpl[T api_context.ApiPrincipalContext] struct {
