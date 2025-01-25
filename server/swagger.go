@@ -53,7 +53,7 @@ func (a *apiRouterHandlerImpl[T]) SwaggerDocProvider(getSwagger func() (swagger 
 		newPath = strings.ReplaceAll(newPath, "{", ":")
 		newPath = strings.ReplaceAll(newPath, "}", "")
 		log.Printf("path: %s", newPath)
-		oldsPaths = append(oldsPaths, newPath)
+		oldsPaths = append(oldsPaths, path)
 		paths[newPath] = pathItem
 	}
 
