@@ -54,6 +54,15 @@ components:
       required: true
       schema:
         type: string
+    xApiKey:
+      in: header
+      name: X-Api-Key
+      description: jwt
+      required: true
+      schema:
+        type: string
+        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+
   schemas:
     LoginRequest:
       type: object
@@ -105,6 +114,8 @@ paths:
         - Authorization
       summary: Authentication endpoint
       description: Authenticate a user and respond with an access token.
+      parameters:
+        - $ref: "#/components/parameters/xApiKey"
       requestBody:
         required: true
         content:
@@ -131,6 +142,8 @@ paths:
         - Test
       summary: Public endpoint
       description: Test if the public route is working.
+      parameters:
+        - $ref: "#/components/parameters/xApiKey"
       responses:
         '200':
           description: Success
@@ -155,6 +168,7 @@ paths:
       summary: Secured endpoint
       description: Test if the secured route is working. Requires the role `api:example:admin`.
       parameters:
+        - $ref: "#/components/parameters/xApiKey"
         - $ref: "#/components/parameters/authorization"
         - $ref: "#/components/parameters/version"
         - $ref: "#/components/parameters/ref"
@@ -192,10 +206,10 @@ paths:
       summary: Secured endpoint
       description: Test if the secured route is working. Requires the role `api:example:admin`.
       parameters:
+        - $ref: "#/components/parameters/xApiKey"
         - $ref: "#/components/parameters/authorization"
         - $ref: "#/components/parameters/version"
         - $ref: "#/components/parameters/ref"
-
       security:
         - OAuth2:
             - api:example:admin

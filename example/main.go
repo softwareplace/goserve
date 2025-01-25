@@ -169,6 +169,7 @@ func main() {
 		WithLoginResource(loginService).
 		EmbeddedServer(gen.ApiResourceHandler(&_service{})).
 		SwaggerDocHandler("example/resource/swagger.yaml").
+		//SwaggerDocHandler("example/resource/swagger-with-api-key.yaml").
 		RegisterMiddleware(secretHandler.HandlerSecretAccess, security.ApiSecretAccessHandlerName).
 		RegisterMiddleware(securityService.AuthorizationHandler, security.ApiSecurityHandlerName).
 		WithErrorHandler(errorHandler).

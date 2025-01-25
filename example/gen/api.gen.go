@@ -39,6 +39,15 @@ type PostTestRequest struct {
 	Success bool   `json:"success"`
 }
 
+// Authorization defines model for authorization.
+type Authorization = string
+
+// Ref defines model for ref.
+type Ref = string
+
+// Version defines model for version.
+type Version = string
+
 type PostLoginRequestParams struct {
 }
 
@@ -68,10 +77,10 @@ func (rh *requestHandlerImpl[T]) GetTest(ctx *api_context.ApiRequestContext[T]) 
 
 type GetTestVersionRequestParams struct {
 	// Ref Any data
-	Ref []string `form:"ref" json:"ref"`
+	Ref Ref `form:"ref" json:"ref"`
 
 	// Authorization jwt
-	Authorization string `json:"Authorization"`
+	Authorization Authorization `json:"Authorization"`
 }
 
 func (rh *requestHandlerImpl[T]) GetTestVersion(ctx *api_context.ApiRequestContext[T]) {
@@ -83,10 +92,10 @@ func (rh *requestHandlerImpl[T]) GetTestVersion(ctx *api_context.ApiRequestConte
 
 type PostTestVersionRequestParams struct {
 	// Ref Any data
-	Ref string `form:"ref" json:"ref"`
+	Ref Ref `form:"ref" json:"ref"`
 
 	// Authorization jwt
-	Authorization string `json:"Authorization"`
+	Authorization Authorization `json:"Authorization"`
 }
 
 func (rh *requestHandlerImpl[T]) PostTestVersion(ctx *api_context.ApiRequestContext[T]) {
