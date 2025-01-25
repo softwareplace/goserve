@@ -1,7 +1,25 @@
-// ServerInterface represents all server handlers represents all server handlers..
-type ServerInterface[T api_context.ApiPrincipalContext] interface {
+// RequestHandler represents all server handlers represents all server handlers..
+type RequestHandler[T api_context.ApiPrincipalContext] interface {
 {{range .}}{{.SummaryAsComment }}
 // ({{.Method}} {{.Path}})
 {{.OperationId}}(ctx *api_context.ApiRequestContext[T])
 {{end}}
 }
+
+type ServiceRequestHandler[T api_context.ApiPrincipalContext] interface {
+{{range .}}{{$entry := .}}
+{{$opid := $entry.OperationId}}
+{{range .Bodies}}
+    {{if .IsSupported -}}
+    {{$contentType := .ContentType -}}
+    {{$opid}}Request(requestBody {{.Schema.TypeDecl}}, requestParams {{$opid}}RequestParams,ctx *api_context.ApiRequestContext[T])
+    {{end}}
+    {{else}}{{$opid}}Request(requestParams {{$opid}}RequestParams,ctx *api_context.ApiRequestContext[T])
+    {{end}}
+    {{end}}
+}
+
+type requestHandlerImpl[T api_context.ApiPrincipalContext] struct {
+    Service ServiceRequestHandler[T]
+}
+

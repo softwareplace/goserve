@@ -66,11 +66,11 @@ func (p *errorHandlerImpl) Handler(ctx *api_context.ApiRequestContext[*api_conte
 type _service struct {
 }
 
-func (s *_service) PostLogin(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+func (s *_service) PostLoginRequest(body gen.LoginRequest, request gen.PostLoginRequestParams, ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
 
 }
 
-func (s *_service) GetTest(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+func (s *_service) GetTestRequest(request gen.GetTestRequestParams, ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
 	message := "It's working"
 	code := 200
 	success := true
@@ -86,7 +86,7 @@ func (s *_service) GetTest(ctx *api_context.ApiRequestContext[*api_context.Defau
 	ctx.Response(response, 200)
 }
 
-func (s *_service) GetTestVersion(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+func (s *_service) GetTestVersionRequest(request gen.GetTestVersionRequestParams, ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
 	message := "Test v2 it's working"
 	code := 200
 	success := true
@@ -102,7 +102,19 @@ func (s *_service) GetTestVersion(ctx *api_context.ApiRequestContext[*api_contex
 	ctx.Response(response, 200)
 }
 
-func (s *_service) GetTestV2(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+func (s *_service) PostTestVersionRequest(body gen.PostTestRequest, request gen.PostTestVersionRequestParams, ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+	timestamp := 1625867200
+	response := gen.BaseResponse{
+		Message:   &body.Message,
+		Code:      &body.Code,
+		Success:   &body.Success,
+		Timestamp: &timestamp,
+	}
+
+	ctx.Response(response, 200)
+}
+
+func (s *_service) GetTestV2(request gen.GetTestRequestParams, ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
 	message := "Test v2 it's working"
 	code := 200
 	success := true

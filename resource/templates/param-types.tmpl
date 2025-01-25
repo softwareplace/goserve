@@ -1,6 +1,29 @@
-{{range .}}{{$opid := .OperationId}}
-{{range .TypeDefinitions}}
-// {{.TypeName}} defines parameters test of for {{$opid}}.
-type {{.TypeName}} {{if .IsAlias}}={{end}} {{.Schema.TypeDecl}}
+{{range .}}{{$entry := .}}
+{{$opid := $entry.OperationId}}
+
+type {{$opid}}RequestParams {{if .TypeDefinitions}}{{range .TypeDefinitions}}{{ .Schema.TypeDecl }}
+    {{end}}
+{{else}} struct {
+}
 {{end}}
+func (rh *requestHandlerImpl[T]){{$opid}}(ctx *api_context.ApiRequestContext[T]) {
+    {{range .Bodies}}
+    {{if .IsSupported -}}
+    {{$contentType := .ContentType -}}
+    requestBody := {{.Schema.TypeDecl}}{}
+    server.GetRequestBody(ctx, requestBody, func(ctx *api_context.ApiRequestContext[T], body {{.Schema.TypeDecl}}) {
+    request := {{$entry.OperationId}}RequestParams{}
+    server.PopulateFieldsFromRequest(ctx, &request)
+    rh.Service.{{$entry.OperationId}}Request(body, request, ctx)
+    server.PopulateFieldsFromRequest(ctx, &request)
+    }, func(ctx *api_context.ApiRequestContext[T], err error) {
+		ctx.InternalServerError("Internal server error")
+    })
+
+    {{end}}
+    {{else}}request := {{$entry.OperationId}}RequestParams{}
+    server.PopulateFieldsFromRequest(ctx, &request)
+    rh.Service.{{$entry.OperationId}}Request(request, ctx)
+    {{end}}
+}
 {{end}}

@@ -1,11 +1,4 @@
 {{range .Types}}
 {{ if .Schema.Description }}{{ toGoComment .Schema.Description .TypeName  }}{{ else }}// {{.TypeName}} defines model for {{.JsonName}}.{{ end }}
 type {{.TypeName}} {{if .IsAlias }}={{end}} {{.Schema.TypeDecl}}
-func Get{{.TypeName}}Body[T api_context.ApiPrincipalContext](
-	ctx *api_context.ApiRequestContext[T],
-	onSuccess server.OnSuccess[{{.TypeName}}, T],
-	onError server.OnError[T],
-) {
-	server.GetRequestBody(ctx, {{.TypeName}}{}, onSuccess, onError)
-}
 {{end}}

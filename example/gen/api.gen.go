@@ -4,8 +4,6 @@
 package gen
 
 import (
-	"fmt"
-
 	"github.com/softwareplace/http-utils/api_context"
 	"github.com/softwareplace/http-utils/server"
 )
@@ -22,26 +20,10 @@ type BaseResponse struct {
 	Timestamp *int    `json:"timestamp,omitempty"`
 }
 
-func GetBaseResponseBody[T api_context.ApiPrincipalContext](
-	ctx *api_context.ApiRequestContext[T],
-	onSuccess server.OnSuccess[BaseResponse, T],
-	onError server.OnError[T],
-) {
-	server.GetRequestBody(ctx, BaseResponse{}, onSuccess, onError)
-}
-
 // LoginRequest defines model for LoginRequest.
 type LoginRequest struct {
 	Password string `json:"password"`
 	Username string `json:"username"`
-}
-
-func GetLoginRequestBody[T api_context.ApiPrincipalContext](
-	ctx *api_context.ApiRequestContext[T],
-	onSuccess server.OnSuccess[LoginRequest, T],
-	onError server.OnError[T],
-) {
-	server.GetRequestBody(ctx, LoginRequest{}, onSuccess, onError)
 }
 
 // LoginResponse defines model for LoginResponse.
@@ -50,28 +32,89 @@ type LoginResponse struct {
 	Token   *string `json:"token,omitempty"`
 }
 
-func GetLoginResponseBody[T api_context.ApiPrincipalContext](
-	ctx *api_context.ApiRequestContext[T],
-	onSuccess server.OnSuccess[LoginResponse, T],
-	onError server.OnError[T],
-) {
-	server.GetRequestBody(ctx, LoginResponse{}, onSuccess, onError)
+// PostTestRequest defines model for PostTestRequest.
+type PostTestRequest struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+	Success bool   `json:"success"`
 }
 
-// GetTestVersionParams defines parameters test of for GetTestVersion.
-type GetTestVersionParams struct {
+type PostLoginRequestParams struct {
+}
+
+func (rh *requestHandlerImpl[T]) PostLogin(ctx *api_context.ApiRequestContext[T]) {
+
+	requestBody := LoginRequest{}
+	server.GetRequestBody(ctx, requestBody, func(ctx *api_context.ApiRequestContext[T], body LoginRequest) {
+		request := PostLoginRequestParams{}
+		server.PopulateFieldsFromRequest(ctx, &request)
+		rh.Service.PostLoginRequest(body, request, ctx)
+		server.PopulateFieldsFromRequest(ctx, &request)
+	}, func(ctx *api_context.ApiRequestContext[T], err error) {
+		ctx.InternalServerError("Internal server error")
+	})
+
+}
+
+type GetTestRequestParams struct {
+}
+
+func (rh *requestHandlerImpl[T]) GetTest(ctx *api_context.ApiRequestContext[T]) {
+	request := GetTestRequestParams{}
+	server.PopulateFieldsFromRequest(ctx, &request)
+	rh.Service.GetTestRequest(request, ctx)
+
+}
+
+type GetTestVersionRequestParams struct {
 	// Ref Any data
-	Ref string `form:"ref" json:"ref"`
+	Ref []string `form:"ref" json:"ref"`
 
 	// Authorization jwt
 	Authorization string `json:"Authorization"`
 }
 
-// PostLoginJSONRequestBody defines body for PostLogin for application/json ContentType.
-type PostLoginJSONRequestBody = LoginRequest
+func (rh *requestHandlerImpl[T]) GetTestVersion(ctx *api_context.ApiRequestContext[T]) {
+	request := GetTestVersionRequestParams{}
+	server.PopulateFieldsFromRequest(ctx, &request)
+	rh.Service.GetTestVersionRequest(request, ctx)
 
-// ServerInterface represents all server handlers represents all server handlers..
-type ServerInterface[T api_context.ApiPrincipalContext] interface {
+}
+
+type PostTestVersionRequestParams struct {
+	// Ref Any data
+	Ref []string `form:"ref" json:"ref"`
+
+	// Authorization jwt
+	Authorization string `json:"Authorization"`
+}
+
+func (rh *requestHandlerImpl[T]) PostTestVersion(ctx *api_context.ApiRequestContext[T]) {
+
+	requestBody := PostTestRequest{}
+	server.GetRequestBody(ctx, requestBody, func(ctx *api_context.ApiRequestContext[T], body PostTestRequest) {
+		request := PostTestVersionRequestParams{}
+		server.PopulateFieldsFromRequest(ctx, &request)
+		rh.Service.PostTestVersionRequest(body, request, ctx)
+		server.PopulateFieldsFromRequest(ctx, &request)
+	}, func(ctx *api_context.ApiRequestContext[T], err error) {
+		ctx.InternalServerError("Internal server error")
+	})
+
+}
+
+// PostLoginJSONRequestBody defines body for PostLogin for application/json ContentType.
+type PostLoginRequest = struct {
+	Body LoginRequest
+}
+
+// PostTestVersionJSONRequestBody defines body for PostTestVersion for application/json ContentType.
+type PostTestVersionRequest = struct {
+	Body PostTestRequest
+}
+
+// RequestHandler represents all server handlers represents all server handlers..
+type RequestHandler[T api_context.ApiPrincipalContext] interface {
 	// Authentication endpoint
 	// (POST /login)
 	PostLogin(ctx *api_context.ApiRequestContext[T])
@@ -81,89 +124,39 @@ type ServerInterface[T api_context.ApiPrincipalContext] interface {
 	// Secured endpoint
 	// (GET /test/{version})
 	GetTestVersion(ctx *api_context.ApiRequestContext[T])
+	// Secured endpoint
+	// (POST /test/{version})
+	PostTestVersion(ctx *api_context.ApiRequestContext[T])
 }
 
-type UnescapedCookieParamError struct {
-	ParamName string
-	Err       error
+type ServiceRequestHandler[T api_context.ApiPrincipalContext] interface {
+	PostLoginRequest(requestBody LoginRequest, requestParams PostLoginRequestParams, ctx *api_context.ApiRequestContext[T])
+
+	GetTestRequest(requestParams GetTestRequestParams, ctx *api_context.ApiRequestContext[T])
+
+	GetTestVersionRequest(requestParams GetTestVersionRequestParams, ctx *api_context.ApiRequestContext[T])
+
+	PostTestVersionRequest(requestBody PostTestRequest, requestParams PostTestVersionRequestParams, ctx *api_context.ApiRequestContext[T])
 }
 
-func (e *UnescapedCookieParamError) Error() string {
-	return fmt.Sprintf("error unescaping cookie parameter '%s'", e.ParamName)
-}
-
-func (e *UnescapedCookieParamError) Unwrap() error {
-	return e.Err
-}
-
-type UnmarshalingParamError struct {
-	ParamName string
-	Err       error
-}
-
-func (e *UnmarshalingParamError) Error() string {
-	return fmt.Sprintf("Error unmarshaling parameter %s as JSON: %s", e.ParamName, e.Err.Error())
-}
-
-func (e *UnmarshalingParamError) Unwrap() error {
-	return e.Err
-}
-
-type RequiredParamError struct {
-	ParamName string
-}
-
-func (e *RequiredParamError) Error() string {
-	return fmt.Sprintf("Query argument %s is required, but not found", e.ParamName)
-}
-
-type RequiredHeaderError struct {
-	ParamName string
-	Err       error
-}
-
-func (e *RequiredHeaderError) Error() string {
-	return fmt.Sprintf("Header parameter %s is required, but not found", e.ParamName)
-}
-
-func (e *RequiredHeaderError) Unwrap() error {
-	return e.Err
-}
-
-type InvalidParamFormatError struct {
-	ParamName string
-	Err       error
-}
-
-func (e *InvalidParamFormatError) Error() string {
-	return fmt.Sprintf("Invalid format for parameter %s: %s", e.ParamName, e.Err.Error())
-}
-
-func (e *InvalidParamFormatError) Unwrap() error {
-	return e.Err
-}
-
-type TooManyValuesForParamError struct {
-	ParamName string
-	Count     int
-}
-
-func (e *TooManyValuesForParamError) Error() string {
-	return fmt.Sprintf("Expected one value for %s, got %d", e.ParamName, e.Count)
+type requestHandlerImpl[T api_context.ApiPrincipalContext] struct {
+	Service ServiceRequestHandler[T]
 }
 
 //PostLogin operation middleware test execution
 //GetTest operation middleware test execution
 //GetTestVersion operation middleware test execution
+//PostTestVersion operation middleware test execution
 
 // ResourcesHandler registers API endpoints and sets up the Swagger documentation.
 //
-// This function takes an instance of `ApiRouterHandler` and `ServerInterface`,
+// This function takes an instance of `ApiRouterHandler` and `RequestHandler`,
 // and configures the following:
 // - Sets up Swagger documentation using the provided `GetSwagger` function.
 // - PostLogin
 // - GetTest
 // - GetTestVersion
+// - PostTestVersion
 // Parameters:
 //   - apiServer: The API router handler used for setting up routes and middleware.
 //   - server: The server interface implementation containing the endpoint handlers.
@@ -171,12 +164,17 @@ func (e *TooManyValuesForParamError) Error() string {
 // Generics:
 //   - T: A type that satisfies the `ApiPrincipalContext` interface, representing the principal/context
 //     involved in the API operations.
-func ResourcesHandler[T api_context.ApiPrincipalContext](apiServer server.ApiRouterHandler[T], server ServerInterface[T]) {
+func ResourcesHandler[T api_context.ApiPrincipalContext](apiServer server.ApiRouterHandler[T], service ServiceRequestHandler[T]) {
+	handler := &requestHandlerImpl[T]{
+		Service: service,
+	}
 
-	apiServer.Add(server.PostLogin, "/login", "POST", []string{}...)
+	apiServer.Add(handler.PostLogin, "/login", "POST", []string{}...)
 
-	apiServer.Add(server.GetTest, "/test", "GET", []string{}...)
+	apiServer.Add(handler.GetTest, "/test", "GET", []string{}...)
 
-	apiServer.Add(server.GetTestVersion, "/test/{version}", "GET", []string{"api:example:admin"}...)
+	apiServer.Add(handler.GetTestVersion, "/test/{version}", "GET", []string{"api:example:admin"}...)
+
+	apiServer.Add(handler.PostTestVersion, "/test/{version}", "POST", []string{"api:example:admin"}...)
 
 }

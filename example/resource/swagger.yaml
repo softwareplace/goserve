@@ -52,7 +52,19 @@ components:
           type: boolean
         code:
           type: integer
-
+    PostTestRequest:
+      type: object
+      properties:
+        message:
+          type: string
+        success:
+          type: boolean
+        code:
+          type: integer
+      required:
+        - message
+        - code
+        - success
     LoginResponse:
       type: object
       properties:
@@ -131,8 +143,9 @@ paths:
           description: Any data
           required: true
           schema:
-            type: string
-            example: 123456
+            type: array
+            items:
+              type: string
         - in: path
           name: version
           description: the target version
@@ -143,6 +156,68 @@ paths:
       security:
         - OAuth2:
             - api:example:admin
+
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "It's working"
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BaseResponse"
+        '403':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BaseResponse"
+    post:
+      tags:
+        - Test
+      summary: Secured endpoint
+      description: Test if the secured route is working. Requires the role `api:example:admin`.
+      parameters:
+        - in: header
+          name: Authorization
+          description: jwt
+          required: true
+          schema:
+            type: string
+            example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+        - in: query
+          name: ref
+          description: Any data
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+        - in: path
+          name: version
+          description: the target version
+          required: true
+          schema:
+            type: string
+            example: v2
+      security:
+        - OAuth2:
+            - api:example:admin
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PostTestRequest"
       responses:
         '200':
           description: Success

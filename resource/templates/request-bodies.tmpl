@@ -1,0 +1,13 @@
+{{range .}}{{$opid := .OperationId}}
+{{range .Bodies}}
+{{if .IsSupported -}}
+{{$contentType := .ContentType -}}
+{{with .TypeDef $opid}}
+// {{.TypeName}} defines body for {{$opid}} for {{$contentType}} ContentType.
+type {{$opid}}Request {{if .IsAlias}}={{end}} struct {
+    Body {{.Schema.TypeDecl}}
+}
+{{end}}
+{{end}}
+{{end}}
+{{end}}
