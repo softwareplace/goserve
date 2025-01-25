@@ -4,7 +4,7 @@ package: gen
 generate:
   gorilla-server: true
   models: true
-  embedded-spec: true
+#  embedded-spec: true
 output: ./example/gen/api.gen.go
 output-options:
   user-templates:

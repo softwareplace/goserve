@@ -14,9 +14,6 @@ func (a *apiRouterHandlerImpl[T]) PublicRouter(handler ApiContextHandler[T], pat
 }
 
 func (a *apiRouterHandlerImpl[T]) Add(handler ApiContextHandler[T], path string, method string, requiredRoles ...string) ApiRouterHandler[T] {
-	path = strings.ReplaceAll(path, "{", ":")
-	path = strings.ReplaceAll(path, "}", "")
-
 	handlerPath := strings.TrimSuffix(ContextPath, "/") + "/" + strings.TrimPrefix(path, "/")
 
 	a.router.HandleFunc(handlerPath, func(writer http.ResponseWriter, req *http.Request) {

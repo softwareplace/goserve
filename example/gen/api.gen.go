@@ -4,15 +4,8 @@
 package gen
 
 import (
-	"bytes"
-	"compress/gzip"
-	"encoding/base64"
 	"fmt"
-	"net/url"
-	"path"
-	"strings"
 
-	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/softwareplace/http-utils/api_context"
 	"github.com/softwareplace/http-utils/server"
 )
@@ -186,100 +179,4 @@ func ResourcesHandler[T api_context.ApiPrincipalContext](apiServer server.ApiRou
 
 	apiServer.Add(server.GetTestVersion, "/test/{version}", "GET", []string{"api:example:admin"}...)
 
-}
-
-// Base64 encoded, gzipped, json marshaled Swagger object
-var swaggerSpec = []string{
-
-	"H4sIAAAAAAAC/9RWYU/jOBD9K5bvpPtSmrQFdsm3wgKXQqG0BXZvhW7dZNq6JLaxnZaC+t9P4wRCadhD",
-	"OqTVfUtsj2f83ptnP9JIpkoKENbQ4JGaaAopc5/7zEAfjJLCAP4rLRVoy8HNRjJ2o3apgAaUCwsT0HRV",
-	"oykYwyYvJ43VXExwzmRRBMa8mBtJmQATOGl5CsayVFXti/P5kBzNILIYcConXPThLgNjNytUzJiF1HFl",
-	"IZkBLVhaVeWqRjXcZVxDTIPv5cpauePN28W8hRfcK66fPlmqEqDBnu/XKgC08hZEdWGvsiKiEGWa2+UA",
-	"icv3bys+gEiDPYEl/nNBAzoFFoOmNZqfmn7davfCrZPDb/R5V6Y4RqxqdB+YBt3O7BTjR+7vSOqUWRrQ",
-	"zvWQ1nKhOALdbLnL1FqFe5xjeBPjx4lcbDBiIqnycpniQQFJwOLUVdt2MiEWjPXmTaLByExH8IzOpU6K",
-	"VIHnNT41641Pdb/eCD77n/01oJgrYoVDXIwl5ovBRJoryyVmOswzk3YvJDoTgosJWXA7JYxEmbEyJcdS",
-	"8yRhpJvdE45rUxCWYXgdT80tUkn/HA57W5fD8HRAtsjBZmS7F9IanYM2ed5G3a/7eB6pQDDFaUBbdb/e",
-	"cjKzU4eMl6CmHHIyV/h67YgwCMsjZoEwgkolTMQIl5IiLs4hCCvQROSwZtSlO0AY04D2pLFOvDQXPhi7",
-	"L+Nl3uTCgrA5SyrBRFwKb2akKM0Cv37XMKYB/c0r3cQrrMRb69LVentZnYEbyNvGnbrp+x+du2hKl3wd",
-	"QreAFLY0zhJkZNtvfFgBayZakT8Uc5bwmEQaYqSSJSZv6yxNmV6uk8ylICBiJbmwKD02MehQuEJq/uAW",
-	"0BsM92xhiROo0M0QjCV8TOwUiMpGCY+IlpkFwg1ZSH3LxWRTJsdgMY7+R7bWXfHFXfHsijS0fzzXUfrK",
-	"T1xwA9VBcc2sanTnA9X072RavCsSYkDPQRPQWupXdPZyvCtodOiW7HmPhVms3sWjuwcg3iSS9PNuM26Z",
-	"lgmQHxuW++NNvq8Kx0Jb0iwFCxqrfV3KbIFHqbxp1uX5uvtrL7AvJQDLznR0HPFz3gkvH8LGGQ9NKPo7",
-	"0UG4G96qr1cHnb06LDsP8XXIz3l43511/bPht9b5l9tFyBd8lB7ZvwZu8Zwdb0/6x3sJjrPrIz+cyfuz",
-	"4WGzO+vudL+Ey/FFfTBOTu4X/c6gCycnR82L4fZ4obrQGbd2e+e3u8vO1d8svjBmsRNVKXLDmMWSxMyy",
-	"J0juMtDLEhGU2LtwaDRb2zu770iI1FqmJ2DJ/JkwlxovkzJzOfkeFubNisPe/M8M4Je7OZbQ+vUXSvFO",
-	"dL379Db7XvH4ukGGS78aFL7yE8N6c/d8K+eFVZ5xKiOWkBjmkEiFj6rCN2mNZi/fdwmum0pj3fPOY4p7",
-	"RcnevOHR1c3qnwAAAP//ExtmEMYMAAA=",
-}
-
-// GetSwagger returns the content of the embedded swagger specification file
-// or error if failed to decode
-func decodeSpec() ([]byte, error) {
-	zipped, err := base64.StdEncoding.DecodeString(strings.Join(swaggerSpec, ""))
-	if err != nil {
-		return nil, fmt.Errorf("error base64 decoding spec: %w", err)
-	}
-	zr, err := gzip.NewReader(bytes.NewReader(zipped))
-	if err != nil {
-		return nil, fmt.Errorf("error decompressing spec: %w", err)
-	}
-	var buf bytes.Buffer
-	_, err = buf.ReadFrom(zr)
-	if err != nil {
-		return nil, fmt.Errorf("error decompressing spec: %w", err)
-	}
-
-	return buf.Bytes(), nil
-}
-
-var rawSpec = decodeSpecCached()
-
-// a naive cached of a decoded swagger spec
-func decodeSpecCached() func() ([]byte, error) {
-	data, err := decodeSpec()
-	return func() ([]byte, error) {
-		return data, err
-	}
-}
-
-// Constructs a synthetic filesystem for resolving external references when loading openapi specifications.
-func PathToRawSpec(pathToFile string) map[string]func() ([]byte, error) {
-	res := make(map[string]func() ([]byte, error))
-	if len(pathToFile) > 0 {
-		res[pathToFile] = rawSpec
-	}
-
-	return res
-}
-
-// GetSwagger returns the Swagger specification corresponding to the generated code
-// in this file. The external references of Swagger specification are resolved.
-// The logic of resolving external references is tightly connected to "import-mapping" feature.
-// Externally referenced files must be embedded in the corresponding golang packages.
-// Urls can be supported but this task was out of the scope.
-func GetSwagger() (swagger *openapi3.T, err error) {
-	resolvePath := PathToRawSpec("")
-
-	loader := openapi3.NewLoader()
-	loader.IsExternalRefsAllowed = true
-	loader.ReadFromURIFunc = func(loader *openapi3.Loader, url *url.URL) ([]byte, error) {
-		pathToFile := url.String()
-		pathToFile = path.Clean(pathToFile)
-		getSpec, ok := resolvePath[pathToFile]
-		if !ok {
-			err1 := fmt.Errorf("path not found: %s", pathToFile)
-			return nil, err1
-		}
-		return getSpec()
-	}
-	var specData []byte
-	specData, err = rawSpec()
-	if err != nil {
-		return
-	}
-	swagger, err = loader.LoadFromData(specData)
-	if err != nil {
-		return
-	}
-	return
 }

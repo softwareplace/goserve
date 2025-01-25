@@ -3,6 +3,7 @@ package api_context
 import (
 	"context"
 	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 )
@@ -29,6 +30,9 @@ type ApiRequestContext[T ApiPrincipalContext] struct {
 	AuthorizationClaims map[string]interface{} // A set of claims derived from the authorization token, providing additional metadata about the requester (e.g., roles, permissions, expiration).
 	ApiKeyClaims        map[string]interface{} // A set of claims derived from the API key, detailing metadata associated with the key (e.g., usage limits, allowed resources).
 	AccessId            string                 // A unique identifier representing access to a specific resource or API, often used for auditing or tracking access patterns.
+	PathValues          map[string]string      // A map of route variables extracted from the request URL. Useful for handling dynamic URL parameters in the API endpoints.
+	Headers             map[string][]string    // Headers contains a mapping of header keys to their respective values from the incoming HTTP request.
+	QueryValues         map[string][]string    // A map containing the query parameters from the request URL. Each key corresponds to a query parameter name, and the value is a slice of strings representing the values of that parameter. Useful for processing and validating query parameters in API endpoints.
 }
 
 // Of retrieves the ApiRequestContext object from the request's context if it already exists.
@@ -104,6 +108,9 @@ func createNewContext[T ApiPrincipalContext](
 	ctx := ApiRequestContext[T]{
 		Writer:        &w,
 		Request:       r,
+		PathValues:    mux.Vars(r),
+		QueryValues:   r.URL.Query(),
+		Headers:       r.Header,
 		sessionId:     uuid.New().String(),
 		ApiKey:        r.Header.Get(XApiKey),
 		Authorization: r.Header.Get(Authorization),
