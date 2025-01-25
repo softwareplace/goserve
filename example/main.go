@@ -131,12 +131,6 @@ func (s *_service) GetTestV2(ctx *api_context.ApiRequestContext[*api_context.Def
 	ctx.Response(response, 200)
 }
 
-func embeddedHandler() func(handler server.ApiRouterHandler[*api_context.DefaultContext]) {
-	return func(handler server.ApiRouterHandler[*api_context.DefaultContext]) {
-		gen.ResourcesHandler(handler, &_service{})
-	}
-}
-
 func main() {
 
 	var userPrincipalService principal.PService[*api_context.DefaultContext]
@@ -173,7 +167,7 @@ func main() {
 
 	server.Default().
 		WithLoginResource(loginService).
-		EmbeddedServer(embeddedHandler()).
+		EmbeddedServer(gen.ApiResourceHandler(&_service{})).
 		SwaggerDocHandler("example/resource/swagger.yaml").
 		RegisterMiddleware(secretHandler.HandlerSecretAccess, security.ApiSecretAccessHandlerName).
 		RegisterMiddleware(securityService.AuthorizationHandler, security.ApiSecurityHandlerName).
