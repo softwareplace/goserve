@@ -16,8 +16,19 @@ handler := &requestHandlerImpl[T]{
 		Service: service,
 	}
 {{range .}}
-apiServer.Add(handler.{{.OperationId}}, "{{.Path | swaggerUriToGorillaUri }}", "{{.Method }}", {{range .SecurityDefinitions}}{{toStringArray .Scopes}}...{{end}})
+
+{{- $hasScopes := false -}}
+{{- range .SecurityDefinitions -}}
+    {{- if .Scopes -}}
+        {{- $hasScopes = true -}}
+    {{- end -}}
+{{- end -}}
+
+{{if $hasScopes}}
+	apiServer.Add(handler.{{.OperationId}}, "{{.Path | swaggerUriToGorillaUri }}", "{{.Method }}", {{range .SecurityDefinitions}}{{toStringArray .Scopes}}...{{end}})
+{{else}}
+	apiServer.PublicRouter(handler.{{.OperationId}}, "{{.Path | swaggerUriToGorillaUri }}", "{{.Method }}")
 {{end}}
+{{end}}
+
 }
-
-

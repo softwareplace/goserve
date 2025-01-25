@@ -15,6 +15,8 @@ var (
 
 // AddOpenPath adds a path to the list of open paths.
 func AddOpenPath(path string) {
+
+	path = regexp.MustCompile(`/+`).ReplaceAllString(path, "/")
 	openPathLock.Lock()
 	defer openPathLock.Unlock()
 	for _, existingPath := range openPaths {

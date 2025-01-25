@@ -9,7 +9,8 @@ import (
 
 func (a *apiRouterHandlerImpl[T]) PublicRouter(handler ApiContextHandler[T], path string, method string) ApiRouterHandler[T] {
 	a.Add(handler, path, method)
-	principal.AddOpenPath(method + "::" + ContextPath + path)
+	combinedKey := method + "::" + ContextPath + path
+	principal.AddOpenPath(combinedKey)
 	return a
 }
 

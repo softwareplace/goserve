@@ -172,9 +172,9 @@ func ResourcesHandler[T api_context.ApiPrincipalContext](apiServer server.ApiRou
 		Service: service,
 	}
 
-	apiServer.Add(handler.PostLogin, "/login", "POST", []string{}...)
+	apiServer.PublicRouter(handler.PostLogin, "/login", "POST")
 
-	apiServer.Add(handler.GetTest, "/test", "GET", []string{}...)
+	apiServer.PublicRouter(handler.GetTest, "/test", "GET")
 
 	apiServer.Add(handler.GetTestVersion, "/test/{version}", "GET", []string{"api:example:admin"}...)
 
