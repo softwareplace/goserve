@@ -29,10 +29,26 @@ type BaseResponse struct {
 	Timestamp *int    `json:"timestamp,omitempty"`
 }
 
+func GetBaseResponseBody[T api_context.ApiPrincipalContext](
+	ctx *api_context.ApiRequestContext[T],
+	onSuccess server.OnSuccess[BaseResponse, T],
+	onError server.OnError[T],
+) {
+	server.GetRequestBody(ctx, BaseResponse{}, onSuccess, onError)
+}
+
 // LoginRequest defines model for LoginRequest.
 type LoginRequest struct {
 	Password string `json:"password"`
 	Username string `json:"username"`
+}
+
+func GetLoginRequestBody[T api_context.ApiPrincipalContext](
+	ctx *api_context.ApiRequestContext[T],
+	onSuccess server.OnSuccess[LoginRequest, T],
+	onError server.OnError[T],
+) {
+	server.GetRequestBody(ctx, LoginRequest{}, onSuccess, onError)
 }
 
 // LoginResponse defines model for LoginResponse.
@@ -41,8 +57,19 @@ type LoginResponse struct {
 	Token   *string `json:"token,omitempty"`
 }
 
-// GetTestV2Params defines parameters for GetTestV2.
-type GetTestV2Params struct {
+func GetLoginResponseBody[T api_context.ApiPrincipalContext](
+	ctx *api_context.ApiRequestContext[T],
+	onSuccess server.OnSuccess[LoginResponse, T],
+	onError server.OnError[T],
+) {
+	server.GetRequestBody(ctx, LoginResponse{}, onSuccess, onError)
+}
+
+// GetTestVersionParams defines parameters test of for GetTestVersion.
+type GetTestVersionParams struct {
+	// Ref Any data
+	Ref string `form:"ref" json:"ref"`
+
 	// Authorization jwt
 	Authorization string `json:"Authorization"`
 }
@@ -59,8 +86,8 @@ type ServerInterface[T api_context.ApiPrincipalContext] interface {
 	// (GET /test)
 	GetTest(ctx *api_context.ApiRequestContext[T])
 	// Secured endpoint
-	// (GET /test/v2)
-	GetTestV2(ctx *api_context.ApiRequestContext[T])
+	// (GET /test/{version})
+	GetTestVersion(ctx *api_context.ApiRequestContext[T])
 }
 
 type UnescapedCookieParamError struct {
@@ -134,7 +161,7 @@ func (e *TooManyValuesForParamError) Error() string {
 
 //PostLogin operation middleware test execution
 //GetTest operation middleware test execution
-//GetTestV2 operation middleware test execution
+//GetTestVersion operation middleware test execution
 
 // ResourcesHandler registers API endpoints and sets up the Swagger documentation.
 //
@@ -143,7 +170,7 @@ func (e *TooManyValuesForParamError) Error() string {
 // - Sets up Swagger documentation using the provided `GetSwagger` function.
 // - PostLogin
 // - GetTest
-// - GetTestV2
+// - GetTestVersion
 // Parameters:
 //   - apiServer: The API router handler used for setting up routes and middleware.
 //   - server: The server interface implementation containing the endpoint handlers.
@@ -152,37 +179,37 @@ func (e *TooManyValuesForParamError) Error() string {
 //   - T: A type that satisfies the `ApiPrincipalContext` interface, representing the principal/context
 //     involved in the API operations.
 func ResourcesHandler[T api_context.ApiPrincipalContext](apiServer server.ApiRouterHandler[T], server ServerInterface[T]) {
-	apiServer.SetupSwagger(GetSwagger)
 
 	apiServer.Add(server.PostLogin, "/login", "POST", []string{}...)
 
 	apiServer.Add(server.GetTest, "/test", "GET", []string{}...)
 
-	apiServer.Add(server.GetTestV2, "/test/v2", "GET", []string{"api:example:admin", "api:example:admin:v2"}...)
+	apiServer.Add(server.GetTestVersion, "/test/{version}", "GET", []string{"api:example:admin"}...)
 
 }
 
 // Base64 encoded, gzipped, json marshaled Swagger object
 var swaggerSpec = []string{
 
-	"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",
+	"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",
+	"RcnevOHR1c3qnwAAAP//ExtmEMYMAAA=",
 }
 
 // GetSwagger returns the content of the embedded swagger specification file

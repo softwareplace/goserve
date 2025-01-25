@@ -20,113 +20,113 @@ type ApiRouterHandler[T api_context.ApiPrincipalContext] interface {
 	// It allows unrestricted access from any client.
 	//
 	// Parameters:
-	// - handler: The handler function to process requests.
-	// - path: The URL route path.
-	// - method: The HTTP method for the route.
+	//   - handler: The handler function to process requests.
+	//   - path: The URL route path.
+	//   - method: The HTTP method for the route.
 	//
 	// Returns:
-	// - ApiRouterHandler: The router handler for chaining further route configurations.
+	//   - ApiRouterHandler: The router handler for chaining further route configurations.
 	PublicRouter(handler ApiContextHandler[T], path string, method string) ApiRouterHandler[T]
 
 	// Add registers a route handler with optional role-based access control.
 	// This method is used to define routes and assign roles required to access them.
 	//
 	// Parameters:
-	// - handler: The handler function to process requests.
-	// - path: The URL route path.
-	// - method: The HTTP method for the route.
-	// - requiredRoles: A list of roles required to access the route (optional).
+	//   - handler: The handler function to process requests.
+	//   - path: The URL route path.
+	//   - method: The HTTP method for the route.
+	//   - requiredRoles: A list of roles required to access the route (optional).
 	//
 	// Returns:
-	// - ApiRouterHandler: The router handler for chaining further route configurations.
+	//   - ApiRouterHandler: The router handler for chaining further route configurations.
 	Add(handler ApiContextHandler[T], path string, method string, requiredRoles ...string) ApiRouterHandler[T]
 
 	// Get registers a route handler specifically for HTTP GET requests with optional role-based access control.
 	//
 	// Parameters:
-	// - handler: The handler function to process requests.
-	// - path: The URL route path.
-	// - requiredRoles: A list of roles required to access the route (optional).
+	//   - handler: The handler function to process requests.
+	//   - path: The URL route path.
+	//   - requiredRoles: A list of roles required to access the route (optional).
 	//
 	// Returns:
-	// - ApiRouterHandler: The router handler for chaining further route configurations.
+	//   - ApiRouterHandler: The router handler for chaining further route configurations.
 	Get(handler ApiContextHandler[T], path string, requiredRoles ...string) ApiRouterHandler[T]
 
 	// Post registers a route handler specifically for HTTP POST requests with optional role-based access control.
 	//
 	// Parameters:
-	// - handler: The handler function to process requests.
-	// - path: The URL route path.
-	// - requiredRoles: A list of roles required to access the route (optional).
+	//   - handler: The handler function to process requests.
+	//   - path: The URL route path.
+	//   - requiredRoles: A list of roles required to access the route (optional).
 	//
 	// Returns:
-	// - ApiRouterHandler: The router handler for chaining further route configurations.
+	//   - ApiRouterHandler: The router handler for chaining further route configurations.
 	Post(handler ApiContextHandler[T], path string, requiredRoles ...string) ApiRouterHandler[T]
 
 	// Put registers a route handler specifically for HTTP PUT requests with optional role-based access control.
 	//
 	// Parameters:
-	// - handler: The handler function to process requests.
-	// - path: The URL route path.
-	// - requiredRoles: A list of roles required to access the route (optional).
+	//   - handler: The handler function to process requests.
+	//   - path: The URL route path.
+	//   - requiredRoles: A list of roles required to access the route (optional).
 	//
 	// Returns:
-	// - ApiRouterHandler: The router handler for chaining further route configurations.
+	//   - ApiRouterHandler: The router handler for chaining further route configurations.
 	Put(handler ApiContextHandler[T], path string, requiredRoles ...string) ApiRouterHandler[T]
 
 	// Delete registers a route handler specifically for HTTP DELETE requests with optional role-based access control.
 	//
 	// Parameters:
-	// - handler: The handler function to process requests.
-	// - path: The URL route path.
-	// - requiredRoles: A list of roles required to access the route (optional).
+	//   - handler: The handler function to process requests.
+	//   - path: The URL route path.
+	//   - requiredRoles: A list of roles required to access the route (optional).
 	//
 	// Returns:
-	// - ApiRouterHandler: The router handler for chaining further route configurations.
+	//   - ApiRouterHandler: The router handler for chaining further route configurations.
 	Delete(handler ApiContextHandler[T], path string, requiredRoles ...string) ApiRouterHandler[T]
 
 	// Patch registers a route handler specifically for HTTP PATCH requests with optional role-based access control.
 	//
 	// Parameters:
-	// - handler: The handler function to process requests.
-	// - path: The URL route path.
-	// - requiredRoles: A list of roles required to access the route (optional).
+	//   - handler: The handler function to process requests.
+	//   - path: The URL route path.
+	//   - requiredRoles: A list of roles required to access the route (optional).
 	//
 	// Returns:
-	// - ApiRouterHandler: The router handler for chaining further route configurations.
+	//   - ApiRouterHandler: The router handler for chaining further route configurations.
 	Patch(handler ApiContextHandler[T], path string, requiredRoles ...string) ApiRouterHandler[T]
 
 	// Options registers a route handler specifically for HTTP OPTIONS requests with optional role-based access control.
 	//
 	// Parameters:
-	// - handler: The handler function to process requests.
-	// - path: The URL route path.
-	// - requiredRoles: A list of roles required to access the route (optional).
+	//   - handler: The handler function to process requests.
+	//   - path: The URL route path.
+	//   - requiredRoles: A list of roles required to access the route (optional).
 	//
 	// Returns:
-	// - ApiRouterHandler: The router handler for chaining further route configurations.
+	//   - ApiRouterHandler: The router handler for chaining further route configurations.
 	Options(handler ApiContextHandler[T], path string, requiredRoles ...string) ApiRouterHandler[T]
 
 	// Head registers a route handler specifically for HTTP HEAD requests with optional role-based access control.
 	//
 	// Parameters:
-	// - handler: The handler function to process requests.
-	// - path: The URL route path.
-	// - requiredRoles: A list of roles required to access the route (optional).
+	//   - handler: The handler function to process requests.
+	//   - path: The URL route path.
+	//   - requiredRoles: A list of roles required to access the route (optional).
 	//
 	// Returns:
-	// - ApiRouterHandler: The router handler for chaining further route configurations.
+	//   - ApiRouterHandler: The router handler for chaining further route configurations.
 	Head(handler ApiContextHandler[T], path string, requiredRoles ...string) ApiRouterHandler[T]
 
 	// RegisterMiddleware adds a middleware function to the API router.
 	// Middleware intercepts requests and can perform tasks like authentication, logging, etc.
 	//
 	// Parameters:
-	// - middleware: The middleware function to apply to requests.
-	// - name: The identifier for the middleware.
+	//   - middleware: The middleware function to apply to requests.
+	//   - name: The identifier for the middleware.
 	//
 	// Returns:
-	// - ApiRouterHandler: The router handler for chaining further route configurations.
+	//   - ApiRouterHandler: The router handler for chaining further route configurations.
 	RegisterMiddleware(middleware ApiMiddleware[T], name string) ApiRouterHandler[T]
 
 	// RegisterCustomMiddleware is a method that allows for registering a custom middleware function
@@ -135,7 +135,7 @@ type ApiRouterHandler[T api_context.ApiPrincipalContext] interface {
 	// security checks.
 	//
 	// Parameters:
-	// - next: The next HTTP handler in the middleware chain. It represents the subsequent middleware
+	//   - next: The next HTTP handler in the middleware chain. It represents the subsequent middleware
 	//		 or the final handler that should be invoked after the custom middleware logic.
 	//
 	// Example usage:
@@ -158,20 +158,20 @@ type ApiRouterHandler[T api_context.ApiPrincipalContext] interface {
 	// This service provides role-based access control and other principal-related features.
 	//
 	// Parameters:
-	// - service: The principal service instance.
+	//   - service: The principal service instance.
 	//
 	// Returns:
-	// - ApiRouterHandler: The router handler for chaining further route configurations.
+	//   - ApiRouterHandler: The router handler for chaining further route configurations.
 	WithPrincipalService(service principal.PService[T]) ApiRouterHandler[T]
 
 	// WithErrorHandler assigns a custom error handler to the router.
 	// This handler is used to process API errors and provide appropriate responses.
 	//
 	// Parameters:
-	// - handler: An instance of ApiErrorHandler that defines custom error-handling logic.
+	//   - handler: An instance of ApiErrorHandler that defines custom error-handling logic.
 	//
 	// Returns:
-	// - ApiRouterHandler: The router handler for chaining further route configurations.
+	//   - ApiRouterHandler: The router handler for chaining further route configurations.
 	WithErrorHandler(handler error_handler.ApiErrorHandler[T]) ApiRouterHandler[T]
 
 	// WithLoginResource sets the login service for the API router and registers a public
@@ -194,7 +194,7 @@ type ApiRouterHandler[T api_context.ApiPrincipalContext] interface {
 	// routes, middleware, or additional configurations that are not covered by the ApiRouterHandler methods.
 	//
 	// Returns:
-	// - *mux.Router: The Gorilla Mux router instance.
+	//   - *mux.Router: The Gorilla Mux router instance.
 	//
 	// Example usage:
 	// ```go
@@ -208,10 +208,10 @@ type ApiRouterHandler[T api_context.ApiPrincipalContext] interface {
 	// allowing greater flexibility in handling requests.
 	//
 	// Parameters:
-	// - handler: The custom RouterHandler instance to use for routing logic.
+	//   - handler: The custom RouterHandler instance to use for routing logic.
 	//
 	// Returns:
-	// - ApiRouterHandler: The router handler for chaining further route configurations.
+	//   - ApiRouterHandler: The router handler for chaining further route configurations.
 	//
 	// Example usage:
 	// ```go
@@ -227,12 +227,12 @@ type ApiRouterHandler[T api_context.ApiPrincipalContext] interface {
 	// configuration of API routes, middleware, and other server settings through a handler function.
 	//
 	// Parameters:
-	// - handler: A function that accepts an ApiRouterHandler[T] and is used to configure the
-	//			server's routes, middleware, and other features. This provides a flexible way
-	//			to set up the server before starting it.
+	//   - handler: A function that accepts an ApiRouterHandler[T] and is used to configure the
+	//			  server's routes, middleware, and other features. This provides a flexible way
+	//			  to set up the server before starting it.
 	//
 	// Returns:
-	// - ApiRouterHandler[T]: The configured API router handler, allowing further chaining of
+	//   - ApiRouterHandler[T]: The configured API router handler, allowing further chaining of
 	//						configurations after embedding the server.
 	//
 	// Example usage:
@@ -248,7 +248,7 @@ type ApiRouterHandler[T api_context.ApiPrincipalContext] interface {
 	// other embedded server use cases.
 	EmbeddedServer(handler func(ApiRouterHandler[T])) ApiRouterHandler[T]
 
-	// SetupSwagger sets up the Swagger UI and handles serving the
+	// SwaggerDocProvider sets up the Swagger UI and handles serving the
 	// Swagger JSON documentation. It accepts a function to retrieve
 	// the OpenAPI 3.0 specification.
 	//
@@ -266,7 +266,72 @@ type ApiRouterHandler[T api_context.ApiPrincipalContext] interface {
 	//   - Registers the Swagger UI handler under the "swagger/" path and
 	//	 provides an endpoint for serving the raw Swagger JSON located at
 	//	 "doc" using the context path configured.
-	SetupSwagger(getSwagger func() (swagger *openapi3.T, err error)) ApiRouterHandler[T]
+	// Example:
+	//   - Using generated swagger SwaggerDocProvider(gen.GetSwagger)
+	SwaggerDocProvider(getSwagger func() (swagger *openapi3.T, err error)) ApiRouterHandler[T]
+
+	// SwaggerDocHandler loads the Swagger documentation from a specified file into the API router.
+	// This method reads the content of the provided file and serves it as the Swagger JSON.
+	// It is useful for integrating pre-generated OpenAPI specifications into the API.
+	//
+	// Parameters:
+	//   - swaggerFile: The file path to the Swagger/OpenAPI YAML file.
+	//
+	// Behavior:
+	//   - Loads the Swagger specification from the specified file.
+	//   - If the file cannot be read, the method returns an appropriate error or logs it,
+	//	 depending on the implementation details.
+	//   - Configures the API router to serve the Swagger definition via an HTTP handler.
+	//
+	// Returns:
+	//   - ApiRouterHandler[T]: The router handler for chaining further configurations.
+	//
+	// Example usage:
+	// ```go
+	// router := NewApiRouter()
+	// router.SwaggerDocHandler("path/to/swagger.yaml")
+	// ```
+	SwaggerDocHandler(swaggerFile string) ApiRouterHandler[T]
+
+	// NotFoundHandler sets a custom handler for requests to undefined routes.
+	// This method can be used to provide a user-friendly response or logging
+	// for routes that are not registered within the API router.
+	//
+	// Behavior:
+	//   - If SetupSwagger was invoked and the router matches with ContextPath, redirects to ContextPath+"swagger/index.html".
+	//   - Registers a default HTTP handler for undefined routes.
+	//   - Allows customization of the response for 404 Not Found errors.
+	//   - If this method is not used, a standard "404 Page Not Found" is returned.
+	//
+	// Example usage:
+	// ```go
+	//    router := NewApiRouter()
+	//    router.NotFoundHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	//	  	w.WriteHeader(http.StatusNotFound)
+	//	    w.Write([]byte("Custom 404 Response"))
+	//    }))
+	// ```
+	NotFoundHandler() ApiRouterHandler[T]
+
+	// CustomNotFoundHandler sets a custom handler for handling 404 Not Found errors.
+	// This method allows you to define your own response logic for requests to undefined routes.
+	//
+	// Parameters:
+	//   - handler: A function that takes a http.ResponseWriter and *http.Request as arguments,
+	//			and defines the logic for responding to unmatched routes.
+	//
+	// Returns:
+	//   - ApiRouterHandler[T]: The router handler for chaining further route configurations.
+	//
+	// Example usage:
+	// ```go
+	// router := NewApiRouter()
+	// router.CustomNotFoundHandler(func(w http.ResponseWriter, r *http.Request) {
+	//	 w.WriteHeader(http.StatusNotFound)
+	//	 w.Write([]byte("Custom 404 Page"))
+	// })
+	// ```
+	CustomNotFoundHandler(handler func(w http.ResponseWriter, r *http.Request)) ApiRouterHandler[T]
 
 	// StartServer starts the HTTP server with the configured routes and middleware.
 	// This method blocks the current execution until the server terminates.

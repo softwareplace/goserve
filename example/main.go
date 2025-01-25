@@ -86,6 +86,22 @@ func (s *_service) GetTest(ctx *api_context.ApiRequestContext[*api_context.Defau
 	ctx.Response(response, 200)
 }
 
+func (s *_service) GetTestVersion(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+	message := "Test v2 it's working"
+	code := 200
+	success := true
+	timestamp := 1625867200
+
+	response := gen.BaseResponse{
+		Message:   &message,
+		Code:      &code,
+		Success:   &success,
+		Timestamp: &timestamp,
+	}
+
+	ctx.Response(response, 200)
+}
+
 func (s *_service) GetTestV2(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
 	message := "Test v2 it's working"
 	code := 200
@@ -145,8 +161,10 @@ func main() {
 	server.Default().
 		WithLoginResource(loginService).
 		EmbeddedServer(embeddedHandler()).
-		RegisterMiddleware(secretHandler.HandlerSecretAccess, security.ApiSecretAccessHandlerName).
-		RegisterMiddleware(securityService.AuthorizationHandler, security.ApiSecurityHandlerName).
+		SwaggerDocHandler("example/resource/swagger.yaml").
+		//RegisterMiddleware(secretHandler.HandlerSecretAccess, security.ApiSecretAccessHandlerName).
+		//RegisterMiddleware(securityService.AuthorizationHandler, security.ApiSecurityHandlerName).
 		WithErrorHandler(errorHandler).
+		NotFoundHandler().
 		StartServer()
 }

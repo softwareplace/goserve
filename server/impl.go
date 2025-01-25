@@ -13,6 +13,7 @@ type apiRouterHandlerImpl[T api_context.ApiPrincipalContext] struct {
 	principalService principal.PService[T]
 	errorHandler     error_handler.ApiErrorHandler[T]
 	loginService     LoginService[T]
+	swaggerIsEnabled bool
 }
 
 func (a *apiRouterHandlerImpl[T]) RegisterMiddleware(middleware ApiMiddleware[T], name string) ApiRouterHandler[T] {

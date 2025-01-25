@@ -8,6 +8,8 @@ generate:
 output: ./example/gen/api.gen.go
 output-options:
   user-templates:
+    param-types.tmpl: ./resource/templates/param-types.tmpl
+    typedef.tmpl: ./resource/templates/typedef.tmpl
     gorilla/gorilla-register.tmpl: ./resource/templates/gorilla/gorilla-register.tmpl
     gorilla/gorilla-middleware.tmpl: ./resource/templates/gorilla/gorilla-middleware.tmpl
     gorilla/gorilla-interface.tmpl: ./resource/templates/gorilla/gorilla-interface.tmpl
