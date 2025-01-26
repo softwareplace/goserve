@@ -43,10 +43,30 @@ type ApiResponse struct {
 	Type    *string `json:"type,omitempty"`
 }
 
+// BaseResponse defines model for BaseResponse.
+type BaseResponse struct {
+	Code      *int    `json:"code,omitempty"`
+	Message   *string `json:"message,omitempty"`
+	Success   *bool   `json:"success,omitempty"`
+	Timestamp *int    `json:"timestamp,omitempty"`
+}
+
 // Category defines model for Category.
 type Category struct {
 	Id   *int64  `json:"id,omitempty"`
 	Name *string `json:"name,omitempty"`
+}
+
+// LoginRequest defines model for LoginRequest.
+type LoginRequest struct {
+	Password string `json:"password"`
+	Username string `json:"username"`
+}
+
+// LoginResponse defines model for LoginResponse.
+type LoginResponse struct {
+	Expires *int    `json:"expires,omitempty"`
+	Token   *string `json:"token,omitempty"`
 }
 
 // Order defines model for Order.
@@ -99,10 +119,28 @@ type User struct {
 	Username   *string `json:"username,omitempty"`
 }
 
+// Authorization defines model for authorization.
+type Authorization = string
+
+// AddPetParams defines parameters for AddPet.
+type AddPetParams struct {
+	// Authorization jwt
+	Authorization Authorization `json:"Authorization"`
+}
+
+// UpdatePetParams defines parameters for UpdatePet.
+type UpdatePetParams struct {
+	// Authorization jwt
+	Authorization Authorization `json:"Authorization"`
+}
+
 // FindPetsByStatusParams defines parameters for FindPetsByStatus.
 type FindPetsByStatusParams struct {
 	// Status Status values that need to be considered for filter
 	Status *FindPetsByStatusParamsStatus `form:"status,omitempty" json:"status,omitempty"`
+
+	// Authorization jwt
+	Authorization Authorization `json:"Authorization"`
 }
 
 // FindPetsByStatusParamsStatus defines parameters for FindPetsByStatus.
@@ -112,11 +150,22 @@ type FindPetsByStatusParamsStatus string
 type FindPetsByTagsParams struct {
 	// Tags Tags to filter by
 	Tags *[]string `form:"tags,omitempty" json:"tags,omitempty"`
+
+	// Authorization jwt
+	Authorization Authorization `json:"Authorization"`
 }
 
 // DeletePetParams defines parameters for DeletePet.
 type DeletePetParams struct {
-	ApiKey *string `json:"api_key,omitempty"`
+	// Authorization jwt
+	Authorization Authorization `json:"Authorization"`
+	ApiKey        *string       `json:"api_key,omitempty"`
+}
+
+// GetPetByIdParams defines parameters for GetPetById.
+type GetPetByIdParams struct {
+	// Authorization jwt
+	Authorization Authorization `json:"Authorization"`
 }
 
 // UpdatePetWithFormParams defines parameters for UpdatePetWithForm.
@@ -126,24 +175,80 @@ type UpdatePetWithFormParams struct {
 
 	// Status Status of pet that needs to be updated
 	Status *string `form:"status,omitempty" json:"status,omitempty"`
+
+	// Authorization jwt
+	Authorization Authorization `json:"Authorization"`
 }
 
 // UploadFileParams defines parameters for UploadFile.
 type UploadFileParams struct {
 	// AdditionalMetadata Additional Metadata
 	AdditionalMetadata *string `form:"additionalMetadata,omitempty" json:"additionalMetadata,omitempty"`
+
+	// Authorization jwt
+	Authorization Authorization `json:"Authorization"`
+}
+
+// PlaceOrderParams defines parameters for PlaceOrder.
+type PlaceOrderParams struct {
+	// Authorization jwt
+	Authorization Authorization `json:"Authorization"`
+}
+
+// DeleteOrderParams defines parameters for DeleteOrder.
+type DeleteOrderParams struct {
+	// Authorization jwt
+	Authorization Authorization `json:"Authorization"`
+}
+
+// GetOrderByIdParams defines parameters for GetOrderById.
+type GetOrderByIdParams struct {
+	// Authorization jwt
+	Authorization Authorization `json:"Authorization"`
 }
 
 // CreateUsersWithListInputJSONBody defines parameters for CreateUsersWithListInput.
 type CreateUsersWithListInputJSONBody = []User
 
-// LoginUserParams defines parameters for LoginUser.
-type LoginUserParams struct {
-	// Username The user name for login
-	Username *string `form:"username,omitempty" json:"username,omitempty"`
+// CreateUsersWithListInputParams defines parameters for CreateUsersWithListInput.
+type CreateUsersWithListInputParams struct {
+	// Authorization jwt
+	Authorization Authorization `json:"Authorization"`
+}
 
-	// Password The password for login in clear text
-	Password *string `form:"password,omitempty" json:"password,omitempty"`
+// LogoutUserParams defines parameters for LogoutUser.
+type LogoutUserParams struct {
+	// Authorization jwt
+	Authorization Authorization `json:"Authorization"`
+}
+
+// DeleteUserParams defines parameters for DeleteUser.
+type DeleteUserParams struct {
+	// Authorization jwt
+	Authorization Authorization `json:"Authorization"`
+}
+
+// GetUserByNameParams defines parameters for GetUserByName.
+type GetUserByNameParams struct {
+	// Authorization jwt
+	Authorization Authorization `json:"Authorization"`
+}
+
+// UpdateUserParams defines parameters for UpdateUser.
+type UpdateUserParams struct {
+	// Authorization jwt
+	Authorization Authorization `json:"Authorization"`
+}
+
+func (rh *requestHandlerImpl[T]) PostLogin(ctx *api_context.ApiRequestContext[T]) {
+
+	requestBody := LoginRequest{}
+	server.GetRequestBody(ctx, requestBody, func(ctx *api_context.ApiRequestContext[T], body LoginRequest) {
+		rh.Service.PostLoginRequest(body, ctx)
+	}, func(ctx *api_context.ApiRequestContext[T], err error) {
+		ctx.InternalServerError("Internal server error")
+	})
+
 }
 
 func (rh *requestHandlerImpl[T]) AddPet(ctx *api_context.ApiRequestContext[T]) {
@@ -273,14 +378,6 @@ func (rh *requestHandlerImpl[T]) CreateUsersWithListInput(ctx *api_context.ApiRe
 
 }
 
-func (rh *requestHandlerImpl[T]) LoginUser(ctx *api_context.ApiRequestContext[T]) {
-
-	//request := LoginUserRequestParams{}
-	// server.PopulateFieldsFromRequest(ctx, &request)
-	rh.Service.LoginUserRequest(ctx)
-
-}
-
 func (rh *requestHandlerImpl[T]) LogoutUser(ctx *api_context.ApiRequestContext[T]) {
 
 	//request := LogoutUserRequestParams{}
@@ -316,6 +413,9 @@ func (rh *requestHandlerImpl[T]) UpdateUser(ctx *api_context.ApiRequestContext[T
 
 }
 
+// PostLoginJSONRequestBody defines body for PostLogin for application/json ContentType.
+type PostLoginRequest = LoginRequest
+
 // AddPetJSONRequestBody defines body for AddPet for application/json ContentType.
 type AddPetRequest = Pet
 
@@ -336,6 +436,9 @@ type UpdateUserRequest = User
 
 // RequestHandler represents all server handlers.
 type RequestHandler[T api_context.ApiPrincipalContext] interface {
+	// Authentication endpoint
+	// (POST /login)
+	PostLogin(ctx *api_context.ApiRequestContext[T])
 	// Add a new pet to the store
 	// (POST /pet)
 	AddPet(ctx *api_context.ApiRequestContext[T])
@@ -378,9 +481,6 @@ type RequestHandler[T api_context.ApiPrincipalContext] interface {
 	// Creates list of users with given input array
 	// (POST /user/createWithList)
 	CreateUsersWithListInput(ctx *api_context.ApiRequestContext[T])
-	// Logs user into the system
-	// (GET /user/login)
-	LoginUser(ctx *api_context.ApiRequestContext[T])
 	// Logs out current logged in user session
 	// (GET /user/logout)
 	LogoutUser(ctx *api_context.ApiRequestContext[T])
@@ -396,6 +496,9 @@ type RequestHandler[T api_context.ApiPrincipalContext] interface {
 }
 
 type ServiceRequestHandler[T api_context.ApiPrincipalContext] interface {
+
+	// PostLoginRequest(requestBody LoginRequest, requestParams PostLoginRequestParams, ctx *api_context.ApiRequestContext[T])
+	PostLoginRequest(requestBody LoginRequest, ctx *api_context.ApiRequestContext[T])
 
 	// AddPetRequest(requestBody Pet, requestParams AddPetRequestParams, ctx *api_context.ApiRequestContext[T])
 	AddPetRequest(requestBody Pet, ctx *api_context.ApiRequestContext[T])
@@ -430,8 +533,6 @@ type ServiceRequestHandler[T api_context.ApiPrincipalContext] interface {
 	// CreateUsersWithListInputRequest(requestBody CreateUsersWithListInputJSONBody, requestParams CreateUsersWithListInputRequestParams, ctx *api_context.ApiRequestContext[T])
 	CreateUsersWithListInputRequest(requestBody CreateUsersWithListInputJSONBody, ctx *api_context.ApiRequestContext[T])
 
-	LoginUserRequest(ctx *api_context.ApiRequestContext[T])
-
 	LogoutUserRequest(ctx *api_context.ApiRequestContext[T])
 
 	DeleteUserRequest(ctx *api_context.ApiRequestContext[T])
@@ -448,6 +549,7 @@ type requestHandlerImpl[T api_context.ApiPrincipalContext] struct {
 
 // ResourcesHandler registers API endpoints from generated code.
 
+// - RequestHandler.PostLogin
 // - RequestHandler.AddPet
 // - RequestHandler.UpdatePet
 // - RequestHandler.FindPetsByStatus
@@ -462,7 +564,6 @@ type requestHandlerImpl[T api_context.ApiPrincipalContext] struct {
 // - RequestHandler.GetOrderById
 // - RequestHandler.CreateUser
 // - RequestHandler.CreateUsersWithListInput
-// - RequestHandler.LoginUser
 // - RequestHandler.LogoutUser
 // - RequestHandler.DeleteUser
 // - RequestHandler.GetUserByName
@@ -498,6 +599,9 @@ func ResourcesHandler[T api_context.ApiPrincipalContext](apiServer server.ApiRou
 //   - T: A type that satisfies the api_context.ApiPrincipalContext interface, representing the principal/context
 //     involved in the API operations.
 func ApiResourceRegister[T api_context.ApiPrincipalContext](apiServer server.ApiRouterHandler[T], handler RequestHandler[T]) {
+	// Initialize an empty string for the merged scopes.
+	apiServer.PublicRouter(handler.PostLogin, "/login", "POST")
+
 	// Initialize an empty string for the merged scopes.// Initialize $scopes if it's empty.// Append with a comma if $scopes is not empty.
 	apiServer.Add(handler.AddPet, "/pet", "POST", []string{"write:pets", "read:pets"}...)
 
@@ -539,9 +643,6 @@ func ApiResourceRegister[T api_context.ApiPrincipalContext](apiServer server.Api
 
 	// Initialize an empty string for the merged scopes.
 	apiServer.PublicRouter(handler.CreateUsersWithListInput, "/user/createWithList", "POST")
-
-	// Initialize an empty string for the merged scopes.
-	apiServer.PublicRouter(handler.LoginUser, "/user/login", "GET")
 
 	// Initialize an empty string for the merged scopes.
 	apiServer.PublicRouter(handler.LogoutUser, "/user/logout", "GET")
