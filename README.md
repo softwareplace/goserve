@@ -1,7 +1,3 @@
-Here’s an improved version of your documentation with explicit references to the `gorilla/mux` library:
-
----
-
 # http-utils
 
 `http-utils` is a Go library designed to simplify the creation of backend applications or services that interact with
