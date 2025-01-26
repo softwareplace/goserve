@@ -11,14 +11,16 @@ import (
 )
 
 type apiRouterHandlerImpl[T api_context.ApiPrincipalContext] struct {
-	router                 *mux.Router
-	principalService       principal.PService[T]
-	errorHandler           error_handler.ApiErrorHandler[T]
-	loginService           LoginService[T]
-	apiSecurityService     security.ApiSecurityService[T]
-	apiSecretAccessHandler security.ApiSecretAccessHandler[T]
-	apiKeyGeneratorService ApiKeyGeneratorService[T]
-	swaggerIsEnabled       bool
+	router                              *mux.Router
+	principalService                    principal.PService[T]
+	errorHandler                        error_handler.ApiErrorHandler[T]
+	loginService                        LoginService[T]
+	apiSecurityService                  security.ApiSecurityService[T]
+	apiSecretAccessHandler              security.ApiSecretAccessHandler[T]
+	apiKeyGeneratorService              ApiKeyGeneratorService[T]
+	swaggerIsEnabled                    bool
+	loginResourceEnable                 bool
+	apiSecretKeyGeneratorResourceEnable bool
 }
 
 func (a *apiRouterHandlerImpl[T]) RegisterMiddleware(middleware ApiMiddleware[T], name string) ApiRouterHandler[T] {
@@ -45,13 +47,27 @@ func (a *apiRouterHandlerImpl[T]) WithErrorHandler(handler error_handler.ApiErro
 
 func (a *apiRouterHandlerImpl[T]) WithLoginResource(loginService LoginService[T]) ApiRouterHandler[T] {
 	a.loginService = loginService
-	a.PublicRouter(a.Login, "login", "POST")
+	if a.loginResourceEnable {
+		a.PublicRouter(a.Login, "login", "POST")
+	}
 	return a
 }
 
 func (a *apiRouterHandlerImpl[T]) WithApiKeyGeneratorResource(apiKeyGeneratorService ApiKeyGeneratorService[T]) ApiRouterHandler[T] {
 	a.apiKeyGeneratorService = apiKeyGeneratorService
-	a.Post(a.ApiKeyGenerator, "api-key/generate", "POST", strings.Join(apiKeyGeneratorService.RequiredScopes(), " "))
+	if a.apiSecretKeyGeneratorResourceEnable {
+		a.Post(a.ApiKeyGenerator, "api-key/generate", "POST", strings.Join(apiKeyGeneratorService.RequiredScopes(), " "))
+	}
+	return a
+}
+
+func (a *apiRouterHandlerImpl[T]) DisableApiSecretKeyGeneratorResource() ApiRouterHandler[T] {
+	a.apiSecretKeyGeneratorResourceEnable = false
+	return a
+}
+
+func (a *apiRouterHandlerImpl[T]) DisableLoginResource() ApiRouterHandler[T] {
+	a.loginResourceEnable = false
 	return a
 }
 
@@ -60,7 +76,9 @@ func CreateApiRouter[T api_context.ApiPrincipalContext](topMiddlewares ...ApiMid
 	router.Use(rootAppMiddleware[T])
 
 	api := &apiRouterHandlerImpl[T]{
-		router: router,
+		router:                              router,
+		apiSecretKeyGeneratorResourceEnable: true,
+		loginResourceEnable:                 true,
 	}
 
 	router.Use(api.errorHandlerWrapper)
@@ -82,7 +100,9 @@ func (a *apiRouterHandlerImpl[T]) WithPrincipalService(service principal.PServic
 func CreateApiRouterWith[T api_context.ApiPrincipalContext](router mux.Router) ApiRouterHandler[T] {
 	router.Use(rootAppMiddleware[T])
 	api := &apiRouterHandlerImpl[T]{
-		router: &router,
+		router:                              &router,
+		apiSecretKeyGeneratorResourceEnable: true,
+		loginResourceEnable:                 true,
 	}
 
 	return api
