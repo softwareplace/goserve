@@ -137,7 +137,7 @@ type ApiRouterHandler[T api_context.ApiPrincipalContext] interface {
 	// ApiKey generator resource:
 	//   - By registering the security.ApiSecretAccessHandler, also add a login resource ContextPath+api-key/generate
 	//     that handle the apiKey generator request by invoking WithApiSecretAccessHandler. You can also disable it by
-	//     calling DisableApiSecretKeyGeneratorResource before call WithApiSecretAccessHandler.
+	//     calling ApiSecretKeyGeneratorResourceEnabled before call WithApiSecretAccessHandler.
 	//
 	//  - The ApiKey generator resource expects the input of ApiKeyEntryData.
 	//
@@ -156,8 +156,8 @@ type ApiRouterHandler[T api_context.ApiPrincipalContext] interface {
 	//
 	// Login resource:
 	//   - By registering the security.ApiSecurityService, also add a login resource ContextPath+login
-	//     that handle the login request by invoking WithLoginResource. You can also disable it by calling DisableLoginResource
-	//     before call WithApiSecurityService.
+	//     that handle the login request by invoking WithLoginResource. You can also disable
+	//     it by calling LoginResourceEnabled before invoke WithApiSecurityService.
 	//
 	//  - The login resource expects the input of LoginEntryData.
 	//
@@ -241,19 +241,27 @@ type ApiRouterHandler[T api_context.ApiPrincipalContext] interface {
 	//   - ApiRouterHandler[T]: The current ApiRouterHandler instance to allow method chaining.
 	WithApiKeyGeneratorResource(apiKeyGeneratorService ApiKeyGeneratorService[T]) ApiRouterHandler[T]
 
-	// DisableApiSecretKeyGeneratorResource disables the API Secret Key Generator feature in the API router.
+	// ApiSecretKeyGeneratorResource disables the API Secret Key Generator feature in the API router.
 	// This method removes or disables the associated endpoint/resource responsible for generating API secret keys.
 	//
-	// Returns:
-	//   - ApiRouterHandler[T]: The router handler for chaining further configurations.
-	DisableApiSecretKeyGeneratorResource() ApiRouterHandler[T]
-
-	// DisableLoginResource disables the login resource functionality in the API router.
-	// This method removes or disables the login endpoint, preventing access to the authentication-related routes.
+	//
+	// Parameters:
+	//   - enable: A boolean value indicating whether to enable (true) or disable (false) the login resource.
 	//
 	// Returns:
 	//   - ApiRouterHandler[T]: The router handler for chaining further configurations.
-	DisableLoginResource() ApiRouterHandler[T]
+	ApiSecretKeyGeneratorResourceEnabled(enable bool) ApiRouterHandler[T]
+
+	// LoginResourceEnabled enables or disables the login resource functionality in the API router.
+	// When enabled, it provides a login endpoint for handling authentication-related routes.
+	// When disabled, the login endpoint is removed or deactivated.
+	//
+	// Parameters:
+	//   - enable: A boolean value indicating whether to enable (true) or disable (false) the login resource.
+	//
+	// Returns:
+	//   - ApiRouterHandler[T]: The router handler for chaining further configurations.
+	LoginResourceEnabled(enable bool) ApiRouterHandler[T]
 
 	// Router retrieves the underlying *mux.Router instance.
 	// This method provides direct access to the Gorilla Mux router, allowing you to add custom

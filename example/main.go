@@ -248,6 +248,8 @@ func main() {
 	}
 
 	server.Default().
+		LoginResourceEnabled(true).
+		ApiSecretKeyGeneratorResourceEnabled(true).
 		WithLoginResource(loginService).
 		WithApiKeyGeneratorResource(loginService).
 		EmbeddedServer(gen.ApiResourceHandler(&_service{})).

@@ -61,13 +61,13 @@ func (a *apiRouterHandlerImpl[T]) WithApiKeyGeneratorResource(apiKeyGeneratorSer
 	return a
 }
 
-func (a *apiRouterHandlerImpl[T]) DisableApiSecretKeyGeneratorResource() ApiRouterHandler[T] {
-	a.apiSecretKeyGeneratorResourceEnable = false
+func (a *apiRouterHandlerImpl[T]) ApiSecretKeyGeneratorResourceEnabled(enable bool) ApiRouterHandler[T] {
+	a.apiSecretKeyGeneratorResourceEnable = enable
 	return a
 }
 
-func (a *apiRouterHandlerImpl[T]) DisableLoginResource() ApiRouterHandler[T] {
-	a.loginResourceEnable = false
+func (a *apiRouterHandlerImpl[T]) LoginResourceEnabled(enable bool) ApiRouterHandler[T] {
+	a.loginResourceEnable = enable
 	return a
 }
 
