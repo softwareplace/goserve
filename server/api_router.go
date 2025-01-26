@@ -5,6 +5,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/softwareplace/http-utils/api_context"
 	"github.com/softwareplace/http-utils/error_handler"
+	"github.com/softwareplace/http-utils/security"
 	"github.com/softwareplace/http-utils/security/principal"
 	"net/http"
 )
@@ -129,6 +130,30 @@ type ApiRouterHandler[T api_context.ApiPrincipalContext] interface {
 	//   - ApiRouterHandler: The router handler for chaining further route configurations.
 	RegisterMiddleware(middleware ApiMiddleware[T], name string) ApiRouterHandler[T]
 
+	// WithApiSecretAccessHandler assigns an API secret access handler to the router.
+	// This middleware provides an additional layer of security by validating API secret keys
+	// on incoming requests before they are processed by specific route handlers.
+	//
+	// Parameters:
+	//   - apiSecretAccessHandler: An implementation of ApiSecretAccessHandler[T] responsible for the logic
+	//				 to validate and handle API secret access.
+	//
+	// Returns:
+	//   - ApiRouterHandler: The router handler for chaining further route configurations.
+	WithApiSecretAccessHandler(apiSecretAccessHandler security.ApiSecretAccessHandler[T]) ApiRouterHandler[T]
+
+	// WithApiSecurityService assigns a security service to the API router.
+	// This service is responsible for handling various security aspects such as authentication,
+	// authorization, and token validation for incoming requests. By assigning a security service,
+	// the API router ensures that all operations comply with the defined security policies.
+	//
+	// Parameters:
+	//   - apiSecurityService: An instance of ApiSecurityService[T] that implements the security logic.
+	//
+	// Returns:
+	//   - ApiRouterHandler: The router handler for chaining additional route or service configurations.
+	WithApiSecurityService(apiSecurityService security.ApiSecurityService[T]) ApiRouterHandler[T]
+
 	// RegisterCustomMiddleware is a method that allows for registering a custom middleware function
 	// with the API router. This function wraps an HTTP handler and can be used to implement custom
 	// functionality, such as modifying the request or response, logging, or adding additional
@@ -195,11 +220,10 @@ type ApiRouterHandler[T api_context.ApiPrincipalContext] interface {
 	//
 	// Parameters:
 	//   - apiKeyGeneratorService: The implementation of ApiKeyGeneratorService[T] responsible for generating API keys.
-	//   - scope: The permissions or access level associated with the generated API keys.
 	//
 	// Returns:
 	//   - ApiRouterHandler[T]: The current ApiRouterHandler instance to allow method chaining.
-	WithApiKeyGeneratorResource(apiKeyGeneratorService ApiKeyGeneratorService[T], scope string) ApiRouterHandler[T]
+	WithApiKeyGeneratorResource(apiKeyGeneratorService ApiKeyGeneratorService[T]) ApiRouterHandler[T]
 
 	// Router retrieves the underlying *mux.Router instance.
 	// This method provides direct access to the Gorilla Mux router, allowing you to add custom

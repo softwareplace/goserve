@@ -33,7 +33,7 @@ type SampleContext[T ApiPrincipalContext] struct {
 	QueryValues         map[string][]string    // A map containing the query parameters from the request URL. Each key corresponds to a query parameter name, and the value is a slice of strings representing the values of that parameter. Useful for processing and validating query parameters in API endpoints.
 }
 
-func SampleCtx[T ApiPrincipalContext](ctx ApiRequestContext[T]) SampleContext[T] {
+func (ctx *ApiRequestContext[T]) GetSample() SampleContext[T] {
 	return SampleContext[T]{
 		ApiKey:              ctx.ApiKey,
 		ApiKeyId:            ctx.ApiKeyId,

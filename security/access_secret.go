@@ -72,4 +72,15 @@ type ApiSecretAccessHandler[T api_context.ApiPrincipalContext] interface {
 	//   - ignore (bool): A flag indicating whether to ignore validation for public paths.
 	//	 Set to `true` to skip validation; set to `false` to enforce validation.
 	DisableForPublicPath(ignore bool) ApiSecretAccessHandler[T]
+
+	//
+	// SecretKey provides a secure mechanism to fetch and return the current secret key used for
+	// API validations or other security-related operations.
+	//
+	// This method is essential in ensuring that security-critical processes access the correct
+	// API secret key stored or configured in the implementation of the `ApiSecretAccessHandler` interface.
+	//
+	// Returns:
+	//   - string: The current secret key being utilized for authentication or validation purposes.
+	SecretKey() string
 }

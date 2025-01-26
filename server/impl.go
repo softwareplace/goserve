@@ -4,8 +4,10 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/softwareplace/http-utils/api_context"
 	"github.com/softwareplace/http-utils/error_handler"
+	"github.com/softwareplace/http-utils/security"
 	"github.com/softwareplace/http-utils/security/principal"
 	"net/http"
+	"strings"
 )
 
 type apiRouterHandlerImpl[T api_context.ApiPrincipalContext] struct {
@@ -13,6 +15,8 @@ type apiRouterHandlerImpl[T api_context.ApiPrincipalContext] struct {
 	principalService       principal.PService[T]
 	errorHandler           error_handler.ApiErrorHandler[T]
 	loginService           LoginService[T]
+	apiSecurityService     security.ApiSecurityService[T]
+	apiSecretAccessHandler security.ApiSecretAccessHandler[T]
 	apiKeyGeneratorService ApiKeyGeneratorService[T]
 	swaggerIsEnabled       bool
 }
@@ -45,9 +49,9 @@ func (a *apiRouterHandlerImpl[T]) WithLoginResource(loginService LoginService[T]
 	return a
 }
 
-func (a *apiRouterHandlerImpl[T]) WithApiKeyGeneratorResource(apiKeyGeneratorService ApiKeyGeneratorService[T], scope string) ApiRouterHandler[T] {
+func (a *apiRouterHandlerImpl[T]) WithApiKeyGeneratorResource(apiKeyGeneratorService ApiKeyGeneratorService[T]) ApiRouterHandler[T] {
 	a.apiKeyGeneratorService = apiKeyGeneratorService
-	a.Post(a.ApiKeyGenerator, "api-key/generate", "POST", scope)
+	a.Post(a.ApiKeyGenerator, "api-key/generate", "POST", strings.Join(apiKeyGeneratorService.RequiredScopes(), " "))
 	return a
 }
 

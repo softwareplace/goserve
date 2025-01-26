@@ -53,6 +53,10 @@ func ApiSecretAccessHandlerBuild[T api_context.ApiPrincipalContext](
 	return &handler
 }
 
+func (a *apiSecretHandlerImpl[T]) SecretKey() string {
+	return a.secretKey
+}
+
 func (a *apiSecretHandlerImpl[T]) DisableForPublicPath(ignore bool) ApiSecretAccessHandler[T] {
 	a.ignoreValidationForPublicPaths = ignore
 	return a
@@ -215,4 +219,82 @@ func (a *apiSecretHandlerImpl[T]) apiSecretKeyValidation(ctx *api_context.ApiReq
 	}
 
 	return true
+}
+
+// GeneratePubKey generates an encrypted public key from a given private key file.
+//
+// This function performs the following steps:
+// - Reads the private key from the specified file path.
+// - Decodes the PEM block from the private key data.
+// - Parses the private key using the PKCS8 format.
+// - Determines the type of the private key (ECDSA or RSA).
+// - Marshals the corresponding public key into PEM format.
+// - Encrypts the generated PEM-encoded public key using the service's encryption logic.
+//
+// Arguments:
+//   - secretKey (string): The file path to the private key.
+//
+// Returns:
+//   - (string, error): An encrypted PEM-encoded public key and an error (if any occurred).
+//
+// Errors:
+//   - Fails if the private key file cannot be read, parsed, or if the key type is unsupported.
+//   - Fails if the public key cannot be marshaled or encrypted.
+//
+// Example:
+//
+//	 encryptedPubKey, err := handler.generatePubKey("path/to/private.key")
+//	 if err != nil {
+//		 log.Printf("Error generating public key: %v", err)
+//	 }
+func (a *apiSecretHandlerImpl[T]) GeneratePubKey(secretKey string) (string, error) {
+	privateKeyData, err := os.ReadFile(secretKey)
+	if err != nil {
+		log.Fatalf("Failed to read private key file: %s", err.Error())
+	}
+
+	// Decode PEM block from the private key data
+	block, _ := pem.Decode(privateKeyData)
+	if block == nil || block.Type != "PRIVATE KEY" {
+		log.Fatalf("Failed to decode private key PEM block")
+	}
+
+	// Parse the private key using ParsePKCS8PrivateKey
+	privateKey, err := x509.ParsePKCS8PrivateKey(block.Bytes)
+	if err != nil {
+		log.Fatalf("Failed to parse private key: %s", err.Error())
+	}
+
+	// Generate and log the corresponding public key
+	var publicKeyBytes []byte
+	switch key := privateKey.(type) {
+	case *ecdsa.PrivateKey:
+		log.Println("Loaded ECDSA private key successfully")
+		publicKeyBytes, err = x509.MarshalPKIXPublicKey(&key.PublicKey)
+		if err != nil {
+			log.Fatalf("Failed to marshal ECDSA public key: %s", err.Error())
+		}
+	case *rsa.PrivateKey:
+		log.Println("Loaded RSA private key successfully")
+		publicKeyBytes, err = x509.MarshalPKIXPublicKey(&key.PublicKey)
+		if err != nil {
+			log.Fatalf("Failed to marshal RSA public key: %s", err.Error())
+		}
+	default:
+		log.Fatalf("Unsupported private key type: %T", key)
+	}
+
+	// Encode the public key in PEM format
+	publicKeyPEM := pem.EncodeToMemory(&pem.Block{
+		Type:  "PUBLIC KEY",
+		Bytes: publicKeyBytes,
+	})
+
+	encryptedKey, err := a.service.Encrypt(string(publicKeyPEM))
+
+	if err != nil {
+		log.Fatalf("Failed to encrypt public key: %s", err)
+		return "", nil
+	}
+	return encryptedKey, err
 }

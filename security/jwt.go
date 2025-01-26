@@ -19,6 +19,7 @@ type ApiJWTInfo struct {
 	Key        string
 	Expiration time.Duration
 	Scopes     []string
+	PublicKey  *string
 }
 
 func (a *apiSecurityServiceImpl[T]) Principal(

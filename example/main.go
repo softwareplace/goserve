@@ -17,6 +17,10 @@ type loginServiceImpl struct {
 	securityService security.ApiSecurityService[*api_context.DefaultContext]
 }
 
+var mockStore = map[string]string{
+	"37c75552614a4eb58a2eb2d04928cdfd": "D/b7o5KGWe0SOF06r7bvKWyud95XVQwD9xp9NIDqMUWqt1xHz6PpIAF2jRo6pFGaaTwglXwql7QChU1fmQf7omQnjZImS9iWhKh9xvQEpXhygA5WAzBEPiekmyfH6LwkWgFQeFxi4spwX5J+m1LPMIrHZyjVqFOr01f3RaHAlBwxOwWdbQ0au32gVshGFY7Rt7d5RmMQATA0rQf0NGZlcIEM5ez8hBxjUHnKakGjYOITQsd570wvlFnRhvkvoxRfpAGAexXRAS8tImdiw/L7BVSbTKjwqSfweH59CK3JhHC/qdwDlSDA6rJWat4MOeb2qWbgbmlQV71QEFOZ9k78gdNz3FuFsMIQ4Swyf3dvBraTFlCjxDil7fIyTT1PJ8f8AvMcVdzWsXwWRl5+SgJvHcZI9nGmswzacRv2T008qUKm28m6By5Sd1ux38QghobBtpL2n3+lgEnov59/cStPHS4kSNrudeX1RtU7DPlqWZUyXkn4H+3tdlUXMufZcYekIkq3fIVsGHxRRGTRA1ILell9FBXwEVw/je2FsrzIZbPxZKnRb8WRbqNFreDf/9hdWLjKw4IaIddRUbGUSTLV3u94QbhDwsdFRmorMgKZd3yukVc=",
+}
+
 func baseResponse(message string, status int) gen.BaseResponse {
 	success := false
 	timestamp := 1625867200
@@ -32,6 +36,12 @@ func baseResponse(message string, status int) gen.BaseResponse {
 
 func (l *loginServiceImpl) SecurityService() security.ApiSecurityService[*api_context.DefaultContext] {
 	return l.securityService
+}
+
+func (l *loginServiceImpl) RequiredScopes() []string {
+	return []string{
+		"api:key:generator",
+	}
 }
 
 func (l *loginServiceImpl) GetApiJWTInfo(apiKeyEntryData server.ApiKeyEntryData,
@@ -52,14 +62,17 @@ func (l *loginServiceImpl) GetApiJWTInfo(apiKeyEntryData server.ApiKeyEntryData,
 }
 
 func (l *loginServiceImpl) OnGenerated(data security.JwtResponse,
+	apiJWTInfo security.ApiJWTInfo,
 	ctx api_context.SampleContext[*api_context.DefaultContext],
 ) {
+	mockStore[apiJWTInfo.Key] = *apiJWTInfo.PublicKey
+	log.Printf("%s - %s", apiJWTInfo.Key, data.Token)
 	log.Printf("API KEY GENERATED: from %s - %v", ctx.AccessId, data)
 }
 
 func (l *loginServiceImpl) Login(user server.LoginEntryData) (*api_context.DefaultContext, error) {
 	result := &api_context.DefaultContext{}
-	result.SetRoles("api:example:user", "api:example:admin", "read:pets", "write:pets", "api:key:generator")
+	result.SetRoles("api:example:user", "api:example:admin", "read:pets", "write:pets")
 	return result, nil
 }
 
@@ -70,7 +83,7 @@ func (l *loginServiceImpl) TokenDuration() time.Duration {
 type secretProviderImpl []struct{}
 
 func (s *secretProviderImpl) Get(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) (string, error) {
-	return "", nil
+	return mockStore[ctx.ApiKeyId], nil
 }
 
 type principalServiceImpl struct {
@@ -200,6 +213,7 @@ type _service struct {
 }
 
 func main() {
+	log.SetFlags(log.LstdFlags | log.Llongfile)
 
 	var userPrincipalService principal.PService[*api_context.DefaultContext]
 	userPrincipalService = &principalServiceImpl{}
@@ -235,11 +249,11 @@ func main() {
 
 	server.Default().
 		WithLoginResource(loginService).
-		WithApiKeyGeneratorResource(loginService, "api:key:generator").
+		WithApiKeyGeneratorResource(loginService).
 		EmbeddedServer(gen.ApiResourceHandler(&_service{})).
 		SwaggerDocHandler("example/resource/pet-store.yaml").
-		RegisterMiddleware(secretHandler.HandlerSecretAccess, security.ApiSecretAccessHandlerName).
-		RegisterMiddleware(securityService.AuthorizationHandler, security.ApiSecurityHandlerName).
+		WithApiSecretAccessHandler(secretHandler).
+		WithApiSecurityService(securityService).
 		WithErrorHandler(errorHandler).
 		NotFoundHandler().
 		StartServer()
