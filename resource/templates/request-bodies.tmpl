@@ -1,13 +1,13 @@
 {{range .}}{{$opid := .OperationId}}
+{{ $processed := false -}}
 {{range .Bodies}}
-{{if .IsSupported -}}
+{{if and (not $processed) .IsSupported -}}
 {{$contentType := .ContentType -}}
 {{with .TypeDef $opid}}
 // {{.TypeName}} defines body for {{$opid}} for {{$contentType}} ContentType.
-type {{$opid}}Request {{if .IsAlias}}={{end}} struct {
-    Body {{.Schema.TypeDecl}}
-}
+type {{$opid}}Request {{if .IsAlias}}={{end}} {{.Schema.TypeDecl}}
 {{end}}
+{{ $processed = true -}}
 {{end}}
 {{end}}
 {{end}}
