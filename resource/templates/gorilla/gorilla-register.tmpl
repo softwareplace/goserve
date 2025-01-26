@@ -29,23 +29,28 @@ handler := &requestHandlerImpl[T]{
 // Generics:
 //   - T: A type that satisfies the api_context.ApiPrincipalContext interface, representing the principal/context
 //	 involved in the API operations.
-func ApiResourceRegister[T api_context.ApiPrincipalContext](apiServer server.ApiRouterHandler[T], handler RequestHandler[T])  {
+func ApiResourceRegister[T api_context.ApiPrincipalContext](apiServer server.ApiRouterHandler[T], handler RequestHandler[T]) {
 {{range .}}
-
-{{- $hasScopes := false -}}
-{{- range .SecurityDefinitions -}}
-    {{- if .Scopes -}}
-        {{- $hasScopes = true -}}
+    {{- $scopes := "" -}} // Initialize an empty string for the merged scopes.
+    {{- range .SecurityDefinitions -}}
+        {{- range .Scopes -}}
+            {{- if $scopes -}}
+                {{- $scopes = printf "%s,\"%s\"" $scopes . -}} // Append with a comma if $scopes is not empty.
+            {{- else -}}
+                {{- $scopes = printf "\"%s\"" . -}} // Initialize $scopes if it's empty.
+            {{- end -}}
+        {{- end -}}
     {{- end -}}
-{{- end -}}
 
-{{if $hasScopes}}
-	apiServer.Add(handler.{{.OperationId}}, "{{.Path | swaggerUriToGorillaUri }}", "{{.Method }}", {{range .SecurityDefinitions}}{{toStringArray .Scopes}}...{{end}})
-{{else}}
-	apiServer.PublicRouter(handler.{{.OperationId}}, "{{.Path | swaggerUriToGorillaUri }}", "{{.Method }}")
-{{end}}
+    {{if $scopes}}
+    apiServer.Add(handler.{{.OperationId}}, "{{.Path | swaggerUriToGorillaUri }}", "{{.Method }}", []string{ {{$scopes}} }...)
+    {{else}}
+    apiServer.PublicRouter(handler.{{.OperationId}}, "{{.Path | swaggerUriToGorillaUri }}", "{{.Method }}")
+    {{end}}
 {{end}}
 }
+
+
 
 func ApiResourceHandler[T api_context.ApiPrincipalContext](service ServiceRequestHandler[T]) func(handler server.ApiRouterHandler[T]) {
 	return func(handler server.ApiRouterHandler[T]) {
