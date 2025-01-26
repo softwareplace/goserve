@@ -9,11 +9,12 @@ import (
 )
 
 type apiRouterHandlerImpl[T api_context.ApiPrincipalContext] struct {
-	router           *mux.Router
-	principalService principal.PService[T]
-	errorHandler     error_handler.ApiErrorHandler[T]
-	loginService     LoginService[T]
-	swaggerIsEnabled bool
+	router                 *mux.Router
+	principalService       principal.PService[T]
+	errorHandler           error_handler.ApiErrorHandler[T]
+	loginService           LoginService[T]
+	apiKeyGeneratorService ApiKeyGeneratorService[T]
+	swaggerIsEnabled       bool
 }
 
 func (a *apiRouterHandlerImpl[T]) RegisterMiddleware(middleware ApiMiddleware[T], name string) ApiRouterHandler[T] {
@@ -41,6 +42,12 @@ func (a *apiRouterHandlerImpl[T]) WithErrorHandler(handler error_handler.ApiErro
 func (a *apiRouterHandlerImpl[T]) WithLoginResource(loginService LoginService[T]) ApiRouterHandler[T] {
 	a.loginService = loginService
 	a.PublicRouter(a.Login, "login", "POST")
+	return a
+}
+
+func (a *apiRouterHandlerImpl[T]) WithApiKeyGeneratorResource(apiKeyGeneratorService ApiKeyGeneratorService[T], scope string) ApiRouterHandler[T] {
+	a.apiKeyGeneratorService = apiKeyGeneratorService
+	a.Post(a.ApiKeyGenerator, "api-key/generate", "POST", scope)
 	return a
 }
 

@@ -34,9 +34,32 @@ func (l *loginServiceImpl) SecurityService() security.ApiSecurityService[*api_co
 	return l.securityService
 }
 
+func (l *loginServiceImpl) GetApiJWTInfo(apiKeyEntryData server.ApiKeyEntryData,
+	_ *api_context.ApiRequestContext[*api_context.DefaultContext],
+) (security.ApiJWTInfo, error) {
+	return security.ApiJWTInfo{
+		Client:     apiKeyEntryData.ClientName,
+		Key:        apiKeyEntryData.ClientId,
+		Expiration: apiKeyEntryData.Expiration,
+		Scopes: []string{
+			"api:example:user",
+			"api:example:admin",
+			"read:pets",
+			"write:pets",
+			"api:key:generator",
+		},
+	}, nil
+}
+
+func (l *loginServiceImpl) OnGenerated(data security.JwtResponse,
+	ctx api_context.SampleContext[*api_context.DefaultContext],
+) {
+	log.Printf("API KEY GENERATED: from %s - %v", ctx.AccessId, data)
+}
+
 func (l *loginServiceImpl) Login(user server.LoginEntryData) (*api_context.DefaultContext, error) {
 	result := &api_context.DefaultContext{}
-	result.SetRoles("api:example:user", "api:example:admin")
+	result.SetRoles("api:example:user", "api:example:admin", "read:pets", "write:pets", "api:key:generator")
 	return result, nil
 }
 
@@ -212,6 +235,7 @@ func main() {
 
 	server.Default().
 		WithLoginResource(loginService).
+		WithApiKeyGeneratorResource(loginService, "api:key:generator").
 		EmbeddedServer(gen.ApiResourceHandler(&_service{})).
 		SwaggerDocHandler("example/resource/pet-store.yaml").
 		RegisterMiddleware(secretHandler.HandlerSecretAccess, security.ApiSecretAccessHandlerName).

@@ -189,6 +189,18 @@ type ApiRouterHandler[T api_context.ApiPrincipalContext] interface {
 	//   ApiRouterHandler[T]: This allows chaining additional configuration or service registrations.
 	WithLoginResource(loginService LoginService[T]) ApiRouterHandler[T]
 
+	// WithApiKeyGeneratorResource configures the ApiRouterHandler with a provided ApiKeyGeneratorService.
+	// It registers a POST endpoint for generating API keys at the route path "/api-keys/generate".
+	// This method ensures that the endpoint follows consistent naming conventions and best practices.
+	//
+	// Parameters:
+	//   - apiKeyGeneratorService: The implementation of ApiKeyGeneratorService[T] responsible for generating API keys.
+	//   - scope: The permissions or access level associated with the generated API keys.
+	//
+	// Returns:
+	//   - ApiRouterHandler[T]: The current ApiRouterHandler instance to allow method chaining.
+	WithApiKeyGeneratorResource(apiKeyGeneratorService ApiKeyGeneratorService[T], scope string) ApiRouterHandler[T]
+
 	// Router retrieves the underlying *mux.Router instance.
 	// This method provides direct access to the Gorilla Mux router, allowing you to add custom
 	// routes, middleware, or additional configurations that are not covered by the ApiRouterHandler methods.

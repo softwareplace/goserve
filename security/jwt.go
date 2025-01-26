@@ -6,7 +6,6 @@ import (
 	"github.com/softwareplace/http-utils/api_context"
 	"log"
 	"net/http"
-	"strconv"
 	"time"
 )
 
@@ -16,10 +15,10 @@ const (
 )
 
 type ApiJWTInfo struct {
-	Client string
-	Key    string
-	// Expiration in hours
-	Expiration time.Duration //
+	Client     string
+	Key        string
+	Expiration time.Duration
+	Scopes     []string
 }
 
 func (a *apiSecurityServiceImpl[T]) Principal(
@@ -97,7 +96,7 @@ func (a *apiSecurityServiceImpl[T]) Secret() []byte {
 	return []byte(secret)
 }
 
-func (a *apiSecurityServiceImpl[T]) GenerateJWT(data T, duration time.Duration) (map[string]interface{}, error) {
+func (a *apiSecurityServiceImpl[T]) GenerateJWT(data T, duration time.Duration) (*JwtResponse, error) {
 	expiration := time.Now().Add(duration).Unix()
 	requestBy, err := a.Encrypt(data.GetSalt())
 
@@ -117,5 +116,9 @@ func (a *apiSecurityServiceImpl[T]) GenerateJWT(data T, duration time.Duration) 
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	signedToken, err := token.SignedString(a.Secret())
-	return map[string]interface{}{"token": signedToken, "expires": strconv.FormatInt(expiration, 10)}, err
+
+	return &JwtResponse{
+		Token:   signedToken,
+		Expires: int(expiration),
+	}, err
 }

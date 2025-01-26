@@ -19,6 +19,34 @@ type ApiPrincipalContext interface {
 	GetRoles() []string
 }
 
+type SampleContext[T ApiPrincipalContext] struct {
+	ApiKey              string                 // The API key extracted from the HTTP request header. This is used to identify and authenticate the client making the API request.
+	ApiKeyId            string                 // The unique identifier associated with the API key used in the request. Helps in tracking and logging API key usage.
+	Authorization       string                 // The bearer token or other authorization token extracted from the HTTP request header. Used to authenticate the user of the API.
+	Principal           *T                     // The principal context containing user or session-specific data, representing the authenticated entity in the request.
+	sessionId           string                 // A unique identifier for the current API session. Used to track the lifecycle of requests in a session.
+	AuthorizationClaims map[string]interface{} // A set of claims derived from the authorization token, providing additional metadata about the requester (e.g., roles, permissions, expiration).
+	ApiKeyClaims        map[string]interface{} // A set of claims derived from the API key, detailing metadata associated with the key (e.g., usage limits, allowed resources).
+	AccessId            string                 // A unique identifier representing access to a specific resource or API, often used for auditing or tracking access patterns.
+	PathValues          map[string]string      // A map of route variables extracted from the request URL. Useful for handling dynamic URL parameters in the API endpoints.
+	Headers             map[string][]string    // Headers contains a mapping of header keys to their respective values from the incoming HTTP request.
+	QueryValues         map[string][]string    // A map containing the query parameters from the request URL. Each key corresponds to a query parameter name, and the value is a slice of strings representing the values of that parameter. Useful for processing and validating query parameters in API endpoints.
+}
+
+func SampleCtx[T ApiPrincipalContext](ctx ApiRequestContext[T]) SampleContext[T] {
+	return SampleContext[T]{
+		ApiKey:              ctx.ApiKey,
+		ApiKeyId:            ctx.ApiKeyId,
+		Authorization:       ctx.Authorization,
+		Principal:           ctx.Principal,
+		sessionId:           ctx.sessionId,
+		AuthorizationClaims: ctx.AuthorizationClaims,
+		ApiKeyClaims:        ctx.ApiKeyClaims,
+		AccessId:            ctx.AccessId,
+		PathValues:          ctx.PathValues,
+	}
+}
+
 type ApiRequestContext[T ApiPrincipalContext] struct {
 	Writer              *http.ResponseWriter
 	Request             *http.Request

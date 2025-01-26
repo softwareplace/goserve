@@ -11,6 +11,11 @@ const (
 	ApiSecurityHandlerName = "API_SECURITY_MIDDLEWARE"
 )
 
+type JwtResponse struct {
+	Token   string `json:"token"`
+	Expires int    `json:"expires"`
+}
+
 type ApiSecurityService[T api_context.ApiPrincipalContext] interface {
 
 	// Secret retrieves the secret key used to sign and validate JWT tokens.
@@ -32,7 +37,7 @@ type ApiSecurityService[T api_context.ApiPrincipalContext] interface {
 	// - error: an error if token generation fails.
 	//
 	// Note: This method uses the HS256 signing method and requires a secret key.
-	GenerateApiSecretJWT(jwtInfo ApiJWTInfo) (string, error)
+	GenerateApiSecretJWT(jwtInfo ApiJWTInfo) (*JwtResponse, error)
 
 	// ExtractJWTClaims validates and extracts the JWT claims from the API request context.
 	//
@@ -117,7 +122,7 @@ type ApiSecurityService[T api_context.ApiPrincipalContext] interface {
 	// - All cryptographic operations must use secure mechanisms.
 	// - Ensure better logging practices during debugging sensitive context data.
 	// - It is recommended to configure proper secret rotation policies.
-	GenerateJWT(user T, duration time.Duration) (map[string]interface{}, error)
+	GenerateJWT(user T, duration time.Duration) (*JwtResponse, error)
 
 	// Encrypt encrypts the given value using the secret associated with the apiSecurityServiceImpl instance.
 	// It returns the encrypted string or an error if encryption fails.
