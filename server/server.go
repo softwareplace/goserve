@@ -15,7 +15,7 @@ func apiContextPath() string {
 	if contextPath := os.Getenv("CONTEXT_PATH"); contextPath != "" {
 		return contextPath
 	}
-	return "/server/app/v1/"
+	return "/api/app/v1/"
 }
 func apiPort() string {
 	if port := os.Getenv("PORT"); port != "" {
