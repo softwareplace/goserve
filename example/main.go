@@ -8,12 +8,26 @@ import (
 	"github.com/softwareplace/http-utils/security/principal"
 	"github.com/softwareplace/http-utils/server"
 	"log"
+	"net/http"
 	"os"
 	"time"
 )
 
 type loginServiceImpl struct {
 	securityService security.ApiSecurityService[*api_context.DefaultContext]
+}
+
+func baseResponse(message string, status int) gen.BaseResponse {
+	success := false
+	timestamp := 1625867200
+
+	response := gen.BaseResponse{
+		Message:   &message,
+		Code:      &status,
+		Success:   &success,
+		Timestamp: &timestamp,
+	}
+	return response
 }
 
 func (l *loginServiceImpl) SecurityService() security.ApiSecurityService[*api_context.DefaultContext] {
@@ -63,72 +77,103 @@ func (p *errorHandlerImpl) Handler(ctx *api_context.ApiRequestContext[*api_conte
 	}
 }
 
+type _petService struct {
+}
+
+func (s *_petService) AddPetRequest(requestBody gen.Pet, ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+	ctx.Response(requestBody, http.StatusOK)
+}
+
+func (s *_petService) UpdatePetRequest(requestBody gen.Pet, ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+	ctx.Response(requestBody, http.StatusOK)
+}
+
+func (s *_petService) FindPetsByStatusRequest(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+	message := "Pet not found"
+	ctx.NotFount(baseResponse(message, http.StatusNotFound))
+}
+
+func (s *_petService) FindPetsByTagsRequest(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+	message := "Pet not found"
+	ctx.NotFount(baseResponse(message, http.StatusNotFound))
+}
+
+func (s *_petService) DeletePetRequest(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+	message := "Pet not found"
+	ctx.NotFount(baseResponse(message, http.StatusNotFound))
+}
+
+func (s *_petService) GetPetByIdRequest(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+	message := "Pet not found"
+	ctx.NotFount(baseResponse(message, http.StatusNotFound))
+}
+
+func (s *_petService) UpdatePetWithFormRequest(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+	message := "Pet not found"
+	ctx.NotFount(baseResponse(message, http.StatusNotFound))
+}
+
+type _userService struct {
+}
+
+func (s *_userService) PostLoginRequest(requestBody gen.LoginRequest, ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+}
+
+func (s *_userService) CreateUserRequest(requestBody gen.User, ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+	ctx.Ok(requestBody)
+}
+
+func (s *_userService) CreateUsersWithListInputRequest(requestBody gen.CreateUsersWithListInputJSONBody, ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+	ctx.Ok(requestBody)
+}
+
+func (s *_userService) LogoutUserRequest(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+	ctx.Ok(baseResponse("Logout successful", http.StatusOK))
+}
+
+func (s *_userService) DeleteUserRequest(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+	ctx.Ok(baseResponse("User deleted", http.StatusOK))
+}
+
+func (s *_userService) GetUserByNameRequest(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+	ctx.NotFount(baseResponse("User not found", http.StatusNotFound))
+}
+
+func (s *_userService) UpdateUserRequest(requestBody gen.User, ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+	ctx.Ok(requestBody)
+}
+
+type _fileService struct {
+}
+
+func (s *_fileService) UploadFileRequest(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+	ctx.BadRequest("Failed to upload file")
+}
+
+type _inventoryService struct {
+}
+
+func (s *_inventoryService) GetInventoryRequest(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+	ctx.NotFount(baseResponse("Inventory not found", http.StatusNotFound))
+}
+
+func (s *_inventoryService) PlaceOrderRequest(requestBody gen.Order, ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+	ctx.Response(requestBody, http.StatusOK)
+}
+
+func (s *_inventoryService) DeleteOrderRequest(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+	ctx.Ok(baseResponse("Order deleted", http.StatusOK))
+}
+
+func (s *_inventoryService) GetOrderByIdRequest(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+	ctx.NotFount(baseResponse("Order not found", http.StatusNotFound))
+}
+
 type _service struct {
-}
-
-func (s *_service) PostLoginRequest(body gen.LoginRequest, ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
-
-}
-
-func (s *_service) GetTestRequest(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
-	message := "It's working"
-	code := 200
-	success := true
-	timestamp := 1625867200
-
-	response := gen.BaseResponse{
-		Message:   &message,
-		Code:      &code,
-		Success:   &success,
-		Timestamp: &timestamp,
-	}
-
-	ctx.Response(response, 200)
-}
-
-func (s *_service) GetTestVersionRequest(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
-	message := "Test v2 it's working"
-	code := 200
-	success := true
-	timestamp := 1625867200
-
-	response := gen.BaseResponse{
-		Message:   &message,
-		Code:      &code,
-		Success:   &success,
-		Timestamp: &timestamp,
-	}
-
-	ctx.Response(response, 200)
-}
-
-func (s *_service) PostTestVersionRequest(body gen.PostTestRequest, ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
-	timestamp := 1625867200
-	message := "Provided message was => " + body.Message
-	response := gen.BaseResponse{
-		Message:   &message,
-		Code:      &body.Code,
-		Success:   &body.Success,
-		Timestamp: &timestamp,
-	}
-
-	ctx.Response(response, 200)
-}
-
-func (s *_service) GetTestV2(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
-	message := "Test v2 it's working"
-	code := 200
-	success := true
-	timestamp := 1625867200
-
-	response := gen.BaseResponse{
-		Message:   &message,
-		Code:      &code,
-		Success:   &success,
-		Timestamp: &timestamp,
-	}
-
-	ctx.Response(response, 200)
+	_userService
+	_petService
+	_fileService
+	_inventoryService
 }
 
 func main() {
@@ -168,8 +213,7 @@ func main() {
 	server.Default().
 		WithLoginResource(loginService).
 		EmbeddedServer(gen.ApiResourceHandler(&_service{})).
-		SwaggerDocHandler("example/resource/swagger.yaml").
-		//SwaggerDocHandler("example/resource/swagger-with-api-key.yaml").
+		SwaggerDocHandler("example/resource/pet-store.yaml").
 		RegisterMiddleware(secretHandler.HandlerSecretAccess, security.ApiSecretAccessHandlerName).
 		RegisterMiddleware(securityService.AuthorizationHandler, security.ApiSecurityHandlerName).
 		WithErrorHandler(errorHandler).

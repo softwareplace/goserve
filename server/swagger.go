@@ -78,10 +78,9 @@ func (a *apiRouterHandlerImpl[T]) SwaggerDocProvider(getSwagger func() (swagger 
 }
 
 func (a *apiRouterHandlerImpl[T]) SwaggerDocHandler(swaggerFile string) ApiRouterHandler[T] {
-	return a.
-		SwaggerDocProvider(func() (swagger *openapi3.T, err error) {
-			return SwaggerDocLoader(swaggerFile)
-		})
+	return a.SwaggerDocProvider(func() (swagger *openapi3.T, err error) {
+		return SwaggerDocLoader(swaggerFile)
+	})
 }
 
 func (a *apiRouterHandlerImpl[T]) handleSwaggerJSON(swagger *openapi3.T) func(ctx *api_context.ApiRequestContext[T]) {
