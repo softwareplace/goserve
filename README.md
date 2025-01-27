@@ -58,6 +58,7 @@ func main() {
 		SwaggerDocHandler("example/resource/pet-store.yaml"). // Serve Swagger-UI
 		WithApiSecretAccessHandler(secretHandler). // Configure secret access handler
 		WithApiSecurityService(securityService). // Set up security service
+		WithPrincipalService(userPrincipalService). // Set the principal service
 		WithErrorHandler(errorHandler). // Define custom error handler
 		NotFoundHandler(). // Handle 404 errors
 		StartServer() // Start the server
