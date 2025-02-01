@@ -81,6 +81,8 @@ func CreateApiRouter[T api_context.ApiPrincipalContext](topMiddlewares ...ApiMid
 		router:                              router,
 		apiSecretKeyGeneratorResourceEnable: true,
 		loginResourceEnable:                 true,
+		contextPath:                         apiContextPath(),
+		port:                                apiPort(),
 	}
 
 	router.Use(api.errorHandlerWrapper)
@@ -105,6 +107,8 @@ func CreateApiRouterWith[T api_context.ApiPrincipalContext](router mux.Router) A
 		router:                              &router,
 		apiSecretKeyGeneratorResourceEnable: true,
 		loginResourceEnable:                 true,
+		contextPath:                         apiContextPath(),
+		port:                                apiPort(),
 	}
 
 	return api

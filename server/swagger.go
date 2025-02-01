@@ -49,7 +49,7 @@ func (a *apiRouterHandlerImpl[T]) SwaggerDocProvider(getSwagger func() (swagger 
 	paths := make(map[string]*openapi3.PathItem)
 	var oldsPaths []string
 	for path, pathItem := range swagger.Paths.Map() {
-		newPath := strings.TrimRight(ContextPath, "/") + path
+		newPath := strings.TrimRight(a.contextPath, "/") + path
 		log.Printf("path: %s", newPath)
 		oldsPaths = append(oldsPaths, path)
 		paths[newPath] = pathItem
@@ -64,15 +64,15 @@ func (a *apiRouterHandlerImpl[T]) SwaggerDocProvider(getSwagger func() (swagger 
 	}
 
 	swaggerHandler := httpSwagger.Handler(func(config *httpSwagger.Config) {
-		config.URL = ContextPath + "doc.json"
+		config.URL = a.contextPath + "doc.json"
 		config.Layout = httpSwagger.BaseLayout
 	})
 
-	a.Router().PathPrefix(ContextPath + "swagger/").Handler(swaggerHandler)
+	a.Router().PathPrefix(a.contextPath + "swagger/").Handler(swaggerHandler)
 
 	a.PublicRouter(a.handleSwaggerJSON(swagger), "doc.json", "GET")
-	principal.AddOpenPath("GET::" + ContextPath + "doc.json")
-	principal.AddOpenPath("GET::" + ContextPath + "swagger/.*")
+	principal.AddOpenPath("GET::" + a.contextPath + "doc.json")
+	principal.AddOpenPath("GET::" + a.contextPath + "swagger/.*")
 	a.swaggerIsEnabled = true
 	return a
 }

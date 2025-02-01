@@ -9,13 +9,14 @@ import (
 
 func (a *apiRouterHandlerImpl[T]) PublicRouter(handler ApiContextHandler[T], path string, method string) ApiRouterHandler[T] {
 	a.Add(handler, path, method)
-	combinedKey := method + "::" + ContextPath + path
+	combinedKey := method + "::" + a.contextPath + path
 	principal.AddOpenPath(combinedKey)
 	return a
 }
 
 func (a *apiRouterHandlerImpl[T]) Add(handler ApiContextHandler[T], path string, method string, requiredRoles ...string) ApiRouterHandler[T] {
-	handlerPath := strings.TrimSuffix(ContextPath, "/") + "/" + strings.TrimPrefix(path, "/")
+
+	handlerPath := strings.TrimSuffix(a.contextPath, "/") + "/" + strings.TrimPrefix(path, "/")
 
 	a.router.HandleFunc(handlerPath, func(writer http.ResponseWriter, req *http.Request) {
 		ctx := api_context.Of[T](writer, req, "ROUTER/HANDLER")

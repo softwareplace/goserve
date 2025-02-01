@@ -4,11 +4,7 @@ import (
 	"log"
 	"net/http"
 	"os"
-)
-
-var (
-	ContextPath = apiContextPath()
-	Port        = apiPort()
+	"strings"
 )
 
 func apiContextPath() string {
@@ -28,15 +24,24 @@ func (a *apiRouterHandlerImpl[T]) NotFoundHandler() ApiRouterHandler[T] {
 	a.router.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Printf("404 page not found: %s", r.URL.Path)
 
-		if a.swaggerIsEnabled && (r.URL.Path == ContextPath || r.URL.Path == ContextPath[:len(ContextPath)-1]) {
-			http.Redirect(w, r, ContextPath+"swagger/index.html", http.StatusMovedPermanently)
-			log.Printf("Redirecting to swagger: %s", r.URL.Path)
+		swaggerPath := strings.TrimSuffix(a.contextPath, "/") + "/swagger"
+
+		isSwaggerPath := strings.TrimSuffix(r.URL.Path, "/") == swaggerPath
+
+		if a.swaggerIsEnabled && (r.URL.Path == a.contextPath || r.URL.Path == a.contextPath[:len(a.contextPath)-1] || isSwaggerPath) {
+			a.goToSwaggerUi(w, r)
 			return
 		}
+
 		log.Printf("Returning 404 page not found: %s", r.URL.Path)
 		http.Error(w, "404 page not found", http.StatusNotFound)
 	})
 	return a
+}
+
+func (a *apiRouterHandlerImpl[T]) goToSwaggerUi(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, a.contextPath+"swagger/index.html", http.StatusMovedPermanently)
+	log.Printf("Redirecting to swagger: %s", r.URL.Path)
 }
 
 func (a *apiRouterHandlerImpl[T]) CustomNotFoundHandler(handler func(w http.ResponseWriter, r *http.Request)) ApiRouterHandler[T] {
@@ -56,11 +61,11 @@ func (a *apiRouterHandlerImpl[T]) WithContextPath(contextPath string) ApiRouterH
 
 func (a *apiRouterHandlerImpl[T]) StartServer() {
 	if a.port == "" {
-		a.port = Port
+		a.port = apiPort()
 	}
 
 	if a.contextPath == "" {
-		a.contextPath = ContextPath
+		a.contextPath = apiContextPath()
 	}
 
 	log.Printf("Server started at http://localhost:%s%s", a.port, a.contextPath)

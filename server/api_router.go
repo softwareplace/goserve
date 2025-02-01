@@ -17,6 +17,29 @@ type ApiMiddleware[T api_context.ApiPrincipalContext] func(*api_context.ApiReque
 type RouterHandler func(*mux.Router)
 
 type ApiRouterHandler[T api_context.ApiPrincipalContext] interface {
+	// WithPort sets the port for the API router's server.
+	// This method allows specifying a custom port where the server will listen for incoming requests.
+	//
+	// Parameters:
+	//   - port: The port number to listen on.
+	// Default:
+	//   - server.Port
+	// Returns:
+	//   - ApiRouterHandler[T]: The router handler for chaining further configurations.
+	WithPort(port string) ApiRouterHandler[T]
+
+	// WithContextPath sets the context path (base URL) for the API router.
+	// This method allows specifying a custom context path which will prefix all registered routes.
+	//
+	// Parameters:
+	//   - contextPath: The base URL path.
+	// Obs:
+	//   - server.ContextPath is sed by default
+	//   - Remember to call this before register any request handler
+	// Returns:
+	//   - ApiRouterHandler[T]: The router handler for chaining further configurations.
+	WithContextPath(contextPath string) ApiRouterHandler[T]
+
 	// PublicRouter registers a public route handler that does not require authentication or authorization.
 	// It allows unrestricted access from any client.
 	//
@@ -241,7 +264,7 @@ type ApiRouterHandler[T api_context.ApiPrincipalContext] interface {
 	//   - ApiRouterHandler[T]: The current ApiRouterHandler instance to allow method chaining.
 	WithApiKeyGeneratorResource(apiKeyGeneratorService ApiKeyGeneratorService[T]) ApiRouterHandler[T]
 
-	// ApiSecretKeyGeneratorResource disables the API Secret Key Generator feature in the API router.
+	// ApiSecretKeyGeneratorResourceEnabled disables the API Secret Key Generator feature in the API router.
 	// This method removes or disables the associated endpoint/resource responsible for generating API secret keys.
 	//
 	//
@@ -424,29 +447,6 @@ type ApiRouterHandler[T api_context.ApiPrincipalContext] interface {
 	// Returns:
 	//   - ApiRouterHandler[T]: The router handler for chaining further route configurations.
 	CustomNotFoundHandler(handler func(w http.ResponseWriter, r *http.Request)) ApiRouterHandler[T]
-
-	// WithPort sets the port for the API router's server.
-	// This method allows specifying a custom port where the server will listen for incoming requests.
-	//
-	// Parameters:
-	//   - port: The port number to listen on.
-	// Default:
-	//   - server.Port
-	// Returns:
-	//   - ApiRouterHandler[T]: The router handler for chaining further configurations.
-	WithPort(port string) ApiRouterHandler[T]
-
-	// WithContextPath sets the context path (base URL) for the API router.
-	// This method allows specifying a custom context path which will prefix all registered routes.
-	//
-	// Parameters:
-	//   - contextPath: The base URL path.
-	// Default:
-	//   - server.ContextPath
-	//
-	// Returns:
-	//   - ApiRouterHandler[T]: The router handler for chaining further configurations.
-	WithContextPath(contextPath string) ApiRouterHandler[T]
 
 	// StartServer initializes and starts the HTTP server with the configured routes, middleware, and services.
 	// This method blocks the current goroutine and listens for incoming HTTP requests.
