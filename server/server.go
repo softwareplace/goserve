@@ -44,11 +44,25 @@ func (a *apiRouterHandlerImpl[T]) CustomNotFoundHandler(handler func(w http.Resp
 	return a
 }
 
-func (a *apiRouterHandlerImpl[T]) StartServer() {
-	a.StartServerWith(ContextPath, Port)
+func (a *apiRouterHandlerImpl[T]) WithPort(port string) ApiRouterHandler[T] {
+	a.port = port
+	return a
 }
 
-func (a *apiRouterHandlerImpl[T]) StartServerWith(contextPath string, port string) {
-	log.Printf("Server started at http://localhost:%s%s", port, contextPath)
+func (a *apiRouterHandlerImpl[T]) WithContextPath(contextPath string) ApiRouterHandler[T] {
+	a.contextPath = contextPath
+	return a
+}
+
+func (a *apiRouterHandlerImpl[T]) StartServer() {
+	if a.port == "" {
+		a.port = Port
+	}
+
+	if a.contextPath == "" {
+		a.contextPath = ContextPath
+	}
+
+	log.Printf("Server started at http://localhost:%s%s", a.port, a.contextPath)
 	log.Fatal(http.ListenAndServe(":"+Port, a.router))
 }

@@ -425,26 +425,28 @@ type ApiRouterHandler[T api_context.ApiPrincipalContext] interface {
 	//   - ApiRouterHandler[T]: The router handler for chaining further route configurations.
 	CustomNotFoundHandler(handler func(w http.ResponseWriter, r *http.Request)) ApiRouterHandler[T]
 
-	// StartServerWith initializes and starts the HTTP server with the configured routes, middleware, and services.
-	// This method blocks the current goroutine and listens for incoming HTTP requests on the specified port
-	// and context path until the server terminates or is gracefully shut down.
+	// WithPort sets the port for the API router's server.
+	// This method allows specifying a custom port where the server will listen for incoming requests.
 	//
 	// Parameters:
-	//   - contextPath: The base path for all API routes (e.g., "/api/v1"). Routes will be prefixed with this path.
-	//   - port: The port number on which the server should listen (e.g., "8080").
+	//   - port: The port number to listen on.
+	// Default:
+	//   - server.Port
+	// Returns:
+	//   - ApiRouterHandler[T]: The router handler for chaining further configurations.
+	WithPort(port string) ApiRouterHandler[T]
+
+	// WithContextPath sets the context path (base URL) for the API router.
+	// This method allows specifying a custom context path which will prefix all registered routes.
 	//
-	// Behavior:
-	//   - Combines all registered routes, middlewares, and services into the server configuration.
-	//   - Starts the server on the specified port.
-	//   - Handles OS signals (e.g., SIGTERM) gracefully to allow clean server shutdown if configured.
-	//   - Logs relevant startup information, such as the listening port and registered routes.
+	// Parameters:
+	//   - contextPath: The base URL path.
+	// Default:
+	//   - server.ContextPath
 	//
-	// Example usage:
-	// ```go
-	// router := NewApiRouter()
-	// router.StartServer("/api/v1", "8080")
-	// ```
-	StartServerWith(contextPath string, port string)
+	// Returns:
+	//   - ApiRouterHandler[T]: The router handler for chaining further configurations.
+	WithContextPath(contextPath string) ApiRouterHandler[T]
 
 	// StartServer initializes and starts the HTTP server with the configured routes, middleware, and services.
 	// This method blocks the current goroutine and listens for incoming HTTP requests.

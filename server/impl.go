@@ -21,6 +21,8 @@ type apiRouterHandlerImpl[T api_context.ApiPrincipalContext] struct {
 	swaggerIsEnabled                    bool
 	loginResourceEnable                 bool
 	apiSecretKeyGeneratorResourceEnable bool
+	contextPath                         string
+	port                                string
 }
 
 func (a *apiRouterHandlerImpl[T]) RegisterMiddleware(middleware ApiMiddleware[T], name string) ApiRouterHandler[T] {
