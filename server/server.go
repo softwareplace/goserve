@@ -15,7 +15,7 @@ func apiContextPath() string {
 	if contextPath := os.Getenv("CONTEXT_PATH"); contextPath != "" {
 		return contextPath
 	}
-	return "/api/app/v1/"
+	return "/"
 }
 func apiPort() string {
 	if port := os.Getenv("PORT"); port != "" {
@@ -45,6 +45,10 @@ func (a *apiRouterHandlerImpl[T]) CustomNotFoundHandler(handler func(w http.Resp
 }
 
 func (a *apiRouterHandlerImpl[T]) StartServer() {
-	log.Printf("Server started at http://localhost:%s%s", Port, ContextPath)
+	a.StartServerWith(ContextPath, Port)
+}
+
+func (a *apiRouterHandlerImpl[T]) StartServerWith(contextPath string, port string) {
+	log.Printf("Server started at http://localhost:%s%s", port, contextPath)
 	log.Fatal(http.ListenAndServe(":"+Port, a.router))
 }
