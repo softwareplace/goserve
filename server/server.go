@@ -64,5 +64,5 @@ func (a *apiRouterHandlerImpl[T]) StartServer() {
 	}
 
 	log.Printf("Server started at http://localhost:%s%s", a.port, a.contextPath)
-	log.Fatal(http.ListenAndServe(":"+Port, a.router))
+	log.Fatal(http.ListenAndServe(":"+a.port, a.router))
 }
