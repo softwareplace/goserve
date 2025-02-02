@@ -73,26 +73,6 @@ func (a *apiRouterHandlerImpl[T]) LoginResourceEnabled(enable bool) ApiRouterHan
 	return a
 }
 
-func CreateApiRouter[T api_context.ApiPrincipalContext](topMiddlewares ...ApiMiddleware[T]) ApiRouterHandler[T] {
-	router := mux.NewRouter()
-	router.Use(rootAppMiddleware[T])
-
-	api := &apiRouterHandlerImpl[T]{
-		router:                              router,
-		apiSecretKeyGeneratorResourceEnable: true,
-		loginResourceEnable:                 true,
-		contextPath:                         apiContextPath(),
-		port:                                apiPort(),
-	}
-
-	router.Use(api.errorHandlerWrapper)
-
-	for _, middleware := range topMiddlewares {
-		api.RegisterMiddleware(middleware, "")
-	}
-	return api
-}
-
 func (a *apiRouterHandlerImpl[T]) WithPrincipalService(service principal.PService[T]) ApiRouterHandler[T] {
 	a.principalService = service
 	if a.principalService != nil {
@@ -101,17 +81,8 @@ func (a *apiRouterHandlerImpl[T]) WithPrincipalService(service principal.PServic
 	return a
 }
 
-func CreateApiRouterWith[T api_context.ApiPrincipalContext](router mux.Router) ApiRouterHandler[T] {
-	router.Use(rootAppMiddleware[T])
-	api := &apiRouterHandlerImpl[T]{
-		router:                              &router,
-		apiSecretKeyGeneratorResourceEnable: true,
-		loginResourceEnable:                 true,
-		contextPath:                         apiContextPath(),
-		port:                                apiPort(),
-	}
-
-	return api
+func (a *apiRouterHandlerImpl[T]) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	a.router.ServeHTTP(w, req)
 }
 
 func (a *apiRouterHandlerImpl[T]) Router() *mux.Router {

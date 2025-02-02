@@ -38,7 +38,7 @@ go get -u github.com/softwareplace/http-utils
 
 Configure a server with role-based access control, secure API authentication, and integrated middleware:
 
-- Full example [here](./example/main.go)
+- Full example [here](test/main.go)
 
 ```go
 package main

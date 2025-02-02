@@ -3,13 +3,15 @@ package main
 import (
 	"github.com/softwareplace/http-utils/api_context"
 	"github.com/softwareplace/http-utils/error_handler"
-	"github.com/softwareplace/http-utils/example/gen"
 	"github.com/softwareplace/http-utils/security"
 	"github.com/softwareplace/http-utils/security/principal"
 	"github.com/softwareplace/http-utils/server"
+	"github.com/softwareplace/http-utils/test/gen"
 	"log"
 	"net/http"
-	"os"
+	"net/http/httptest"
+	"strings"
+	"testing"
 	"time"
 )
 
@@ -214,52 +216,196 @@ type _service struct {
 	_inventoryService
 }
 
-func main() {
-	log.SetFlags(log.LstdFlags | log.Llongfile)
-
-	var userPrincipalService principal.PService[*api_context.DefaultContext]
-	userPrincipalService = &principalServiceImpl{}
-
-	var errorHandler error_handler.ApiErrorHandler[*api_context.DefaultContext]
-	errorHandler = &errorHandlerImpl{}
-
-	securityService := security.ApiSecurityServiceBuild(
+var (
+	userPrincipalService principal.PService[*api_context.DefaultContext]            = &principalServiceImpl{}
+	errorHandler         error_handler.ApiErrorHandler[*api_context.DefaultContext] = &errorHandlerImpl{}
+	securityService                                                                 = security.ApiSecurityServiceBuild(
 		"ue1pUOtCGaYS7Z1DLJ80nFtZ",
 		userPrincipalService,
 	)
 
-	secretProvider := &secretProviderImpl{}
-
-	secretHandler := security.ApiSecretAccessHandlerBuild(
-		"./example/secret/private.key",
-		secretProvider,
-		securityService,
-	)
-
-	secretHandler.DisableForPublicPath(true)
-
-	for _, arg := range os.Args {
-		if arg == "--d" || arg == "-d" {
-			log.Println("Setting public path requires access with api secret key.")
-			secretHandler.DisableForPublicPath(false)
-		}
-	}
-
-	loginService := &loginServiceImpl{
+	loginService = &loginServiceImpl{
 		securityService: securityService,
 	}
 
-	server.Default().
-		LoginResourceEnabled(true).
-		ApiSecretKeyGeneratorResourceEnabled(true).
-		WithLoginResource(loginService).
-		WithApiKeyGeneratorResource(loginService).
-		EmbeddedServer(gen.ApiResourceHandler(&_service{})).
-		SwaggerDocHandler("example/resource/pet-store.yaml").
-		WithApiSecretAccessHandler(secretHandler).
-		WithApiSecurityService(securityService).
-		WithPrincipalService(userPrincipalService).
-		WithErrorHandler(errorHandler).
-		NotFoundHandler().
-		StartServer()
+	secretProvider = secretProviderImpl{}
+	secretHandler  = security.ApiSecretAccessHandlerBuild(
+		"./secret/private.key",
+		&secretProvider,
+		securityService,
+	)
+
+	apiSecret = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlLZXkiOiJTL2VTYzVDQ3Jub1laaDAyU2pLdFVsSzFXdmRaaVA1OXpFUU9jNE54K0pjL1c1dkhMa0tndE1ueExHN3dKTUwvIiwiY2xpZW50IjoiU29mdHdhcmUgUGxhY2UiLCJleHAiOjMwMzM5MzczNTcsInNjb3BlIjpbIkhFMSs0cEVwM3YzZFBzWXNLa3FLMGkzdiswSjMvYjFVN01YQkx3ZzhxQ0E9IiwiR2lQWUVNU1IvK1BjNUdaTm9OcUpqZDRkS1FZbjZ6QzBMbmdYTHVxdFc4VzkiLCJjY294TWNaT0tEZ0srTUZuend0YWFEWXgxaEtPSVlKNDl3PT0iLCJxOWRHb3V5bTBxZWxvV1V4bElKZ2Y1U3l6UnIrU3YwWWwvVT0iLCJNOHdrRkN3cmZpeVBKc2hjb3NrQU5GS0RZZ2ZxRnJOWXkwVmljOEdlM3dPSyJdfQ.n5_8kp3nNqXOAZVB73GCIXcv61gNyyihqz6xDIjIA0k"
+)
+
+func TestMockServer(t *testing.T) {
+	log.SetFlags(log.LstdFlags | log.Llongfile)
+
+	t.Run("expects that can get login response successfully", func(t *testing.T) {
+		// Create a new request
+		loginBody := strings.NewReader(`{"username": "my-username","password": "ynT9558iiMga&ayTVGs3Gc6ug1"}`)
+		req, err := http.NewRequest("POST", "/login", loginBody)
+
+		if err != nil {
+			t.Fatalf("Failed to create request: %v", err)
+		}
+
+		rr := httptest.NewRecorder()
+
+		server.Default().
+			WithLoginResource(loginService).
+			WithApiSecurityService(securityService).
+			WithPrincipalService(userPrincipalService).
+			NotFoundHandler().
+			ServeHTTP(rr, req)
+
+		if status := rr.Code; status != http.StatusOK {
+			t.Errorf("handler returned wrong status code: got %v want %v",
+				status, http.StatusOK)
+		}
+	})
+
+	t.Run("expects that return 401 when api secret is required for all resources but was not provided", func(t *testing.T) {
+		// Create a new request
+		loginBody := strings.NewReader(`{"username": "my-username","password": "ynT9558iiMga&ayTVGs3Gc6ug1"}`)
+		req, err := http.NewRequest("POST", "/login", loginBody)
+
+		if err != nil {
+			t.Fatalf("Failed to create request: %v", err)
+		}
+
+		rr := httptest.NewRecorder()
+
+		secretProvider := secretProviderImpl{}
+		secretHandler := security.ApiSecretAccessHandlerBuild(
+			"./secret/private.key",
+			&secretProvider,
+			securityService,
+		)
+
+		server.Default().
+			WithLoginResource(loginService).
+			WithApiSecretAccessHandler(secretHandler).
+			WithApiSecurityService(securityService).
+			WithPrincipalService(userPrincipalService).
+			NotFoundHandler().
+			ServeHTTP(rr, req)
+
+		if status := rr.Code; status != http.StatusUnauthorized {
+			t.Errorf("handler returned wrong status code: got %v want %v",
+				status, http.StatusUnauthorized)
+		}
+	})
+
+	t.Run("expects that can get login response successfully when requires api secret and it was provided", func(t *testing.T) {
+		// Create a new request
+		loginBody := strings.NewReader(`{"username": "my-username","password": "ynT9558iiMga&ayTVGs3Gc6ug1"}`)
+		req, err := http.NewRequest("POST", "/login", loginBody)
+
+		if err != nil {
+			t.Fatalf("Failed to create request: %v", err)
+		}
+
+		req.Header.Set(api_context.XApiKey, apiSecret)
+
+		rr := httptest.NewRecorder()
+
+		server.Default().
+			WithLoginResource(loginService).
+			WithApiSecretAccessHandler(secretHandler).
+			WithApiSecurityService(securityService).
+			WithPrincipalService(userPrincipalService).
+			NotFoundHandler().
+			ServeHTTP(rr, req)
+
+		if status := rr.Code; status != http.StatusOK {
+			t.Errorf("handler returned wrong status code: got %v want %v",
+				status, http.StatusOK)
+		}
+	})
+
+	t.Run("expects that return default not found when a custom was not provided", func(t *testing.T) {
+		// Create a new request
+		req, err := http.NewRequest("POST", "/not-found", nil)
+
+		if err != nil {
+			t.Fatalf("Failed to create request: %v", err)
+		}
+
+		rr := httptest.NewRecorder()
+
+		server.Default().
+			WithPrincipalService(userPrincipalService).
+			ServeHTTP(rr, req)
+
+		if status := rr.Code; status != http.StatusNotFound {
+			t.Errorf("handler returned wrong status code: got %v want %v",
+				status, http.StatusNotFound)
+		}
+
+		if strings.Contains(rr.Body.String(), "404 page not found") {
+			t.Log("Response body contains '404 page not found'")
+		} else {
+			t.Errorf("Expected response body to contain '404 page not found', but got: %s", rr.Body.String())
+		}
+
+	})
+
+	t.Run("expects that return custom not found when a custom was provided", func(t *testing.T) {
+		// Create a new request
+		req, err := http.NewRequest("POST", "/not-found", nil)
+
+		if err != nil {
+			t.Fatalf("Failed to create request: %v", err)
+		}
+
+		rr := httptest.NewRecorder()
+
+		server.Default().
+			WithPrincipalService(userPrincipalService).
+			CustomNotFoundHandler(func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(http.StatusNotFound)
+				_, _ = w.Write([]byte("Custom 404 Page"))
+			}).
+			ServeHTTP(rr, req)
+
+		if status := rr.Code; status != http.StatusNotFound {
+			t.Errorf("handler returned wrong status code: got %v want %v",
+				status, http.StatusNotFound)
+		}
+
+		if strings.Contains(rr.Body.String(), "Custom 404 Page") {
+			t.Log("Response body contains 'Custom 404 Page'")
+		} else {
+			t.Errorf("Expected response body to contain 'Custom 404 Page', but got: %s", rr.Body.String())
+		}
+	})
+
+	t.Run("expects that return swagger resource when swagger was defined and using the default not found handler", func(t *testing.T) {
+		// Create a new request
+		req, err := http.NewRequest("GET", "/", nil)
+
+		if err != nil {
+			t.Fatalf("Failed to create request: %v", err)
+		}
+
+		rr := httptest.NewRecorder()
+
+		server.Default().
+			WithPrincipalService(userPrincipalService).
+			EmbeddedServer(gen.ApiResourceHandler(&_service{})).
+			SwaggerDocHandler("./resource/pet-store.yaml").
+			ServeHTTP(rr, req)
+
+		if status := rr.Code; status != http.StatusMovedPermanently {
+			t.Errorf("handler returned wrong status code: got %v want %v",
+				status, http.StatusMovedPermanently)
+		}
+
+		if strings.Contains(rr.Body.String(), "<a href=\"/swagger/index.html\">Moved Permanently</a>.") {
+			t.Log("Response body contains '<a href=\"/swagger/index.html\">Moved Permanently</a>.'")
+		} else {
+			t.Errorf("Expected response body to contain '<a href=\"/swagger/index.html\">Moved Permanently</a>.', but got: %s", rr.Body.String())
+		}
+	})
 }

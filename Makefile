@@ -1,9 +1,11 @@
-test:
-	@sh ./example/test
+server-test:
+	@make codegen
+	@cd test && go test
 
 codegen:
-	 @oapi-codegen --config ./resource/local-config.yaml ./example/resource/pet-store.yaml
+	 @rm -rf test/gen/api.gen.go
+	 @oapi-codegen --config ./test/resource/config.yaml ./test/resource/pet-store.yaml
 
 pet-store:
-	 @oapi-codegen --config ./example/resource/local-config.yaml ./example/resource/pet-store.yaml  2>&1 | pbcopy
+	 @oapi-codegen --config ./test/resource/local-config.yaml ./test/resource/pet-store.yaml  2>&1 | pbcopy
 

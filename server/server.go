@@ -24,13 +24,15 @@ func (a *apiRouterHandlerImpl[T]) NotFoundHandler() ApiRouterHandler[T] {
 	a.router.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Printf("404 page not found: %s", r.URL.Path)
 
-		swaggerPath := strings.TrimSuffix(a.contextPath, "/") + "/swagger"
+		if r.Method == "GET" {
+			swaggerPath := strings.TrimSuffix(a.contextPath, "/") + "/swagger"
 
-		isSwaggerPath := strings.TrimSuffix(r.URL.Path, "/") == swaggerPath
+			isSwaggerPath := strings.TrimSuffix(r.URL.Path, "/") == swaggerPath
 
-		if a.swaggerIsEnabled && (r.URL.Path == a.contextPath || r.URL.Path == a.contextPath[:len(a.contextPath)-1] || isSwaggerPath) {
-			a.goToSwaggerUi(w, r)
-			return
+			if a.swaggerIsEnabled && (r.URL.Path == a.contextPath || r.URL.Path == a.contextPath[:len(a.contextPath)-1] || isSwaggerPath) {
+				a.goToSwaggerUi(w, r)
+				return
+			}
 		}
 
 		log.Printf("Returning 404 page not found: %s", r.URL.Path)
