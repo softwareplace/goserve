@@ -38,7 +38,6 @@ go get -u github.com/softwareplace/http-utils
 
 Configure a server with role-based access control, secure API authentication, and integrated middleware:
 
-- Full example [here](test/main.go)
 
 ```go
 package main
@@ -55,7 +54,7 @@ func main() {
 		WithLoginResource(loginService). // Attach the login service
 		WithApiKeyGeneratorResource(loginService). // Attach API key generator service
 		EmbeddedServer(gen.ApiResourceHandler(&_service{})). // Add embedded API resource handler
-		SwaggerDocHandler("example/resource/pet-store.yaml"). // Serve Swagger-UI
+		SwaggerDocHandler("path/of/swagger/file.yaml"). // Serve Swagger-UI
 		WithApiSecretAccessHandler(secretHandler). // Configure secret access handler
 		WithApiSecurityService(securityService). // Set up security service
 		WithPrincipalService(userPrincipalService). // Set the principal service
