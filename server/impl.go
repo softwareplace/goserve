@@ -4,26 +4,10 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/softwareplace/http-utils/api_context"
 	"github.com/softwareplace/http-utils/error_handler"
-	"github.com/softwareplace/http-utils/security"
 	"github.com/softwareplace/http-utils/security/principal"
 	"net/http"
 	"strings"
 )
-
-type apiRouterHandlerImpl[T api_context.ApiPrincipalContext] struct {
-	router                              *mux.Router
-	principalService                    principal.PService[T]
-	errorHandler                        error_handler.ApiErrorHandler[T]
-	loginService                        LoginService[T]
-	apiSecurityService                  security.ApiSecurityService[T]
-	apiSecretAccessHandler              security.ApiSecretAccessHandler[T]
-	apiKeyGeneratorService              ApiKeyGeneratorService[T]
-	swaggerIsEnabled                    bool
-	loginResourceEnable                 bool
-	apiSecretKeyGeneratorResourceEnable bool
-	contextPath                         string
-	port                                string
-}
 
 func (a *apiRouterHandlerImpl[T]) RegisterMiddleware(middleware ApiMiddleware[T], name string) ApiRouterHandler[T] {
 	a.router.Use(func(next http.Handler) http.Handler {

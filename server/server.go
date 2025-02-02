@@ -1,11 +1,37 @@
 package server
 
 import (
+	"context"
+	"errors"
+	"github.com/gorilla/mux"
+	"github.com/softwareplace/http-utils/api_context"
+	"github.com/softwareplace/http-utils/error_handler"
+	"github.com/softwareplace/http-utils/security"
+	"github.com/softwareplace/http-utils/security/principal"
 	"log"
 	"net/http"
 	"os"
 	"strings"
+	"sync"
+	"time"
 )
+
+type apiRouterHandlerImpl[T api_context.ApiPrincipalContext] struct {
+	router                              *mux.Router
+	principalService                    principal.PService[T]
+	errorHandler                        error_handler.ApiErrorHandler[T]
+	loginService                        LoginService[T]
+	apiSecurityService                  security.ApiSecurityService[T]
+	apiSecretAccessHandler              security.ApiSecretAccessHandler[T]
+	apiKeyGeneratorService              ApiKeyGeneratorService[T]
+	server                              *http.Server // Add a server instance
+	mu                                  sync.Mutex   // Add a mutex for thread safety
+	swaggerIsEnabled                    bool
+	loginResourceEnable                 bool
+	apiSecretKeyGeneratorResourceEnable bool
+	contextPath                         string
+	port                                string
+}
 
 func apiContextPath() string {
 	if contextPath := os.Getenv("CONTEXT_PATH"); contextPath != "" {
@@ -62,6 +88,19 @@ func (a *apiRouterHandlerImpl[T]) WithContextPath(contextPath string) ApiRouterH
 }
 
 func (a *apiRouterHandlerImpl[T]) StartServer() {
+	//if a.port == "" {
+	//	a.port = apiPort()
+	//}
+	//
+	//if a.contextPath == "" {
+	//	a.contextPath = apiContextPath()
+	//}
+	//
+	//log.Printf("Server started at http://localhost:%s%s", a.port, a.contextPath)
+	//log.Fatal(http.ListenAndServe(":"+a.port, a.router))
+	a.mu.Lock()
+	defer a.mu.Unlock()
+
 	if a.port == "" {
 		a.port = apiPort()
 	}
@@ -70,6 +109,52 @@ func (a *apiRouterHandlerImpl[T]) StartServer() {
 		a.contextPath = apiContextPath()
 	}
 
+	// Initialize the HTTP server
+	a.server = &http.Server{
+		Addr:    ":" + a.port,
+		Handler: a.router,
+	}
+
 	log.Printf("Server started at http://localhost:%s%s", a.port, a.contextPath)
-	log.Fatal(http.ListenAndServe(":"+a.port, a.router))
+
+	// Start the server in a goroutine
+	go func() {
+		if err := a.server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+			log.Fatalf("Server failed: %v", err)
+		}
+	}()
+}
+
+func (a *apiRouterHandlerImpl[T]) StopServer() error {
+	a.mu.Lock()
+	defer a.mu.Unlock()
+
+	if a.server == nil {
+		return nil // Server is not running
+	}
+
+	log.Println("Shutting down server...")
+
+	// Create a context with a timeout for graceful shutdown
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// Attempt to shut down the server
+	if err := a.server.Shutdown(ctx); err != nil {
+		log.Printf("Server shutdown error: %v", err)
+		return err
+	}
+
+	log.Println("Server stopped.")
+	return nil
+}
+
+func (a *apiRouterHandlerImpl[T]) RestartServer() error {
+	if err := a.StopServer(); err != nil {
+		return err
+	}
+
+	// Reinitialize the server
+	a.StartServer()
+	return nil
 }
