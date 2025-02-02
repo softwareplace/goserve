@@ -448,6 +448,44 @@ type ApiRouterHandler[T api_context.ApiPrincipalContext] interface {
 	//   - ApiRouterHandler[T]: The router handler for chaining further route configurations.
 	CustomNotFoundHandler(handler func(w http.ResponseWriter, r *http.Request)) ApiRouterHandler[T]
 
+	// StartServerInGoroutine launches the HTTP server in a goroutine, ensuring non-blocking operation.
+	// The server is initialized with the specified port and context path. If these fields are not set,
+	// default values of "8080" for the port and "/" for the context path are applied.
+	//
+	// This method is designed to start the server asynchronously, allowing the main program to continue
+	// executing other tasks concurrently. It is particularly useful in scenarios where the server needs
+	// to run alongside other background processes or when the application requires non-blocking behavior.
+	//
+	// The server listens on the specified address and handles incoming HTTP requests using the configured
+	// router. If the server fails to start due to an error (e.g., port already in use), the application
+	// will terminate with a fatal log message.
+	//
+	// To prevent the main program from exiting prematurely, ensure that a blocking mechanism (e.g., `select{}`,
+	// `sync.WaitGroup`, or similar) is used after calling this method.
+	//
+	// Example Usage:
+	//
+	//	handler := server.Default().
+	//		StartServerInGoroutine()
+	//	// Keep the application running
+	//	select {}
+	//
+	// Logs:
+	//   - Server startup details, including the address and context path.
+	//   - Fatal errors if the server fails to start.
+	//
+	// Returns:
+	//   - The current instance of `ApiRouterHandler[T]` to support method chaining.
+	//
+	// Notes:
+	//   - If the server is already running, this method will reinitialize and restart it.
+	//   - Ensure that the `port` and `contextPath` fields are properly configured before calling this method.
+	//   - Use `StopServer` to gracefully shut down the server if needed.
+	//
+	// Thread Safety:
+	//   - This method is thread-safe and uses a mutex to prevent race conditions during server initialization.
+	StartServerInGoroutine() ApiRouterHandler[T]
+
 	// StartServer initializes and starts the HTTP server with the configured routes, middleware, and services.
 	// This method blocks the current goroutine and listens for incoming HTTP requests.
 	// The port number is determined by the "PORT" environment variable. If not set, it defaults to "8080".

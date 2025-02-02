@@ -87,17 +87,7 @@ func (a *apiRouterHandlerImpl[T]) WithContextPath(contextPath string) ApiRouterH
 	return a
 }
 
-func (a *apiRouterHandlerImpl[T]) StartServer() {
-	//if a.port == "" {
-	//	a.port = apiPort()
-	//}
-	//
-	//if a.contextPath == "" {
-	//	a.contextPath = apiContextPath()
-	//}
-	//
-	//log.Printf("Server started at http://localhost:%s%s", a.port, a.contextPath)
-	//log.Fatal(http.ListenAndServe(":"+a.port, a.router))
+func (a *apiRouterHandlerImpl[T]) StartServerInGoroutine() ApiRouterHandler[T] {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 
@@ -123,6 +113,22 @@ func (a *apiRouterHandlerImpl[T]) StartServer() {
 			log.Fatalf("Server failed: %v", err)
 		}
 	}()
+
+	return a
+}
+
+func (a *apiRouterHandlerImpl[T]) StartServer() {
+	if a.port == "" {
+		a.port = apiPort()
+	}
+
+	if a.contextPath == "" {
+		a.contextPath = apiContextPath()
+	}
+
+	log.Printf("Server started at http://localhost:%s%s", a.port, a.contextPath)
+	log.Fatal(http.ListenAndServe(":"+a.port, a.router))
+
 }
 
 func (a *apiRouterHandlerImpl[T]) StopServer() error {
