@@ -464,11 +464,12 @@ type ApiRouterHandler[T api_context.ApiPrincipalContext] interface {
 	// `sync.WaitGroup`, or similar) is used after calling this method.
 	//
 	// Example Usage:
-	//
+	// ```go
 	//	handler := server.Default().
 	//		StartServerInGoroutine()
 	//	// Keep the application running
 	//	select {}
+	// ```
 	//
 	// Logs:
 	//   - Server startup details, including the address and context path.
@@ -499,8 +500,8 @@ type ApiRouterHandler[T api_context.ApiPrincipalContext] interface {
 	//
 	// Example usage:
 	// ```go
-	// router := NewApiRouter()
-	// router.StartServer()
+	//	server.Default().
+	//		StartServer()
 	// ```
 	StartServer()
 
