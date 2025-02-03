@@ -53,10 +53,6 @@ func (i *_impl) exec(method string, config *Config) (*http.Response, error) {
 	client := &http.Client{}
 	resp, err := client.Do(request)
 
-	if err != nil {
-		return nil, fmt.Errorf("failed to make %s request: %v", request.Method, err)
-	}
-
 	i.response = resp
 	return resp, nil
 }
