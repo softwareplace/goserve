@@ -1,5 +1,7 @@
 package request
 
-func (i *_impl[T]) Get(config *Config) (*T, error) {
+import "net/http"
+
+func (i *_impl) Get(config *Config) (*http.Response, error) {
 	return i.exec("GET", config)
 }

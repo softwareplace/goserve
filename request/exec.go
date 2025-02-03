@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func (i *_impl[T]) build(method string, config *Config) (*http.Request, error) {
+func (i *_impl) build(method string, config *Config) (*http.Request, error) {
 	var body io.Reader
 
 	if config.Body != nil {
@@ -43,7 +43,7 @@ func (i *_impl[T]) build(method string, config *Config) (*http.Request, error) {
 	return req, nil
 }
 
-func (i *_impl[T]) exec(method string, config *Config) (*T, error) {
+func (i *_impl) exec(method string, config *Config) (*http.Response, error) {
 	request, err := i.build(method, config)
 
 	if err != nil {
@@ -57,23 +57,6 @@ func (i *_impl[T]) exec(method string, config *Config) (*T, error) {
 		return nil, fmt.Errorf("failed to make %s request: %v", request.Method, err)
 	}
 
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			log.Fatalf("Failed to close response body: %v", err)
-		}
-	}(resp.Body)
-
-	if resp.StatusCode != config.ExpectedStatusCode {
-		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
-	}
-
-	if &i.response != nil {
-		decoder := json.NewDecoder(resp.Body)
-		if err := decoder.Decode(&i.response); err != nil {
-			return nil, fmt.Errorf("failed to decode response: %v", err)
-		}
-	}
-
-	return &i.response, nil
+	i.response = resp
+	return resp, nil
 }
