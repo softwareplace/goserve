@@ -21,6 +21,6 @@ jobs:
           oapi-codegen --config ./test/resource/config.yaml ./test/resource/pet-store.yaml
       - name: Example test
         run: |
-          make server-test
+          go test ./...
 
 
