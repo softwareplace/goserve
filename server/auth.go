@@ -47,7 +47,7 @@ type LoginService[T api_context.ApiPrincipalContext] interface {
 	// This method uses the encryptor package to create a password hash from the provided loginEntryData password
 	// and compares it with the encrypted password available in the principal context.
 	//
-	// A default implementation is available as server.DefaultPasswordValidator[*api_context.DefaultContext]
+	// A default implementation is available as server.DefaultPasswordValidator[T]
 	//
 	// Parameters:
 	//   - loginEntryData: The LoginEntryData containing the plaintext password to be validated.
