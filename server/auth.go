@@ -81,7 +81,7 @@ func (a *apiRouterHandlerImpl[T]) loginDataHandler(ctx *api_context.ApiRequestCo
 
 		if err != nil {
 			log.Printf("LOGIN/LOGIN: Failed to login: %v", err)
-			ctx.Forbidden("Login failed: Invalid username or encryptor")
+			ctx.Forbidden("Login failed: Invalid username or password")
 			return
 		}
 
@@ -89,7 +89,7 @@ func (a *apiRouterHandlerImpl[T]) loginDataHandler(ctx *api_context.ApiRequestCo
 
 		if !isValidPassword {
 			log.Printf("LOGIN/LOGIN: Failed to login: %v", err)
-			ctx.Forbidden("Login failed: Invalid username or encryptor")
+			ctx.Forbidden("Login failed: Invalid username or password")
 			return
 		}
 
@@ -104,7 +104,7 @@ func (a *apiRouterHandlerImpl[T]) loginDataHandler(ctx *api_context.ApiRequestCo
 		ctx.Ok(jwt)
 	}, func(err error) {
 		log.Printf("LOGIN/HANDLER: Failed to handle request: %v", err)
-		ctx.BadRequest("Login failed: Invalid username or encryptor")
+		ctx.Forbidden("Login failed: Invalid username or password")
 	})
 }
 
