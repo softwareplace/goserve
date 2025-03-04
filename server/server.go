@@ -43,6 +43,7 @@ func apiPort() string {
 	if port := os.Getenv("PORT"); port != "" {
 		return port
 	}
+
 	return "8080"
 }
 
@@ -99,13 +100,15 @@ func (a *apiRouterHandlerImpl[T]) StartServerInGoroutine() ApiRouterHandler[T] {
 		a.contextPath = apiContextPath()
 	}
 
+	addr := a.getAddr()
+
 	// Initialize the HTTP server
 	a.server = &http.Server{
-		Addr:    ":" + a.port,
+		Addr:    addr,
 		Handler: a.router,
 	}
 
-	log.Printf("Server started at http://localhost:%s%s", a.port, a.contextPath)
+	log.Printf("Server started at http://localhost%s%s", addr, a.contextPath)
 
 	// Start the server in a goroutine
 	go func() {
@@ -126,9 +129,21 @@ func (a *apiRouterHandlerImpl[T]) StartServer() {
 		a.contextPath = apiContextPath()
 	}
 
-	log.Printf("Server started at http://localhost:%s%s", a.port, a.contextPath)
-	log.Fatal(http.ListenAndServe(":"+a.port, a.router))
+	addr := a.getAddr()
+	log.Printf("Server started at http://localhost%s%s", addr, a.contextPath)
+	log.Fatal(http.ListenAndServe(addr, a.router))
 
+}
+
+func (a *apiRouterHandlerImpl[T]) getAddr() string {
+	addr := ":" + a.port
+
+	if a.port == "80" {
+		addr = ""
+	} else {
+		addr = ":" + a.port
+	}
+	return addr
 }
 
 func (a *apiRouterHandlerImpl[T]) StopServer() error {
