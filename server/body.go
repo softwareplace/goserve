@@ -5,6 +5,7 @@ import (
 	"github.com/softwareplace/http-utils/api_context"
 	"net/http"
 	"reflect"
+	"strings"
 )
 
 type OnSuccess[B any, T api_context.ApiPrincipalContext] func(ctx *api_context.ApiRequestContext[T], body B)
@@ -20,6 +21,15 @@ func GetRequestBody[B any, T api_context.ApiPrincipalContext](
 	onSuccess OnSuccess[B, T],
 	onError OnError[T],
 ) {
+	// Check if the Content-Type is application/json
+	contentType := ctx.Request.Header.Get("Content-Type")
+
+	if !strings.Contains(contentType, "application/json") {
+		onSuccess(ctx, target)
+		return
+	}
+
+	// Decode the JSON body
 	err := json.NewDecoder(ctx.Request.Body).Decode(&target)
 	if err != nil {
 		onError(ctx, err)
