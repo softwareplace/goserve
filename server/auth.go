@@ -11,7 +11,7 @@ import (
 
 type LoginEntryData struct {
 	Username string `json:"username"`
-	Password string `json:"encryptor"`
+	Password string `json:"password"`
 	Email    string `json:"email"`
 }
 
