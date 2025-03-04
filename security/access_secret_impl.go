@@ -293,7 +293,7 @@ func (a *apiSecretHandlerImpl[T]) GeneratePubKey(secretKey string) (string, erro
 	encryptedKey, err := a.service.Encrypt(string(publicKeyPEM))
 
 	if err != nil {
-		log.Fatalf("Failed to encrypt public key: %s", err)
+		log.Fatalf("Failed to encryptor public key: %s", err)
 		return "", nil
 	}
 	return encryptedKey, err

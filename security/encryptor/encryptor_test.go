@@ -1,4 +1,4 @@
-package security
+package encryptor
 
 import (
 	"golang.org/x/crypto/bcrypt"
@@ -13,23 +13,15 @@ func TestNewEncrypt(t *testing.T) {
 	password := "mySecurePassword123"
 	encrypt := NewEncrypt(password)
 
-	if encrypt.password != password {
-		t.Errorf("Expected password to be %s, got %s", password, encrypt.password)
-	}
-
-	if encrypt.encodedPassword == "" {
+	if encrypt.EncodedPassword() == "" {
 		t.Error("Expected encodedPassword to be set, got empty string")
 	}
 
-	if encrypt.token == "" {
+	if encrypt.Token() == "" {
 		t.Error("Expected token to be set, got empty string")
 	}
 
-	if encrypt.authToken == "" {
-		t.Error("Expected authToken to be set, got empty string")
-	}
-
-	if encrypt.salt == "" {
+	if encrypt.Salt() == "" {
 		t.Error("Expected salt to be set, got empty string")
 	}
 }
@@ -37,23 +29,23 @@ func TestNewEncrypt(t *testing.T) {
 // TestHashPassword tests the hashPassword method.
 func TestHashPassword(t *testing.T) {
 	password := "mySecurePassword123"
-	encrypt := &Encrypt{password: password}
+	encrypt := &_PasswordEncryptorImpl{password: password}
 
 	hashedPassword := encrypt.hashPassword(password)
 	if hashedPassword == "" {
 		t.Error("Expected hashedPassword to be set, got empty string")
 	}
 
-	// Verify that the hashed password can be compared with the original password
+	// Verify that the hashed encryptor can be compared with the original encryptor
 	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 	if err != nil {
-		t.Errorf("Failed to compare hashed password: %v", err)
+		t.Errorf("Failed to compare hashed encryptor: %v", err)
 	}
 }
 
 // TestMixedString tests the mixedString method.
 func TestMixedString(t *testing.T) {
-	encrypt := &Encrypt{}
+	encrypt := &_PasswordEncryptorImpl{}
 
 	mixedStr := encrypt.mixedString()
 	if mixedStr == "" {
@@ -72,15 +64,15 @@ func TestIsValidPassword(t *testing.T) {
 	password := "mySecurePassword123"
 	encrypt := NewEncrypt(password)
 
-	// Test with correct password
-	if !encrypt.IsValidPassword(encrypt.encodedPassword) {
-		t.Error("Expected IsValidPassword to return true for correct password")
+	// Test with correct encryptor
+	if !encrypt.IsValidPassword(encrypt.EncodedPassword()) {
+		t.Error("Expected IsValidPassword to return true for correct encryptor")
 	}
 
-	// Test with incorrect password
+	// Test with incorrect encryptor
 	incorrectPassword := "wrongPassword"
 	if encrypt.IsValidPassword(incorrectPassword) {
-		t.Error("Expected IsValidPassword to return false for incorrect password")
+		t.Error("Expected IsValidPassword to return false for incorrect encryptor")
 	}
 }
 
@@ -126,7 +118,7 @@ func TestGetBcryptCost(t *testing.T) {
 
 // TestMixedStringRandomness tests the randomness of the mixedString method.
 func TestMixedStringRandomness(t *testing.T) {
-	encrypt := &Encrypt{}
+	encrypt := &_PasswordEncryptorImpl{}
 
 	// Generate two mixed strings and ensure they are different
 	mixedStr1 := encrypt.mixedString()
@@ -141,7 +133,7 @@ func TestMixedStringRandomness(t *testing.T) {
 // TestHashPasswordWithDifferentCosts tests the hashPassword method with different bcrypt costs.
 func TestHashPasswordWithDifferentCosts(t *testing.T) {
 	password := "mySecurePassword123"
-	encrypt := &Encrypt{password: password}
+	encrypt := &_PasswordEncryptorImpl{password: password}
 
 	// Test with default cost
 	hashedPassword1 := encrypt.hashPassword(password)

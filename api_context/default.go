@@ -1,7 +1,8 @@
 package api_context
 
 type DefaultContext struct {
-	roles []string
+	roles             []string
+	encryptedPassword string
 }
 
 func NewDefaultCtx() *DefaultContext {
@@ -14,6 +15,14 @@ func (d *DefaultContext) GetSalt() string {
 
 func (d *DefaultContext) GetRoles() []string {
 	return d.roles
+}
+
+func (d *DefaultContext) SetEncryptedPassword(encryptedPassword string) {
+	d.encryptedPassword = encryptedPassword
+}
+
+func (d *DefaultContext) EncryptedPassword() string {
+	return d.encryptedPassword
 }
 
 func (d *DefaultContext) SetRoles(roles ...string) {

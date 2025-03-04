@@ -17,6 +17,7 @@ const (
 type ApiPrincipalContext interface {
 	GetSalt() string
 	GetRoles() []string
+	EncryptedPassword() string
 }
 
 type SampleContext[T ApiPrincipalContext] struct {

@@ -4,6 +4,7 @@ import (
 	"github.com/softwareplace/http-utils/api_context"
 	"github.com/softwareplace/http-utils/error_handler"
 	"github.com/softwareplace/http-utils/security"
+	"github.com/softwareplace/http-utils/security/encryptor"
 	"github.com/softwareplace/http-utils/security/principal"
 	"github.com/softwareplace/http-utils/server"
 	"github.com/softwareplace/http-utils/test/gen"
@@ -16,6 +17,7 @@ import (
 )
 
 type loginServiceImpl struct {
+	server.DefaultPasswordValidator[*api_context.DefaultContext]
 	securityService security.ApiSecurityService[*api_context.DefaultContext]
 }
 
@@ -76,6 +78,8 @@ func (l *loginServiceImpl) OnGenerated(data security.JwtResponse,
 func (l *loginServiceImpl) Login(user server.LoginEntryData) (*api_context.DefaultContext, error) {
 	result := &api_context.DefaultContext{}
 	result.SetRoles("api:example:user", "api:example:admin", "read:pets", "write:pets", "api:key:generator")
+	password := encryptor.NewEncrypt(user.Password).EncodedPassword()
+	result.SetEncryptedPassword(password)
 	return result, nil
 }
 

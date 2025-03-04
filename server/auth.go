@@ -4,13 +4,14 @@ import (
 	"github.com/softwareplace/http-utils/api_context"
 	"github.com/softwareplace/http-utils/error_handler"
 	"github.com/softwareplace/http-utils/security"
+	"github.com/softwareplace/http-utils/security/encryptor"
 	"log"
 	"time"
 )
 
 type LoginEntryData struct {
 	Username string `json:"username"`
-	Password string `json:"password"`
+	Password string `json:"encryptor"`
 	Email    string `json:"email"`
 }
 
@@ -27,7 +28,7 @@ type LoginService[T api_context.ApiPrincipalContext] interface {
 	// It authenticates the user based on the provided login data and returns an authenticated principal context or an error.
 	//
 	// Parameters:
-	//   - user: An instance of LoginEntryData that contains the username, password, and/or email for user authentication.
+	//   - user: An instance of LoginEntryData that contains the username, encryptor, and/or email for user authentication.
 	//
 	// Returns:
 	//   - T: The authenticated principal context representing the logged-in user.
@@ -40,6 +41,21 @@ type LoginService[T api_context.ApiPrincipalContext] interface {
 	// Returns:
 	//   - time.Duration: The duration for which a generated token is valid.
 	TokenDuration() time.Duration
+
+	// IsValidPassword validates the user-provided plaintext password against the stored encrypted password.
+	//
+	// This method uses the encryptor package to create a password hash from the provided loginEntryData password
+	// and compares it with the encrypted password available in the principal context.
+	//
+	// A default implementation is available as server.DefaultPasswordValidator[*api_context.DefaultContext]
+	//
+	// Parameters:
+	//   - loginEntryData: The LoginEntryData containing the plaintext password to be validated.
+	//   - principal: The principal context of type T, which contains the stored encrypted password.
+	//
+	// Returns:
+	//   - bool: True if the passwords match; false otherwise.
+	IsValidPassword(loginEntryData LoginEntryData, principal T) bool
 }
 
 func (a *apiRouterHandlerImpl[T]) Login(ctx *api_context.ApiRequestContext[T]) {
@@ -56,20 +72,28 @@ func (a *apiRouterHandlerImpl[T]) loginDataHandler(ctx *api_context.ApiRequestCo
 		loginService := a.loginService
 		decrypt, err := loginService.SecurityService().Decrypt(loginEntryData.Password)
 		if err != nil {
-			log.Printf("LOGIN/DECRYPT: Failed to decrypt password: %v", err)
+			log.Printf("LOGIN/DECRYPT: Failed to decrypt encryptor: %v", err)
 		} else {
 			loginEntryData.Password = decrypt
 		}
 
-		login, err := loginService.Login(loginEntryData)
+		principal, err := loginService.Login(loginEntryData)
 
 		if err != nil {
 			log.Printf("LOGIN/LOGIN: Failed to login: %v", err)
-			ctx.BadRequest("Login failed: Invalid username or password")
+			ctx.Forbidden("Login failed: Invalid username or encryptor")
 			return
 		}
 
-		jwt, err := loginService.SecurityService().GenerateJWT(login, loginService.TokenDuration())
+		isValidPassword := loginService.IsValidPassword(loginEntryData, principal)
+
+		if !isValidPassword {
+			log.Printf("LOGIN/LOGIN: Failed to login: %v", err)
+			ctx.Forbidden("Login failed: Invalid username or encryptor")
+			return
+		}
+
+		jwt, err := loginService.SecurityService().GenerateJWT(principal, loginService.TokenDuration())
 
 		if err != nil {
 			log.Printf("LOGIN/JWT: Failed to generate JWT: %v", err)
@@ -80,6 +104,19 @@ func (a *apiRouterHandlerImpl[T]) loginDataHandler(ctx *api_context.ApiRequestCo
 		ctx.Ok(jwt)
 	}, func(err error) {
 		log.Printf("LOGIN/HANDLER: Failed to handle request: %v", err)
-		ctx.BadRequest("Login failed: Invalid username or password")
+		ctx.BadRequest("Login failed: Invalid username or encryptor")
 	})
+}
+
+// DefaultPasswordValidator is a generic type responsible for validating user passwords
+// against their stored encrypted counterparts in principal contexts.
+//
+// T represents a type that implements the ApiPrincipalContext interface.
+// It ensures that the principal context contains methods to retrieve the encrypted password and other details.
+type DefaultPasswordValidator[T api_context.ApiPrincipalContext] struct {
+}
+
+func (a *DefaultPasswordValidator[T]) IsValidPassword(loginEntryData LoginEntryData, principal T) bool {
+	return encryptor.NewEncrypt(loginEntryData.Password).
+		IsValidPassword(principal.EncryptedPassword())
 }
