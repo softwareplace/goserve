@@ -38,7 +38,6 @@ go get -u github.com/softwareplace/http-utils
 
 Configure a server with role-based access control, secure API authentication, and integrated middleware:
 
-
 ```go
 package main
 
@@ -71,10 +70,11 @@ func main() {
 By default, the server runs at `http://localhost:8080/api/app/v1/`. You can change the port and context path using the
 following environment variables:
 
-| Name         | Required | Default      |
-|--------------|----------|--------------|
-| CONTEXT_PATH | No       | /api/app/v1/ |
-| PORT         | No       | 8080         |
+| Name         | Required | Default      | Description                             |
+|--------------|----------|--------------|-----------------------------------------|
+| CONTEXT_PATH | No       | /api/app/v1/ | The base path for the application API.  |
+| PORT         | No       | 8080         | The port on which the application runs. |
+| B_CRYPT_COST | No       | 10           | The cost factor for bcrypt hashing.     |
 
 ### Advanced Configuration with Code Generation
 
