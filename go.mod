@@ -1,11 +1,13 @@
 module github.com/softwareplace/http-utils
 
-go 1.23
+go 1.23.0
+
+toolchain go1.23.4
 
 require (
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/mux v1.8.1
-	golang.org/x/crypto v0.32.0
+	golang.org/x/crypto v0.36.0
 )
 
 require (
@@ -30,7 +32,7 @@ require (
 	github.com/swaggo/files v1.0.1 // indirect
 	github.com/swaggo/swag v1.16.4 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
-	golang.org/x/net v0.34.0 // indirect
-	golang.org/x/tools v0.29.0 // indirect
+	golang.org/x/net v0.37.0 // indirect
+	golang.org/x/tools v0.31.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
