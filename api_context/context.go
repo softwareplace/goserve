@@ -162,3 +162,29 @@ func (ctx *ApiRequestContext[T]) GetSessionId() string {
 func (ctx *ApiRequestContext[T]) Next(next http.Handler) {
 	next.ServeHTTP(*ctx.Writer, ctx.Request)
 }
+
+func (ctx *ApiRequestContext[T]) QueryOf(key string) string {
+	if len(ctx.QueryValues[key]) > 0 {
+		return ctx.QueryValues[key][0]
+	}
+	return ""
+}
+
+func (ctx *ApiRequestContext[T]) QueriesOf(key string) []string {
+	return ctx.QueryValues[key]
+}
+
+func (ctx *ApiRequestContext[T]) HeadersOf(key string) []string {
+	return ctx.Headers[key]
+}
+
+func (ctx *ApiRequestContext[T]) HeaderOf(key string) string {
+	if len(ctx.Headers[key]) > 0 {
+		return ctx.Headers[key][0]
+	}
+	return ""
+}
+
+func (ctx *ApiRequestContext[T]) PathValuesOf(key string) string {
+	return ctx.PathValues[key]
+}
