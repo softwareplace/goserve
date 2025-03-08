@@ -1,5 +1,10 @@
 package api_context
 
+import (
+	"fmt"
+	"mime/multipart"
+)
+
 // GetSessionId retrieves the unique identifier for the current API session.
 // This session ID is used for tracking the lifecycle of requests in a session.
 func (ctx *ApiRequestContext[T]) GetSessionId() string {
@@ -134,4 +139,54 @@ func (ctx *ApiRequestContext[T]) HeaderOfOrElse(key string, defaultHeader string
 //   - The value of the path variable or an empty string if it does not exist.
 func (ctx *ApiRequestContext[T]) PathValuesOf(key string) string {
 	return ctx.PathValues[key]
+}
+
+// FormValue retrieves the first value for the given form field name from the parsed form data.
+// If the form field does not exist, it returns an empty string.
+//
+// Parameters:
+//   - name: The name of the form field to retrieve.
+//
+// Returns:
+//   - The value of the form field or an empty string if it does not exist.
+func (ctx *ApiRequestContext[T]) FormValue(name string) any {
+	return ctx.Request.FormValue(name)
+}
+
+// FormFile retrieves a file and its header from a multipart form with the given field name.
+// The file is immediately closed after being read to avoid resource leaks.
+//
+// Parameters:
+//   - name: The name of the form field containing the file to retrieve.
+//
+// Returns:
+//   - multipart.File: The file object, or nil if an error occurs.
+//   - *multipart.FileHeader: The file header, or nil if an error occurs.
+//   - error: An error, if one occurs while retrieving the file.
+func (ctx *ApiRequestContext[T]) FormFile(name string) (multipart.File, *multipart.FileHeader, error) {
+	file, fileHeader, err := ctx.Request.FormFile("resource")
+	if err != nil {
+		return nil, nil, err
+	}
+	defer func(file multipart.File) {
+		err := file.Close()
+		if err != nil {
+			fmt.Printf("Failed to close file: %v", err)
+		}
+	}(file)
+
+	return file, fileHeader, nil
+}
+
+// ParseMultipartForm parses the multipart form in the request body, storing up to maxMemory
+// bytes of its file parts in memory, with the remainder stored on disk. This is necessary to
+// access file uploads sent in a multipart request.
+//
+// Parameters:
+//   - maxMemory: The maximum number of bytes to store in memory.
+//
+// Returns:
+//   - error: An error if parsing fails.
+func (ctx *ApiRequestContext[T]) ParseMultipartForm(maxMemory int64) error {
+	return ctx.Request.ParseMultipartForm(maxMemory)
 }
