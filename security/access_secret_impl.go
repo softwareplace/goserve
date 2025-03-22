@@ -6,7 +6,7 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	log "github.com/sirupsen/logrus"
-	"github.com/softwareplace/http-utils/apicontext"
+	apicontext "github.com/softwareplace/http-utils/context"
 	"github.com/softwareplace/http-utils/security/principal"
 	"net/http"
 	"os"
@@ -27,7 +27,7 @@ type apiSecretHandlerImpl[T apicontext.ApiPrincipalContext] struct {
 // unauthorized access to resources.
 //
 // Type Parameters:
-//   - T: A type that satisfies the `apicontext.ApiPrincipalContext` interface, providing API principal-specific context.
+//   - T: A type that satisfies the `context.ApiPrincipalContext` interface, providing API principal-specific context.
 //
 // Fields:
 //   - secretKey: The file path to the secret key used for cryptographic operations.

@@ -2,7 +2,7 @@ package error
 
 import (
 	"fmt"
-	"github.com/softwareplace/http-utils/apicontext"
+	apicontext "github.com/softwareplace/http-utils/context"
 	"runtime"
 )
 

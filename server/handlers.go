@@ -1,7 +1,7 @@
 package server
 
 import (
-	"github.com/softwareplace/http-utils/apicontext"
+	apicontext "github.com/softwareplace/http-utils/context"
 	errorhandler "github.com/softwareplace/http-utils/error"
 	"net/http"
 )

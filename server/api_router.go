@@ -3,7 +3,7 @@ package server
 import (
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/gorilla/mux"
-	"github.com/softwareplace/http-utils/apicontext"
+	apicontext "github.com/softwareplace/http-utils/context"
 	errorhandler "github.com/softwareplace/http-utils/error"
 	"github.com/softwareplace/http-utils/security"
 	"github.com/softwareplace/http-utils/security/principal"

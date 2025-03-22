@@ -1,7 +1,7 @@
 package security
 
 import (
-	"github.com/softwareplace/http-utils/apicontext"
+	apicontext "github.com/softwareplace/http-utils/context"
 )
 
 const (
@@ -18,11 +18,11 @@ const (
 // or any other secure storage mechanism.
 //
 // Type Parameters:
-//   - T: A type that satisfies the `apicontext.ApiPrincipalContext` interface, representing
+//   - T: A type that satisfies the `context.ApiPrincipalContext` interface, representing
 //     the authentication and authorization context for API requests.
 type ApiSecretKeyProvider[T apicontext.ApiPrincipalContext] interface {
 
-	// Get (ctx *apicontext.ApiRequestContext[T]) (string, error):
+	// Get (ctx *context.ApiRequestContext[T]) (string, error):
 	//	   Fetches the API secret key for the given request context. The method should implement
 	//	   any necessary logic to securely retrieve and provide the key, such as decryption or
 	//	   validation.
@@ -55,7 +55,7 @@ type ApiSecretAccessHandler[T apicontext.ApiPrincipalContext] interface {
 	//   3. If validation is successful, allows the request to proceed by returning `true`.
 	//
 	// Args:
-	//   - ctx (*apicontext.ApiRequestContext[T]): The context of the incoming API request that carries
+	//   - ctx (*context.ApiRequestContext[T]): The context of the incoming API request that carries
 	//	 all necessary information for validation, such as JWT claims and keys.
 	//
 	// Returns:

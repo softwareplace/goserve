@@ -2,7 +2,7 @@ package main
 
 import (
 	log "github.com/sirupsen/logrus"
-	"github.com/softwareplace/http-utils/apicontext"
+	apicontext "github.com/softwareplace/http-utils/context"
 	"github.com/softwareplace/http-utils/logger"
 	"github.com/softwareplace/http-utils/server"
 )
@@ -34,5 +34,4 @@ func ReportCallerHandler(ctx *apicontext.ApiRequestContext[*apicontext.DefaultCo
 			"message": "Logger report caller disabled",
 		})
 	}
-
 }

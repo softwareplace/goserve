@@ -5,7 +5,7 @@ import (
 	"errors"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
-	"github.com/softwareplace/http-utils/apicontext"
+	apicontext "github.com/softwareplace/http-utils/context"
 	errorhandler "github.com/softwareplace/http-utils/error"
 	"github.com/softwareplace/http-utils/security"
 	"github.com/softwareplace/http-utils/security/principal"

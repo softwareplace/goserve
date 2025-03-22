@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/getkin/kin-openapi/openapi3"
 	log "github.com/sirupsen/logrus"
-	"github.com/softwareplace/http-utils/apicontext"
+	apicontext "github.com/softwareplace/http-utils/context"
 	"github.com/softwareplace/http-utils/security/principal"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"os"

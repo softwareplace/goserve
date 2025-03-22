@@ -6,7 +6,7 @@ package gen
 import (
 	"time"
 
-	"github.com/softwareplace/http-utils/apicontext"
+	apicontext "github.com/softwareplace/http-utils/context"
 	"github.com/softwareplace/http-utils/server"
 )
 
@@ -497,13 +497,13 @@ type RequestHandler[T apicontext.ApiPrincipalContext] interface {
 
 type ServiceRequestHandler[T apicontext.ApiPrincipalContext] interface {
 
-	// PostLoginRequest(requestBody LoginRequest, requestParams PostLoginRequestParams, ctx *apicontext.ApiRequestContext[T])
+	// PostLoginRequest(requestBody LoginRequest, requestParams PostLoginRequestParams, ctx *context.ApiRequestContext[T])
 	PostLoginRequest(requestBody LoginRequest, ctx *apicontext.ApiRequestContext[T])
 
-	// AddPetRequest(requestBody Pet, requestParams AddPetRequestParams, ctx *apicontext.ApiRequestContext[T])
+	// AddPetRequest(requestBody Pet, requestParams AddPetRequestParams, ctx *context.ApiRequestContext[T])
 	AddPetRequest(requestBody Pet, ctx *apicontext.ApiRequestContext[T])
 
-	// UpdatePetRequest(requestBody Pet, requestParams UpdatePetRequestParams, ctx *apicontext.ApiRequestContext[T])
+	// UpdatePetRequest(requestBody Pet, requestParams UpdatePetRequestParams, ctx *context.ApiRequestContext[T])
 	UpdatePetRequest(requestBody Pet, ctx *apicontext.ApiRequestContext[T])
 
 	FindPetsByStatusRequest(ctx *apicontext.ApiRequestContext[T])
@@ -520,17 +520,17 @@ type ServiceRequestHandler[T apicontext.ApiPrincipalContext] interface {
 
 	GetInventoryRequest(ctx *apicontext.ApiRequestContext[T])
 
-	// PlaceOrderRequest(requestBody Order, requestParams PlaceOrderRequestParams, ctx *apicontext.ApiRequestContext[T])
+	// PlaceOrderRequest(requestBody Order, requestParams PlaceOrderRequestParams, ctx *context.ApiRequestContext[T])
 	PlaceOrderRequest(requestBody Order, ctx *apicontext.ApiRequestContext[T])
 
 	DeleteOrderRequest(ctx *apicontext.ApiRequestContext[T])
 
 	GetOrderByIdRequest(ctx *apicontext.ApiRequestContext[T])
 
-	// CreateUserRequest(requestBody User, requestParams CreateUserRequestParams, ctx *apicontext.ApiRequestContext[T])
+	// CreateUserRequest(requestBody User, requestParams CreateUserRequestParams, ctx *context.ApiRequestContext[T])
 	CreateUserRequest(requestBody User, ctx *apicontext.ApiRequestContext[T])
 
-	// CreateUsersWithListInputRequest(requestBody CreateUsersWithListInputJSONBody, requestParams CreateUsersWithListInputRequestParams, ctx *apicontext.ApiRequestContext[T])
+	// CreateUsersWithListInputRequest(requestBody CreateUsersWithListInputJSONBody, requestParams CreateUsersWithListInputRequestParams, ctx *context.ApiRequestContext[T])
 	CreateUsersWithListInputRequest(requestBody CreateUsersWithListInputJSONBody, ctx *apicontext.ApiRequestContext[T])
 
 	LogoutUserRequest(ctx *apicontext.ApiRequestContext[T])
@@ -539,7 +539,7 @@ type ServiceRequestHandler[T apicontext.ApiPrincipalContext] interface {
 
 	GetUserByNameRequest(ctx *apicontext.ApiRequestContext[T])
 
-	// UpdateUserRequest(requestBody User, requestParams UpdateUserRequestParams, ctx *apicontext.ApiRequestContext[T])
+	// UpdateUserRequest(requestBody User, requestParams UpdateUserRequestParams, ctx *context.ApiRequestContext[T])
 	UpdateUserRequest(requestBody User, ctx *apicontext.ApiRequestContext[T])
 }
 
@@ -573,7 +573,7 @@ type requestHandlerImpl[T apicontext.ApiPrincipalContext] struct {
 //   - server: The server interface implementation containing the endpoint handlers.
 //
 // Generics:
-//   - T: A type that satisfies the apicontext.ApiPrincipalContext interface, representing the principal/context
+//   - T: A type that satisfies the context.ApiPrincipalContext interface, representing the principal/context
 //     involved in the API operations.
 //
 // This function will use the RequestHandler implementation
@@ -596,7 +596,7 @@ func ResourcesHandler[T apicontext.ApiPrincipalContext](apiServer server.ApiRout
 //   - handler: The `RequestHandler` interface implementation containing the actual endpoint handlers.
 //
 // Generics:
-//   - T: A type that satisfies the apicontext.ApiPrincipalContext interface, representing the principal/context
+//   - T: A type that satisfies the context.ApiPrincipalContext interface, representing the principal/context
 //     involved in the API operations.
 func ApiResourceRegister[T apicontext.ApiPrincipalContext](apiServer server.ApiRouterHandler[T], handler RequestHandler[T]) {
 	// Initialize an empty string for the merged scopes.

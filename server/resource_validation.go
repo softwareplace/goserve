@@ -2,7 +2,7 @@ package server
 
 import (
 	log "github.com/sirupsen/logrus"
-	"github.com/softwareplace/http-utils/apicontext"
+	apicontext "github.com/softwareplace/http-utils/context"
 	"github.com/softwareplace/http-utils/security/principal"
 	"net/http"
 	"strings"

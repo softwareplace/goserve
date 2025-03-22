@@ -3,7 +3,7 @@ package server
 import (
 	"encoding/json"
 	log "github.com/sirupsen/logrus"
-	"github.com/softwareplace/http-utils/apicontext"
+	apicontext "github.com/softwareplace/http-utils/context"
 	errorhandler "github.com/softwareplace/http-utils/error"
 	"net/http"
 	"time"

@@ -2,7 +2,7 @@ package server
 
 import (
 	"encoding/json"
-	"github.com/softwareplace/http-utils/apicontext"
+	apicontext "github.com/softwareplace/http-utils/context"
 	"net/http"
 	"reflect"
 	"strings"
