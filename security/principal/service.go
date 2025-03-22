@@ -4,7 +4,7 @@ import (
 	apicontext "github.com/softwareplace/http-utils/context"
 )
 
-type PService[T apicontext.ApiPrincipalContext] interface {
+type Service[T apicontext.Principal] interface {
 
 	// LoadPrincipal loads the principal information for the given API request context.
 	// This method is responsible for extracting and validating the user or session-specific
@@ -16,5 +16,5 @@ type PService[T apicontext.ApiPrincipalContext] interface {
 	// Returns:
 	//   - A boolean value indicating whether the principal was successfully loaded.
 	//	 Returns true if the principal is valid and loaded successfully; otherwise, false.
-	LoadPrincipal(ctx *apicontext.ApiRequestContext[T]) bool
+	LoadPrincipal(ctx *apicontext.Request[T]) bool
 }

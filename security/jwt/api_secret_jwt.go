@@ -1,30 +1,30 @@
-package security
+package jwt
 
 import (
 	"github.com/golang-jwt/jwt/v5"
 	"time"
 )
 
-func (a *apiSecurityServiceImpl[T]) GenerateApiSecretJWT(jwtInfo ApiJWTInfo) (*JwtResponse, error) {
+func (a *serviceImpl[T]) GenerateApiSecretJWT(info Entry) (*Response, error) {
 	secret := a.Secret()
 
-	encryptedKey, err := a.Encrypt(jwtInfo.Key)
+	encryptedKey, err := a.Encrypt(info.Key)
 	if err != nil {
 		return nil, err
 	}
 
-	duration := jwtInfo.Expiration
+	duration := info.Expiration
 	expiration := time.Now().Add(duration).Unix()
 
 	claims := jwt.MapClaims{
-		"client": jwtInfo.Client,
+		"client": info.Client,
 		"apiKey": encryptedKey,
 		"exp":    expiration,
 	}
 
-	if jwtInfo.Scopes != nil && len(jwtInfo.Scopes) > 0 {
+	if info.Scopes != nil && len(info.Scopes) > 0 {
 		var encryptedRoles []string
-		for _, role := range jwtInfo.Scopes {
+		for _, role := range info.Scopes {
 			encryptedRole, err := a.Encrypt(role)
 			if err != nil {
 				return nil, err
@@ -37,7 +37,7 @@ func (a *apiSecurityServiceImpl[T]) GenerateApiSecretJWT(jwtInfo ApiJWTInfo) (*J
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	signedToken, err := token.SignedString(secret)
-	return &JwtResponse{
+	return &Response{
 		Token:   signedToken,
 		Expires: int(expiration),
 	}, err

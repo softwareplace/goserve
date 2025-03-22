@@ -1,4 +1,4 @@
-package security
+package jwt
 
 import (
 	"fmt"
@@ -10,25 +10,17 @@ import (
 )
 
 const (
-	JWTLoadPrincipalError = "JWT/LOAD_PRINCIPAL_ERROR"
-	JWTExtractClaimsError = "JWT/EXTRACT_CLAIMS_ERROR"
+	LoadPrincipalError = "JWT/LOAD_PRINCIPAL_ERROR"
+	ExtractClaimsError = "JWT/EXTRACT_CLAIMS_ERROR"
 )
 
-type ApiJWTInfo struct {
-	Client     string
-	Key        string
-	Expiration time.Duration
-	Scopes     []string
-	PublicKey  *string
-}
-
-func (a *apiSecurityServiceImpl[T]) Principal(
-	ctx *apicontext.ApiRequestContext[T],
+func (a *serviceImpl[T]) Principal(
+	ctx *apicontext.Request[T],
 ) bool {
 	success := a.PService.LoadPrincipal(ctx)
 
 	if !success {
-		a.handlerErrorOrElse(ctx, nil, JWTLoadPrincipalError, func() {
+		a.handlerErrorOrElse(ctx, nil, LoadPrincipalError, func() {
 			ctx.Error("AuthorizationHandler failed", http.StatusForbidden)
 		})
 
@@ -38,7 +30,7 @@ func (a *apiSecurityServiceImpl[T]) Principal(
 	return success
 }
 
-func (a *apiSecurityServiceImpl[T]) ExtractJWTClaims(ctx *apicontext.ApiRequestContext[T]) bool {
+func (a *serviceImpl[T]) ExtractJWTClaims(ctx *apicontext.Request[T]) bool {
 
 	token, err := jwt.Parse(ctx.Authorization, func(token *jwt.Token) (interface{}, error) {
 		return a.Secret(), nil
@@ -55,8 +47,8 @@ func (a *apiSecurityServiceImpl[T]) ExtractJWTClaims(ctx *apicontext.ApiRequestC
 		requester, err := a.Decrypt(claims["request"].(string))
 
 		if err != nil {
-			log.Printf("%s: AuthorizationHandler failed: %v", JWTExtractClaimsError, err)
-			a.handlerErrorOrElse(ctx, err, JWTExtractClaimsError, func() {
+			log.Printf("%s: AuthorizationHandler failed: %v", ExtractClaimsError, err)
+			a.handlerErrorOrElse(ctx, err, ExtractClaimsError, func() {
 				ctx.Error("AuthorizationHandler failed", http.StatusForbidden)
 			})
 			return false
@@ -69,14 +61,14 @@ func (a *apiSecurityServiceImpl[T]) ExtractJWTClaims(ctx *apicontext.ApiRequestC
 
 	log.Printf("JWT/CLAIMS_EXTRACT: failed with error: %v", err)
 
-	a.handlerErrorOrElse(ctx, err, JWTExtractClaimsError, func() {
+	a.handlerErrorOrElse(ctx, err, ExtractClaimsError, func() {
 		ctx.Error("AuthorizationHandler failed", http.StatusForbidden)
 	})
 
 	return false
 }
 
-func (a *apiSecurityServiceImpl[T]) JWTClaims(ctx *apicontext.ApiRequestContext[T]) (map[string]interface{}, error) {
+func (a *serviceImpl[T]) JWTClaims(ctx *apicontext.Request[T]) (map[string]interface{}, error) {
 	token, err := jwt.Parse(ctx.ApiKey, func(token *jwt.Token) (interface{}, error) {
 		return a.Secret(), nil
 	})
@@ -92,14 +84,14 @@ func (a *apiSecurityServiceImpl[T]) JWTClaims(ctx *apicontext.ApiRequestContext[
 	return nil, fmt.Errorf("failed to extract jwt claims")
 }
 
-func (a *apiSecurityServiceImpl[T]) Secret() []byte {
+func (a *serviceImpl[T]) Secret() []byte {
 	secret := a.ApiSecretAuthorization
 	return []byte(secret)
 }
 
-func (a *apiSecurityServiceImpl[T]) GenerateJWT(data T, duration time.Duration) (*JwtResponse, error) {
+func (a *serviceImpl[T]) GenerateJWT(data T, duration time.Duration) (*Response, error) {
 	expiration := time.Now().Add(duration).Unix()
-	requestBy, err := a.Encrypt(data.RequesterId())
+	requestBy, err := a.Encrypt(data.GetId())
 
 	var encryptedRoles []string
 	for _, role := range data.GetRoles() {
@@ -118,7 +110,7 @@ func (a *apiSecurityServiceImpl[T]) GenerateJWT(data T, duration time.Duration) 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	signedToken, err := token.SignedString(a.Secret())
 
-	return &JwtResponse{
+	return &Response{
 		Token:   signedToken,
 		Expires: int(expiration),
 	}, err

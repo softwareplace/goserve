@@ -12,10 +12,10 @@ import (
 	"os"
 )
 
-type apiSecretHandlerImpl[T apicontext.ApiPrincipalContext] struct {
-	service                        ApiSecurityService[T]
+type apiSecretHandlerImpl[T apicontext.Principal] struct {
+	service                        Service[T]
 	provider                       ApiSecretKeyProvider[T]
-	principalService               principal.PService[T]
+	principalService               principal.Service[T]
 	secretKey                      string
 	apiSecret                      any
 	ignoreValidationForPublicPaths bool
@@ -27,21 +27,21 @@ type apiSecretHandlerImpl[T apicontext.ApiPrincipalContext] struct {
 // unauthorized access to resources.
 //
 // Type Parameters:
-//   - T: A type that satisfies the `context.ApiPrincipalContext` interface, providing API principal-specific context.
+//   - T: A type that satisfies the `context.Principal` interface, providing API principal-specific context.
 //
 // Fields:
 //   - secretKey: The file path to the secret key used for cryptographic operations.
-//   - service: An instance of ApiSecurityService responsible for cryptographic and security services.
+//   - service: An instance of Service responsible for cryptographic and security services.
 //   - apiSecret: Holder of the parsed private key, supporting either ECDSA or RSA key types.
 //   - provider: A provider responsible for loading the API secret key for access validation.
 //   - principalService: A service managing API principal claims and IDs to ensure request security.
 //
 // This struct provides methods to initialize the secret key, validate the public key against the private key,
 // and enforce access security middleware, ensuring requests are authorized with proper credentials.
-func ApiSecretAccessHandlerBuild[T apicontext.ApiPrincipalContext](
+func ApiSecretAccessHandlerBuild[T apicontext.Principal](
 	secretKey string,
 	provider ApiSecretKeyProvider[T],
-	service ApiSecurityService[T],
+	service Service[T],
 ) ApiSecretAccessHandler[T] {
 
 	handler := apiSecretHandlerImpl[T]{
@@ -62,7 +62,7 @@ func (a *apiSecretHandlerImpl[T]) DisableForPublicPath(ignore bool) ApiSecretAcc
 	return a
 }
 
-func (a *apiSecretHandlerImpl[T]) HandlerSecretAccess(ctx *apicontext.ApiRequestContext[T]) bool {
+func (a *apiSecretHandlerImpl[T]) HandlerSecretAccess(ctx *apicontext.Request[T]) bool {
 	if a.ignoreValidationForPublicPaths && principal.IsPublicPath[T](*ctx) {
 		return true
 	}
@@ -119,7 +119,7 @@ func (a *apiSecretHandlerImpl[T]) initAPISecretKey() {
 // apiSecretKeyValidation verifies the validity of a public key against the private key stored in the handler.
 //
 // This function performs the following steps:
-// - Extracts JWT claims from the request context using the ApiSecurityService.
+// - Extracts JWT claims from the request context using the Service.
 // - Loads the API secret using the provided `ApiSecretKeyServiceProvider`.
 // - Decrypts the API access key to retrieve the PEM-encoded public key.
 // - Decodes the PEM-encoded public key and parses it into a usable public key object.
@@ -131,7 +131,7 @@ func (a *apiSecretHandlerImpl[T]) initAPISecretKey() {
 //
 // Args:
 //
-//	  ctx (*api_context.ApiRequestContext[T]):
+//	  ctx (*api_context.Request[T]):
 //		 - The context of the API request carrying the necessary data for validation.
 //
 // Returns:
@@ -139,7 +139,7 @@ func (a *apiSecretHandlerImpl[T]) initAPISecretKey() {
 //	  bool:
 //		 - `true` if the public key is valid and corresponds to the private key.
 //		 - `false` if the public key is invalid or the validation fails.
-func (a *apiSecretHandlerImpl[T]) apiSecretKeyValidation(ctx *apicontext.ApiRequestContext[T]) bool {
+func (a *apiSecretHandlerImpl[T]) apiSecretKeyValidation(ctx *apicontext.Request[T]) bool {
 	// Decode the Base64-encoded public key
 	claims, err := a.service.JWTClaims(ctx)
 
