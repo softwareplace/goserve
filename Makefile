@@ -1,3 +1,6 @@
+impl_test:
+	@go test ./...
+
 server-test:
 	@make codegen
 	@cd test && go test
