@@ -22,7 +22,7 @@ type ApiKeyEntryData struct {
 
 type ApiKeyGeneratorService[T apicontext.Principal] interface {
 
-	// SecurityService returns an instance of ApiSecurityService responsible for handling security-related operations.
+	// SecurityService returns an instance of SecurityService responsible for handling security-related operations.
 	// This includes operations such as JWT generation, claims extraction, encryption, decryption, and authorization handling.
 	// It provides the foundational security mechanisms required by the ApiKeyGeneratorService.
 	//
@@ -81,7 +81,7 @@ func (a *apiRouterHandlerImpl[T]) apiKeyGeneratorDataHandler(ctx *apicontext.Req
 		}
 
 		if jwtInfo.PublicKey == nil || *jwtInfo.PublicKey == "" {
-			key, err := a.generatePubKey(a.apiSecretAccessHandler.SecretKey())
+			key, err := a.generatePubKey(a.secretService.SecretKey())
 			if err != nil {
 				log.Errorf("API/KEY/GENERATOR: Failed to generate public key: %v", err)
 				ctx.InternalServerError("Failed to generate JWT. Please try again later.")
@@ -92,7 +92,7 @@ func (a *apiRouterHandlerImpl[T]) apiKeyGeneratorDataHandler(ctx *apicontext.Req
 		}
 
 		jwtInfo.Expiration = time.Hour * jwtInfo.Expiration
-		jwt, err := a.apiSecurityService.GenerateApiSecretJWT(jwtInfo)
+		jwt, err := a.securityService.GenerateApiSecretJWT(jwtInfo)
 
 		if err != nil {
 			log.Errorf("API/KEY/GENERATOR: Failed to generate JWT: %v", err)
@@ -178,7 +178,7 @@ func (a *apiRouterHandlerImpl[T]) generatePubKey(secretKey string) (string, erro
 		Bytes: publicKeyBytes,
 	})
 
-	encryptedKey, err := a.apiSecurityService.Encrypt(string(publicKeyPEM))
+	encryptedKey, err := a.securityService.Encrypt(string(publicKeyPEM))
 
 	if err != nil {
 		log.Fatalf("Failed to encryptor public key: %s", err)

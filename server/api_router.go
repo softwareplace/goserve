@@ -7,6 +7,7 @@ import (
 	errorhandler "github.com/softwareplace/http-utils/error"
 	"github.com/softwareplace/http-utils/security"
 	"github.com/softwareplace/http-utils/security/principal"
+	"github.com/softwareplace/http-utils/security/secret"
 	"net/http"
 )
 
@@ -153,26 +154,26 @@ type Api[T apicontext.Principal] interface {
 	//   - Api[T]: The router handler for chaining further route configurations.
 	RegisterMiddleware(middleware ApiMiddleware[T], name string) Api[T]
 
-	// ApiSecretAccessHandler assigns an API secret access handler to the router.
+	// SecretService assigns an API secret access handler to the router.
 	// This middleware provides an additional layer of security by validating API secret keys
 	// on incoming requests before they are processed by specific route handlers.
 	//
 	// ApiKey generator resource:
-	//   - By registering the security.ApiSecretAccessHandler, also add a login resource ContextPath+api-key/generate
-	//     that handle the apiKey generator request by invoking ApiSecretAccessHandler. You can also disable it by
-	//     calling ApiSecretKeyGeneratorResourceEnabled before call ApiSecretAccessHandler.
+	//   - By registering the secret.Service, also add a login resource ContextPath+api-key/generate
+	//     that handle the apiKey generator request by invoking Service. You can also disable it by
+	//     calling SecretKeyGeneratorResourceEnabled before call Service.
 	//
 	//  - The ApiKey generator resource expects the input of ApiKeyEntryData.
 	//
 	// Parameters:
-	//   - apiSecretAccessHandler: An implementation of security.ApiSecretAccessHandler[T] responsible for the logic
+	//   - service: An implementation of security.Service[T] responsible for the logic
 	//				 to validate and handle API secret access.
 	//
 	// Returns:
 	//   - Api[T]: The router handler for chaining further route configurations.
-	ApiSecretAccessHandler(apiSecretAccessHandler security.ApiSecretAccessHandler[T]) Api[T]
+	SecretService(service secret.Service[T]) Api[T]
 
-	// ApiSecurityService assigns a security service to the API router.
+	// SecurityService assigns a security service to the API router.
 	// This service is responsible for handling various security aspects such as authentication,
 	// authorization, and token validation for incoming requests. By assigning a security service,
 	// the API router ensures that all operations comply with the defined security policies.
@@ -180,16 +181,16 @@ type Api[T apicontext.Principal] interface {
 	// Login resource:
 	//   - By registering the security.Service, also add a login resource ContextPath+login
 	//     that handle the login request by invoking LoginResource. You can also disable
-	//     it by calling LoginResourceEnabled before invoke ApiSecurityService.
+	//     it by calling LoginResourceEnabled before invoke SecurityService.
 	//
 	//  - The login resource expects the input of LoginEntryData.
 	//
 	// Parameters:
-	//   - apiSecurityService: An instance of security.Service[T] that implements the security logic.
+	//   - securityService: An instance of security.Service[T] that implements the security logic.
 	//
 	// Returns:
 	//   - Api[T]: The router handler for chaining additional route or service configurations.
-	ApiSecurityService(apiSecurityService security.Service[T]) Api[T]
+	SecurityService(service security.Service[T]) Api[T]
 
 	// RegisterCustomMiddleware is a method that allows for registering a custom middleware function
 	// with the API router. This function wraps an HTTP handler and can be used to implement custom
@@ -264,7 +265,7 @@ type Api[T apicontext.Principal] interface {
 	//   - Api[T]: The current Api instance to allow method chaining.
 	ApiKeyGeneratorResource(apiKeyGeneratorService ApiKeyGeneratorService[T]) Api[T]
 
-	// ApiSecretKeyGeneratorResourceEnabled disables the API Secret Key Generator feature in the API router.
+	// SecretKeyGeneratorResourceEnabled disables the API Secret Key Generator feature in the API router.
 	// This method removes or disables the associated endpoint/resource responsible for generating API secret keys.
 	//
 	//
@@ -273,7 +274,7 @@ type Api[T apicontext.Principal] interface {
 	//
 	// Returns:
 	//   - Api[T]: The router handler for chaining further configurations.
-	ApiSecretKeyGeneratorResourceEnabled(enable bool) Api[T]
+	SecretKeyGeneratorResourceEnabled(enable bool) Api[T]
 
 	// LoginResourceEnabled enables or disables the login resource functionality in the API router.
 	// When enabled, it provides a login endpoint for handling authentication-related routes.

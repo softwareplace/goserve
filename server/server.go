@@ -9,6 +9,7 @@ import (
 	errorhandler "github.com/softwareplace/http-utils/error"
 	"github.com/softwareplace/http-utils/security"
 	"github.com/softwareplace/http-utils/security/principal"
+	"github.com/softwareplace/http-utils/security/secret"
 	"net/http"
 	"os"
 	"strings"
@@ -21,8 +22,8 @@ type apiRouterHandlerImpl[T apicontext.Principal] struct {
 	principalService                    principal.Service[T]
 	errorHandler                        errorhandler.ApiHandler[T]
 	loginService                        LoginService[T]
-	apiSecurityService                  security.Service[T]
-	apiSecretAccessHandler              security.ApiSecretAccessHandler[T]
+	securityService                     security.Service[T]
+	secretService                       secret.Service[T]
 	apiKeyGeneratorService              ApiKeyGeneratorService[T]
 	server                              *http.Server // Add a server instance
 	mu                                  sync.Mutex   // Add a mutex for thread safety

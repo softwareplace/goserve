@@ -1,46 +1,19 @@
-package security
+package secret
 
 import (
 	apicontext "github.com/softwareplace/http-utils/context"
+	"github.com/softwareplace/http-utils/security"
+	"github.com/softwareplace/http-utils/security/principal"
 )
 
 const (
-	ApiSecretAccessHandlerError = "API_SECRET_ACCESS_HANDLER_ERROR"
-	ApiSecretAccessHandlerName  = "API_SECRET_MIDDLEWARE"
+	AccessHandlerError = "API_SECRET_ACCESS_HANDLER_ERROR"
+	AccessHandlerName  = "API_SECRET_MIDDLEWARE"
 )
 
-// ApiSecretKeyProvider is an interface designed to provide secure access to API secret keys
-// based on the context of an incoming API request.
-//
-// This interface plays a crucial role in enabling secure communication and access control
-// by retrieving API keys that are specific to each request. It abstracts the mechanism for
-// obtaining these keys, which could involve fetching from a database, a configuration file,
-// or any other secure storage mechanism.
-//
-// Type Parameters:
-//   - T: A type that satisfies the `context.Principal` interface, representing
-//     the authentication and authorization context for API requests.
-type ApiSecretKeyProvider[T apicontext.Principal] interface {
+type Service[T apicontext.Principal] interface {
 
-	// Get (ctx *context.Request[T]) (string, error):
-	//	   Fetches the API secret key for the given request context. The method should implement
-	//	   any necessary logic to securely retrieve and provide the key, such as decryption or
-	//	   validation.
-	//
-	// Example Use Case:
-	// When processing an API request that requires validation with a secret key, the implementation
-	// of this interface can retrieve and provide the appropriate key tailored to the request's context.
-	//
-	// Returns:
-	//   - A string representing the API secret key.
-	//   - An error if the key retrieval or processing fails, ensuring proper error handling in the
-	//	 request lifecycle.
-	Get(ctx *apicontext.Request[T]) (string, error)
-}
-
-type ApiSecretAccessHandler[T apicontext.Principal] interface {
-
-	// HandlerSecretAccess is the core function of the ApiSecretAccessHandler interface that is responsible for
+	// HandlerSecretAccess is the core function of the Service interface that is responsible for
 	// validating API secret keys to ensure secure access to API resources.
 	//
 	// This method enforces access security by leveraging the following mechanisms:
@@ -71,16 +44,25 @@ type ApiSecretAccessHandler[T apicontext.Principal] interface {
 	// Args:
 	//   - ignore (bool): A flag indicating whether to ignore validation for public paths.
 	//	 Set to `true` to skip validation; set to `false` to enforce validation.
-	DisableForPublicPath(ignore bool) ApiSecretAccessHandler[T]
+	DisableForPublicPath(ignore bool) Service[T]
 
 	//
 	// SecretKey provides a secure mechanism to fetch and return the current secret key used for
 	// API validations or other security-related operations.
 	//
 	// This method is essential in ensuring that security-critical processes access the correct
-	// API secret key stored or configured in the implementation of the `ApiSecretAccessHandler` interface.
+	// API secret key stored or configured in the implementation of the `securityService` interface.
 	//
 	// Returns:
 	//   - string: The current secret key being utilized for authentication or validation purposes.
 	SecretKey() string
+}
+
+type apiSecretHandlerImpl[T apicontext.Principal] struct {
+	service                        security.Service[T]
+	provider                       Provider[T]
+	principalService               principal.Service[T]
+	secretKey                      string
+	apiSecret                      any
+	ignoreValidationForPublicPaths bool
 }

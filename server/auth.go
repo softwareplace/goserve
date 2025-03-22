@@ -16,7 +16,7 @@ type LoginEntryData struct {
 }
 
 type LoginService[T apicontext.Principal] interface {
-	// SecurityService returns an instance of ApiSecurityService responsible for providing security-related operations.
+	// SecurityService returns an instance of SecurityService responsible for providing security-related operations.
 	// This includes handling encryption, decryption, JWT generation, claim extraction, and authorization processes.
 	// It ensures the necessary security mechanisms are available in the context of the LoginService.
 	//

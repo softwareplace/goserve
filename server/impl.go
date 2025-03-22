@@ -47,7 +47,7 @@ func (a *apiRouterHandlerImpl[T]) ApiKeyGeneratorResource(apiKeyGeneratorService
 	return a
 }
 
-func (a *apiRouterHandlerImpl[T]) ApiSecretKeyGeneratorResourceEnabled(enable bool) Api[T] {
+func (a *apiRouterHandlerImpl[T]) SecretKeyGeneratorResourceEnabled(enable bool) Api[T] {
 	a.apiSecretKeyGeneratorResourceEnable = enable
 	return a
 }

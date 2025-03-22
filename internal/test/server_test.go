@@ -4,11 +4,13 @@ import (
 	log "github.com/sirupsen/logrus"
 	apicontext "github.com/softwareplace/http-utils/context"
 	errorhandler "github.com/softwareplace/http-utils/error"
+	"github.com/softwareplace/http-utils/internal/test/gen"
 	"github.com/softwareplace/http-utils/security"
 	"github.com/softwareplace/http-utils/security/encryptor"
+	"github.com/softwareplace/http-utils/security/jwt"
 	"github.com/softwareplace/http-utils/security/principal"
+	"github.com/softwareplace/http-utils/security/secret"
 	"github.com/softwareplace/http-utils/server"
-	"github.com/softwareplace/http-utils/test/gen"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -223,19 +225,21 @@ type _service struct {
 var (
 	userPrincipalService principal.Service[*apicontext.DefaultContext]       = &principalServiceImpl{}
 	errorHandler         errorhandler.ApiHandler[*apicontext.DefaultContext] = &errorHandlerImpl{}
-	securityService                                                          = security.ServiceBuild(
+	securityService                                                          = security.New(
 		"ue1pUOtCGaYS7Z1DLJ80nFtZ",
 		userPrincipalService,
+		errorHandler,
 	)
 
 	loginService = &loginServiceImpl{
 		securityService: securityService,
 	}
 
-	secretProvider = secretProviderImpl{}
-	secretHandler  = security.ApiSecretAccessHandlerBuild(
+	secretProvider secret.Provider[*apicontext.DefaultContext] = &secretProviderImpl{}
+
+	secretHandler = secret.New(
 		"./secret/private.key",
-		&secretProvider,
+		secretProvider,
 		securityService,
 	)
 
@@ -256,7 +260,7 @@ func TestMockServer(t *testing.T) {
 
 		server.Default().
 			LoginResource(loginService).
-			ApiSecurityService(securityService).
+			SecurityService(securityService).
 			PrincipalService(userPrincipalService).
 			NotFoundHandler().
 			ServeHTTP(rr, req)
@@ -279,7 +283,7 @@ func TestMockServer(t *testing.T) {
 		rr := httptest.NewRecorder()
 
 		secretProvider := secretProviderImpl{}
-		secretHandler := security.ApiSecretAccessHandlerBuild(
+		secretHandler := secret.New(
 			"./secret/private.key",
 			&secretProvider,
 			securityService,
@@ -287,8 +291,8 @@ func TestMockServer(t *testing.T) {
 
 		server.Default().
 			LoginResource(loginService).
-			ApiSecretAccessHandler(secretHandler).
-			ApiSecurityService(securityService).
+			SecretService(secretHandler).
+			SecurityService(securityService).
 			PrincipalService(userPrincipalService).
 			NotFoundHandler().
 			ServeHTTP(rr, req)
@@ -314,8 +318,8 @@ func TestMockServer(t *testing.T) {
 
 		server.Default().
 			LoginResource(loginService).
-			ApiSecretAccessHandler(secretHandler).
-			ApiSecurityService(securityService).
+			SecretService(secretHandler).
+			SecurityService(securityService).
 			PrincipalService(userPrincipalService).
 			NotFoundHandler().
 			ServeHTTP(rr, req)

@@ -1,4 +1,4 @@
-package security
+package secret
 
 import (
 	"crypto/ecdsa"
@@ -7,21 +7,13 @@ import (
 	"encoding/pem"
 	log "github.com/sirupsen/logrus"
 	apicontext "github.com/softwareplace/http-utils/context"
+	"github.com/softwareplace/http-utils/security"
 	"github.com/softwareplace/http-utils/security/principal"
 	"net/http"
 	"os"
 )
 
-type apiSecretHandlerImpl[T apicontext.Principal] struct {
-	service                        Service[T]
-	provider                       ApiSecretKeyProvider[T]
-	principalService               principal.Service[T]
-	secretKey                      string
-	apiSecret                      any
-	ignoreValidationForPublicPaths bool
-}
-
-// ApiSecretAccessHandlerBuild apiSecretHandlerImpl is an implementation of the ApiSecretAccessHandler interface which manages
+// New apiSecretHandlerImpl is an implementation of the Service interface which manages
 // security-related operations for API requests, such as validating API keys and initializing
 // cryptographic keys. It encapsulates the logic for validating an API secret key and restricting
 // unauthorized access to resources.
@@ -38,11 +30,11 @@ type apiSecretHandlerImpl[T apicontext.Principal] struct {
 //
 // This struct provides methods to initialize the secret key, validate the public key against the private key,
 // and enforce access security middleware, ensuring requests are authorized with proper credentials.
-func ApiSecretAccessHandlerBuild[T apicontext.Principal](
+func New[T apicontext.Principal](
 	secretKey string,
-	provider ApiSecretKeyProvider[T],
-	service Service[T],
-) ApiSecretAccessHandler[T] {
+	provider Provider[T],
+	service security.Service[T],
+) Service[T] {
 
 	handler := apiSecretHandlerImpl[T]{
 		secretKey: secretKey,
@@ -57,7 +49,7 @@ func (a *apiSecretHandlerImpl[T]) SecretKey() string {
 	return a.secretKey
 }
 
-func (a *apiSecretHandlerImpl[T]) DisableForPublicPath(ignore bool) ApiSecretAccessHandler[T] {
+func (a *apiSecretHandlerImpl[T]) DisableForPublicPath(ignore bool) Service[T] {
 	a.ignoreValidationForPublicPaths = ignore
 	return a
 }
@@ -68,7 +60,7 @@ func (a *apiSecretHandlerImpl[T]) HandlerSecretAccess(ctx *apicontext.Request[T]
 	}
 
 	if !a.apiSecretKeyValidation(ctx) {
-		a.service.HandlerErrorOrElse(ctx, nil, ApiSecretAccessHandlerError, func() {
+		a.service.HandlerErrorOrElse(ctx, nil, AccessHandlerError, func() {
 			ctx.Error("You are not allowed to access this resource", http.StatusUnauthorized)
 		})
 		return false
