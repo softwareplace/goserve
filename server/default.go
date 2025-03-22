@@ -1,9 +1,9 @@
 package server
 
 import (
-	"github.com/softwareplace/http-utils/api_context"
+	"github.com/softwareplace/http-utils/apicontext"
 )
 
-func Default(topMiddlewares ...ApiMiddleware[*api_context.DefaultContext]) ApiRouterHandler[*api_context.DefaultContext] {
-	return CreateApiRouter[*api_context.DefaultContext](topMiddlewares...)
+func Default(topMiddlewares ...ApiMiddleware[*apicontext.DefaultContext]) ApiRouterHandler[*apicontext.DefaultContext] {
+	return CreateApiRouter[*apicontext.DefaultContext](topMiddlewares...)
 }

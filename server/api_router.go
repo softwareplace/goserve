@@ -3,20 +3,20 @@ package server
 import (
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/gorilla/mux"
-	"github.com/softwareplace/http-utils/api_context"
+	"github.com/softwareplace/http-utils/apicontext"
 	"github.com/softwareplace/http-utils/error_handler"
 	"github.com/softwareplace/http-utils/security"
 	"github.com/softwareplace/http-utils/security/principal"
 	"net/http"
 )
 
-type ApiContextHandler[T api_context.ApiPrincipalContext] func(ctx *api_context.ApiRequestContext[T])
+type ApiContextHandler[T apicontext.ApiPrincipalContext] func(ctx *apicontext.ApiRequestContext[T])
 
-type ApiMiddleware[T api_context.ApiPrincipalContext] func(*api_context.ApiRequestContext[T]) (doNext bool)
+type ApiMiddleware[T apicontext.ApiPrincipalContext] func(*apicontext.ApiRequestContext[T]) (doNext bool)
 
 type RouterHandler func(*mux.Router)
 
-type ApiRouterHandler[T api_context.ApiPrincipalContext] interface {
+type ApiRouterHandler[T apicontext.ApiPrincipalContext] interface {
 	// WithPort sets the port for the API router's server.
 	// This method allows specifying a custom port where the server will listen for incoming requests.
 	//

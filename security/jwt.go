@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	log "github.com/sirupsen/logrus"
-	"github.com/softwareplace/http-utils/api_context"
+	"github.com/softwareplace/http-utils/apicontext"
 	"net/http"
 	"time"
 )
@@ -23,7 +23,7 @@ type ApiJWTInfo struct {
 }
 
 func (a *apiSecurityServiceImpl[T]) Principal(
-	ctx *api_context.ApiRequestContext[T],
+	ctx *apicontext.ApiRequestContext[T],
 ) bool {
 	success := a.PService.LoadPrincipal(ctx)
 
@@ -38,7 +38,7 @@ func (a *apiSecurityServiceImpl[T]) Principal(
 	return success
 }
 
-func (a *apiSecurityServiceImpl[T]) ExtractJWTClaims(ctx *api_context.ApiRequestContext[T]) bool {
+func (a *apiSecurityServiceImpl[T]) ExtractJWTClaims(ctx *apicontext.ApiRequestContext[T]) bool {
 
 	token, err := jwt.Parse(ctx.Authorization, func(token *jwt.Token) (interface{}, error) {
 		return a.Secret(), nil
@@ -76,7 +76,7 @@ func (a *apiSecurityServiceImpl[T]) ExtractJWTClaims(ctx *api_context.ApiRequest
 	return false
 }
 
-func (a *apiSecurityServiceImpl[T]) JWTClaims(ctx *api_context.ApiRequestContext[T]) (map[string]interface{}, error) {
+func (a *apiSecurityServiceImpl[T]) JWTClaims(ctx *apicontext.ApiRequestContext[T]) (map[string]interface{}, error) {
 	token, err := jwt.Parse(ctx.ApiKey, func(token *jwt.Token) (interface{}, error) {
 		return a.Secret(), nil
 	})

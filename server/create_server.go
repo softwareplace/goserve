@@ -2,10 +2,10 @@ package server
 
 import (
 	"github.com/gorilla/mux"
-	"github.com/softwareplace/http-utils/api_context"
+	"github.com/softwareplace/http-utils/apicontext"
 )
 
-func CreateApiRouter[T api_context.ApiPrincipalContext](topMiddlewares ...ApiMiddleware[T]) ApiRouterHandler[T] {
+func CreateApiRouter[T apicontext.ApiPrincipalContext](topMiddlewares ...ApiMiddleware[T]) ApiRouterHandler[T] {
 	router := mux.NewRouter()
 	router.Use(rootAppMiddleware[T])
 
@@ -25,7 +25,7 @@ func CreateApiRouter[T api_context.ApiPrincipalContext](topMiddlewares ...ApiMid
 	return api.NotFoundHandler()
 }
 
-func CreateApiRouterWith[T api_context.ApiPrincipalContext](router mux.Router) ApiRouterHandler[T] {
+func CreateApiRouterWith[T apicontext.ApiPrincipalContext](router mux.Router) ApiRouterHandler[T] {
 	router.Use(rootAppMiddleware[T])
 	api := &apiRouterHandlerImpl[T]{
 		router:                              &router,

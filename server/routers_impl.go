@@ -1,7 +1,7 @@
 package server
 
 import (
-	"github.com/softwareplace/http-utils/api_context"
+	"github.com/softwareplace/http-utils/apicontext"
 	"github.com/softwareplace/http-utils/security/principal"
 	"net/http"
 	"strings"
@@ -19,7 +19,7 @@ func (a *apiRouterHandlerImpl[T]) Add(handler ApiContextHandler[T], path string,
 	handlerPath := strings.TrimSuffix(a.contextPath, "/") + "/" + strings.TrimPrefix(path, "/")
 
 	a.router.HandleFunc(handlerPath, func(writer http.ResponseWriter, req *http.Request) {
-		ctx := api_context.Of[T](writer, req, "ROUTER/HANDLER")
+		ctx := apicontext.Of[T](writer, req, "ROUTER/HANDLER")
 		handler(ctx)
 	}).Methods(method)
 

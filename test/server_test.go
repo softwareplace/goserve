@@ -2,7 +2,7 @@ package main
 
 import (
 	log "github.com/sirupsen/logrus"
-	"github.com/softwareplace/http-utils/api_context"
+	"github.com/softwareplace/http-utils/apicontext"
 	"github.com/softwareplace/http-utils/error_handler"
 	"github.com/softwareplace/http-utils/security"
 	"github.com/softwareplace/http-utils/security/encryptor"
@@ -17,8 +17,8 @@ import (
 )
 
 type loginServiceImpl struct {
-	server.DefaultPasswordValidator[*api_context.DefaultContext]
-	securityService security.ApiSecurityService[*api_context.DefaultContext]
+	server.DefaultPasswordValidator[*apicontext.DefaultContext]
+	securityService security.ApiSecurityService[*apicontext.DefaultContext]
 }
 
 var mockStore = map[string]string{
@@ -39,7 +39,7 @@ func baseResponse(message string, status int) gen.BaseResponse {
 	return response
 }
 
-func (l *loginServiceImpl) SecurityService() security.ApiSecurityService[*api_context.DefaultContext] {
+func (l *loginServiceImpl) SecurityService() security.ApiSecurityService[*apicontext.DefaultContext] {
 	return l.securityService
 }
 
@@ -50,7 +50,7 @@ func (l *loginServiceImpl) RequiredScopes() []string {
 }
 
 func (l *loginServiceImpl) GetApiJWTInfo(apiKeyEntryData server.ApiKeyEntryData,
-	_ *api_context.ApiRequestContext[*api_context.DefaultContext],
+	_ *apicontext.ApiRequestContext[*apicontext.DefaultContext],
 ) (security.ApiJWTInfo, error) {
 	return security.ApiJWTInfo{
 		Client:     apiKeyEntryData.ClientName,
@@ -68,15 +68,15 @@ func (l *loginServiceImpl) GetApiJWTInfo(apiKeyEntryData server.ApiKeyEntryData,
 
 func (l *loginServiceImpl) OnGenerated(data security.JwtResponse,
 	apiJWTInfo security.ApiJWTInfo,
-	ctx api_context.SampleContext[*api_context.DefaultContext],
+	ctx apicontext.SampleContext[*apicontext.DefaultContext],
 ) {
 	mockStore[apiJWTInfo.Key] = *apiJWTInfo.PublicKey
 	log.Printf("%s - %s", apiJWTInfo.Key, data.Token)
 	log.Printf("API KEY GENERATED: from %s - %v", ctx.AccessId, data)
 }
 
-func (l *loginServiceImpl) Login(user server.LoginEntryData) (*api_context.DefaultContext, error) {
-	result := &api_context.DefaultContext{}
+func (l *loginServiceImpl) Login(user server.LoginEntryData) (*apicontext.DefaultContext, error) {
+	result := &apicontext.DefaultContext{}
 	result.SetRoles("api:example:user", "api:example:admin", "read:pets", "write:pets", "api:key:generator")
 	password := encryptor.NewEncrypt(user.Password).EncodedPassword()
 	result.SetEncryptedPassword(password)
@@ -89,20 +89,20 @@ func (l *loginServiceImpl) TokenDuration() time.Duration {
 
 type secretProviderImpl []struct{}
 
-func (s *secretProviderImpl) Get(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) (string, error) {
+func (s *secretProviderImpl) Get(ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) (string, error) {
 	return mockStore[ctx.ApiKeyId], nil
 }
 
 type principalServiceImpl struct {
 }
 
-func (d *principalServiceImpl) LoadPrincipal(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) bool {
+func (d *principalServiceImpl) LoadPrincipal(ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) bool {
 	if ctx.Authorization == "" {
 		return false
 
 	}
 
-	context := api_context.NewDefaultCtx()
+	context := apicontext.NewDefaultCtx()
 	context.SetRoles("api:key:generator")
 	ctx.Principal = &context
 	return true
@@ -111,7 +111,7 @@ func (d *principalServiceImpl) LoadPrincipal(ctx *api_context.ApiRequestContext[
 type errorHandlerImpl struct {
 }
 
-func (p *errorHandlerImpl) Handler(ctx *api_context.ApiRequestContext[*api_context.DefaultContext], _ error, source string) {
+func (p *errorHandlerImpl) Handler(ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext], _ error, source string) {
 	if source == server.ErrorHandlerWrapper {
 		ctx.InternalServerError("Internal server error")
 	}
@@ -124,35 +124,35 @@ func (p *errorHandlerImpl) Handler(ctx *api_context.ApiRequestContext[*api_conte
 type _petService struct {
 }
 
-func (s *_petService) AddPetRequest(requestBody gen.Pet, ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+func (s *_petService) AddPetRequest(requestBody gen.Pet, ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) {
 	ctx.Response(requestBody, http.StatusOK)
 }
 
-func (s *_petService) UpdatePetRequest(requestBody gen.Pet, ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+func (s *_petService) UpdatePetRequest(requestBody gen.Pet, ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) {
 	ctx.Response(requestBody, http.StatusOK)
 }
 
-func (s *_petService) FindPetsByStatusRequest(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+func (s *_petService) FindPetsByStatusRequest(ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) {
 	message := "Pet not found"
 	ctx.NotFount(baseResponse(message, http.StatusNotFound))
 }
 
-func (s *_petService) FindPetsByTagsRequest(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+func (s *_petService) FindPetsByTagsRequest(ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) {
 	message := "Pet not found"
 	ctx.NotFount(baseResponse(message, http.StatusNotFound))
 }
 
-func (s *_petService) DeletePetRequest(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+func (s *_petService) DeletePetRequest(ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) {
 	message := "Pet not found"
 	ctx.NotFount(baseResponse(message, http.StatusNotFound))
 }
 
-func (s *_petService) GetPetByIdRequest(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+func (s *_petService) GetPetByIdRequest(ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) {
 	message := "Pet not found"
 	ctx.NotFount(baseResponse(message, http.StatusNotFound))
 }
 
-func (s *_petService) UpdatePetWithFormRequest(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+func (s *_petService) UpdatePetWithFormRequest(ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) {
 	message := "Pet not found"
 	ctx.NotFount(baseResponse(message, http.StatusNotFound))
 }
@@ -160,56 +160,56 @@ func (s *_petService) UpdatePetWithFormRequest(ctx *api_context.ApiRequestContex
 type _userService struct {
 }
 
-func (s *_userService) PostLoginRequest(requestBody gen.LoginRequest, ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+func (s *_userService) PostLoginRequest(requestBody gen.LoginRequest, ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) {
 }
 
-func (s *_userService) CreateUserRequest(requestBody gen.User, ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+func (s *_userService) CreateUserRequest(requestBody gen.User, ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) {
 	ctx.Ok(requestBody)
 }
 
-func (s *_userService) CreateUsersWithListInputRequest(requestBody gen.CreateUsersWithListInputJSONBody, ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+func (s *_userService) CreateUsersWithListInputRequest(requestBody gen.CreateUsersWithListInputJSONBody, ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) {
 	ctx.Ok(requestBody)
 }
 
-func (s *_userService) LogoutUserRequest(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+func (s *_userService) LogoutUserRequest(ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) {
 	ctx.Ok(baseResponse("Logout successful", http.StatusOK))
 }
 
-func (s *_userService) DeleteUserRequest(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+func (s *_userService) DeleteUserRequest(ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) {
 	ctx.Ok(baseResponse("User deleted", http.StatusOK))
 }
 
-func (s *_userService) GetUserByNameRequest(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+func (s *_userService) GetUserByNameRequest(ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) {
 	ctx.NotFount(baseResponse("User not found", http.StatusNotFound))
 }
 
-func (s *_userService) UpdateUserRequest(requestBody gen.User, ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+func (s *_userService) UpdateUserRequest(requestBody gen.User, ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) {
 	ctx.Ok(requestBody)
 }
 
 type _fileService struct {
 }
 
-func (s *_fileService) UploadFileRequest(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+func (s *_fileService) UploadFileRequest(ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) {
 	ctx.BadRequest("Failed to upload file")
 }
 
 type _inventoryService struct {
 }
 
-func (s *_inventoryService) GetInventoryRequest(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+func (s *_inventoryService) GetInventoryRequest(ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) {
 	ctx.NotFount(baseResponse("Inventory not found", http.StatusNotFound))
 }
 
-func (s *_inventoryService) PlaceOrderRequest(requestBody gen.Order, ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+func (s *_inventoryService) PlaceOrderRequest(requestBody gen.Order, ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) {
 	ctx.Response(requestBody, http.StatusOK)
 }
 
-func (s *_inventoryService) DeleteOrderRequest(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+func (s *_inventoryService) DeleteOrderRequest(ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) {
 	ctx.Ok(baseResponse("Order deleted", http.StatusOK))
 }
 
-func (s *_inventoryService) GetOrderByIdRequest(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+func (s *_inventoryService) GetOrderByIdRequest(ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) {
 	ctx.NotFount(baseResponse("Order not found", http.StatusNotFound))
 }
 
@@ -221,9 +221,9 @@ type _service struct {
 }
 
 var (
-	userPrincipalService principal.PService[*api_context.DefaultContext]            = &principalServiceImpl{}
-	errorHandler         error_handler.ApiErrorHandler[*api_context.DefaultContext] = &errorHandlerImpl{}
-	securityService                                                                 = security.ApiSecurityServiceBuild(
+	userPrincipalService principal.PService[*apicontext.DefaultContext]            = &principalServiceImpl{}
+	errorHandler         error_handler.ApiErrorHandler[*apicontext.DefaultContext] = &errorHandlerImpl{}
+	securityService                                                                = security.ApiSecurityServiceBuild(
 		"ue1pUOtCGaYS7Z1DLJ80nFtZ",
 		userPrincipalService,
 	)
@@ -308,7 +308,7 @@ func TestMockServer(t *testing.T) {
 			t.Fatalf("Failed to create request: %v", err)
 		}
 
-		req.Header.Set(api_context.XApiKey, apiSecret)
+		req.Header.Set(apicontext.XApiKey, apiSecret)
 
 		rr := httptest.NewRecorder()
 

@@ -2,7 +2,7 @@ package server
 
 import (
 	"github.com/gorilla/mux"
-	"github.com/softwareplace/http-utils/api_context"
+	"github.com/softwareplace/http-utils/apicontext"
 	"github.com/softwareplace/http-utils/error_handler"
 	"github.com/softwareplace/http-utils/security/principal"
 	"net/http"
@@ -12,7 +12,7 @@ import (
 func (a *apiRouterHandlerImpl[T]) RegisterMiddleware(middleware ApiMiddleware[T], name string) ApiRouterHandler[T] {
 	a.router.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			ctx := api_context.Of[T](w, r, name)
+			ctx := apicontext.Of[T](w, r, name)
 			if middleware(ctx) {
 				ctx.Next(next)
 			}

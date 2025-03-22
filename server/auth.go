@@ -2,7 +2,7 @@ package server
 
 import (
 	log "github.com/sirupsen/logrus"
-	"github.com/softwareplace/http-utils/api_context"
+	"github.com/softwareplace/http-utils/apicontext"
 	"github.com/softwareplace/http-utils/error_handler"
 	"github.com/softwareplace/http-utils/security"
 	"github.com/softwareplace/http-utils/security/encryptor"
@@ -15,7 +15,7 @@ type LoginEntryData struct {
 	Email    string `json:"email"`
 }
 
-type LoginService[T api_context.ApiPrincipalContext] interface {
+type LoginService[T apicontext.ApiPrincipalContext] interface {
 	// SecurityService returns an instance of ApiSecurityService responsible for providing security-related operations.
 	// This includes handling encryption, decryption, JWT generation, claim extraction, and authorization processes.
 	// It ensures the necessary security mechanisms are available in the context of the LoginService.
@@ -58,15 +58,15 @@ type LoginService[T api_context.ApiPrincipalContext] interface {
 	IsValidPassword(loginEntryData LoginEntryData, principal T) bool
 }
 
-func (a *apiRouterHandlerImpl[T]) Login(ctx *api_context.ApiRequestContext[T]) {
+func (a *apiRouterHandlerImpl[T]) Login(ctx *apicontext.ApiRequestContext[T]) {
 	GetRequestBody(ctx, LoginEntryData{}, a.loginDataHandler, FailedToLoadBody[T])
 }
 
-func (a *apiRouterHandlerImpl[T]) ApiKeyGenerator(ctx *api_context.ApiRequestContext[T]) {
+func (a *apiRouterHandlerImpl[T]) ApiKeyGenerator(ctx *apicontext.ApiRequestContext[T]) {
 	GetRequestBody(ctx, ApiKeyEntryData{}, a.apiKeyGeneratorDataHandler, FailedToLoadBody[T])
 }
 
-func (a *apiRouterHandlerImpl[T]) loginDataHandler(ctx *api_context.ApiRequestContext[T], loginEntryData LoginEntryData) {
+func (a *apiRouterHandlerImpl[T]) loginDataHandler(ctx *apicontext.ApiRequestContext[T], loginEntryData LoginEntryData) {
 
 	error_handler.Handler(func() {
 		loginService := a.loginService
@@ -113,7 +113,7 @@ func (a *apiRouterHandlerImpl[T]) loginDataHandler(ctx *api_context.ApiRequestCo
 //
 // T represents a type that implements the ApiPrincipalContext interface.
 // It ensures that the principal context contains methods to retrieve the encrypted password and other details.
-type DefaultPasswordValidator[T api_context.ApiPrincipalContext] struct {
+type DefaultPasswordValidator[T apicontext.ApiPrincipalContext] struct {
 }
 
 func (a *DefaultPasswordValidator[T]) IsValidPassword(loginEntryData LoginEntryData, principal T) bool {

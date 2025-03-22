@@ -1,7 +1,7 @@
 package principal
 
 import (
-	"github.com/softwareplace/http-utils/api_context"
+	"github.com/softwareplace/http-utils/apicontext"
 	"regexp"
 	"strings"
 )
@@ -20,7 +20,7 @@ import (
 //
 //	[]string - A slice of required roles for the path or nil if no roles are defined.
 //	bool - True if roles are required for the path, false otherwise.
-func GetRolesForPath[T api_context.ApiPrincipalContext](ctx api_context.ApiRequestContext[T]) ([]string, bool) {
+func GetRolesForPath[T apicontext.ApiPrincipalContext](ctx apicontext.ApiRequestContext[T]) ([]string, bool) {
 	path := ctx.Request.Method + "::" + ctx.Request.URL.Path
 
 	for pattern, requiredRoles := range roles {
@@ -48,7 +48,7 @@ func GetRolesForPath[T api_context.ApiPrincipalContext](ctx api_context.ApiReque
 // Returns:
 //
 //	bool - True if the path is a public route, false otherwise.
-func IsPublicPath[T api_context.ApiPrincipalContext](ctx api_context.ApiRequestContext[T]) bool {
+func IsPublicPath[T apicontext.ApiPrincipalContext](ctx apicontext.ApiRequestContext[T]) bool {
 	path := ctx.Request.Method + "::" + ctx.Request.URL.Path
 	for _, openPath := range openPaths {
 		regexPattern := convertPathToRegex(openPath)

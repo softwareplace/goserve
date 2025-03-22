@@ -5,7 +5,7 @@ import (
 	"errors"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
-	"github.com/softwareplace/http-utils/api_context"
+	"github.com/softwareplace/http-utils/apicontext"
 	"github.com/softwareplace/http-utils/error_handler"
 	"github.com/softwareplace/http-utils/security"
 	"github.com/softwareplace/http-utils/security/principal"
@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-type apiRouterHandlerImpl[T api_context.ApiPrincipalContext] struct {
+type apiRouterHandlerImpl[T apicontext.ApiPrincipalContext] struct {
 	router                              *mux.Router
 	principalService                    principal.PService[T]
 	errorHandler                        error_handler.ApiErrorHandler[T]

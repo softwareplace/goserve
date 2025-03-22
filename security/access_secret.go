@@ -1,7 +1,7 @@
 package security
 
 import (
-	"github.com/softwareplace/http-utils/api_context"
+	"github.com/softwareplace/http-utils/apicontext"
 )
 
 const (
@@ -18,11 +18,11 @@ const (
 // or any other secure storage mechanism.
 //
 // Type Parameters:
-//   - T: A type that satisfies the `api_context.ApiPrincipalContext` interface, representing
+//   - T: A type that satisfies the `apicontext.ApiPrincipalContext` interface, representing
 //     the authentication and authorization context for API requests.
-type ApiSecretKeyProvider[T api_context.ApiPrincipalContext] interface {
+type ApiSecretKeyProvider[T apicontext.ApiPrincipalContext] interface {
 
-	// Get (ctx *api_context.ApiRequestContext[T]) (string, error):
+	// Get (ctx *apicontext.ApiRequestContext[T]) (string, error):
 	//	   Fetches the API secret key for the given request context. The method should implement
 	//	   any necessary logic to securely retrieve and provide the key, such as decryption or
 	//	   validation.
@@ -35,10 +35,10 @@ type ApiSecretKeyProvider[T api_context.ApiPrincipalContext] interface {
 	//   - A string representing the API secret key.
 	//   - An error if the key retrieval or processing fails, ensuring proper error handling in the
 	//	 request lifecycle.
-	Get(ctx *api_context.ApiRequestContext[T]) (string, error)
+	Get(ctx *apicontext.ApiRequestContext[T]) (string, error)
 }
 
-type ApiSecretAccessHandler[T api_context.ApiPrincipalContext] interface {
+type ApiSecretAccessHandler[T apicontext.ApiPrincipalContext] interface {
 
 	// HandlerSecretAccess is the core function of the ApiSecretAccessHandler interface that is responsible for
 	// validating API secret keys to ensure secure access to API resources.
@@ -55,12 +55,12 @@ type ApiSecretAccessHandler[T api_context.ApiPrincipalContext] interface {
 	//   3. If validation is successful, allows the request to proceed by returning `true`.
 	//
 	// Args:
-	//   - ctx (*api_context.ApiRequestContext[T]): The context of the incoming API request that carries
+	//   - ctx (*apicontext.ApiRequestContext[T]): The context of the incoming API request that carries
 	//	 all necessary information for validation, such as JWT claims and keys.
 	//
 	// Returns:
 	//   - bool: `true` if the API key is valid and access is granted; `false` otherwise.
-	HandlerSecretAccess(ctx *api_context.ApiRequestContext[T]) bool
+	HandlerSecretAccess(ctx *apicontext.ApiRequestContext[T]) bool
 
 	// DisableForPublicPath sets whether validation should be skipped for public API paths.
 	//

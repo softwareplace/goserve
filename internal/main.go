@@ -2,7 +2,7 @@ package main
 
 import (
 	log "github.com/sirupsen/logrus"
-	"github.com/softwareplace/http-utils/api_context"
+	"github.com/softwareplace/http-utils/apicontext"
 	"github.com/softwareplace/http-utils/logger"
 	"github.com/softwareplace/http-utils/server"
 )
@@ -19,7 +19,7 @@ func main() {
 		StartServer()
 }
 
-func ReportCallerHandler(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
+func ReportCallerHandler(ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) {
 	enable := ctx.QueryOf("enable")
 	if enable == "true" {
 		logger.LogReportCaller = true

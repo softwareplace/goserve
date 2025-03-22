@@ -1,7 +1,7 @@
 package security
 
 import (
-	"github.com/softwareplace/http-utils/api_context"
+	"github.com/softwareplace/http-utils/apicontext"
 	"github.com/softwareplace/http-utils/error_handler"
 	"github.com/softwareplace/http-utils/security/principal"
 	"time"
@@ -16,7 +16,7 @@ type JwtResponse struct {
 	Expires int    `json:"expires"`
 }
 
-type ApiSecurityService[T api_context.ApiPrincipalContext] interface {
+type ApiSecurityService[T apicontext.ApiPrincipalContext] interface {
 
 	// Secret retrieves the secret key used to sign and validate JWT tokens.
 	// This function ensures consistent access to the secret key across the PService.
@@ -59,7 +59,7 @@ type ApiSecurityService[T api_context.ApiPrincipalContext] interface {
 	// Notes:
 	// - This method relies on the `jwt-go` library for parsing and managing JWT tokens.
 	// - Decrypt and cryptographic methods used must ensure secure implementation.
-	ExtractJWTClaims(requestContext *api_context.ApiRequestContext[T]) bool
+	ExtractJWTClaims(requestContext *apicontext.ApiRequestContext[T]) bool
 
 	// JWTClaims extracts and parses the claims from the provided JWT token in the ApiRequestContext.
 	// It uses the context's ApiKey field as the JWT token for processing. The token is validated
@@ -81,7 +81,7 @@ type ApiSecurityService[T api_context.ApiPrincipalContext] interface {
 	//	   log.Fatalf("failed to extract claims: %v", err)
 	//   }
 	//   fmt.Printf("Extracted JWT claims: %v", claims)
-	JWTClaims(ctx *api_context.ApiRequestContext[T]) (map[string]interface{}, error)
+	JWTClaims(ctx *apicontext.ApiRequestContext[T]) (map[string]interface{}, error)
 
 	// GenerateJWT
 	// apiSecurityServiceImpl provides methods to handle JWT operations such as
@@ -164,7 +164,7 @@ type ApiSecurityService[T api_context.ApiPrincipalContext] interface {
 	// - This function leverages methods like Validation and IsPublicPath to make security decisions.
 	// - Ensure that all sensitive operations and data are securely processed.
 	// - Public paths bypass validation by default, so it's critical to properly define such paths to avoid security issues.
-	AuthorizationHandler(ctx *api_context.ApiRequestContext[T]) (doNext bool)
+	AuthorizationHandler(ctx *apicontext.ApiRequestContext[T]) (doNext bool)
 
 	// Principal validates the principal associated with the API request context.
 	// It checks if the principal (user or client) making the API request is properly
@@ -183,24 +183,24 @@ type ApiSecurityService[T api_context.ApiPrincipalContext] interface {
 	// - Ensure this method handles sensitive data securely and avoids logging such data.
 	// - Proper error handling must be enforced to provide meaningful feedback in case of failures
 	//   while securing the API workflow.
-	Principal(ctx *api_context.ApiRequestContext[T]) bool
+	Principal(ctx *apicontext.ApiRequestContext[T]) bool
 
 	handlerErrorOrElse(
-		ctx *api_context.ApiRequestContext[T],
+		ctx *apicontext.ApiRequestContext[T],
 		error error,
 		executionContext string,
 		handlerNotFound func(),
 	)
 }
 
-type apiSecurityServiceImpl[T api_context.ApiPrincipalContext] struct {
+type apiSecurityServiceImpl[T apicontext.ApiPrincipalContext] struct {
 	ApiSecretAuthorization string
 	ErrorHandler           error_handler.ApiErrorHandler[T]
 	PService               principal.PService[T]
 }
 
 func (a *apiSecurityServiceImpl[T]) handlerErrorOrElse(
-	ctx *api_context.ApiRequestContext[T],
+	ctx *apicontext.ApiRequestContext[T],
 	error error,
 	executionContext string,
 	handlerNotFound func(),
@@ -212,7 +212,7 @@ func (a *apiSecurityServiceImpl[T]) handlerErrorOrElse(
 	}
 }
 
-func ApiSecurityServiceBuild[T api_context.ApiPrincipalContext](
+func ApiSecurityServiceBuild[T apicontext.ApiPrincipalContext](
 	apiSecretAuthorization string,
 	service principal.PService[T],
 ) ApiSecurityService[T] {
@@ -222,7 +222,7 @@ func ApiSecurityServiceBuild[T api_context.ApiPrincipalContext](
 	}
 }
 
-func (a *apiSecurityServiceImpl[T]) AuthorizationHandler(ctx *api_context.ApiRequestContext[T]) (doNext bool) {
+func (a *apiSecurityServiceImpl[T]) AuthorizationHandler(ctx *apicontext.ApiRequestContext[T]) (doNext bool) {
 	a.ExtractJWTClaims(ctx)
 	if principal.IsPublicPath[T](*ctx) {
 		return true

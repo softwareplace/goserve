@@ -6,7 +6,7 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	log "github.com/sirupsen/logrus"
-	"github.com/softwareplace/http-utils/api_context"
+	"github.com/softwareplace/http-utils/apicontext"
 	"github.com/softwareplace/http-utils/error_handler"
 	"github.com/softwareplace/http-utils/security"
 	"os"
@@ -19,7 +19,7 @@ type ApiKeyEntryData struct {
 	ClientId   string        `json:"clientId"`   // ClientId represents the unique identifier for the client associated with the API key entry (required).
 }
 
-type ApiKeyGeneratorService[T api_context.ApiPrincipalContext] interface {
+type ApiKeyGeneratorService[T apicontext.ApiPrincipalContext] interface {
 
 	// SecurityService returns an instance of ApiSecurityService responsible for handling security-related operations.
 	// This includes operations such as JWT generation, claims extraction, encryption, decryption, and authorization handling.
@@ -41,7 +41,7 @@ type ApiKeyGeneratorService[T api_context.ApiPrincipalContext] interface {
 	// Returns:
 	//   - security.ApiJWTInfo: The generated ApiJWTInfo object containing JWT details necessary for creating the API secret JWT.
 	//   - error: If an error occurs during the process, it returns the corresponding error; otherwise, nil.
-	GetApiJWTInfo(apiKeyEntryData ApiKeyEntryData, ctx *api_context.ApiRequestContext[T]) (security.ApiJWTInfo, error)
+	GetApiJWTInfo(apiKeyEntryData ApiKeyEntryData, ctx *apicontext.ApiRequestContext[T]) (security.ApiJWTInfo, error)
 
 	// OnGenerated is invoked after an API key has been successfully generated.
 	// This function allows additional processing or handling, such as logging,
@@ -52,7 +52,7 @@ type ApiKeyGeneratorService[T api_context.ApiPrincipalContext] interface {
 	//   - apiJWTInfo: The requested security.ApiJWTInfo.
 	//   - ctx: The API request context, containing metadata and principal
 	//		  information related to the API key generation.
-	OnGenerated(data security.JwtResponse, apiJWTInfo security.ApiJWTInfo, ctx api_context.SampleContext[T])
+	OnGenerated(data security.JwtResponse, apiJWTInfo security.ApiJWTInfo, ctx apicontext.SampleContext[T])
 
 	// RequiredScopes defines the list of scopes that are required to access the API key generator functionality.
 	//
@@ -67,7 +67,7 @@ type ApiKeyGeneratorService[T api_context.ApiPrincipalContext] interface {
 	RequiredScopes() []string
 }
 
-func (a *apiRouterHandlerImpl[T]) apiKeyGeneratorDataHandler(ctx *api_context.ApiRequestContext[T], apiKeyEntryData ApiKeyEntryData) {
+func (a *apiRouterHandlerImpl[T]) apiKeyGeneratorDataHandler(ctx *apicontext.ApiRequestContext[T], apiKeyEntryData ApiKeyEntryData) {
 	error_handler.Handler(func() {
 		log.Infof("API/KEY/GENERATOR: requested by: %s", ctx.AccessId)
 

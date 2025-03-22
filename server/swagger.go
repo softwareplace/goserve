@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/getkin/kin-openapi/openapi3"
 	log "github.com/sirupsen/logrus"
-	"github.com/softwareplace/http-utils/api_context"
+	"github.com/softwareplace/http-utils/apicontext"
 	"github.com/softwareplace/http-utils/security/principal"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"os"
@@ -83,8 +83,8 @@ func (a *apiRouterHandlerImpl[T]) SwaggerDocHandler(swaggerFile string) ApiRoute
 	})
 }
 
-func (a *apiRouterHandlerImpl[T]) handleSwaggerJSON(swagger *openapi3.T) func(ctx *api_context.ApiRequestContext[T]) {
-	return func(ctx *api_context.ApiRequestContext[T]) {
+func (a *apiRouterHandlerImpl[T]) handleSwaggerJSON(swagger *openapi3.T) func(ctx *apicontext.ApiRequestContext[T]) {
+	return func(ctx *apicontext.ApiRequestContext[T]) {
 		ctx.Response(swagger, 200)
 	}
 }

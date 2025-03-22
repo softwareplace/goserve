@@ -2,21 +2,21 @@ package server
 
 import (
 	"encoding/json"
-	"github.com/softwareplace/http-utils/api_context"
+	"github.com/softwareplace/http-utils/apicontext"
 	"net/http"
 	"reflect"
 	"strings"
 )
 
-type OnSuccess[B any, T api_context.ApiPrincipalContext] func(ctx *api_context.ApiRequestContext[T], body B)
-type OnError[T api_context.ApiPrincipalContext] func(ctx *api_context.ApiRequestContext[T], err error)
+type OnSuccess[B any, T apicontext.ApiPrincipalContext] func(ctx *apicontext.ApiRequestContext[T], body B)
+type OnError[T apicontext.ApiPrincipalContext] func(ctx *apicontext.ApiRequestContext[T], err error)
 
-func FailedToLoadBody[T api_context.ApiPrincipalContext](ctx *api_context.ApiRequestContext[T], _ error) {
+func FailedToLoadBody[T apicontext.ApiPrincipalContext](ctx *apicontext.ApiRequestContext[T], _ error) {
 	ctx.Error("Invalid request data", http.StatusBadRequest)
 }
 
-func GetRequestBody[B any, T api_context.ApiPrincipalContext](
-	ctx *api_context.ApiRequestContext[T],
+func GetRequestBody[B any, T apicontext.ApiPrincipalContext](
+	ctx *apicontext.ApiRequestContext[T],
 	target B,
 	onSuccess OnSuccess[B, T],
 	onError OnError[T],
@@ -38,8 +38,8 @@ func GetRequestBody[B any, T api_context.ApiPrincipalContext](
 	}
 }
 
-func PopulateFieldsFromRequest[B any, T api_context.ApiPrincipalContext](
-	ctx *api_context.ApiRequestContext[T],
+func PopulateFieldsFromRequest[B any, T apicontext.ApiPrincipalContext](
+	ctx *apicontext.ApiRequestContext[T],
 	target *B, // Pass a pointer to target
 ) {
 	// Use reflection to iterate over the target's fields

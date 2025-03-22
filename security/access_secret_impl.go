@@ -6,13 +6,13 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	log "github.com/sirupsen/logrus"
-	"github.com/softwareplace/http-utils/api_context"
+	"github.com/softwareplace/http-utils/apicontext"
 	"github.com/softwareplace/http-utils/security/principal"
 	"net/http"
 	"os"
 )
 
-type apiSecretHandlerImpl[T api_context.ApiPrincipalContext] struct {
+type apiSecretHandlerImpl[T apicontext.ApiPrincipalContext] struct {
 	service                        ApiSecurityService[T]
 	provider                       ApiSecretKeyProvider[T]
 	principalService               principal.PService[T]
@@ -27,7 +27,7 @@ type apiSecretHandlerImpl[T api_context.ApiPrincipalContext] struct {
 // unauthorized access to resources.
 //
 // Type Parameters:
-//   - T: A type that satisfies the `api_context.ApiPrincipalContext` interface, providing API principal-specific context.
+//   - T: A type that satisfies the `apicontext.ApiPrincipalContext` interface, providing API principal-specific context.
 //
 // Fields:
 //   - secretKey: The file path to the secret key used for cryptographic operations.
@@ -38,7 +38,7 @@ type apiSecretHandlerImpl[T api_context.ApiPrincipalContext] struct {
 //
 // This struct provides methods to initialize the secret key, validate the public key against the private key,
 // and enforce access security middleware, ensuring requests are authorized with proper credentials.
-func ApiSecretAccessHandlerBuild[T api_context.ApiPrincipalContext](
+func ApiSecretAccessHandlerBuild[T apicontext.ApiPrincipalContext](
 	secretKey string,
 	provider ApiSecretKeyProvider[T],
 	service ApiSecurityService[T],
@@ -62,7 +62,7 @@ func (a *apiSecretHandlerImpl[T]) DisableForPublicPath(ignore bool) ApiSecretAcc
 	return a
 }
 
-func (a *apiSecretHandlerImpl[T]) HandlerSecretAccess(ctx *api_context.ApiRequestContext[T]) bool {
+func (a *apiSecretHandlerImpl[T]) HandlerSecretAccess(ctx *apicontext.ApiRequestContext[T]) bool {
 	if a.ignoreValidationForPublicPaths && principal.IsPublicPath[T](*ctx) {
 		return true
 	}
@@ -139,7 +139,7 @@ func (a *apiSecretHandlerImpl[T]) initAPISecretKey() {
 //	  bool:
 //		 - `true` if the public key is valid and corresponds to the private key.
 //		 - `false` if the public key is invalid or the validation fails.
-func (a *apiSecretHandlerImpl[T]) apiSecretKeyValidation(ctx *api_context.ApiRequestContext[T]) bool {
+func (a *apiSecretHandlerImpl[T]) apiSecretKeyValidation(ctx *apicontext.ApiRequestContext[T]) bool {
 	// Decode the Base64-encoded public key
 	claims, err := a.service.JWTClaims(ctx)
 
