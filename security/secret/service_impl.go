@@ -61,8 +61,9 @@ func (a *apiSecretHandlerImpl[T]) HandlerSecretAccess(ctx *apicontext.Request[T]
 
 	if !a.apiSecretKeyValidation(ctx) {
 		a.service.HandlerErrorOrElse(ctx, nil, AccessHandlerError, func() {
-			ctx.Error("You are not allowed to access this resource", http.StatusUnauthorized)
+			// ignore
 		})
+		ctx.Error("You are not allowed to access this resource", http.StatusUnauthorized)
 		return false
 	}
 	return true

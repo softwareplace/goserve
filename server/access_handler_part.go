@@ -7,7 +7,7 @@ import (
 
 func (a *apiRouterHandlerImpl[T]) SecretService(service secret.Service[T]) Api[T] {
 	a.secretService = service
-	return a.RegisterMiddleware(service.HandlerSecretAccess, security.ApiSecurityHandlerName)
+	return a.RegisterMiddleware(service.HandlerSecretAccess, secret.AccessHandlerName)
 }
 
 func (a *apiRouterHandlerImpl[T]) SecurityService(service security.Service[T]) Api[T] {
