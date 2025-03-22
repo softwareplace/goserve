@@ -2,7 +2,7 @@ package jwt
 
 import apicontext "github.com/softwareplace/http-utils/context"
 
-func (a *serviceImpl[T]) handlerErrorOrElse(
+func (a *serviceImpl[T]) HandlerErrorOrElse(
 	ctx *apicontext.Request[T],
 	error error,
 	executionContext string,

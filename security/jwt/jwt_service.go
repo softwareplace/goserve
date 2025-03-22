@@ -122,7 +122,7 @@ type Service[T apicontext.Principal] interface {
 	// - It is recommended to configure proper secret rotation policies.
 	GenerateJWT(user T, duration time.Duration) (*Response, error)
 
-	handlerErrorOrElse(
+	HandlerErrorOrElse(
 		ctx *apicontext.Request[T],
 		error error,
 		executionContext string,
@@ -134,13 +134,13 @@ type serviceImpl[T apicontext.Principal] struct {
 	encryptor.Service
 	PService               principal.Service[T]
 	ApiSecretAuthorization string
-	ErrorHandler           errorhandler.ApiErrorHandler[T]
+	ErrorHandler           errorhandler.ApiHandler[T]
 }
 
 func New[T apicontext.Principal](
 	pService principal.Service[T],
 	apiSecretAuthorization string,
-	errorHandler errorhandler.ApiErrorHandler[T],
+	errorHandler errorhandler.ApiHandler[T],
 ) Service[T] {
 	return &serviceImpl[T]{
 		PService:               pService,

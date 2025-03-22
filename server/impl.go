@@ -26,7 +26,7 @@ func (a *apiRouterHandlerImpl[T]) RegisterCustomMiddleware(middleware func(next 
 	return a
 }
 
-func (a *apiRouterHandlerImpl[T]) ErrorHandler(handler errorhandler.ApiErrorHandler[T]) Api[T] {
+func (a *apiRouterHandlerImpl[T]) ErrorHandler(handler errorhandler.ApiHandler[T]) Api[T] {
 	a.errorHandler = handler
 	return a
 }
@@ -57,7 +57,7 @@ func (a *apiRouterHandlerImpl[T]) LoginResourceEnabled(enable bool) Api[T] {
 	return a
 }
 
-func (a *apiRouterHandlerImpl[T]) PrincipalService(service principal.PService[T]) Api[T] {
+func (a *apiRouterHandlerImpl[T]) PrincipalService(service principal.Service[T]) Api[T] {
 	a.principalService = service
 	if a.principalService != nil {
 		a.router.Use(a.hasResourceAccess)

@@ -33,6 +33,6 @@ func Wrapper(err error, message string) error {
 	return fmt.Errorf("%s (%s:%d): %w", message, file, line, err)
 }
 
-type ApiErrorHandler[T apicontext.ApiPrincipalContext] interface {
-	Handler(ctx *apicontext.ApiRequestContext[T], err error, source string)
+type ApiHandler[T apicontext.Principal] interface {
+	Handler(ctx *apicontext.Request[T], err error, source string)
 }

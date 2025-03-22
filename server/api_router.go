@@ -10,13 +10,13 @@ import (
 	"net/http"
 )
 
-type ApiContextHandler[T apicontext.ApiPrincipalContext] func(ctx *apicontext.ApiRequestContext[T])
+type ApiContextHandler[T apicontext.Principal] func(ctx *apicontext.Request[T])
 
-type ApiMiddleware[T apicontext.ApiPrincipalContext] func(*apicontext.ApiRequestContext[T]) (doNext bool)
+type ApiMiddleware[T apicontext.Principal] func(*apicontext.Request[T]) (doNext bool)
 
 type RouterHandler func(*mux.Router)
 
-type Api[T apicontext.ApiPrincipalContext] interface {
+type Api[T apicontext.Principal] interface {
 	// Port sets the port for the API router's server.
 	// This method allows specifying a custom port where the server will listen for incoming requests.
 	//
@@ -178,18 +178,18 @@ type Api[T apicontext.ApiPrincipalContext] interface {
 	// the API router ensures that all operations comply with the defined security policies.
 	//
 	// Login resource:
-	//   - By registering the security.ApiSecurityService, also add a login resource ContextPath+login
+	//   - By registering the security.Service, also add a login resource ContextPath+login
 	//     that handle the login request by invoking LoginResource. You can also disable
 	//     it by calling LoginResourceEnabled before invoke ApiSecurityService.
 	//
 	//  - The login resource expects the input of LoginEntryData.
 	//
 	// Parameters:
-	//   - apiSecurityService: An instance of security.ApiSecurityService[T] that implements the security logic.
+	//   - apiSecurityService: An instance of security.Service[T] that implements the security logic.
 	//
 	// Returns:
 	//   - Api[T]: The router handler for chaining additional route or service configurations.
-	ApiSecurityService(apiSecurityService security.ApiSecurityService[T]) Api[T]
+	ApiSecurityService(apiSecurityService security.Service[T]) Api[T]
 
 	// RegisterCustomMiddleware is a method that allows for registering a custom middleware function
 	// with the API router. This function wraps an HTTP handler and can be used to implement custom
@@ -226,17 +226,17 @@ type Api[T apicontext.ApiPrincipalContext] interface {
 	//
 	// Returns:
 	//   - Api[T]: The router handler for chaining further route configurations.
-	PrincipalService(service principal.PService[T]) Api[T]
+	PrincipalService(service principal.Service[T]) Api[T]
 
 	// ErrorHandler assigns a custom error handler to the router.
 	// This handler is used to process API errors and provide appropriate responses.
 	//
 	// Parameters:
-	//   - handler: An instance of ApiErrorHandler that defines custom error-handling logic.
+	//   - handler: An instance of ApiHandler that defines custom error-handling logic.
 	//
 	// Returns:
 	//   - Api[T]: The router handler for chaining further route configurations.
-	ErrorHandler(handler errorhandler.ApiErrorHandler[T]) Api[T]
+	ErrorHandler(handler errorhandler.ApiHandler[T]) Api[T]
 
 	// LoginResource sets the login service for the API router and registers a public
 	// route for the login functionality. This route is accessible without requiring any

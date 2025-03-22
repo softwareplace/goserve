@@ -19,7 +19,7 @@ func main() {
 		StartServer()
 }
 
-func ReportCallerHandler(ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) {
+func ReportCallerHandler(ctx *apicontext.Request[*apicontext.DefaultContext]) {
 	enable := ctx.QueryOf("enable")
 	if enable == "true" {
 		logger.LogReportCaller = true

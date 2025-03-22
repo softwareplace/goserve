@@ -240,40 +240,40 @@ type UpdateUserParams struct {
 	Authorization Authorization `json:"Authorization"`
 }
 
-func (rh *requestHandlerImpl[T]) PostLogin(ctx *apicontext.ApiRequestContext[T]) {
+func (rh *requestHandlerImpl[T]) PostLogin(ctx *apicontext.Request[T]) {
 
 	requestBody := LoginRequest{}
-	server.GetRequestBody(ctx, requestBody, func(ctx *apicontext.ApiRequestContext[T], body LoginRequest) {
+	server.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body LoginRequest) {
 		rh.Service.PostLoginRequest(body, ctx)
-	}, func(ctx *apicontext.ApiRequestContext[T], err error) {
+	}, func(ctx *apicontext.Request[T], err error) {
 		ctx.InternalServerError("Internal server error")
 	})
 
 }
 
-func (rh *requestHandlerImpl[T]) AddPet(ctx *apicontext.ApiRequestContext[T]) {
+func (rh *requestHandlerImpl[T]) AddPet(ctx *apicontext.Request[T]) {
 
 	requestBody := Pet{}
-	server.GetRequestBody(ctx, requestBody, func(ctx *apicontext.ApiRequestContext[T], body Pet) {
+	server.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body Pet) {
 		rh.Service.AddPetRequest(body, ctx)
-	}, func(ctx *apicontext.ApiRequestContext[T], err error) {
+	}, func(ctx *apicontext.Request[T], err error) {
 		ctx.InternalServerError("Internal server error")
 	})
 
 }
 
-func (rh *requestHandlerImpl[T]) UpdatePet(ctx *apicontext.ApiRequestContext[T]) {
+func (rh *requestHandlerImpl[T]) UpdatePet(ctx *apicontext.Request[T]) {
 
 	requestBody := Pet{}
-	server.GetRequestBody(ctx, requestBody, func(ctx *apicontext.ApiRequestContext[T], body Pet) {
+	server.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body Pet) {
 		rh.Service.UpdatePetRequest(body, ctx)
-	}, func(ctx *apicontext.ApiRequestContext[T], err error) {
+	}, func(ctx *apicontext.Request[T], err error) {
 		ctx.InternalServerError("Internal server error")
 	})
 
 }
 
-func (rh *requestHandlerImpl[T]) FindPetsByStatus(ctx *apicontext.ApiRequestContext[T]) {
+func (rh *requestHandlerImpl[T]) FindPetsByStatus(ctx *apicontext.Request[T]) {
 
 	//request := FindPetsByStatusRequestParams{}
 	// server.PopulateFieldsFromRequest(ctx, &request)
@@ -281,7 +281,7 @@ func (rh *requestHandlerImpl[T]) FindPetsByStatus(ctx *apicontext.ApiRequestCont
 
 }
 
-func (rh *requestHandlerImpl[T]) FindPetsByTags(ctx *apicontext.ApiRequestContext[T]) {
+func (rh *requestHandlerImpl[T]) FindPetsByTags(ctx *apicontext.Request[T]) {
 
 	//request := FindPetsByTagsRequestParams{}
 	// server.PopulateFieldsFromRequest(ctx, &request)
@@ -289,7 +289,7 @@ func (rh *requestHandlerImpl[T]) FindPetsByTags(ctx *apicontext.ApiRequestContex
 
 }
 
-func (rh *requestHandlerImpl[T]) DeletePet(ctx *apicontext.ApiRequestContext[T]) {
+func (rh *requestHandlerImpl[T]) DeletePet(ctx *apicontext.Request[T]) {
 
 	//request := DeletePetRequestParams{}
 	// server.PopulateFieldsFromRequest(ctx, &request)
@@ -297,7 +297,7 @@ func (rh *requestHandlerImpl[T]) DeletePet(ctx *apicontext.ApiRequestContext[T])
 
 }
 
-func (rh *requestHandlerImpl[T]) GetPetById(ctx *apicontext.ApiRequestContext[T]) {
+func (rh *requestHandlerImpl[T]) GetPetById(ctx *apicontext.Request[T]) {
 
 	//request := GetPetByIdRequestParams{}
 	// server.PopulateFieldsFromRequest(ctx, &request)
@@ -305,7 +305,7 @@ func (rh *requestHandlerImpl[T]) GetPetById(ctx *apicontext.ApiRequestContext[T]
 
 }
 
-func (rh *requestHandlerImpl[T]) UpdatePetWithForm(ctx *apicontext.ApiRequestContext[T]) {
+func (rh *requestHandlerImpl[T]) UpdatePetWithForm(ctx *apicontext.Request[T]) {
 
 	//request := UpdatePetWithFormRequestParams{}
 	// server.PopulateFieldsFromRequest(ctx, &request)
@@ -313,7 +313,7 @@ func (rh *requestHandlerImpl[T]) UpdatePetWithForm(ctx *apicontext.ApiRequestCon
 
 }
 
-func (rh *requestHandlerImpl[T]) UploadFile(ctx *apicontext.ApiRequestContext[T]) {
+func (rh *requestHandlerImpl[T]) UploadFile(ctx *apicontext.Request[T]) {
 
 	//request := UploadFileRequestParams{}
 	// server.PopulateFieldsFromRequest(ctx, &request)
@@ -321,7 +321,7 @@ func (rh *requestHandlerImpl[T]) UploadFile(ctx *apicontext.ApiRequestContext[T]
 
 }
 
-func (rh *requestHandlerImpl[T]) GetInventory(ctx *apicontext.ApiRequestContext[T]) {
+func (rh *requestHandlerImpl[T]) GetInventory(ctx *apicontext.Request[T]) {
 
 	//request := GetInventoryRequestParams{}
 	// server.PopulateFieldsFromRequest(ctx, &request)
@@ -329,18 +329,18 @@ func (rh *requestHandlerImpl[T]) GetInventory(ctx *apicontext.ApiRequestContext[
 
 }
 
-func (rh *requestHandlerImpl[T]) PlaceOrder(ctx *apicontext.ApiRequestContext[T]) {
+func (rh *requestHandlerImpl[T]) PlaceOrder(ctx *apicontext.Request[T]) {
 
 	requestBody := Order{}
-	server.GetRequestBody(ctx, requestBody, func(ctx *apicontext.ApiRequestContext[T], body Order) {
+	server.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body Order) {
 		rh.Service.PlaceOrderRequest(body, ctx)
-	}, func(ctx *apicontext.ApiRequestContext[T], err error) {
+	}, func(ctx *apicontext.Request[T], err error) {
 		ctx.InternalServerError("Internal server error")
 	})
 
 }
 
-func (rh *requestHandlerImpl[T]) DeleteOrder(ctx *apicontext.ApiRequestContext[T]) {
+func (rh *requestHandlerImpl[T]) DeleteOrder(ctx *apicontext.Request[T]) {
 
 	//request := DeleteOrderRequestParams{}
 	// server.PopulateFieldsFromRequest(ctx, &request)
@@ -348,7 +348,7 @@ func (rh *requestHandlerImpl[T]) DeleteOrder(ctx *apicontext.ApiRequestContext[T
 
 }
 
-func (rh *requestHandlerImpl[T]) GetOrderById(ctx *apicontext.ApiRequestContext[T]) {
+func (rh *requestHandlerImpl[T]) GetOrderById(ctx *apicontext.Request[T]) {
 
 	//request := GetOrderByIdRequestParams{}
 	// server.PopulateFieldsFromRequest(ctx, &request)
@@ -356,29 +356,29 @@ func (rh *requestHandlerImpl[T]) GetOrderById(ctx *apicontext.ApiRequestContext[
 
 }
 
-func (rh *requestHandlerImpl[T]) CreateUser(ctx *apicontext.ApiRequestContext[T]) {
+func (rh *requestHandlerImpl[T]) CreateUser(ctx *apicontext.Request[T]) {
 
 	requestBody := User{}
-	server.GetRequestBody(ctx, requestBody, func(ctx *apicontext.ApiRequestContext[T], body User) {
+	server.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body User) {
 		rh.Service.CreateUserRequest(body, ctx)
-	}, func(ctx *apicontext.ApiRequestContext[T], err error) {
+	}, func(ctx *apicontext.Request[T], err error) {
 		ctx.InternalServerError("Internal server error")
 	})
 
 }
 
-func (rh *requestHandlerImpl[T]) CreateUsersWithListInput(ctx *apicontext.ApiRequestContext[T]) {
+func (rh *requestHandlerImpl[T]) CreateUsersWithListInput(ctx *apicontext.Request[T]) {
 
 	requestBody := CreateUsersWithListInputJSONBody{}
-	server.GetRequestBody(ctx, requestBody, func(ctx *apicontext.ApiRequestContext[T], body CreateUsersWithListInputJSONBody) {
+	server.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body CreateUsersWithListInputJSONBody) {
 		rh.Service.CreateUsersWithListInputRequest(body, ctx)
-	}, func(ctx *apicontext.ApiRequestContext[T], err error) {
+	}, func(ctx *apicontext.Request[T], err error) {
 		ctx.InternalServerError("Internal server error")
 	})
 
 }
 
-func (rh *requestHandlerImpl[T]) LogoutUser(ctx *apicontext.ApiRequestContext[T]) {
+func (rh *requestHandlerImpl[T]) LogoutUser(ctx *apicontext.Request[T]) {
 
 	//request := LogoutUserRequestParams{}
 	// server.PopulateFieldsFromRequest(ctx, &request)
@@ -386,7 +386,7 @@ func (rh *requestHandlerImpl[T]) LogoutUser(ctx *apicontext.ApiRequestContext[T]
 
 }
 
-func (rh *requestHandlerImpl[T]) DeleteUser(ctx *apicontext.ApiRequestContext[T]) {
+func (rh *requestHandlerImpl[T]) DeleteUser(ctx *apicontext.Request[T]) {
 
 	//request := DeleteUserRequestParams{}
 	// server.PopulateFieldsFromRequest(ctx, &request)
@@ -394,7 +394,7 @@ func (rh *requestHandlerImpl[T]) DeleteUser(ctx *apicontext.ApiRequestContext[T]
 
 }
 
-func (rh *requestHandlerImpl[T]) GetUserByName(ctx *apicontext.ApiRequestContext[T]) {
+func (rh *requestHandlerImpl[T]) GetUserByName(ctx *apicontext.Request[T]) {
 
 	//request := GetUserByNameRequestParams{}
 	// server.PopulateFieldsFromRequest(ctx, &request)
@@ -402,12 +402,12 @@ func (rh *requestHandlerImpl[T]) GetUserByName(ctx *apicontext.ApiRequestContext
 
 }
 
-func (rh *requestHandlerImpl[T]) UpdateUser(ctx *apicontext.ApiRequestContext[T]) {
+func (rh *requestHandlerImpl[T]) UpdateUser(ctx *apicontext.Request[T]) {
 
 	requestBody := User{}
-	server.GetRequestBody(ctx, requestBody, func(ctx *apicontext.ApiRequestContext[T], body User) {
+	server.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body User) {
 		rh.Service.UpdateUserRequest(body, ctx)
-	}, func(ctx *apicontext.ApiRequestContext[T], err error) {
+	}, func(ctx *apicontext.Request[T], err error) {
 		ctx.InternalServerError("Internal server error")
 	})
 
@@ -435,115 +435,115 @@ type CreateUsersWithListInputRequest = CreateUsersWithListInputJSONBody
 type UpdateUserRequest = User
 
 // RequestHandler represents all server handlers.
-type RequestHandler[T apicontext.ApiPrincipalContext] interface {
+type RequestHandler[T apicontext.Principal] interface {
 	// Authentication endpoint
 	// (POST /login)
-	PostLogin(ctx *apicontext.ApiRequestContext[T])
+	PostLogin(ctx *apicontext.Request[T])
 	// Add a new pet to the store
 	// (POST /pet)
-	AddPet(ctx *apicontext.ApiRequestContext[T])
+	AddPet(ctx *apicontext.Request[T])
 	// Update an existing pet
 	// (PUT /pet)
-	UpdatePet(ctx *apicontext.ApiRequestContext[T])
+	UpdatePet(ctx *apicontext.Request[T])
 	// Finds Pets by status
 	// (GET /pet/findByStatus)
-	FindPetsByStatus(ctx *apicontext.ApiRequestContext[T])
+	FindPetsByStatus(ctx *apicontext.Request[T])
 	// Finds Pets by tags
 	// (GET /pet/findByTags)
-	FindPetsByTags(ctx *apicontext.ApiRequestContext[T])
+	FindPetsByTags(ctx *apicontext.Request[T])
 	// Deletes a pet
 	// (DELETE /pet/{petId})
-	DeletePet(ctx *apicontext.ApiRequestContext[T])
+	DeletePet(ctx *apicontext.Request[T])
 	// Find pet by ID
 	// (GET /pet/{petId})
-	GetPetById(ctx *apicontext.ApiRequestContext[T])
+	GetPetById(ctx *apicontext.Request[T])
 	// Updates a pet in the store with form data
 	// (POST /pet/{petId})
-	UpdatePetWithForm(ctx *apicontext.ApiRequestContext[T])
+	UpdatePetWithForm(ctx *apicontext.Request[T])
 	// uploads an image
 	// (POST /pet/{petId}/uploadImage)
-	UploadFile(ctx *apicontext.ApiRequestContext[T])
+	UploadFile(ctx *apicontext.Request[T])
 	// Returns pet inventories by status
 	// (GET /store/inventory)
-	GetInventory(ctx *apicontext.ApiRequestContext[T])
+	GetInventory(ctx *apicontext.Request[T])
 	// Place an order for a pet
 	// (POST /store/order)
-	PlaceOrder(ctx *apicontext.ApiRequestContext[T])
+	PlaceOrder(ctx *apicontext.Request[T])
 	// Delete purchase order by ID
 	// (DELETE /store/order/{orderId})
-	DeleteOrder(ctx *apicontext.ApiRequestContext[T])
+	DeleteOrder(ctx *apicontext.Request[T])
 	// Find purchase order by ID
 	// (GET /store/order/{orderId})
-	GetOrderById(ctx *apicontext.ApiRequestContext[T])
+	GetOrderById(ctx *apicontext.Request[T])
 	// Create user
 	// (POST /user)
-	CreateUser(ctx *apicontext.ApiRequestContext[T])
+	CreateUser(ctx *apicontext.Request[T])
 	// Creates list of users with given input array
 	// (POST /user/createWithList)
-	CreateUsersWithListInput(ctx *apicontext.ApiRequestContext[T])
+	CreateUsersWithListInput(ctx *apicontext.Request[T])
 	// Logs out current logged in user session
 	// (GET /user/logout)
-	LogoutUser(ctx *apicontext.ApiRequestContext[T])
+	LogoutUser(ctx *apicontext.Request[T])
 	// Delete user
 	// (DELETE /user/{username})
-	DeleteUser(ctx *apicontext.ApiRequestContext[T])
+	DeleteUser(ctx *apicontext.Request[T])
 	// Get user by user name
 	// (GET /user/{username})
-	GetUserByName(ctx *apicontext.ApiRequestContext[T])
+	GetUserByName(ctx *apicontext.Request[T])
 	// Update user
 	// (PUT /user/{username})
-	UpdateUser(ctx *apicontext.ApiRequestContext[T])
+	UpdateUser(ctx *apicontext.Request[T])
 }
 
-type ServiceRequestHandler[T apicontext.ApiPrincipalContext] interface {
+type ServiceRequestHandler[T apicontext.Principal] interface {
 
-	// PostLoginRequest(requestBody LoginRequest, requestParams PostLoginRequestParams, ctx *context.ApiRequestContext[T])
-	PostLoginRequest(requestBody LoginRequest, ctx *apicontext.ApiRequestContext[T])
+	// PostLoginRequest(requestBody LoginRequest, requestParams PostLoginRequestParams, ctx *context.Request[T])
+	PostLoginRequest(requestBody LoginRequest, ctx *apicontext.Request[T])
 
-	// AddPetRequest(requestBody Pet, requestParams AddPetRequestParams, ctx *context.ApiRequestContext[T])
-	AddPetRequest(requestBody Pet, ctx *apicontext.ApiRequestContext[T])
+	// AddPetRequest(requestBody Pet, requestParams AddPetRequestParams, ctx *context.Request[T])
+	AddPetRequest(requestBody Pet, ctx *apicontext.Request[T])
 
-	// UpdatePetRequest(requestBody Pet, requestParams UpdatePetRequestParams, ctx *context.ApiRequestContext[T])
-	UpdatePetRequest(requestBody Pet, ctx *apicontext.ApiRequestContext[T])
+	// UpdatePetRequest(requestBody Pet, requestParams UpdatePetRequestParams, ctx *context.Request[T])
+	UpdatePetRequest(requestBody Pet, ctx *apicontext.Request[T])
 
-	FindPetsByStatusRequest(ctx *apicontext.ApiRequestContext[T])
+	FindPetsByStatusRequest(ctx *apicontext.Request[T])
 
-	FindPetsByTagsRequest(ctx *apicontext.ApiRequestContext[T])
+	FindPetsByTagsRequest(ctx *apicontext.Request[T])
 
-	DeletePetRequest(ctx *apicontext.ApiRequestContext[T])
+	DeletePetRequest(ctx *apicontext.Request[T])
 
-	GetPetByIdRequest(ctx *apicontext.ApiRequestContext[T])
+	GetPetByIdRequest(ctx *apicontext.Request[T])
 
-	UpdatePetWithFormRequest(ctx *apicontext.ApiRequestContext[T])
+	UpdatePetWithFormRequest(ctx *apicontext.Request[T])
 
-	UploadFileRequest(ctx *apicontext.ApiRequestContext[T])
+	UploadFileRequest(ctx *apicontext.Request[T])
 
-	GetInventoryRequest(ctx *apicontext.ApiRequestContext[T])
+	GetInventoryRequest(ctx *apicontext.Request[T])
 
-	// PlaceOrderRequest(requestBody Order, requestParams PlaceOrderRequestParams, ctx *context.ApiRequestContext[T])
-	PlaceOrderRequest(requestBody Order, ctx *apicontext.ApiRequestContext[T])
+	// PlaceOrderRequest(requestBody Order, requestParams PlaceOrderRequestParams, ctx *context.Request[T])
+	PlaceOrderRequest(requestBody Order, ctx *apicontext.Request[T])
 
-	DeleteOrderRequest(ctx *apicontext.ApiRequestContext[T])
+	DeleteOrderRequest(ctx *apicontext.Request[T])
 
-	GetOrderByIdRequest(ctx *apicontext.ApiRequestContext[T])
+	GetOrderByIdRequest(ctx *apicontext.Request[T])
 
-	// CreateUserRequest(requestBody User, requestParams CreateUserRequestParams, ctx *context.ApiRequestContext[T])
-	CreateUserRequest(requestBody User, ctx *apicontext.ApiRequestContext[T])
+	// CreateUserRequest(requestBody User, requestParams CreateUserRequestParams, ctx *context.Request[T])
+	CreateUserRequest(requestBody User, ctx *apicontext.Request[T])
 
-	// CreateUsersWithListInputRequest(requestBody CreateUsersWithListInputJSONBody, requestParams CreateUsersWithListInputRequestParams, ctx *context.ApiRequestContext[T])
-	CreateUsersWithListInputRequest(requestBody CreateUsersWithListInputJSONBody, ctx *apicontext.ApiRequestContext[T])
+	// CreateUsersWithListInputRequest(requestBody CreateUsersWithListInputJSONBody, requestParams CreateUsersWithListInputRequestParams, ctx *context.Request[T])
+	CreateUsersWithListInputRequest(requestBody CreateUsersWithListInputJSONBody, ctx *apicontext.Request[T])
 
-	LogoutUserRequest(ctx *apicontext.ApiRequestContext[T])
+	LogoutUserRequest(ctx *apicontext.Request[T])
 
-	DeleteUserRequest(ctx *apicontext.ApiRequestContext[T])
+	DeleteUserRequest(ctx *apicontext.Request[T])
 
-	GetUserByNameRequest(ctx *apicontext.ApiRequestContext[T])
+	GetUserByNameRequest(ctx *apicontext.Request[T])
 
-	// UpdateUserRequest(requestBody User, requestParams UpdateUserRequestParams, ctx *context.ApiRequestContext[T])
-	UpdateUserRequest(requestBody User, ctx *apicontext.ApiRequestContext[T])
+	// UpdateUserRequest(requestBody User, requestParams UpdateUserRequestParams, ctx *context.Request[T])
+	UpdateUserRequest(requestBody User, ctx *apicontext.Request[T])
 }
 
-type requestHandlerImpl[T apicontext.ApiPrincipalContext] struct {
+type requestHandlerImpl[T apicontext.Principal] struct {
 	Service ServiceRequestHandler[T]
 }
 
@@ -573,14 +573,14 @@ type requestHandlerImpl[T apicontext.ApiPrincipalContext] struct {
 //   - server: The server interface implementation containing the endpoint handlers.
 //
 // Generics:
-//   - T: A type that satisfies the context.ApiPrincipalContext interface, representing the principal/context
+//   - T: A type that satisfies the context.Principal interface, representing the principal/context
 //     involved in the API operations.
 //
 // This function will use the RequestHandler implementation
 // that has already been generated to bind specific API routes
 // dynamically at runtime, based on the provided security definitions
 // and endpoint configurations.
-func ResourcesHandler[T apicontext.ApiPrincipalContext](apiServer server.Api[T], service ServiceRequestHandler[T]) {
+func ResourcesHandler[T apicontext.Principal](apiServer server.Api[T], service ServiceRequestHandler[T]) {
 	handler := &requestHandlerImpl[T]{
 		Service: service,
 	}
@@ -596,9 +596,9 @@ func ResourcesHandler[T apicontext.ApiPrincipalContext](apiServer server.Api[T],
 //   - handler: The `RequestHandler` interface implementation containing the actual endpoint handlers.
 //
 // Generics:
-//   - T: A type that satisfies the context.ApiPrincipalContext interface, representing the principal/context
+//   - T: A type that satisfies the context.Principal interface, representing the principal/context
 //     involved in the API operations.
-func ApiResourceRegister[T apicontext.ApiPrincipalContext](apiServer server.Api[T], handler RequestHandler[T]) {
+func ApiResourceRegister[T apicontext.Principal](apiServer server.Api[T], handler RequestHandler[T]) {
 	// Initialize an empty string for the merged scopes.
 	apiServer.PublicRouter(handler.PostLogin, "/login", "POST")
 
@@ -658,7 +658,7 @@ func ApiResourceRegister[T apicontext.ApiPrincipalContext](apiServer server.Api[
 
 }
 
-func ApiResourceHandler[T apicontext.ApiPrincipalContext](service ServiceRequestHandler[T]) func(handler server.Api[T]) {
+func ApiResourceHandler[T apicontext.Principal](service ServiceRequestHandler[T]) func(handler server.Api[T]) {
 	return func(handler server.Api[T]) {
 		ResourcesHandler(handler, service)
 	}

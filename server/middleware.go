@@ -10,9 +10,9 @@ import (
 )
 
 // rootAppMiddleware logs each incoming request's method, path, and remote address
-func rootAppMiddleware[T apicontext.ApiPrincipalContext](next http.Handler) http.Handler {
+func rootAppMiddleware[T apicontext.Principal](next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var ctx *apicontext.ApiRequestContext[T]
+		var ctx *apicontext.Request[T]
 
 		errorhandler.Handler(func() {
 			start := time.Now() // Record the start time

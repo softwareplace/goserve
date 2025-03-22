@@ -83,8 +83,8 @@ func (a *apiRouterHandlerImpl[T]) SwaggerDocHandler(swaggerFile string) Api[T] {
 	})
 }
 
-func (a *apiRouterHandlerImpl[T]) handleSwaggerJSON(swagger *openapi3.T) func(ctx *apicontext.ApiRequestContext[T]) {
-	return func(ctx *apicontext.ApiRequestContext[T]) {
+func (a *apiRouterHandlerImpl[T]) handleSwaggerJSON(swagger *openapi3.T) func(ctx *apicontext.Request[T]) {
+	return func(ctx *apicontext.Request[T]) {
 		ctx.Response(swagger, 200)
 	}
 }

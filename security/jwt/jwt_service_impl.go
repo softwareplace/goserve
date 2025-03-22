@@ -20,7 +20,7 @@ func (a *serviceImpl[T]) Principal(
 	success := a.PService.LoadPrincipal(ctx)
 
 	if !success {
-		a.handlerErrorOrElse(ctx, nil, LoadPrincipalError, func() {
+		a.HandlerErrorOrElse(ctx, nil, LoadPrincipalError, func() {
 			ctx.Error("AuthorizationHandler failed", http.StatusForbidden)
 		})
 
@@ -48,7 +48,7 @@ func (a *serviceImpl[T]) ExtractJWTClaims(ctx *apicontext.Request[T]) bool {
 
 		if err != nil {
 			log.Printf("%s: AuthorizationHandler failed: %v", ExtractClaimsError, err)
-			a.handlerErrorOrElse(ctx, err, ExtractClaimsError, func() {
+			a.HandlerErrorOrElse(ctx, err, ExtractClaimsError, func() {
 				ctx.Error("AuthorizationHandler failed", http.StatusForbidden)
 			})
 			return false
@@ -61,7 +61,7 @@ func (a *serviceImpl[T]) ExtractJWTClaims(ctx *apicontext.Request[T]) bool {
 
 	log.Printf("JWT/CLAIMS_EXTRACT: failed with error: %v", err)
 
-	a.handlerErrorOrElse(ctx, err, ExtractClaimsError, func() {
+	a.HandlerErrorOrElse(ctx, err, ExtractClaimsError, func() {
 		ctx.Error("AuthorizationHandler failed", http.StatusForbidden)
 	})
 

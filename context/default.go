@@ -33,7 +33,7 @@ func NewDefaultCtx() *DefaultContext {
 // If no custom requester ID is set, it returns the default requester ID.
 // WARNING: The default requester ID is hardcoded and is **not secure for production use**.
 // In production, you should use a unique and secure requester ID for each request.
-func (d *DefaultContext) RequesterId() string {
+func (d *DefaultContext) GetId() string {
 	if d.DefaultRequesterId == nil || *d.DefaultRequesterId == "" {
 		return DefaultRequestId
 	}

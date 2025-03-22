@@ -14,13 +14,13 @@ const (
 	Authorization       = "Authorization"
 )
 
-type ApiPrincipalContext interface {
-	RequesterId() string
+type Principal interface {
+	GetId() string
 	GetRoles() []string
 	EncryptedPassword() string
 }
 
-type SampleContext[T ApiPrincipalContext] struct {
+type SampleContext[T Principal] struct {
 	ApiKey              string                 // The API key extracted from the HTTP request header. This is used to identify and authenticate the client making the API request.
 	ApiKeyId            string                 // The unique identifier associated with the API key used in the request. Helps in tracking and logging API key usage.
 	Authorization       string                 // The bearer token or other authorization token extracted from the HTTP request header. Used to authenticate the user of the API.
@@ -34,7 +34,7 @@ type SampleContext[T ApiPrincipalContext] struct {
 	QueryValues         map[string][]string    // A map containing the query parameters from the request URL. Each key corresponds to a query parameter name, and the value is a slice of strings representing the values of that parameter. Useful for processing and validating query parameters in API endpoints.
 }
 
-func (ctx *ApiRequestContext[T]) GetSample() SampleContext[T] {
+func (ctx *Request[T]) GetSample() SampleContext[T] {
 	return SampleContext[T]{
 		ApiKey:              ctx.ApiKey,
 		ApiKeyId:            ctx.ApiKeyId,
@@ -48,7 +48,7 @@ func (ctx *ApiRequestContext[T]) GetSample() SampleContext[T] {
 	}
 }
 
-type ApiRequestContext[T ApiPrincipalContext] struct {
+type Request[T Principal] struct {
 	Writer              *http.ResponseWriter
 	Request             *http.Request
 	ApiKey              string                 // The API key extracted from the HTTP request header. This is used to identify and authenticate the client making the API request.
@@ -64,8 +64,8 @@ type ApiRequestContext[T ApiPrincipalContext] struct {
 	QueryValues         map[string][]string    // A map containing the query parameters from the request URL. Each key corresponds to a query parameter name, and the value is a slice of strings representing the values of that parameter. Useful for processing and validating query parameters in API endpoints.
 }
 
-// Of retrieves the ApiRequestContext object from the request's context if it already exists.
-// If no such object exists, it creates a new instance of ApiRequestContext with the given writer, request,
+// Of retrieves the Request object from the request's context if it already exists.
+// If no such object exists, it creates a new instance of Request with the given writer, request,
 // and reference for logging or tracing purposes.
 //
 // This function enhances the context of the current HTTP request with additional API-related information,
@@ -73,7 +73,7 @@ type ApiRequestContext[T ApiPrincipalContext] struct {
 // context is linked to the request to facilitate data sharing throughout the request's lifecycle.
 //
 // Type Parameters:
-//   - T: A type that implements the ApiPrincipalContext interface, which facilitates the storage
+//   - T: A type that implements the Principal interface, which facilitates the storage
 //     and management of additional API-related data for the request.
 //
 // Parameters:
@@ -82,17 +82,17 @@ type ApiRequestContext[T ApiPrincipalContext] struct {
 //   - reference: A string value for logging or reference purposes.
 //
 // Returns:
-//   - A pointer to the ApiRequestContext of type T, which contains relevant API-related data.
+//   - A pointer to the Request of type T, which contains relevant API-related data.
 //
 // Example usage:
 //
 //	ctx := Of[MyContextData](w, r, "MyReference")
 //	ctx.GetSessionId() // Access session id
-func Of[T ApiPrincipalContext](w http.ResponseWriter, r *http.Request, reference string) *ApiRequestContext[T] {
+func Of[T Principal](w http.ResponseWriter, r *http.Request, reference string) *Request[T] {
 	currentContext := r.Context().Value(apiAccessContextKey)
 
 	if currentContext != nil {
-		ctx := currentContext.(*ApiRequestContext[T])
+		ctx := currentContext.(*Request[T])
 		ctx.updateContext(r)
 		return ctx
 	}
@@ -100,7 +100,7 @@ func Of[T ApiPrincipalContext](w http.ResponseWriter, r *http.Request, reference
 	return createNewContext[T](w, r, reference)
 }
 
-// Flush clears all the fields in the ApiRequestContext, effectively resetting
+// Flush clears all the fields in the Request, effectively resetting
 // the context to its default state. This can be useful to prevent accidental
 // reuse of sensitive data or to prepare for cleanup at the end of a request.
 //
@@ -113,7 +113,7 @@ func Of[T ApiPrincipalContext](w http.ResponseWriter, r *http.Request, reference
 //	ctx := Of[MyPrincipalContext](w, r, "ExampleReference")
 //	// Process request here...
 //	ctx.Flush() // Reset the context to its default state for cleanup.
-func (ctx *ApiRequestContext[T]) Flush() {
+func (ctx *Request[T]) Flush() {
 	apiRequestContext := context.WithValue(ctx.Request.Context(), apiAccessContextKey, nil)
 	ctx.Request = ctx.Request.WithContext(apiRequestContext)
 
@@ -129,12 +129,12 @@ func (ctx *ApiRequestContext[T]) Flush() {
 	ctx.Principal = nil
 }
 
-func createNewContext[T ApiPrincipalContext](
+func createNewContext[T Principal](
 	w http.ResponseWriter,
 	r *http.Request, reference string,
-) *ApiRequestContext[T] {
+) *Request[T] {
 	w.Header().Set("Content-Type", "application/json")
-	ctx := ApiRequestContext[T]{
+	ctx := Request[T]{
 		Writer:        &w,
 		Request:       r,
 		PathValues:    mux.Vars(r),
@@ -150,13 +150,13 @@ func createNewContext[T ApiPrincipalContext](
 	return &ctx
 }
 
-func (ctx *ApiRequestContext[T]) updateContext(r *http.Request) {
+func (ctx *Request[T]) updateContext(r *http.Request) {
 	apiRequestContext := context.WithValue(ctx.Request.Context(), apiAccessContextKey, ctx)
 	ctx.Request = r.WithContext(apiRequestContext)
 }
 
 // Next forwards the request to the next HTTP handler in the middleware chain.
-// It ensures the current ApiRequestContext is preserved during the request processing.
-func (ctx *ApiRequestContext[T]) Next(next http.Handler) {
+// It ensures the current Request is preserved during the request processing.
+func (ctx *Request[T]) Next(next http.Handler) {
 	next.ServeHTTP(*ctx.Writer, ctx.Request)
 }

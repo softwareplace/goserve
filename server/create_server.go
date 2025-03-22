@@ -5,7 +5,7 @@ import (
 	apicontext "github.com/softwareplace/http-utils/context"
 )
 
-func CreateApiRouter[T apicontext.ApiPrincipalContext](topMiddlewares ...ApiMiddleware[T]) Api[T] {
+func CreateApiRouter[T apicontext.Principal](topMiddlewares ...ApiMiddleware[T]) Api[T] {
 	router := mux.NewRouter()
 	router.Use(rootAppMiddleware[T])
 
@@ -25,7 +25,7 @@ func CreateApiRouter[T apicontext.ApiPrincipalContext](topMiddlewares ...ApiMidd
 	return api.NotFoundHandler()
 }
 
-func CreateApiRouterWith[T apicontext.ApiPrincipalContext](router mux.Router) Api[T] {
+func CreateApiRouterWith[T apicontext.Principal](router mux.Router) Api[T] {
 	router.Use(rootAppMiddleware[T])
 	api := &apiRouterHandlerImpl[T]{
 		router:                              &router,

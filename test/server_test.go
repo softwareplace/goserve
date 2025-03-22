@@ -18,7 +18,7 @@ import (
 
 type loginServiceImpl struct {
 	server.DefaultPasswordValidator[*apicontext.DefaultContext]
-	securityService security.ApiSecurityService[*apicontext.DefaultContext]
+	securityService security.Service[*apicontext.DefaultContext]
 }
 
 var mockStore = map[string]string{
@@ -39,7 +39,7 @@ func baseResponse(message string, status int) gen.BaseResponse {
 	return response
 }
 
-func (l *loginServiceImpl) SecurityService() security.ApiSecurityService[*apicontext.DefaultContext] {
+func (l *loginServiceImpl) SecurityService() security.Service[*apicontext.DefaultContext] {
 	return l.securityService
 }
 
@@ -50,9 +50,9 @@ func (l *loginServiceImpl) RequiredScopes() []string {
 }
 
 func (l *loginServiceImpl) GetApiJWTInfo(apiKeyEntryData server.ApiKeyEntryData,
-	_ *apicontext.ApiRequestContext[*apicontext.DefaultContext],
-) (security.ApiJWTInfo, error) {
-	return security.ApiJWTInfo{
+	_ *apicontext.Request[*apicontext.DefaultContext],
+) (jwt.Entry, error) {
+	return jwt.Entry{
 		Client:     apiKeyEntryData.ClientName,
 		Key:        apiKeyEntryData.ClientId,
 		Expiration: apiKeyEntryData.Expiration,
@@ -66,12 +66,12 @@ func (l *loginServiceImpl) GetApiJWTInfo(apiKeyEntryData server.ApiKeyEntryData,
 	}, nil
 }
 
-func (l *loginServiceImpl) OnGenerated(data security.JwtResponse,
-	apiJWTInfo security.ApiJWTInfo,
+func (l *loginServiceImpl) OnGenerated(data jwt.Response,
+	jwtEntry jwt.Entry,
 	ctx apicontext.SampleContext[*apicontext.DefaultContext],
 ) {
-	mockStore[apiJWTInfo.Key] = *apiJWTInfo.PublicKey
-	log.Printf("%s - %s", apiJWTInfo.Key, data.Token)
+	mockStore[jwtEntry.Key] = *jwtEntry.PublicKey
+	log.Printf("%s - %s", jwtEntry.Key, data.Token)
 	log.Printf("API KEY GENERATED: from %s - %v", ctx.AccessId, data)
 }
 
@@ -89,14 +89,14 @@ func (l *loginServiceImpl) TokenDuration() time.Duration {
 
 type secretProviderImpl []struct{}
 
-func (s *secretProviderImpl) Get(ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) (string, error) {
+func (s *secretProviderImpl) Get(ctx *apicontext.Request[*apicontext.DefaultContext]) (string, error) {
 	return mockStore[ctx.ApiKeyId], nil
 }
 
 type principalServiceImpl struct {
 }
 
-func (d *principalServiceImpl) LoadPrincipal(ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) bool {
+func (d *principalServiceImpl) LoadPrincipal(ctx *apicontext.Request[*apicontext.DefaultContext]) bool {
 	if ctx.Authorization == "" {
 		return false
 
@@ -111,7 +111,7 @@ func (d *principalServiceImpl) LoadPrincipal(ctx *apicontext.ApiRequestContext[*
 type errorHandlerImpl struct {
 }
 
-func (p *errorHandlerImpl) Handler(ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext], _ error, source string) {
+func (p *errorHandlerImpl) Handler(ctx *apicontext.Request[*apicontext.DefaultContext], _ error, source string) {
 	if source == server.ErrorHandlerWrapper {
 		ctx.InternalServerError("Internal server error")
 	}
@@ -124,35 +124,35 @@ func (p *errorHandlerImpl) Handler(ctx *apicontext.ApiRequestContext[*apicontext
 type _petService struct {
 }
 
-func (s *_petService) AddPetRequest(requestBody gen.Pet, ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) {
+func (s *_petService) AddPetRequest(requestBody gen.Pet, ctx *apicontext.Request[*apicontext.DefaultContext]) {
 	ctx.Response(requestBody, http.StatusOK)
 }
 
-func (s *_petService) UpdatePetRequest(requestBody gen.Pet, ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) {
+func (s *_petService) UpdatePetRequest(requestBody gen.Pet, ctx *apicontext.Request[*apicontext.DefaultContext]) {
 	ctx.Response(requestBody, http.StatusOK)
 }
 
-func (s *_petService) FindPetsByStatusRequest(ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) {
+func (s *_petService) FindPetsByStatusRequest(ctx *apicontext.Request[*apicontext.DefaultContext]) {
 	message := "Pet not found"
 	ctx.NotFount(baseResponse(message, http.StatusNotFound))
 }
 
-func (s *_petService) FindPetsByTagsRequest(ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) {
+func (s *_petService) FindPetsByTagsRequest(ctx *apicontext.Request[*apicontext.DefaultContext]) {
 	message := "Pet not found"
 	ctx.NotFount(baseResponse(message, http.StatusNotFound))
 }
 
-func (s *_petService) DeletePetRequest(ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) {
+func (s *_petService) DeletePetRequest(ctx *apicontext.Request[*apicontext.DefaultContext]) {
 	message := "Pet not found"
 	ctx.NotFount(baseResponse(message, http.StatusNotFound))
 }
 
-func (s *_petService) GetPetByIdRequest(ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) {
+func (s *_petService) GetPetByIdRequest(ctx *apicontext.Request[*apicontext.DefaultContext]) {
 	message := "Pet not found"
 	ctx.NotFount(baseResponse(message, http.StatusNotFound))
 }
 
-func (s *_petService) UpdatePetWithFormRequest(ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) {
+func (s *_petService) UpdatePetWithFormRequest(ctx *apicontext.Request[*apicontext.DefaultContext]) {
 	message := "Pet not found"
 	ctx.NotFount(baseResponse(message, http.StatusNotFound))
 }
@@ -160,56 +160,56 @@ func (s *_petService) UpdatePetWithFormRequest(ctx *apicontext.ApiRequestContext
 type _userService struct {
 }
 
-func (s *_userService) PostLoginRequest(requestBody gen.LoginRequest, ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) {
+func (s *_userService) PostLoginRequest(requestBody gen.LoginRequest, ctx *apicontext.Request[*apicontext.DefaultContext]) {
 }
 
-func (s *_userService) CreateUserRequest(requestBody gen.User, ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) {
+func (s *_userService) CreateUserRequest(requestBody gen.User, ctx *apicontext.Request[*apicontext.DefaultContext]) {
 	ctx.Ok(requestBody)
 }
 
-func (s *_userService) CreateUsersWithListInputRequest(requestBody gen.CreateUsersWithListInputJSONBody, ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) {
+func (s *_userService) CreateUsersWithListInputRequest(requestBody gen.CreateUsersWithListInputJSONBody, ctx *apicontext.Request[*apicontext.DefaultContext]) {
 	ctx.Ok(requestBody)
 }
 
-func (s *_userService) LogoutUserRequest(ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) {
+func (s *_userService) LogoutUserRequest(ctx *apicontext.Request[*apicontext.DefaultContext]) {
 	ctx.Ok(baseResponse("Logout successful", http.StatusOK))
 }
 
-func (s *_userService) DeleteUserRequest(ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) {
+func (s *_userService) DeleteUserRequest(ctx *apicontext.Request[*apicontext.DefaultContext]) {
 	ctx.Ok(baseResponse("User deleted", http.StatusOK))
 }
 
-func (s *_userService) GetUserByNameRequest(ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) {
+func (s *_userService) GetUserByNameRequest(ctx *apicontext.Request[*apicontext.DefaultContext]) {
 	ctx.NotFount(baseResponse("User not found", http.StatusNotFound))
 }
 
-func (s *_userService) UpdateUserRequest(requestBody gen.User, ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) {
+func (s *_userService) UpdateUserRequest(requestBody gen.User, ctx *apicontext.Request[*apicontext.DefaultContext]) {
 	ctx.Ok(requestBody)
 }
 
 type _fileService struct {
 }
 
-func (s *_fileService) UploadFileRequest(ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) {
+func (s *_fileService) UploadFileRequest(ctx *apicontext.Request[*apicontext.DefaultContext]) {
 	ctx.BadRequest("Failed to upload file")
 }
 
 type _inventoryService struct {
 }
 
-func (s *_inventoryService) GetInventoryRequest(ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) {
+func (s *_inventoryService) GetInventoryRequest(ctx *apicontext.Request[*apicontext.DefaultContext]) {
 	ctx.NotFount(baseResponse("Inventory not found", http.StatusNotFound))
 }
 
-func (s *_inventoryService) PlaceOrderRequest(requestBody gen.Order, ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) {
+func (s *_inventoryService) PlaceOrderRequest(requestBody gen.Order, ctx *apicontext.Request[*apicontext.DefaultContext]) {
 	ctx.Response(requestBody, http.StatusOK)
 }
 
-func (s *_inventoryService) DeleteOrderRequest(ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) {
+func (s *_inventoryService) DeleteOrderRequest(ctx *apicontext.Request[*apicontext.DefaultContext]) {
 	ctx.Ok(baseResponse("Order deleted", http.StatusOK))
 }
 
-func (s *_inventoryService) GetOrderByIdRequest(ctx *apicontext.ApiRequestContext[*apicontext.DefaultContext]) {
+func (s *_inventoryService) GetOrderByIdRequest(ctx *apicontext.Request[*apicontext.DefaultContext]) {
 	ctx.NotFount(baseResponse("Order not found", http.StatusNotFound))
 }
 
@@ -221,9 +221,9 @@ type _service struct {
 }
 
 var (
-	userPrincipalService principal.PService[*apicontext.DefaultContext]           = &principalServiceImpl{}
-	errorHandler         errorhandler.ApiErrorHandler[*apicontext.DefaultContext] = &errorHandlerImpl{}
-	securityService                                                               = security.ApiSecurityServiceBuild(
+	userPrincipalService principal.Service[*apicontext.DefaultContext]       = &principalServiceImpl{}
+	errorHandler         errorhandler.ApiHandler[*apicontext.DefaultContext] = &errorHandlerImpl{}
+	securityService                                                          = security.ServiceBuild(
 		"ue1pUOtCGaYS7Z1DLJ80nFtZ",
 		userPrincipalService,
 	)

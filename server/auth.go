@@ -15,14 +15,14 @@ type LoginEntryData struct {
 	Email    string `json:"email"`
 }
 
-type LoginService[T apicontext.ApiPrincipalContext] interface {
+type LoginService[T apicontext.Principal] interface {
 	// SecurityService returns an instance of ApiSecurityService responsible for providing security-related operations.
 	// This includes handling encryption, decryption, JWT generation, claim extraction, and authorization processes.
 	// It ensures the necessary security mechanisms are available in the context of the LoginService.
 	//
 	// Returns:
-	//   - security.ApiSecurityService[T]: The security service instance associated with the implementing service.
-	SecurityService() security.ApiSecurityService[T]
+	//   - security.Service[T]: The security service instance associated with the implementing service.
+	SecurityService() security.Service[T]
 
 	// Login processes the login request for the specified user by validating their credentials.
 	// It authenticates the user based on the provided login data and returns an authenticated principal context or an error.
@@ -58,15 +58,15 @@ type LoginService[T apicontext.ApiPrincipalContext] interface {
 	IsValidPassword(loginEntryData LoginEntryData, principal T) bool
 }
 
-func (a *apiRouterHandlerImpl[T]) Login(ctx *apicontext.ApiRequestContext[T]) {
+func (a *apiRouterHandlerImpl[T]) Login(ctx *apicontext.Request[T]) {
 	GetRequestBody(ctx, LoginEntryData{}, a.loginDataHandler, FailedToLoadBody[T])
 }
 
-func (a *apiRouterHandlerImpl[T]) ApiKeyGenerator(ctx *apicontext.ApiRequestContext[T]) {
+func (a *apiRouterHandlerImpl[T]) ApiKeyGenerator(ctx *apicontext.Request[T]) {
 	GetRequestBody(ctx, ApiKeyEntryData{}, a.apiKeyGeneratorDataHandler, FailedToLoadBody[T])
 }
 
-func (a *apiRouterHandlerImpl[T]) loginDataHandler(ctx *apicontext.ApiRequestContext[T], loginEntryData LoginEntryData) {
+func (a *apiRouterHandlerImpl[T]) loginDataHandler(ctx *apicontext.Request[T], loginEntryData LoginEntryData) {
 
 	errorhandler.Handler(func() {
 		loginService := a.loginService
@@ -111,9 +111,9 @@ func (a *apiRouterHandlerImpl[T]) loginDataHandler(ctx *apicontext.ApiRequestCon
 // DefaultPasswordValidator is a generic type responsible for validating user passwords
 // against their stored encrypted counterparts in principal contexts.
 //
-// T represents a type that implements the ApiPrincipalContext interface.
+// T represents a type that implements the Principal interface.
 // It ensures that the principal context contains methods to retrieve the encrypted password and other details.
-type DefaultPasswordValidator[T apicontext.ApiPrincipalContext] struct {
+type DefaultPasswordValidator[T apicontext.Principal] struct {
 }
 
 func (a *DefaultPasswordValidator[T]) IsValidPassword(loginEntryData LoginEntryData, principal T) bool {

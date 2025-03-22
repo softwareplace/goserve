@@ -16,12 +16,12 @@ import (
 	"time"
 )
 
-type apiRouterHandlerImpl[T apicontext.ApiPrincipalContext] struct {
+type apiRouterHandlerImpl[T apicontext.Principal] struct {
 	router                              *mux.Router
-	principalService                    principal.PService[T]
-	errorHandler                        errorhandler.ApiErrorHandler[T]
+	principalService                    principal.Service[T]
+	errorHandler                        errorhandler.ApiHandler[T]
 	loginService                        LoginService[T]
-	apiSecurityService                  security.ApiSecurityService[T]
+	apiSecurityService                  security.Service[T]
 	apiSecretAccessHandler              security.ApiSecretAccessHandler[T]
 	apiKeyGeneratorService              ApiKeyGeneratorService[T]
 	server                              *http.Server // Add a server instance

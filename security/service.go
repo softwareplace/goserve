@@ -50,7 +50,7 @@ type impl[T apicontext.Principal] struct {
 func New[T apicontext.Principal](
 	apiSecretAuthorization string,
 	service principal.Service[T],
-	errorHandler errorhandler.ApiErrorHandler[T],
+	errorHandler errorhandler.ApiHandler[T],
 ) Service[T] {
 	return &impl[T]{
 		jwt.New(service, apiSecretAuthorization, errorHandler),

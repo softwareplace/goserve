@@ -7,7 +7,7 @@ import (
 
 // GetSessionId retrieves the unique identifier for the current API session.
 // This session ID is used for tracking the lifecycle of requests in a session.
-func (ctx *ApiRequestContext[T]) GetSessionId() string {
+func (ctx *Request[T]) GetSessionId() string {
 	return ctx.sessionId
 }
 
@@ -19,7 +19,7 @@ func (ctx *ApiRequestContext[T]) GetSessionId() string {
 //
 // Returns:
 //   - The first value of the query parameter or an empty string if it does not exist.
-func (ctx *ApiRequestContext[T]) QueryOf(key string) string {
+func (ctx *Request[T]) QueryOf(key string) string {
 	if len(ctx.QueryValues[key]) > 0 {
 		return ctx.QueryValues[key][0]
 	}
@@ -34,7 +34,7 @@ func (ctx *ApiRequestContext[T]) QueryOf(key string) string {
 //
 // Returns:
 //   - A slice of strings containing all values of the query parameter or an empty slice if it does not exist.
-func (ctx *ApiRequestContext[T]) QueriesOf(key string) []string {
+func (ctx *Request[T]) QueriesOf(key string) []string {
 	return ctx.QueryValues[key]
 }
 
@@ -47,7 +47,7 @@ func (ctx *ApiRequestContext[T]) QueriesOf(key string) []string {
 //
 // Returns:
 //   - A slice of strings containing all values of the query parameter or the default values.
-func (ctx *ApiRequestContext[T]) QueriesOfElse(key string, defaultQueries []string) []string {
+func (ctx *Request[T]) QueriesOfElse(key string, defaultQueries []string) []string {
 	if len(ctx.QueryValues[key]) > 0 {
 		return ctx.QueryValues[key]
 	}
@@ -63,7 +63,7 @@ func (ctx *ApiRequestContext[T]) QueriesOfElse(key string, defaultQueries []stri
 //
 // Returns:
 //   - The first value of the query parameter or the default value.
-func (ctx *ApiRequestContext[T]) QueryOfOrElse(key string, defaultQuery string) string {
+func (ctx *Request[T]) QueryOfOrElse(key string, defaultQuery string) string {
 	if len(ctx.QueryValues[key]) > 0 {
 		return ctx.QueryValues[key][0]
 	}
@@ -78,7 +78,7 @@ func (ctx *ApiRequestContext[T]) QueryOfOrElse(key string, defaultQuery string) 
 //
 // Returns:
 //   - A slice of strings containing all values of the header or an empty slice if it does not exist.
-func (ctx *ApiRequestContext[T]) HeadersOf(key string) []string {
+func (ctx *Request[T]) HeadersOf(key string) []string {
 	return ctx.Headers[key]
 }
 
@@ -90,7 +90,7 @@ func (ctx *ApiRequestContext[T]) HeadersOf(key string) []string {
 //
 // Returns:
 //   - The first value of the header or an empty string if it does not exist.
-func (ctx *ApiRequestContext[T]) HeaderOf(key string) string {
+func (ctx *Request[T]) HeaderOf(key string) string {
 	if len(ctx.Headers[key]) > 0 {
 		return ctx.Headers[key][0]
 	}
@@ -106,7 +106,7 @@ func (ctx *ApiRequestContext[T]) HeaderOf(key string) string {
 //
 // Returns:
 //   - A slice of strings containing all values of the header or the default values.
-func (ctx *ApiRequestContext[T]) HeadersOfOrElse(key string, defaultHeaders []string) []string {
+func (ctx *Request[T]) HeadersOfOrElse(key string, defaultHeaders []string) []string {
 	if len(ctx.Headers[key]) > 0 {
 		return ctx.Headers[key]
 	}
@@ -122,7 +122,7 @@ func (ctx *ApiRequestContext[T]) HeadersOfOrElse(key string, defaultHeaders []st
 //
 // Returns:
 //   - The first value of the header or the default value.
-func (ctx *ApiRequestContext[T]) HeaderOfOrElse(key string, defaultHeader string) string {
+func (ctx *Request[T]) HeaderOfOrElse(key string, defaultHeader string) string {
 	if len(ctx.Headers[key]) > 0 {
 		return ctx.Headers[key][0]
 	}
@@ -137,7 +137,7 @@ func (ctx *ApiRequestContext[T]) HeaderOfOrElse(key string, defaultHeader string
 //
 // Returns:
 //   - The value of the path variable or an empty string if it does not exist.
-func (ctx *ApiRequestContext[T]) PathValuesOf(key string) string {
+func (ctx *Request[T]) PathValuesOf(key string) string {
 	return ctx.PathValues[key]
 }
 
@@ -149,7 +149,7 @@ func (ctx *ApiRequestContext[T]) PathValuesOf(key string) string {
 //
 // Returns:
 //   - The value of the form field or an empty string if it does not exist.
-func (ctx *ApiRequestContext[T]) FormValue(name string) any {
+func (ctx *Request[T]) FormValue(name string) any {
 	return ctx.Request.FormValue(name)
 }
 
@@ -163,7 +163,7 @@ func (ctx *ApiRequestContext[T]) FormValue(name string) any {
 //   - multipart.File: The file object, or nil if an error occurs.
 //   - *multipart.FileHeader: The file header, or nil if an error occurs.
 //   - error: An error, if one occurs while retrieving the file.
-func (ctx *ApiRequestContext[T]) FormFile(name string) (multipart.File, *multipart.FileHeader, error) {
+func (ctx *Request[T]) FormFile(name string) (multipart.File, *multipart.FileHeader, error) {
 	file, fileHeader, err := ctx.Request.FormFile("resource")
 	if err != nil {
 		return nil, nil, err
@@ -187,6 +187,6 @@ func (ctx *ApiRequestContext[T]) FormFile(name string) (multipart.File, *multipa
 //
 // Returns:
 //   - error: An error if parsing fails.
-func (ctx *ApiRequestContext[T]) ParseMultipartForm(maxMemory int64) error {
+func (ctx *Request[T]) ParseMultipartForm(maxMemory int64) error {
 	return ctx.Request.ParseMultipartForm(maxMemory)
 }
