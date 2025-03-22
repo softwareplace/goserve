@@ -1,4 +1,8 @@
+update:
+	@go mod tidy
+
 impl_test:
+	@make update
 	@go test ./...
 
 server-test:

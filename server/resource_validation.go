@@ -1,9 +1,9 @@
 package server
 
 import (
+	log "github.com/sirupsen/logrus"
 	"github.com/softwareplace/http-utils/api_context"
 	"github.com/softwareplace/http-utils/security/principal"
-	"log"
 	"net/http"
 	"strings"
 )

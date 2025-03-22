@@ -5,9 +5,9 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
+	log "github.com/sirupsen/logrus"
 	"github.com/softwareplace/http-utils/api_context"
 	"github.com/softwareplace/http-utils/security/principal"
-	"log"
 	"net/http"
 	"os"
 )

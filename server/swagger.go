@@ -3,10 +3,10 @@ package server
 import (
 	"fmt"
 	"github.com/getkin/kin-openapi/openapi3"
+	log "github.com/sirupsen/logrus"
 	"github.com/softwareplace/http-utils/api_context"
 	"github.com/softwareplace/http-utils/security/principal"
 	httpSwagger "github.com/swaggo/http-swagger"
-	"log"
 	"os"
 	"strings"
 )

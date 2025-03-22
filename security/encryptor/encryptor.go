@@ -3,8 +3,8 @@ package encryptor
 import (
 	"crypto/rand"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
-	"log"
 	"math/big"
 	"os"
 	"strconv"

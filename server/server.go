@@ -4,11 +4,11 @@ import (
 	"context"
 	"errors"
 	"github.com/gorilla/mux"
+	log "github.com/sirupsen/logrus"
 	"github.com/softwareplace/http-utils/api_context"
 	"github.com/softwareplace/http-utils/error_handler"
 	"github.com/softwareplace/http-utils/security"
 	"github.com/softwareplace/http-utils/security/principal"
-	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -49,7 +49,7 @@ func apiPort() string {
 
 func (a *apiRouterHandlerImpl[T]) NotFoundHandler() ApiRouterHandler[T] {
 	a.router.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("404 page not found: %s", r.URL.Path)
+		log.Errorf("404 page not found: %s", r.URL.Path)
 
 		if r.Method == "GET" {
 			swaggerPath := strings.TrimSuffix(a.contextPath, "/") + "/swagger"
@@ -62,7 +62,7 @@ func (a *apiRouterHandlerImpl[T]) NotFoundHandler() ApiRouterHandler[T] {
 			}
 		}
 
-		log.Printf("Returning 404 page not found: %s", r.URL.Path)
+		log.Warnf("Returning 404 page not found: %s", r.URL.Path)
 		http.Error(w, "404 page not found", http.StatusNotFound)
 	})
 	return a
@@ -70,7 +70,7 @@ func (a *apiRouterHandlerImpl[T]) NotFoundHandler() ApiRouterHandler[T] {
 
 func (a *apiRouterHandlerImpl[T]) goToSwaggerUi(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, a.contextPath+"swagger/index.html", http.StatusMovedPermanently)
-	log.Printf("Redirecting to swagger: %s", r.URL.Path)
+	log.Infof("Redirecting to swagger: %s", r.URL.Path)
 }
 
 func (a *apiRouterHandlerImpl[T]) CustomNotFoundHandler(handler func(w http.ResponseWriter, r *http.Request)) ApiRouterHandler[T] {
@@ -108,7 +108,7 @@ func (a *apiRouterHandlerImpl[T]) StartServerInGoroutine() ApiRouterHandler[T] {
 		Handler: a.router,
 	}
 
-	log.Printf("Server started at http://localhost%s%s", addr, a.contextPath)
+	log.Infof("Server started at http://localhost%s%s", addr, a.contextPath)
 
 	// Start the server in a goroutine
 	go func() {
@@ -130,7 +130,7 @@ func (a *apiRouterHandlerImpl[T]) StartServer() {
 	}
 
 	addr := a.getAddr()
-	log.Printf("Server started at http://localhost%s%s", addr, a.contextPath)
+	log.Infof("Server started at http://localhost%s%s", addr, a.contextPath)
 	log.Fatal(http.ListenAndServe(addr, a.router))
 
 }
@@ -154,7 +154,7 @@ func (a *apiRouterHandlerImpl[T]) StopServer() error {
 		return nil // Server is not running
 	}
 
-	log.Println("Shutting down server...")
+	log.Infof("Shutting down server...")
 
 	// Create a context with a timeout for graceful shutdown
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -162,7 +162,7 @@ func (a *apiRouterHandlerImpl[T]) StopServer() error {
 
 	// Attempt to shut down the server
 	if err := a.server.Shutdown(ctx); err != nil {
-		log.Printf("Server shutdown error: %v", err)
+		log.Errorf("Server shutdown failed: %v", err)
 		return err
 	}
 

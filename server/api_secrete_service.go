@@ -5,10 +5,10 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
+	log "github.com/sirupsen/logrus"
 	"github.com/softwareplace/http-utils/api_context"
 	"github.com/softwareplace/http-utils/error_handler"
 	"github.com/softwareplace/http-utils/security"
-	"log"
 	"os"
 	"time"
 )
@@ -69,12 +69,12 @@ type ApiKeyGeneratorService[T api_context.ApiPrincipalContext] interface {
 
 func (a *apiRouterHandlerImpl[T]) apiKeyGeneratorDataHandler(ctx *api_context.ApiRequestContext[T], apiKeyEntryData ApiKeyEntryData) {
 	error_handler.Handler(func() {
-		log.Printf("API/KEY/GENERATOR: requested by: %s", ctx.AccessId)
+		log.Infof("API/KEY/GENERATOR: requested by: %s", ctx.AccessId)
 
 		jwtInfo, err := a.apiKeyGeneratorService.GetApiJWTInfo(apiKeyEntryData, ctx)
 
 		if err != nil {
-			log.Printf("API/KEY/GENERATOR: Failed to generate JWT: %v", err)
+			log.Errorf("API/KEY/GENERATOR: Failed to generate JWT: %v", err)
 			ctx.InternalServerError("Failed to generate JWT. Please try again later.")
 			return
 		}
@@ -82,7 +82,7 @@ func (a *apiRouterHandlerImpl[T]) apiKeyGeneratorDataHandler(ctx *api_context.Ap
 		if jwtInfo.PublicKey == nil || *jwtInfo.PublicKey == "" {
 			key, err := a.generatePubKey(a.apiSecretAccessHandler.SecretKey())
 			if err != nil {
-				log.Printf("API/KEY/GENERATOR: Failed to generate public key: %v", err)
+				log.Errorf("API/KEY/GENERATOR: Failed to generate public key: %v", err)
 				ctx.InternalServerError("Failed to generate JWT. Please try again later.")
 				return
 			}
@@ -94,7 +94,7 @@ func (a *apiRouterHandlerImpl[T]) apiKeyGeneratorDataHandler(ctx *api_context.Ap
 		jwt, err := a.apiSecurityService.GenerateApiSecretJWT(jwtInfo)
 
 		if err != nil {
-			log.Printf("API/KEY/GENERATOR: Failed to generate JWT: %v", err)
+			log.Errorf("API/KEY/GENERATOR: Failed to generate JWT: %v", err)
 			ctx.InternalServerError("Failed to generate JWT. Please try again later.")
 			return
 		}
@@ -103,7 +103,7 @@ func (a *apiRouterHandlerImpl[T]) apiKeyGeneratorDataHandler(ctx *api_context.Ap
 
 		a.apiKeyGeneratorService.OnGenerated(*jwt, jwtInfo, ctx.GetSample())
 	}, func(err error) {
-		log.Printf("API/KEY/GENERATOR/HANDLER: Failed to handle request: %v", err)
+		log.Errorf("API/KEY/GENERATOR/HANDLER: Failed to handle request: %v", err)
 		ctx.InternalServerError("Failed to generate JWT. Please try again later.")
 	})
 }
