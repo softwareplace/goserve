@@ -5,6 +5,7 @@ import (
 	apicontext "github.com/softwareplace/http-utils/context"
 	errorhandler "github.com/softwareplace/http-utils/error"
 	"github.com/softwareplace/http-utils/internal/test/gen"
+	"github.com/softwareplace/http-utils/logger"
 	"github.com/softwareplace/http-utils/security"
 	"github.com/softwareplace/http-utils/security/encryptor"
 	"github.com/softwareplace/http-utils/security/jwt"
@@ -220,6 +221,12 @@ type _service struct {
 	_petService
 	_fileService
 	_inventoryService
+}
+
+func init() {
+	logger.LogReportCaller = true
+	logger.LogSetup()
+
 }
 
 var (

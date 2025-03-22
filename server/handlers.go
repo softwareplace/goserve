@@ -1,6 +1,7 @@
 package server
 
 import (
+	log "github.com/sirupsen/logrus"
 	apicontext "github.com/softwareplace/http-utils/context"
 	errorhandler "github.com/softwareplace/http-utils/error"
 	"net/http"
@@ -17,6 +18,7 @@ func (a *apiRouterHandlerImpl[T]) errorHandlerWrapper(next http.Handler) http.Ha
 			if a.errorHandler != nil {
 				a.errorHandler.Handler(ctx, err, ErrorHandlerWrapper)
 			} else {
+				log.Errorf("Error processing request: %+v", err)
 				ctx.Error("Failed to handle the request", http.StatusInternalServerError)
 			}
 		})

@@ -132,9 +132,8 @@ type Service[T apicontext.Principal] interface {
 
 type serviceImpl[T apicontext.Principal] struct {
 	encryptor.Service
-	PService               principal.Service[T]
-	ApiSecretAuthorization string
-	ErrorHandler           errorhandler.ApiHandler[T]
+	PService     principal.Service[T]
+	ErrorHandler errorhandler.ApiHandler[T]
 }
 
 func New[T apicontext.Principal](
@@ -143,8 +142,8 @@ func New[T apicontext.Principal](
 	errorHandler errorhandler.ApiHandler[T],
 ) Service[T] {
 	return &serviceImpl[T]{
-		PService:               pService,
-		ApiSecretAuthorization: apiSecretAuthorization,
-		ErrorHandler:           errorHandler,
+		Service:      encryptor.New([]byte(apiSecretAuthorization)),
+		PService:     pService,
+		ErrorHandler: errorHandler,
 	}
 }

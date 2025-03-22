@@ -84,11 +84,6 @@ func (a *serviceImpl[T]) JWTClaims(ctx *apicontext.Request[T]) (map[string]inter
 	return nil, fmt.Errorf("failed to extract jwt claims")
 }
 
-func (a *serviceImpl[T]) Secret() []byte {
-	secret := a.ApiSecretAuthorization
-	return []byte(secret)
-}
-
 func (a *serviceImpl[T]) GenerateJWT(data T, duration time.Duration) (*Response, error) {
 	expiration := time.Now().Add(duration).Unix()
 	requestBy, err := a.Encrypt(data.GetId())
