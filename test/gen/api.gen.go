@@ -580,7 +580,7 @@ type requestHandlerImpl[T apicontext.ApiPrincipalContext] struct {
 // that has already been generated to bind specific API routes
 // dynamically at runtime, based on the provided security definitions
 // and endpoint configurations.
-func ResourcesHandler[T apicontext.ApiPrincipalContext](apiServer server.ApiRouterHandler[T], service ServiceRequestHandler[T]) {
+func ResourcesHandler[T apicontext.ApiPrincipalContext](apiServer server.Api[T], service ServiceRequestHandler[T]) {
 	handler := &requestHandlerImpl[T]{
 		Service: service,
 	}
@@ -598,7 +598,7 @@ func ResourcesHandler[T apicontext.ApiPrincipalContext](apiServer server.ApiRout
 // Generics:
 //   - T: A type that satisfies the context.ApiPrincipalContext interface, representing the principal/context
 //     involved in the API operations.
-func ApiResourceRegister[T apicontext.ApiPrincipalContext](apiServer server.ApiRouterHandler[T], handler RequestHandler[T]) {
+func ApiResourceRegister[T apicontext.ApiPrincipalContext](apiServer server.Api[T], handler RequestHandler[T]) {
 	// Initialize an empty string for the merged scopes.
 	apiServer.PublicRouter(handler.PostLogin, "/login", "POST")
 
@@ -658,8 +658,8 @@ func ApiResourceRegister[T apicontext.ApiPrincipalContext](apiServer server.ApiR
 
 }
 
-func ApiResourceHandler[T apicontext.ApiPrincipalContext](service ServiceRequestHandler[T]) func(handler server.ApiRouterHandler[T]) {
-	return func(handler server.ApiRouterHandler[T]) {
+func ApiResourceHandler[T apicontext.ApiPrincipalContext](service ServiceRequestHandler[T]) func(handler server.Api[T]) {
+	return func(handler server.Api[T]) {
 		ResourcesHandler(handler, service)
 	}
 }

@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func (a *apiRouterHandlerImpl[T]) RegisterMiddleware(middleware ApiMiddleware[T], name string) ApiRouterHandler[T] {
+func (a *apiRouterHandlerImpl[T]) RegisterMiddleware(middleware ApiMiddleware[T], name string) Api[T] {
 	a.router.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := apicontext.Of[T](w, r, name)
@@ -21,17 +21,17 @@ func (a *apiRouterHandlerImpl[T]) RegisterMiddleware(middleware ApiMiddleware[T]
 	return a
 }
 
-func (a *apiRouterHandlerImpl[T]) RegisterCustomMiddleware(middleware func(next http.Handler) http.Handler) ApiRouterHandler[T] {
+func (a *apiRouterHandlerImpl[T]) RegisterCustomMiddleware(middleware func(next http.Handler) http.Handler) Api[T] {
 	a.router.Use(middleware)
 	return a
 }
 
-func (a *apiRouterHandlerImpl[T]) ErrorHandler(handler errorhandler.ApiErrorHandler[T]) ApiRouterHandler[T] {
+func (a *apiRouterHandlerImpl[T]) ErrorHandler(handler errorhandler.ApiErrorHandler[T]) Api[T] {
 	a.errorHandler = handler
 	return a
 }
 
-func (a *apiRouterHandlerImpl[T]) LoginResource(loginService LoginService[T]) ApiRouterHandler[T] {
+func (a *apiRouterHandlerImpl[T]) LoginResource(loginService LoginService[T]) Api[T] {
 	a.loginService = loginService
 	if a.loginResourceEnable {
 		a.PublicRouter(a.Login, "login", "POST")
@@ -39,7 +39,7 @@ func (a *apiRouterHandlerImpl[T]) LoginResource(loginService LoginService[T]) Ap
 	return a
 }
 
-func (a *apiRouterHandlerImpl[T]) ApiKeyGeneratorResource(apiKeyGeneratorService ApiKeyGeneratorService[T]) ApiRouterHandler[T] {
+func (a *apiRouterHandlerImpl[T]) ApiKeyGeneratorResource(apiKeyGeneratorService ApiKeyGeneratorService[T]) Api[T] {
 	a.apiKeyGeneratorService = apiKeyGeneratorService
 	if a.apiSecretKeyGeneratorResourceEnable {
 		a.Post(a.ApiKeyGenerator, "api-key/generate", "POST", strings.Join(apiKeyGeneratorService.RequiredScopes(), " "))
@@ -47,17 +47,17 @@ func (a *apiRouterHandlerImpl[T]) ApiKeyGeneratorResource(apiKeyGeneratorService
 	return a
 }
 
-func (a *apiRouterHandlerImpl[T]) ApiSecretKeyGeneratorResourceEnabled(enable bool) ApiRouterHandler[T] {
+func (a *apiRouterHandlerImpl[T]) ApiSecretKeyGeneratorResourceEnabled(enable bool) Api[T] {
 	a.apiSecretKeyGeneratorResourceEnable = enable
 	return a
 }
 
-func (a *apiRouterHandlerImpl[T]) LoginResourceEnabled(enable bool) ApiRouterHandler[T] {
+func (a *apiRouterHandlerImpl[T]) LoginResourceEnabled(enable bool) Api[T] {
 	a.loginResourceEnable = enable
 	return a
 }
 
-func (a *apiRouterHandlerImpl[T]) PrincipalService(service principal.PService[T]) ApiRouterHandler[T] {
+func (a *apiRouterHandlerImpl[T]) PrincipalService(service principal.PService[T]) Api[T] {
 	a.principalService = service
 	if a.principalService != nil {
 		a.router.Use(a.hasResourceAccess)
@@ -73,12 +73,12 @@ func (a *apiRouterHandlerImpl[T]) Router() *mux.Router {
 	return a.router
 }
 
-func (a *apiRouterHandlerImpl[T]) RouterHandler(handler RouterHandler) ApiRouterHandler[T] {
+func (a *apiRouterHandlerImpl[T]) RouterHandler(handler RouterHandler) Api[T] {
 	handler(a.router)
 	return a
 }
 
-func (a *apiRouterHandlerImpl[T]) EmbeddedServer(handler func(ApiRouterHandler[T])) ApiRouterHandler[T] {
+func (a *apiRouterHandlerImpl[T]) EmbeddedServer(handler func(Api[T])) Api[T] {
 	handler(a)
 	return a
 }

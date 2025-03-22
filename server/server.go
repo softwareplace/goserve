@@ -47,7 +47,7 @@ func apiPort() string {
 	return "8080"
 }
 
-func (a *apiRouterHandlerImpl[T]) NotFoundHandler() ApiRouterHandler[T] {
+func (a *apiRouterHandlerImpl[T]) NotFoundHandler() Api[T] {
 	a.router.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Errorf("404 page not found: %s", r.URL.Path)
 
@@ -73,22 +73,22 @@ func (a *apiRouterHandlerImpl[T]) goToSwaggerUi(w http.ResponseWriter, r *http.R
 	log.Infof("Redirecting to swagger: %s", r.URL.Path)
 }
 
-func (a *apiRouterHandlerImpl[T]) CustomNotFoundHandler(handler func(w http.ResponseWriter, r *http.Request)) ApiRouterHandler[T] {
+func (a *apiRouterHandlerImpl[T]) CustomNotFoundHandler(handler func(w http.ResponseWriter, r *http.Request)) Api[T] {
 	a.router.NotFoundHandler = http.HandlerFunc(handler)
 	return a
 }
 
-func (a *apiRouterHandlerImpl[T]) Port(port string) ApiRouterHandler[T] {
+func (a *apiRouterHandlerImpl[T]) Port(port string) Api[T] {
 	a.port = port
 	return a
 }
 
-func (a *apiRouterHandlerImpl[T]) ContextPath(contextPath string) ApiRouterHandler[T] {
+func (a *apiRouterHandlerImpl[T]) ContextPath(contextPath string) Api[T] {
 	a.contextPath = contextPath
 	return a
 }
 
-func (a *apiRouterHandlerImpl[T]) StartServerInGoroutine() ApiRouterHandler[T] {
+func (a *apiRouterHandlerImpl[T]) StartServerInGoroutine() Api[T] {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 

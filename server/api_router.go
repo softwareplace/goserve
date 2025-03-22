@@ -16,7 +16,7 @@ type ApiMiddleware[T apicontext.ApiPrincipalContext] func(*apicontext.ApiRequest
 
 type RouterHandler func(*mux.Router)
 
-type ApiRouterHandler[T apicontext.ApiPrincipalContext] interface {
+type Api[T apicontext.ApiPrincipalContext] interface {
 	// Port sets the port for the API router's server.
 	// This method allows specifying a custom port where the server will listen for incoming requests.
 	//
@@ -25,8 +25,8 @@ type ApiRouterHandler[T apicontext.ApiPrincipalContext] interface {
 	// Default:
 	//   - server.Port
 	// Returns:
-	//   - ApiRouterHandler[T]: The router handler for chaining further configurations.
-	Port(port string) ApiRouterHandler[T]
+	//   - Api[T]: The router handler for chaining further configurations.
+	Port(port string) Api[T]
 
 	// ContextPath sets the context path (base URL) for the API router.
 	// This method allows specifying a custom context path which will prefix all registered routes.
@@ -37,8 +37,8 @@ type ApiRouterHandler[T apicontext.ApiPrincipalContext] interface {
 	//   - server.ContextPath is sed by default
 	//   - Remember to call this before register any request handler
 	// Returns:
-	//   - ApiRouterHandler[T]: The router handler for chaining further configurations.
-	ContextPath(contextPath string) ApiRouterHandler[T]
+	//   - Api[T]: The router handler for chaining further configurations.
+	ContextPath(contextPath string) Api[T]
 
 	// PublicRouter registers a public route handler that does not require authentication or authorization.
 	// It allows unrestricted access from any client.
@@ -49,8 +49,8 @@ type ApiRouterHandler[T apicontext.ApiPrincipalContext] interface {
 	//   - method: The HTTP method for the route.
 	//
 	// Returns:
-	//   - ApiRouterHandler[T]: The router handler for chaining further route configurations.
-	PublicRouter(handler ApiContextHandler[T], path string, method string) ApiRouterHandler[T]
+	//   - Api[T]: The router handler for chaining further route configurations.
+	PublicRouter(handler ApiContextHandler[T], path string, method string) Api[T]
 
 	// Add registers a route handler with optional role-based access control.
 	// This method is used to define routes and assign roles required to access them.
@@ -62,8 +62,8 @@ type ApiRouterHandler[T apicontext.ApiPrincipalContext] interface {
 	//   - requiredRoles: A list of roles required to access the route (optional).
 	//
 	// Returns:
-	//   - ApiRouterHandler[T]: The router handler for chaining further route configurations.
-	Add(handler ApiContextHandler[T], path string, method string, requiredRoles ...string) ApiRouterHandler[T]
+	//   - Api[T]: The router handler for chaining further route configurations.
+	Add(handler ApiContextHandler[T], path string, method string, requiredRoles ...string) Api[T]
 
 	// Get registers a route handler specifically for HTTP GET requests with optional role-based access control.
 	//
@@ -73,8 +73,8 @@ type ApiRouterHandler[T apicontext.ApiPrincipalContext] interface {
 	//   - requiredRoles: A list of roles required to access the route (optional).
 	//
 	// Returns:
-	//   - ApiRouterHandler[T]: The router handler for chaining further route configurations.
-	Get(handler ApiContextHandler[T], path string, requiredRoles ...string) ApiRouterHandler[T]
+	//   - Api[T]: The router handler for chaining further route configurations.
+	Get(handler ApiContextHandler[T], path string, requiredRoles ...string) Api[T]
 
 	// Post registers a route handler specifically for HTTP POST requests with optional role-based access control.
 	//
@@ -84,8 +84,8 @@ type ApiRouterHandler[T apicontext.ApiPrincipalContext] interface {
 	//   - requiredRoles: A list of roles required to access the route (optional).
 	//
 	// Returns:
-	//   - ApiRouterHandler[T]: The router handler for chaining further route configurations.
-	Post(handler ApiContextHandler[T], path string, requiredRoles ...string) ApiRouterHandler[T]
+	//   - Api[T]: The router handler for chaining further route configurations.
+	Post(handler ApiContextHandler[T], path string, requiredRoles ...string) Api[T]
 
 	// Put registers a route handler specifically for HTTP PUT requests with optional role-based access control.
 	//
@@ -95,8 +95,8 @@ type ApiRouterHandler[T apicontext.ApiPrincipalContext] interface {
 	//   - requiredRoles: A list of roles required to access the route (optional).
 	//
 	// Returns:
-	//   - ApiRouterHandler[T]: The router handler for chaining further route configurations.
-	Put(handler ApiContextHandler[T], path string, requiredRoles ...string) ApiRouterHandler[T]
+	//   - Api[T]: The router handler for chaining further route configurations.
+	Put(handler ApiContextHandler[T], path string, requiredRoles ...string) Api[T]
 
 	// Delete registers a route handler specifically for HTTP DELETE requests with optional role-based access control.
 	//
@@ -106,8 +106,8 @@ type ApiRouterHandler[T apicontext.ApiPrincipalContext] interface {
 	//   - requiredRoles: A list of roles required to access the route (optional).
 	//
 	// Returns:
-	//   - ApiRouterHandler[T]: The router handler for chaining further route configurations.
-	Delete(handler ApiContextHandler[T], path string, requiredRoles ...string) ApiRouterHandler[T]
+	//   - Api[T]: The router handler for chaining further route configurations.
+	Delete(handler ApiContextHandler[T], path string, requiredRoles ...string) Api[T]
 
 	// Patch registers a route handler specifically for HTTP PATCH requests with optional role-based access control.
 	//
@@ -117,8 +117,8 @@ type ApiRouterHandler[T apicontext.ApiPrincipalContext] interface {
 	//   - requiredRoles: A list of roles required to access the route (optional).
 	//
 	// Returns:
-	//   - ApiRouterHandler[T]: The router handler for chaining further route configurations.
-	Patch(handler ApiContextHandler[T], path string, requiredRoles ...string) ApiRouterHandler[T]
+	//   - Api[T]: The router handler for chaining further route configurations.
+	Patch(handler ApiContextHandler[T], path string, requiredRoles ...string) Api[T]
 
 	// Options registers a route handler specifically for HTTP OPTIONS requests with optional role-based access control.
 	//
@@ -128,8 +128,8 @@ type ApiRouterHandler[T apicontext.ApiPrincipalContext] interface {
 	//   - requiredRoles: A list of roles required to access the route (optional).
 	//
 	// Returns:
-	//   - ApiRouterHandler[T]: The router handler for chaining further route configurations.
-	Options(handler ApiContextHandler[T], path string, requiredRoles ...string) ApiRouterHandler[T]
+	//   - Api[T]: The router handler for chaining further route configurations.
+	Options(handler ApiContextHandler[T], path string, requiredRoles ...string) Api[T]
 
 	// Head registers a route handler specifically for HTTP HEAD requests with optional role-based access control.
 	//
@@ -139,8 +139,8 @@ type ApiRouterHandler[T apicontext.ApiPrincipalContext] interface {
 	//   - requiredRoles: A list of roles required to access the route (optional).
 	//
 	// Returns:
-	//   - ApiRouterHandler[T]: The router handler for chaining further route configurations.
-	Head(handler ApiContextHandler[T], path string, requiredRoles ...string) ApiRouterHandler[T]
+	//   - Api[T]: The router handler for chaining further route configurations.
+	Head(handler ApiContextHandler[T], path string, requiredRoles ...string) Api[T]
 
 	// RegisterMiddleware adds a middleware function to the API router.
 	// Middleware intercepts requests and can perform tasks like authentication, logging, etc.
@@ -150,8 +150,8 @@ type ApiRouterHandler[T apicontext.ApiPrincipalContext] interface {
 	//   - name: The identifier for the middleware.
 	//
 	// Returns:
-	//   - ApiRouterHandler[T]: The router handler for chaining further route configurations.
-	RegisterMiddleware(middleware ApiMiddleware[T], name string) ApiRouterHandler[T]
+	//   - Api[T]: The router handler for chaining further route configurations.
+	RegisterMiddleware(middleware ApiMiddleware[T], name string) Api[T]
 
 	// ApiSecretAccessHandler assigns an API secret access handler to the router.
 	// This middleware provides an additional layer of security by validating API secret keys
@@ -169,8 +169,8 @@ type ApiRouterHandler[T apicontext.ApiPrincipalContext] interface {
 	//				 to validate and handle API secret access.
 	//
 	// Returns:
-	//   - ApiRouterHandler[T]: The router handler for chaining further route configurations.
-	ApiSecretAccessHandler(apiSecretAccessHandler security.ApiSecretAccessHandler[T]) ApiRouterHandler[T]
+	//   - Api[T]: The router handler for chaining further route configurations.
+	ApiSecretAccessHandler(apiSecretAccessHandler security.ApiSecretAccessHandler[T]) Api[T]
 
 	// ApiSecurityService assigns a security service to the API router.
 	// This service is responsible for handling various security aspects such as authentication,
@@ -188,8 +188,8 @@ type ApiRouterHandler[T apicontext.ApiPrincipalContext] interface {
 	//   - apiSecurityService: An instance of security.ApiSecurityService[T] that implements the security logic.
 	//
 	// Returns:
-	//   - ApiRouterHandler[T]: The router handler for chaining additional route or service configurations.
-	ApiSecurityService(apiSecurityService security.ApiSecurityService[T]) ApiRouterHandler[T]
+	//   - Api[T]: The router handler for chaining additional route or service configurations.
+	ApiSecurityService(apiSecurityService security.ApiSecurityService[T]) Api[T]
 
 	// RegisterCustomMiddleware is a method that allows for registering a custom middleware function
 	// with the API router. This function wraps an HTTP handler and can be used to implement custom
@@ -215,8 +215,8 @@ type ApiRouterHandler[T apicontext.ApiPrincipalContext] interface {
 	//
 	//
 	// Returns:
-	//   - ApiRouterHandler[T]: The router handler for chaining further route configurations.
-	RegisterCustomMiddleware(func(next http.Handler) http.Handler) ApiRouterHandler[T]
+	//   - Api[T]: The router handler for chaining further route configurations.
+	RegisterCustomMiddleware(func(next http.Handler) http.Handler) Api[T]
 
 	// PrincipalService assigns a principal service to the router.
 	// This service provides role-based access control and other principal-related features.
@@ -225,8 +225,8 @@ type ApiRouterHandler[T apicontext.ApiPrincipalContext] interface {
 	//   - service: The principal service instance.
 	//
 	// Returns:
-	//   - ApiRouterHandler[T]: The router handler for chaining further route configurations.
-	PrincipalService(service principal.PService[T]) ApiRouterHandler[T]
+	//   - Api[T]: The router handler for chaining further route configurations.
+	PrincipalService(service principal.PService[T]) Api[T]
 
 	// ErrorHandler assigns a custom error handler to the router.
 	// This handler is used to process API errors and provide appropriate responses.
@@ -235,8 +235,8 @@ type ApiRouterHandler[T apicontext.ApiPrincipalContext] interface {
 	//   - handler: An instance of ApiErrorHandler that defines custom error-handling logic.
 	//
 	// Returns:
-	//   - ApiRouterHandler[T]: The router handler for chaining further route configurations.
-	ErrorHandler(handler errorhandler.ApiErrorHandler[T]) ApiRouterHandler[T]
+	//   - Api[T]: The router handler for chaining further route configurations.
+	ErrorHandler(handler errorhandler.ApiErrorHandler[T]) Api[T]
 
 	// LoginResource sets the login service for the API router and registers a public
 	// route for the login functionality. This route is accessible without requiring any
@@ -250,10 +250,10 @@ type ApiRouterHandler[T apicontext.ApiPrincipalContext] interface {
 	// validating user login flows.
 	//
 	// Returns:
-	//  - ApiRouterHandler[T]: This allows chaining additional configuration or service registrations.
-	LoginResource(loginService LoginService[T]) ApiRouterHandler[T]
+	//  - Api[T]: This allows chaining additional configuration or service registrations.
+	LoginResource(loginService LoginService[T]) Api[T]
 
-	// ApiKeyGeneratorResource configures the ApiRouterHandler with a provided ApiKeyGeneratorService.
+	// ApiKeyGeneratorResource configures the Api with a provided ApiKeyGeneratorService.
 	// It registers a POST endpoint for generating API keys at the route path "/api-keys/generate".
 	// This method ensures that the endpoint follows consistent naming conventions and best practices.
 	//
@@ -261,8 +261,8 @@ type ApiRouterHandler[T apicontext.ApiPrincipalContext] interface {
 	//   - apiKeyGeneratorService: The implementation of ApiKeyGeneratorService[T] responsible for generating API keys.
 	//
 	// Returns:
-	//   - ApiRouterHandler[T]: The current ApiRouterHandler instance to allow method chaining.
-	ApiKeyGeneratorResource(apiKeyGeneratorService ApiKeyGeneratorService[T]) ApiRouterHandler[T]
+	//   - Api[T]: The current Api instance to allow method chaining.
+	ApiKeyGeneratorResource(apiKeyGeneratorService ApiKeyGeneratorService[T]) Api[T]
 
 	// ApiSecretKeyGeneratorResourceEnabled disables the API Secret Key Generator feature in the API router.
 	// This method removes or disables the associated endpoint/resource responsible for generating API secret keys.
@@ -272,8 +272,8 @@ type ApiRouterHandler[T apicontext.ApiPrincipalContext] interface {
 	//   - enable: A boolean value indicating whether to enable (true) or disable (false) the login resource.
 	//
 	// Returns:
-	//   - ApiRouterHandler[T]: The router handler for chaining further configurations.
-	ApiSecretKeyGeneratorResourceEnabled(enable bool) ApiRouterHandler[T]
+	//   - Api[T]: The router handler for chaining further configurations.
+	ApiSecretKeyGeneratorResourceEnabled(enable bool) Api[T]
 
 	// LoginResourceEnabled enables or disables the login resource functionality in the API router.
 	// When enabled, it provides a login endpoint for handling authentication-related routes.
@@ -283,12 +283,12 @@ type ApiRouterHandler[T apicontext.ApiPrincipalContext] interface {
 	//   - enable: A boolean value indicating whether to enable (true) or disable (false) the login resource.
 	//
 	// Returns:
-	//   - ApiRouterHandler[T]: The router handler for chaining further configurations.
-	LoginResourceEnabled(enable bool) ApiRouterHandler[T]
+	//   - Api[T]: The router handler for chaining further configurations.
+	LoginResourceEnabled(enable bool) Api[T]
 
 	// Router retrieves the underlying *mux.Router instance.
 	// This method provides direct access to the Gorilla Mux router, allowing you to add custom
-	// routes, middleware, or additional configurations that are not covered by the ApiRouterHandler methods.
+	// routes, middleware, or additional configurations that are not covered by the Api methods.
 	//
 	// Returns:
 	//   - *mux.Router: The Gorilla Mux router instance.
@@ -308,7 +308,7 @@ type ApiRouterHandler[T apicontext.ApiPrincipalContext] interface {
 	//   - handler: The custom RouterHandler instance to use for routing logic.
 	//
 	// Returns:
-	//   - ApiRouterHandler: The router handler for chaining further route configurations.
+	//   - Api: The router handler for chaining further route configurations.
 	//
 	// Example usage:
 	// ```go
@@ -320,24 +320,24 @@ type ApiRouterHandler[T apicontext.ApiPrincipalContext] interface {
 	// implementation into the existing API router configuration pipeline.
 	//
 	// Returns:
-	//   - ApiRouterHandler[T]: The router handler for chaining further route configurations.
-	RouterHandler(handler RouterHandler) ApiRouterHandler[T]
+	//   - Api[T]: The router handler for chaining further route configurations.
+	RouterHandler(handler RouterHandler) Api[T]
 
 	// EmbeddedServer allows embedding of an HTTP server within the application and enables
 	// configuration of API routes, middleware, and other server settings through a handler function.
 	//
 	// Parameters:
-	//   - handler: A function that accepts an ApiRouterHandler[T] and is used to configure the
+	//   - handler: A function that accepts an Api[T] and is used to configure the
 	//			  server's routes, middleware, and other features. This provides a flexible way
 	//			  to set up the server before starting it.
 	//
 	// Returns:
-	//   - ApiRouterHandler[T]: The configured API router handler, allowing further chaining of
+	//   - Api[T]: The configured API router handler, allowing further chaining of
 	//						configurations after embedding the server.
 	//
 	// Example usage:
 	// ```go
-	// apiRouter := api.EmbeddedServer(func(router api.ApiRouterHandler[T]) {
+	// apiRouter := api.EmbeddedServer(func(router api.Api[T]) {
 	//	 router.Get(myHandlerFunc, "/example-path")
 	//	 router.Post(anotherHandlerFunc, "/post-path", "admin")
 	// })
@@ -348,8 +348,8 @@ type ApiRouterHandler[T apicontext.ApiPrincipalContext] interface {
 	// other embedded server use cases.
 	//
 	// Returns:
-	//   - ApiRouterHandler[T]: The router handler for chaining further route configurations.
-	EmbeddedServer(handler func(ApiRouterHandler[T])) ApiRouterHandler[T]
+	//   - Api[T]: The router handler for chaining further route configurations.
+	EmbeddedServer(handler func(Api[T])) Api[T]
 
 	// SwaggerDocProvider sets up the Swagger UI and handles serving the
 	// Swagger JSON documentation. It accepts a function to retrieve
@@ -373,8 +373,8 @@ type ApiRouterHandler[T apicontext.ApiPrincipalContext] interface {
 	//   - Using generated swagger SwaggerDocProvider(gen.GetSwagger)
 	//
 	// Returns:
-	//   - ApiRouterHandler[T]: The router handler for chaining further route configurations.
-	SwaggerDocProvider(getSwagger func() (swagger *openapi3.T, err error)) ApiRouterHandler[T]
+	//   - Api[T]: The router handler for chaining further route configurations.
+	SwaggerDocProvider(getSwagger func() (swagger *openapi3.T, err error)) Api[T]
 
 	// SwaggerDocHandler loads the Swagger documentation from a specified file into the API router.
 	// This method reads the content of the provided file and serves it as the Swagger JSON.
@@ -390,7 +390,7 @@ type ApiRouterHandler[T apicontext.ApiPrincipalContext] interface {
 	//   - Configures the API router to serve the Swagger definition via an HTTP handler.
 	//
 	// Returns:
-	//   - ApiRouterHandler[T]: The router handler for chaining further configurations.
+	//   - Api[T]: The router handler for chaining further configurations.
 	//
 	// Example usage:
 	// ```go
@@ -399,8 +399,8 @@ type ApiRouterHandler[T apicontext.ApiPrincipalContext] interface {
 	// ```
 	//
 	// Returns:
-	//   - ApiRouterHandler[T]: The router handler for chaining further route configurations.
-	SwaggerDocHandler(swaggerFile string) ApiRouterHandler[T]
+	//   - Api[T]: The router handler for chaining further route configurations.
+	SwaggerDocHandler(swaggerFile string) Api[T]
 
 	// NotFoundHandler sets a custom handler for requests to undefined routes.
 	// This method can be used to provide a user-friendly response or logging
@@ -422,8 +422,8 @@ type ApiRouterHandler[T apicontext.ApiPrincipalContext] interface {
 	// ```
 	//
 	// Returns:
-	//   - ApiRouterHandler[T]: The router handler for chaining further route configurations.
-	NotFoundHandler() ApiRouterHandler[T]
+	//   - Api[T]: The router handler for chaining further route configurations.
+	NotFoundHandler() Api[T]
 
 	// CustomNotFoundHandler sets a custom handler for handling 404 Not Found errors.
 	// This method allows you to define your own response logic for requests to undefined routes.
@@ -433,7 +433,7 @@ type ApiRouterHandler[T apicontext.ApiPrincipalContext] interface {
 	//			and defines the logic for responding to unmatched routes.
 	//
 	// Returns:
-	//   - ApiRouterHandler[T]: The router handler for chaining further route configurations.
+	//   - Api[T]: The router handler for chaining further route configurations.
 	//
 	// Example usage:
 	// ```go
@@ -445,8 +445,8 @@ type ApiRouterHandler[T apicontext.ApiPrincipalContext] interface {
 	// ```
 	//
 	// Returns:
-	//   - ApiRouterHandler[T]: The router handler for chaining further route configurations.
-	CustomNotFoundHandler(handler func(w http.ResponseWriter, r *http.Request)) ApiRouterHandler[T]
+	//   - Api[T]: The router handler for chaining further route configurations.
+	CustomNotFoundHandler(handler func(w http.ResponseWriter, r *http.Request)) Api[T]
 
 	// StartServerInGoroutine launches the HTTP server in a goroutine, ensuring non-blocking operation.
 	// The server is initialized with the specified port and context path. If these fields are not set,
@@ -476,7 +476,7 @@ type ApiRouterHandler[T apicontext.ApiPrincipalContext] interface {
 	//   - Fatal errors if the server fails to start.
 	//
 	// Returns:
-	//   - The current instance of `ApiRouterHandler[T]` to support method chaining.
+	//   - The current instance of `Api[T]` to support method chaining.
 	//
 	// Notes:
 	//   - If the server is already running, this method will reinitialize and restart it.
@@ -485,7 +485,7 @@ type ApiRouterHandler[T apicontext.ApiPrincipalContext] interface {
 	//
 	// Thread Safety:
 	//   - This method is thread-safe and uses a mutex to prevent race conditions during server initialization.
-	StartServerInGoroutine() ApiRouterHandler[T]
+	StartServerInGoroutine() Api[T]
 
 	// StartServer initializes and starts the HTTP server with the configured routes, middleware, and services.
 	// This method blocks the current goroutine and listens for incoming HTTP requests.
@@ -516,7 +516,7 @@ type ApiRouterHandler[T apicontext.ApiPrincipalContext] interface {
 	// Behavior:
 	//   - Delegates the processing of the request to the underlying router configured with the API routes.
 	//   - Writes the response generated by the registered route handlers to the ResponseWriter.
-	//   - Automatically applies middleware and other configurations defined in the ApiRouterHandler during request handling.
+	//   - Automatically applies middleware and other configurations defined in the Api during request handling.
 	ServeHTTP(w http.ResponseWriter, req *http.Request)
 
 	// RestartServer stops the HTTP server if it's running and starts it again.
