@@ -48,7 +48,7 @@ func (a *apiRouterHandlerImpl[T]) hasResourceAccessRight(ctx api_context.ApiRequ
 	userRoles := (*ctx.Principal).GetRoles()
 
 	if userRoles == nil || len(userRoles) == 0 {
-		log.Printf("Error: User roles are nil. Required roles: %v\n", requiredRoles)
+		log.Printf("Error: User roles are nil. Required roles: %v", requiredRoles)
 		return false
 	}
 

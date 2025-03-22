@@ -1,6 +1,7 @@
 package logger
 
 import (
+	nested "github.com/antonfisher/nested-logrus-formatter"
 	log "github.com/sirupsen/logrus"
 	"github.com/softwareplace/http-utils/utils"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -11,7 +12,6 @@ import (
 )
 
 var (
-	logDateFormat         = "2006-01-02"     // logDateFormat defines the date format (YYYY-MM-DD) used for naming log files and tracking the current date.
 	logFileNameDateFormat = "2006-01-02"     // logDateFormat defines the date format (YYYY-MM-DD) used for naming log files and tracking the current date.
 	logFile               *os.File           // Global variable to keep the file open
 	logDirPath            string             // Global variable to store the log directory path
@@ -20,6 +20,7 @@ var (
 	appName               = ""               // appName holds the name of the application for logging and identification purposes.
 	LogReportCaller       = false            // LogReportCaller determines whether the logger includes caller information (file and line number) in log messages.
 	LumberjackLogger      *lumberjack.Logger // LumberjackLogger is initialized as the default rotating logger for log file management via DefaultLumberjackLogger.
+	Formatter             log.Formatter      // Formatter defines the formatter used for structuring log messages.
 )
 
 func init() {
@@ -29,6 +30,7 @@ func init() {
 	appName = utils.GetEnvOrDefault("LOG_APP_NAME", "")
 	LogReportCaller = utils.GetBoolEnvOrDefault("LOG_REPORT_CALLER", false)
 	LumberjackLogger = DefaultLumberjackLogger()
+	Formatter = NestedLogFormatter()
 }
 
 // LogSetup initializes the logging system by creating a log file and starting a monitoring routine for file rotation.
@@ -68,6 +70,16 @@ func createLogFile() {
 	// Set the output of the logger to the multi-writer
 	log.SetOutput(multiWriter)
 	log.SetReportCaller(LogReportCaller)
+	log.SetFormatter(Formatter)
+}
+
+func NestedLogFormatter() *nested.Formatter {
+	return &nested.Formatter{
+		HideKeys:        true,
+		NoColors:        true,
+		TimestampFormat: "2006-01-02 15:04:05.000",
+		FieldsOrder:     []string{"component", "category"},
+	}
 }
 
 // DefaultLumberjackLogger returns a configured Lumberjack logger instance.

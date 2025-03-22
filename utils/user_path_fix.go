@@ -17,7 +17,7 @@ func UserHomePathFix(path string) string {
 	if strings.HasPrefix(path, "~") {
 		homeDir, err := os.UserHomeDir()
 		if err != nil {
-			log.Printf("Error: Unable to resolve user home directory for path: %v\n", err)
+			log.Printf("Error: Unable to resolve user home directory for path: %v", err)
 			os.Exit(1)
 		}
 		path = strings.Replace(path, "~", homeDir, 1)

@@ -44,7 +44,14 @@ package main
 import (
 	"github.com/softwareplace/http-utils/example/gen"
 	"github.com/softwareplace/http-utils/server"
+	"github.com/softwareplace/http-utils/logger"
 )
+
+func init() {
+	// Setup log system. Using nested-logrus-formatter -> https://github.com/antonfisher/nested-logrus-formatter?tab=readme-ov-file
+	// Reload log file target reference based on `LOG_FILE_NAME_DATE_FORMAT`
+	logger.LogSetup()
+}
 
 func main() {
 	server.Default().
