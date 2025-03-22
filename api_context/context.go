@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
-	"log"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 )
 
@@ -15,7 +15,7 @@ const (
 )
 
 type ApiPrincipalContext interface {
-	GetSalt() string
+	RequesterId() string
 	GetRoles() []string
 	EncryptedPassword() string
 }
