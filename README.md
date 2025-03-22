@@ -44,7 +44,14 @@ package main
 import (
 	"github.com/softwareplace/http-utils/example/gen"
 	"github.com/softwareplace/http-utils/server"
+	"github.com/softwareplace/http-utils/logger"
 )
+
+func init() {
+	// Setup log system. Using nested-logrus-formatter -> https://github.com/antonfisher/nested-logrus-formatter?tab=readme-ov-file
+	// Reload log file target reference based on `LOG_FILE_NAME_DATE_FORMAT`
+	logger.LogSetup()
+}
 
 func main() {
 	server.Default().
@@ -70,11 +77,15 @@ func main() {
 By default, the server runs at `http://localhost:8080/api/app/v1/`. You can change the port and context path using the
 following environment variables:
 
-| Name         | Required | Default      | Description                             |
-|--------------|----------|--------------|-----------------------------------------|
-| CONTEXT_PATH | No       | /api/app/v1/ | The base path for the application API.  |
-| PORT         | No       | 8080         | The port on which the application runs. |
-| B_CRYPT_COST | No       | 10           | The cost factor for bcrypt hashing.     |
+| Name                      | Required | Default      | Description                                                                                      |
+|---------------------------|----------|--------------|--------------------------------------------------------------------------------------------------|
+| CONTEXT_PATH              | No       | /api/app/v1/ | The base path for the application API.                                                           |
+| PORT                      | No       | 8080         | The port on which the application runs.                                                          |
+| B_CRYPT_COST              | No       | 10           | The cost factor for bcrypt hashing.                                                              |
+| LOG_DIR                   | No       | ./.log       | The directory path where log files will be stored.                                               |
+| LOG_APP_NAME              | No       |              | The application name tha used to define the log file name.                                       |
+| LOG_REPORT_CALLER         | No       | false        | [Logging Method Name](https://github.com/sirupsen/logrus?tab=readme-ov-file#logging-method-name) |
+| LOG_FILE_NAME_DATE_FORMAT | No       | 2006-01-02   | Defines the date format (YYYY-MM-DD) used for naming log files and tracking the current date     |
 
 ### Advanced Configuration with Code Generation
 

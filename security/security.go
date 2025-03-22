@@ -101,7 +101,7 @@ type ApiSecurityService[T api_context.ApiPrincipalContext] interface {
 	// Usage example for GenerateJWT:
 	//
 	//	data := YourDataObject{
-	//		Salt:  "your_salt",
+	//		RequesterId:  "your_salt",
 	//		GetRoles: []string{"role1", "role2"},
 	//	}
 	//	securityService := &apiSecurityServiceImpl{} // Properly initialize implementation
@@ -111,7 +111,7 @@ type ApiSecurityService[T api_context.ApiPrincipalContext] interface {
 	//	}
 	//	fmt.Printf("Generated JWT: %v", tokenDetails)
 	//
-	// The `GenerateJWT` method securely encrypts the `Salt` and `GetRoles` from the
+	// The `GenerateJWT` method securely encrypts the `RequesterId` and `GetRoles` from the
 	// provided data, embeds this information as claims in the token, and generates
 	// the JWT that is configured with an expiration time.
 	//

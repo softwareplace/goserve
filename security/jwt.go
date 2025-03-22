@@ -3,8 +3,8 @@ package security
 import (
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
+	log "github.com/sirupsen/logrus"
 	"github.com/softwareplace/http-utils/api_context"
-	"log"
 	"net/http"
 	"time"
 )
@@ -99,7 +99,7 @@ func (a *apiSecurityServiceImpl[T]) Secret() []byte {
 
 func (a *apiSecurityServiceImpl[T]) GenerateJWT(data T, duration time.Duration) (*JwtResponse, error) {
 	expiration := time.Now().Add(duration).Unix()
-	requestBy, err := a.Encrypt(data.GetSalt())
+	requestBy, err := a.Encrypt(data.RequesterId())
 
 	var encryptedRoles []string
 	for _, role := range data.GetRoles() {

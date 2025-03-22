@@ -3,8 +3,8 @@ package request
 import (
 	"encoding/json"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"io"
-	"log"
 	"net/http"
 )
 
@@ -63,7 +63,7 @@ func (i *_impl) Close() {
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
-			log.Printf("Failed to close response body: %v", err)
+			log.Errorf("Failed to close response body: %v", err)
 		}
 	}(i.response.Body)
 }
@@ -79,7 +79,7 @@ func (i *_impl) ToString() (string, error) {
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
-			log.Printf("Failed to close response body: %v", err)
+			log.Errorf("Failed to close response body: %v", err)
 		}
 	}(i.response.Body)
 

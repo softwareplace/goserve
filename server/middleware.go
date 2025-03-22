@@ -2,9 +2,9 @@ package server
 
 import (
 	"encoding/json"
+	log "github.com/sirupsen/logrus"
 	"github.com/softwareplace/http-utils/api_context"
 	"github.com/softwareplace/http-utils/error_handler"
-	"log"
 	"net/http"
 	"time"
 )

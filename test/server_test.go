@@ -1,6 +1,7 @@
 package main
 
 import (
+	log "github.com/sirupsen/logrus"
 	"github.com/softwareplace/http-utils/api_context"
 	"github.com/softwareplace/http-utils/error_handler"
 	"github.com/softwareplace/http-utils/security"
@@ -8,7 +9,6 @@ import (
 	"github.com/softwareplace/http-utils/security/principal"
 	"github.com/softwareplace/http-utils/server"
 	"github.com/softwareplace/http-utils/test/gen"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -243,8 +243,6 @@ var (
 )
 
 func TestMockServer(t *testing.T) {
-	log.SetFlags(log.LstdFlags | log.Llongfile)
-
 	t.Run("expects that can get login response successfully", func(t *testing.T) {
 		// Create a new request
 		loginBody := strings.NewReader(`{"username": "my-username","password": "ynT9558iiMga&ayTVGs3Gc6ug1"}`)
