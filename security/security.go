@@ -2,7 +2,7 @@ package security
 
 import (
 	"github.com/softwareplace/http-utils/apicontext"
-	"github.com/softwareplace/http-utils/error_handler"
+	errorhandler "github.com/softwareplace/http-utils/error"
 	"github.com/softwareplace/http-utils/security/principal"
 	"time"
 )
@@ -195,7 +195,7 @@ type ApiSecurityService[T apicontext.ApiPrincipalContext] interface {
 
 type apiSecurityServiceImpl[T apicontext.ApiPrincipalContext] struct {
 	ApiSecretAuthorization string
-	ErrorHandler           error_handler.ApiErrorHandler[T]
+	ErrorHandler           errorhandler.ApiErrorHandler[T]
 	PService               principal.PService[T]
 }
 

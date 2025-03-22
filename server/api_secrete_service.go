@@ -7,7 +7,7 @@ import (
 	"encoding/pem"
 	log "github.com/sirupsen/logrus"
 	"github.com/softwareplace/http-utils/apicontext"
-	"github.com/softwareplace/http-utils/error_handler"
+	errorhandler "github.com/softwareplace/http-utils/error"
 	"github.com/softwareplace/http-utils/security"
 	"os"
 	"time"
@@ -68,7 +68,7 @@ type ApiKeyGeneratorService[T apicontext.ApiPrincipalContext] interface {
 }
 
 func (a *apiRouterHandlerImpl[T]) apiKeyGeneratorDataHandler(ctx *apicontext.ApiRequestContext[T], apiKeyEntryData ApiKeyEntryData) {
-	error_handler.Handler(func() {
+	errorhandler.Handler(func() {
 		log.Infof("API/KEY/GENERATOR: requested by: %s", ctx.AccessId)
 
 		jwtInfo, err := a.apiKeyGeneratorService.GetApiJWTInfo(apiKeyEntryData, ctx)

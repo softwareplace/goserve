@@ -3,7 +3,7 @@ package main
 import (
 	log "github.com/sirupsen/logrus"
 	"github.com/softwareplace/http-utils/apicontext"
-	"github.com/softwareplace/http-utils/error_handler"
+	errorhandler "github.com/softwareplace/http-utils/error"
 	"github.com/softwareplace/http-utils/security"
 	"github.com/softwareplace/http-utils/security/encryptor"
 	"github.com/softwareplace/http-utils/security/principal"
@@ -221,9 +221,9 @@ type _service struct {
 }
 
 var (
-	userPrincipalService principal.PService[*apicontext.DefaultContext]            = &principalServiceImpl{}
-	errorHandler         error_handler.ApiErrorHandler[*apicontext.DefaultContext] = &errorHandlerImpl{}
-	securityService                                                                = security.ApiSecurityServiceBuild(
+	userPrincipalService principal.PService[*apicontext.DefaultContext]           = &principalServiceImpl{}
+	errorHandler         errorhandler.ApiErrorHandler[*apicontext.DefaultContext] = &errorHandlerImpl{}
+	securityService                                                               = security.ApiSecurityServiceBuild(
 		"ue1pUOtCGaYS7Z1DLJ80nFtZ",
 		userPrincipalService,
 	)

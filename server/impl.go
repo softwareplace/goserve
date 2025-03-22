@@ -3,7 +3,7 @@ package server
 import (
 	"github.com/gorilla/mux"
 	"github.com/softwareplace/http-utils/apicontext"
-	"github.com/softwareplace/http-utils/error_handler"
+	errorhandler "github.com/softwareplace/http-utils/error"
 	"github.com/softwareplace/http-utils/security/principal"
 	"net/http"
 	"strings"
@@ -26,7 +26,7 @@ func (a *apiRouterHandlerImpl[T]) RegisterCustomMiddleware(middleware func(next 
 	return a
 }
 
-func (a *apiRouterHandlerImpl[T]) WithErrorHandler(handler error_handler.ApiErrorHandler[T]) ApiRouterHandler[T] {
+func (a *apiRouterHandlerImpl[T]) WithErrorHandler(handler errorhandler.ApiErrorHandler[T]) ApiRouterHandler[T] {
 	a.errorHandler = handler
 	return a
 }

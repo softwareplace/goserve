@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	log "github.com/sirupsen/logrus"
 	"github.com/softwareplace/http-utils/apicontext"
-	"github.com/softwareplace/http-utils/error_handler"
+	errorhandler "github.com/softwareplace/http-utils/error"
 	"net/http"
 	"time"
 )
@@ -14,7 +14,7 @@ func rootAppMiddleware[T apicontext.ApiPrincipalContext](next http.Handler) http
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var ctx *apicontext.ApiRequestContext[T]
 
-		error_handler.Handler(func() {
+		errorhandler.Handler(func() {
 			start := time.Now() // Record the start time
 			ctx = apicontext.Of[T](w, r, "MIDDLEWARE/ROOT_APP")
 			queryParam := ""
@@ -40,7 +40,7 @@ func rootAppMiddleware[T apicontext.ApiPrincipalContext](next http.Handler) http
 		})
 
 		defer func() {
-			error_handler.Handler(ctx.Flush, func(err error) {
+			errorhandler.Handler(ctx.Flush, func(err error) {
 				log.Printf("Error flushing context: %v", err)
 			})
 			ctx = nil

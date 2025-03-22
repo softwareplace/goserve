@@ -6,7 +6,7 @@ import (
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 	"github.com/softwareplace/http-utils/apicontext"
-	"github.com/softwareplace/http-utils/error_handler"
+	errorhandler "github.com/softwareplace/http-utils/error"
 	"github.com/softwareplace/http-utils/security"
 	"github.com/softwareplace/http-utils/security/principal"
 	"net/http"
@@ -19,7 +19,7 @@ import (
 type apiRouterHandlerImpl[T apicontext.ApiPrincipalContext] struct {
 	router                              *mux.Router
 	principalService                    principal.PService[T]
-	errorHandler                        error_handler.ApiErrorHandler[T]
+	errorHandler                        errorhandler.ApiErrorHandler[T]
 	loginService                        LoginService[T]
 	apiSecurityService                  security.ApiSecurityService[T]
 	apiSecretAccessHandler              security.ApiSecretAccessHandler[T]

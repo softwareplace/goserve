@@ -3,7 +3,7 @@ package server
 import (
 	log "github.com/sirupsen/logrus"
 	"github.com/softwareplace/http-utils/apicontext"
-	"github.com/softwareplace/http-utils/error_handler"
+	errorhandler "github.com/softwareplace/http-utils/error"
 	"github.com/softwareplace/http-utils/security"
 	"github.com/softwareplace/http-utils/security/encryptor"
 	"time"
@@ -68,7 +68,7 @@ func (a *apiRouterHandlerImpl[T]) ApiKeyGenerator(ctx *apicontext.ApiRequestCont
 
 func (a *apiRouterHandlerImpl[T]) loginDataHandler(ctx *apicontext.ApiRequestContext[T], loginEntryData LoginEntryData) {
 
-	error_handler.Handler(func() {
+	errorhandler.Handler(func() {
 		loginService := a.loginService
 		decrypt, err := loginService.SecurityService().Decrypt(loginEntryData.Password)
 		if err != nil {

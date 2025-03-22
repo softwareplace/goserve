@@ -4,7 +4,7 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/gorilla/mux"
 	"github.com/softwareplace/http-utils/apicontext"
-	"github.com/softwareplace/http-utils/error_handler"
+	errorhandler "github.com/softwareplace/http-utils/error"
 	"github.com/softwareplace/http-utils/security"
 	"github.com/softwareplace/http-utils/security/principal"
 	"net/http"
@@ -236,7 +236,7 @@ type ApiRouterHandler[T apicontext.ApiPrincipalContext] interface {
 	//
 	// Returns:
 	//   - ApiRouterHandler[T]: The router handler for chaining further route configurations.
-	WithErrorHandler(handler error_handler.ApiErrorHandler[T]) ApiRouterHandler[T]
+	WithErrorHandler(handler errorhandler.ApiErrorHandler[T]) ApiRouterHandler[T]
 
 	// WithLoginResource sets the login service for the API router and registers a public
 	// route for the login functionality. This route is accessible without requiring any

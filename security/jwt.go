@@ -67,7 +67,7 @@ func (a *apiSecurityServiceImpl[T]) ExtractJWTClaims(ctx *apicontext.ApiRequestC
 		return true
 	}
 
-	log.Printf("JWT/CLAIMS_EXTRACT: failed with error_handler: %v", err)
+	log.Printf("JWT/CLAIMS_EXTRACT: failed with error: %v", err)
 
 	a.handlerErrorOrElse(ctx, err, JWTExtractClaimsError, func() {
 		ctx.Error("AuthorizationHandler failed", http.StatusForbidden)
