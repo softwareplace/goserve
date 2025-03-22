@@ -78,12 +78,12 @@ func (a *apiRouterHandlerImpl[T]) CustomNotFoundHandler(handler func(w http.Resp
 	return a
 }
 
-func (a *apiRouterHandlerImpl[T]) WithPort(port string) ApiRouterHandler[T] {
+func (a *apiRouterHandlerImpl[T]) Port(port string) ApiRouterHandler[T] {
 	a.port = port
 	return a
 }
 
-func (a *apiRouterHandlerImpl[T]) WithContextPath(contextPath string) ApiRouterHandler[T] {
+func (a *apiRouterHandlerImpl[T]) ContextPath(contextPath string) ApiRouterHandler[T] {
 	a.contextPath = contextPath
 	return a
 }

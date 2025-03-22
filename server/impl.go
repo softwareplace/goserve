@@ -26,12 +26,12 @@ func (a *apiRouterHandlerImpl[T]) RegisterCustomMiddleware(middleware func(next 
 	return a
 }
 
-func (a *apiRouterHandlerImpl[T]) WithErrorHandler(handler errorhandler.ApiErrorHandler[T]) ApiRouterHandler[T] {
+func (a *apiRouterHandlerImpl[T]) ErrorHandler(handler errorhandler.ApiErrorHandler[T]) ApiRouterHandler[T] {
 	a.errorHandler = handler
 	return a
 }
 
-func (a *apiRouterHandlerImpl[T]) WithLoginResource(loginService LoginService[T]) ApiRouterHandler[T] {
+func (a *apiRouterHandlerImpl[T]) LoginResource(loginService LoginService[T]) ApiRouterHandler[T] {
 	a.loginService = loginService
 	if a.loginResourceEnable {
 		a.PublicRouter(a.Login, "login", "POST")
@@ -39,7 +39,7 @@ func (a *apiRouterHandlerImpl[T]) WithLoginResource(loginService LoginService[T]
 	return a
 }
 
-func (a *apiRouterHandlerImpl[T]) WithApiKeyGeneratorResource(apiKeyGeneratorService ApiKeyGeneratorService[T]) ApiRouterHandler[T] {
+func (a *apiRouterHandlerImpl[T]) ApiKeyGeneratorResource(apiKeyGeneratorService ApiKeyGeneratorService[T]) ApiRouterHandler[T] {
 	a.apiKeyGeneratorService = apiKeyGeneratorService
 	if a.apiSecretKeyGeneratorResourceEnable {
 		a.Post(a.ApiKeyGenerator, "api-key/generate", "POST", strings.Join(apiKeyGeneratorService.RequiredScopes(), " "))
@@ -57,7 +57,7 @@ func (a *apiRouterHandlerImpl[T]) LoginResourceEnabled(enable bool) ApiRouterHan
 	return a
 }
 
-func (a *apiRouterHandlerImpl[T]) WithPrincipalService(service principal.PService[T]) ApiRouterHandler[T] {
+func (a *apiRouterHandlerImpl[T]) PrincipalService(service principal.PService[T]) ApiRouterHandler[T] {
 	a.principalService = service
 	if a.principalService != nil {
 		a.router.Use(a.hasResourceAccess)

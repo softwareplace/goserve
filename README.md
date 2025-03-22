@@ -57,14 +57,14 @@ func main() {
 	server.Default().
 		LoginResourceEnabled(true). // Enable login resource
 		ApiSecretKeyGeneratorResourceEnabled(true). // Enable API secret key generator resource
-		WithLoginResource(loginService). // Attach the login service
-		WithApiKeyGeneratorResource(loginService). // Attach API key generator service
+		LoginResource(loginService). // Attach the login service
+		ApiKeyGeneratorResource(loginService). // Attach API key generator service
 		EmbeddedServer(gen.ApiResourceHandler(&_service{})). // Add embedded API resource handler
 		SwaggerDocHandler("path/of/swagger/file.yaml"). // Serve Swagger-UI
-		WithApiSecretAccessHandler(secretHandler). // Configure secret access handler
-		WithApiSecurityService(securityService). // Set up security service
-		WithPrincipalService(userPrincipalService). // Set the principal service
-		WithErrorHandler(errorHandler). // Define custom error handler
+		ApiSecretAccessHandler(secretHandler). // Configure secret access handler
+		ApiSecurityService(securityService). // Set up security service
+		PrincipalService(userPrincipalService). // Set the principal service
+		ErrorHandler(errorHandler). // Define custom error handler
 		NotFoundHandler(). // Handle 404 errors
 		StartServer() // Start the server
 }

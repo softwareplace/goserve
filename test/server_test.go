@@ -255,9 +255,9 @@ func TestMockServer(t *testing.T) {
 		rr := httptest.NewRecorder()
 
 		server.Default().
-			WithLoginResource(loginService).
-			WithApiSecurityService(securityService).
-			WithPrincipalService(userPrincipalService).
+			LoginResource(loginService).
+			ApiSecurityService(securityService).
+			PrincipalService(userPrincipalService).
 			NotFoundHandler().
 			ServeHTTP(rr, req)
 
@@ -286,10 +286,10 @@ func TestMockServer(t *testing.T) {
 		)
 
 		server.Default().
-			WithLoginResource(loginService).
-			WithApiSecretAccessHandler(secretHandler).
-			WithApiSecurityService(securityService).
-			WithPrincipalService(userPrincipalService).
+			LoginResource(loginService).
+			ApiSecretAccessHandler(secretHandler).
+			ApiSecurityService(securityService).
+			PrincipalService(userPrincipalService).
 			NotFoundHandler().
 			ServeHTTP(rr, req)
 
@@ -313,10 +313,10 @@ func TestMockServer(t *testing.T) {
 		rr := httptest.NewRecorder()
 
 		server.Default().
-			WithLoginResource(loginService).
-			WithApiSecretAccessHandler(secretHandler).
-			WithApiSecurityService(securityService).
-			WithPrincipalService(userPrincipalService).
+			LoginResource(loginService).
+			ApiSecretAccessHandler(secretHandler).
+			ApiSecurityService(securityService).
+			PrincipalService(userPrincipalService).
 			NotFoundHandler().
 			ServeHTTP(rr, req)
 
@@ -337,7 +337,7 @@ func TestMockServer(t *testing.T) {
 		rr := httptest.NewRecorder()
 
 		server.Default().
-			WithPrincipalService(userPrincipalService).
+			PrincipalService(userPrincipalService).
 			ServeHTTP(rr, req)
 
 		if status := rr.Code; status != http.StatusNotFound {
@@ -364,7 +364,7 @@ func TestMockServer(t *testing.T) {
 		rr := httptest.NewRecorder()
 
 		server.Default().
-			WithPrincipalService(userPrincipalService).
+			PrincipalService(userPrincipalService).
 			CustomNotFoundHandler(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusNotFound)
 				_, _ = w.Write([]byte("Custom 404 Page"))
@@ -394,7 +394,7 @@ func TestMockServer(t *testing.T) {
 		rr := httptest.NewRecorder()
 
 		server.Default().
-			WithPrincipalService(userPrincipalService).
+			PrincipalService(userPrincipalService).
 			EmbeddedServer(gen.ApiResourceHandler(&_service{})).
 			SwaggerDocHandler("./resource/pet-store.yaml").
 			ServeHTTP(rr, req)
