@@ -1,7 +1,5 @@
 package encryptor
 
-import "github.com/softwareplace/http-utils/utils"
-
 type serviceImpl struct {
 	ApiSecretAuthorization []byte
 }
@@ -24,9 +22,9 @@ func (a *serviceImpl) Secret() []byte {
 }
 
 func (a *serviceImpl) Encrypt(value string) (string, error) {
-	return utils.Encrypt(value, a.ApiSecretAuthorization)
+	return Encrypt(value, a.ApiSecretAuthorization)
 }
 
 func (a *serviceImpl) Decrypt(encrypted string) (string, error) {
-	return utils.Decrypt(encrypted, a.ApiSecretAuthorization)
+	return Decrypt(encrypted, a.ApiSecretAuthorization)
 }
