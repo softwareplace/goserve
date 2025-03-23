@@ -497,13 +497,13 @@ type RequestHandler[T apicontext.Principal] interface {
 
 type ServiceRequestHandler[T apicontext.Principal] interface {
 
-	// PostLoginRequest(requestBody LoginRequest, requestParams PostLoginRequestParams, ctx *context.Request[T])
+	// PostLoginRequest(requestBody LoginRequest, requestParams PostLoginRequestParams, ctx *apicontext.Request[T])
 	PostLoginRequest(requestBody LoginRequest, ctx *apicontext.Request[T])
 
-	// AddPetRequest(requestBody Pet, requestParams AddPetRequestParams, ctx *context.Request[T])
+	// AddPetRequest(requestBody Pet, requestParams AddPetRequestParams, ctx *apicontext.Request[T])
 	AddPetRequest(requestBody Pet, ctx *apicontext.Request[T])
 
-	// UpdatePetRequest(requestBody Pet, requestParams UpdatePetRequestParams, ctx *context.Request[T])
+	// UpdatePetRequest(requestBody Pet, requestParams UpdatePetRequestParams, ctx *apicontext.Request[T])
 	UpdatePetRequest(requestBody Pet, ctx *apicontext.Request[T])
 
 	FindPetsByStatusRequest(ctx *apicontext.Request[T])
@@ -520,17 +520,17 @@ type ServiceRequestHandler[T apicontext.Principal] interface {
 
 	GetInventoryRequest(ctx *apicontext.Request[T])
 
-	// PlaceOrderRequest(requestBody Order, requestParams PlaceOrderRequestParams, ctx *context.Request[T])
+	// PlaceOrderRequest(requestBody Order, requestParams PlaceOrderRequestParams, ctx *apicontext.Request[T])
 	PlaceOrderRequest(requestBody Order, ctx *apicontext.Request[T])
 
 	DeleteOrderRequest(ctx *apicontext.Request[T])
 
 	GetOrderByIdRequest(ctx *apicontext.Request[T])
 
-	// CreateUserRequest(requestBody User, requestParams CreateUserRequestParams, ctx *context.Request[T])
+	// CreateUserRequest(requestBody User, requestParams CreateUserRequestParams, ctx *apicontext.Request[T])
 	CreateUserRequest(requestBody User, ctx *apicontext.Request[T])
 
-	// CreateUsersWithListInputRequest(requestBody CreateUsersWithListInputJSONBody, requestParams CreateUsersWithListInputRequestParams, ctx *context.Request[T])
+	// CreateUsersWithListInputRequest(requestBody CreateUsersWithListInputJSONBody, requestParams CreateUsersWithListInputRequestParams, ctx *apicontext.Request[T])
 	CreateUsersWithListInputRequest(requestBody CreateUsersWithListInputJSONBody, ctx *apicontext.Request[T])
 
 	LogoutUserRequest(ctx *apicontext.Request[T])
@@ -539,7 +539,7 @@ type ServiceRequestHandler[T apicontext.Principal] interface {
 
 	GetUserByNameRequest(ctx *apicontext.Request[T])
 
-	// UpdateUserRequest(requestBody User, requestParams UpdateUserRequestParams, ctx *context.Request[T])
+	// UpdateUserRequest(requestBody User, requestParams UpdateUserRequestParams, ctx *apicontext.Request[T])
 	UpdateUserRequest(requestBody User, ctx *apicontext.Request[T])
 }
 
@@ -573,7 +573,7 @@ type requestHandlerImpl[T apicontext.Principal] struct {
 //   - server: The server interface implementation containing the endpoint handlers.
 //
 // Generics:
-//   - T: A type that satisfies the context.Principal interface, representing the principal/context
+//   - T: A type that satisfies the apicontext.Principal interface, representing the principal/context
 //     involved in the API operations.
 //
 // This function will use the RequestHandler implementation
@@ -596,7 +596,7 @@ func ResourcesHandler[T apicontext.Principal](apiServer server.Api[T], service S
 //   - handler: The `RequestHandler` interface implementation containing the actual endpoint handlers.
 //
 // Generics:
-//   - T: A type that satisfies the context.Principal interface, representing the principal/context
+//   - T: A type that satisfies the apicontext.Principal interface, representing the principal/context
 //     involved in the API operations.
 func ApiResourceRegister[T apicontext.Principal](apiServer server.Api[T], handler RequestHandler[T]) {
 	// Initialize an empty string for the merged scopes.

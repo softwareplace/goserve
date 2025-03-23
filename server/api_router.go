@@ -244,7 +244,7 @@ type Api[T apicontext.Principal] interface {
 	// authentication or additional middleware.
 	//
 	// Parameters:
-	//   - loginService: A pointer to the LoginService instance used to handle login functionality.
+	//   - service: A pointer to the LoginService instance used to handle login functionality.
 	//
 	// This method internally registers a public POST endpoint at the path "/login" by linking
 	// it to the `Login` handler method. The login service defined here allows managing and
@@ -252,7 +252,7 @@ type Api[T apicontext.Principal] interface {
 	//
 	// Returns:
 	//  - Api[T]: This allows chaining additional configuration or service registrations.
-	LoginResource(loginService LoginService[T]) Api[T]
+	LoginResource(service LoginService[T]) Api[T]
 
 	// ApiKeyGeneratorResource configures the Api with a provided ApiKeyGeneratorService.
 	// It registers a POST endpoint for generating API keys at the route path "/api-keys/generate".

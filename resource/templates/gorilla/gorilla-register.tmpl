@@ -4,14 +4,14 @@
 //   - server: The server interface implementation containing the endpoint handlers.
 //
 // Generics:
-//   - T: A type that satisfies the api_context.ApiPrincipalContext interface, representing the principal/context
+//   - T: A type that satisfies the apicontext.Principal interface, representing the principal/context
 //		involved in the API operations.
 // 
 // This function will use the RequestHandler implementation
 // that has already been generated to bind specific API routes 
 // dynamically at runtime, based on the provided security definitions 
 // and endpoint configurations.
-func ResourcesHandler[T api_context.ApiPrincipalContext](apiServer server.ApiRouterHandler[T], service ServiceRequestHandler[T])  {
+func ResourcesHandler[T apicontext.Principal](apiServer server.Api[T], service ServiceRequestHandler[T])  {
 handler := &requestHandlerImpl[T]{
 		Service: service,
 	}
@@ -27,9 +27,9 @@ handler := &requestHandlerImpl[T]{
 //   - handler: The `RequestHandler` interface implementation containing the actual endpoint handlers.
 //
 // Generics:
-//   - T: A type that satisfies the api_context.ApiPrincipalContext interface, representing the principal/context
+//   - T: A type that satisfies the apicontext.Principal interface, representing the principal/context
 //	 involved in the API operations.
-func ApiResourceRegister[T api_context.ApiPrincipalContext](apiServer server.ApiRouterHandler[T], handler RequestHandler[T]) {
+func ApiResourceRegister[T apicontext.Principal](apiServer server.Api[T], handler RequestHandler[T]) {
 {{range .}}
     {{- $scopes := "" -}} // Initialize an empty string for the merged scopes.
     {{- range .SecurityDefinitions -}}
@@ -52,8 +52,8 @@ func ApiResourceRegister[T api_context.ApiPrincipalContext](apiServer server.Api
 
 
 
-func ApiResourceHandler[T api_context.ApiPrincipalContext](service ServiceRequestHandler[T]) func(handler server.ApiRouterHandler[T]) {
-	return func(handler server.ApiRouterHandler[T]) {
+func ApiResourceHandler[T apicontext.Principal](service ServiceRequestHandler[T]) func(handler server.Api[T]) {
+	return func(handler server.Api[T]) {
 		ResourcesHandler(handler, service)
 	}
 }

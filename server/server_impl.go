@@ -18,18 +18,18 @@ func (a *baseServer[T]) ErrorHandler(handler errorhandler.ApiHandler[T]) Api[T] 
 	return a
 }
 
-func (a *baseServer[T]) LoginResource(loginService LoginService[T]) Api[T] {
-	a.loginService = loginService
+func (a *baseServer[T]) LoginResource(service LoginService[T]) Api[T] {
+	a.loginService = service
 	if a.loginResourceEnable {
 		a.PublicRouter(a.Login, "login", "POST")
 	}
 	return a
 }
 
-func (a *baseServer[T]) ApiKeyGeneratorResource(apiKeyGeneratorService ApiKeyGeneratorService[T]) Api[T] {
-	a.apiKeyGeneratorService = apiKeyGeneratorService
+func (a *baseServer[T]) ApiKeyGeneratorResource(service ApiKeyGeneratorService[T]) Api[T] {
+	a.apiKeyGeneratorService = service
 	if a.apiSecretKeyGeneratorResourceEnable {
-		a.Post(a.ApiKeyGenerator, "api-key/generate", "POST", strings.Join(apiKeyGeneratorService.RequiredScopes(), " "))
+		a.Post(a.ApiKeyGenerator, "api-key/generate", "POST", strings.Join(service.RequiredScopes(), " "))
 	}
 	return a
 }
