@@ -5,6 +5,7 @@ import (
 	"github.com/gorilla/mux"
 	apicontext "github.com/softwareplace/http-utils/context"
 	errorhandler "github.com/softwareplace/http-utils/error"
+	"github.com/softwareplace/http-utils/login"
 	"github.com/softwareplace/http-utils/security"
 	"github.com/softwareplace/http-utils/security/principal"
 	"github.com/softwareplace/http-utils/security/secret"
@@ -183,7 +184,7 @@ type Api[T apicontext.Principal] interface {
 	//     that handle the login request by invoking LoginResource. You can also disable
 	//     it by calling LoginResourceEnabled before invoke SecurityService.
 	//
-	//  - The login resource expects the input of LoginEntryData.
+	//  - The login resource expects the input of User.
 	//
 	// Parameters:
 	//   - securityService: An instance of security.Service[T] that implements the security logic.
@@ -244,7 +245,7 @@ type Api[T apicontext.Principal] interface {
 	// authentication or additional middleware.
 	//
 	// Parameters:
-	//   - service: A pointer to the LoginService instance used to handle login functionality.
+	//   - service: A pointer to the Service instance used to handle login functionality.
 	//
 	// This method internally registers a public POST endpoint at the path "/login" by linking
 	// it to the `Login` handler method. The login service defined here allows managing and
@@ -252,7 +253,7 @@ type Api[T apicontext.Principal] interface {
 	//
 	// Returns:
 	//  - Api[T]: This allows chaining additional configuration or service registrations.
-	LoginResource(service LoginService[T]) Api[T]
+	LoginResource(service login.Service[T]) Api[T]
 
 	// ApiKeyGeneratorResource configures the Api with a provided ApiKeyGeneratorService.
 	// It registers a POST endpoint for generating API keys at the route path "/api-keys/generate".

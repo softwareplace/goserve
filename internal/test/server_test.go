@@ -6,6 +6,7 @@ import (
 	errorhandler "github.com/softwareplace/http-utils/error"
 	"github.com/softwareplace/http-utils/internal/test/gen"
 	"github.com/softwareplace/http-utils/logger"
+	"github.com/softwareplace/http-utils/login"
 	"github.com/softwareplace/http-utils/security"
 	"github.com/softwareplace/http-utils/security/encryptor"
 	"github.com/softwareplace/http-utils/security/jwt"
@@ -20,7 +21,7 @@ import (
 )
 
 type loginServiceImpl struct {
-	server.DefaultPasswordValidator[*apicontext.DefaultContext]
+	login.DefaultPasswordValidator[*apicontext.DefaultContext]
 	securityService security.Service[*apicontext.DefaultContext]
 }
 
@@ -40,10 +41,6 @@ func baseResponse(message string, status int) gen.BaseResponse {
 		Timestamp: &timestamp,
 	}
 	return response
-}
-
-func (l *loginServiceImpl) SecurityService() security.Service[*apicontext.DefaultContext] {
-	return l.securityService
 }
 
 func (l *loginServiceImpl) RequiredScopes() []string {
@@ -78,7 +75,7 @@ func (l *loginServiceImpl) OnGenerated(data jwt.Response,
 	log.Printf("API KEY GENERATED: from %s - %v", ctx.AccessId, data)
 }
 
-func (l *loginServiceImpl) Login(user server.LoginEntryData) (*apicontext.DefaultContext, error) {
+func (l *loginServiceImpl) Login(user login.User) (*apicontext.DefaultContext, error) {
 	result := &apicontext.DefaultContext{}
 	result.SetRoles("api:example:user", "api:example:admin", "read:pets", "write:pets", "api:key:generator")
 	password := encryptor.NewEncrypt(user.Password).EncodedPassword()

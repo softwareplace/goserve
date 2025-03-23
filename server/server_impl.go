@@ -3,6 +3,7 @@ package server
 import (
 	"github.com/gorilla/mux"
 	errorhandler "github.com/softwareplace/http-utils/error"
+	"github.com/softwareplace/http-utils/login"
 	"github.com/softwareplace/http-utils/security/principal"
 	"net/http"
 	"strings"
@@ -18,7 +19,7 @@ func (a *baseServer[T]) ErrorHandler(handler errorhandler.ApiHandler[T]) Api[T] 
 	return a
 }
 
-func (a *baseServer[T]) LoginResource(service LoginService[T]) Api[T] {
+func (a *baseServer[T]) LoginResource(service login.Service[T]) Api[T] {
 	a.loginService = service
 	if a.loginResourceEnable {
 		a.PublicRouter(a.Login, "login", "POST")
