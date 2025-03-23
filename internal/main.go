@@ -1,8 +1,7 @@
 package main
 
 import (
-	log "github.com/sirupsen/logrus"
-	apicontext "github.com/softwareplace/http-utils/context"
+	"github.com/softwareplace/http-utils/internal/service"
 	"github.com/softwareplace/http-utils/logger"
 	"github.com/softwareplace/http-utils/server"
 )
@@ -15,23 +14,8 @@ func init() {
 
 func main() {
 	server.Default().
-		Get(ReportCallerHandler, "/report/caller").
+		EmbeddedServer(service.ApiServiceHandler).
+		Get(service.ReportCallerHandler, "/report/caller").
+		SwaggerDocHandler("./internal/resource/pet-store.yaml").
 		StartServer()
-}
-
-func ReportCallerHandler(ctx *apicontext.Request[*apicontext.DefaultContext]) {
-	enable := ctx.QueryOf("enable")
-	if enable == "true" {
-		logger.LogReportCaller = true
-		log.SetReportCaller(true)
-		ctx.Ok(map[string]interface{}{
-			"message": "Logger report caller enabled",
-		})
-	} else {
-		logger.LogReportCaller = false
-		log.SetReportCaller(false)
-		ctx.Ok(map[string]interface{}{
-			"message": "Logger report caller disabled",
-		})
-	}
 }

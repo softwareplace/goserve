@@ -1,0 +1,28 @@
+package service
+
+import (
+	apicontext "github.com/softwareplace/http-utils/context"
+	"github.com/softwareplace/http-utils/security/secret"
+	"sync"
+)
+
+type secretProviderImpl []struct{}
+
+var mockStore = map[string]string{
+	"37c75552614a4eb58a2eb2d04928cdfd": "D/b7o5KGWe0SOF06r7bvKWyud95XVQwD9xp9NIDqMUWqt1xHz6PpIAF2jRo6pFGaaTwglXwql7QChU1fmQf7omQnjZImS9iWhKh9xvQEpXhygA5WAzBEPiekmyfH6LwkWgFQeFxi4spwX5J+m1LPMIrHZyjVqFOr01f3RaHAlBwxOwWdbQ0au32gVshGFY7Rt7d5RmMQATA0rQf0NGZlcIEM5ez8hBxjUHnKakGjYOITQsd570wvlFnRhvkvoxRfpAGAexXRAS8tImdiw/L7BVSbTKjwqSfweH59CK3JhHC/qdwDlSDA6rJWat4MOeb2qWbgbmlQV71QEFOZ9k78gdNz3FuFsMIQ4Swyf3dvBraTFlCjxDil7fIyTT1PJ8f8AvMcVdzWsXwWRl5+SgJvHcZI9nGmswzacRv2T008qUKm28m6By5Sd1ux38QghobBtpL2n3+lgEnov59/cStPHS4kSNrudeX1RtU7DPlqWZUyXkn4H+3tdlUXMufZcYekIkq3fIVsGHxRRGTRA1ILell9FBXwEVw/je2FsrzIZbPxZKnRb8WRbqNFreDf/9hdWLjKw4IaIddRUbGUSTLV3u94QbhDwsdFRmorMgKZd3yukVc=",
+	/// X-Api-Key for test only eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlLZXkiOiJTL2VTYzVDQ3Jub1laaDAyU2pLdFVsSzFXdmRaaVA1OXpFUU9jNE54K0pjL1c1dkhMa0tndE1ueExHN3dKTUwvIiwiY2xpZW50IjoiU29mdHdhcmUgUGxhY2UiLCJleHAiOjMwMzM5MzczNTcsInNjb3BlIjpbIkhFMSs0cEVwM3YzZFBzWXNLa3FLMGkzdiswSjMvYjFVN01YQkx3ZzhxQ0E9IiwiR2lQWUVNU1IvK1BjNUdaTm9OcUpqZDRkS1FZbjZ6QzBMbmdYTHVxdFc4VzkiLCJjY294TWNaT0tEZ0srTUZuend0YWFEWXgxaEtPSVlKNDl3PT0iLCJxOWRHb3V5bTBxZWxvV1V4bElKZ2Y1U3l6UnIrU3YwWWwvVT0iLCJNOHdrRkN3cmZpeVBKc2hjb3NrQU5GS0RZZ2ZxRnJOWXkwVmljOEdlM3dPSyJdfQ.n5_8kp3nNqXOAZVB73GCIXcv61gNyyihqz6xDIjIA0k
+}
+
+func (s *secretProviderImpl) Get(ctx *apicontext.Request[*apicontext.DefaultContext]) (string, error) {
+	return mockStore[ctx.ApiKeyId], nil
+}
+
+var secreteProvideOnce sync.Once
+var secretProvider secret.Provider[*apicontext.DefaultContext]
+
+func NewSecretProvider() secret.Provider[*apicontext.DefaultContext] {
+	secreteProvideOnce.Do(func() {
+		secretProvider = &secretProviderImpl{}
+	})
+	return secretProvider
+}
