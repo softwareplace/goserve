@@ -58,15 +58,15 @@ type LoginService[T apicontext.Principal] interface {
 	IsValidPassword(loginEntryData LoginEntryData, principal T) bool
 }
 
-func (a *apiRouterHandlerImpl[T]) Login(ctx *apicontext.Request[T]) {
+func (a *baseServer[T]) Login(ctx *apicontext.Request[T]) {
 	GetRequestBody(ctx, LoginEntryData{}, a.loginDataHandler, FailedToLoadBody[T])
 }
 
-func (a *apiRouterHandlerImpl[T]) ApiKeyGenerator(ctx *apicontext.Request[T]) {
+func (a *baseServer[T]) ApiKeyGenerator(ctx *apicontext.Request[T]) {
 	GetRequestBody(ctx, ApiKeyEntryData{}, a.apiKeyGeneratorDataHandler, FailedToLoadBody[T])
 }
 
-func (a *apiRouterHandlerImpl[T]) loginDataHandler(ctx *apicontext.Request[T], loginEntryData LoginEntryData) {
+func (a *baseServer[T]) loginDataHandler(ctx *apicontext.Request[T], loginEntryData LoginEntryData) {
 
 	errorhandler.Handler(func() {
 		loginService := a.loginService

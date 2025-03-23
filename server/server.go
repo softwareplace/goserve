@@ -3,36 +3,12 @@ package server
 import (
 	"context"
 	"errors"
-	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
-	apicontext "github.com/softwareplace/http-utils/context"
-	errorhandler "github.com/softwareplace/http-utils/error"
-	"github.com/softwareplace/http-utils/security"
-	"github.com/softwareplace/http-utils/security/principal"
-	"github.com/softwareplace/http-utils/security/secret"
 	"net/http"
 	"os"
 	"strings"
-	"sync"
 	"time"
 )
-
-type apiRouterHandlerImpl[T apicontext.Principal] struct {
-	router                              *mux.Router
-	principalService                    principal.Service[T]
-	errorHandler                        errorhandler.ApiHandler[T]
-	loginService                        LoginService[T]
-	securityService                     security.Service[T]
-	secretService                       secret.Service[T]
-	apiKeyGeneratorService              ApiKeyGeneratorService[T]
-	server                              *http.Server // Add a server instance
-	mu                                  sync.Mutex   // Add a mutex for thread safety
-	swaggerIsEnabled                    bool
-	loginResourceEnable                 bool
-	apiSecretKeyGeneratorResourceEnable bool
-	contextPath                         string
-	port                                string
-}
 
 func apiContextPath() string {
 	if contextPath := os.Getenv("CONTEXT_PATH"); contextPath != "" {
@@ -48,7 +24,7 @@ func apiPort() string {
 	return "8080"
 }
 
-func (a *apiRouterHandlerImpl[T]) NotFoundHandler() Api[T] {
+func (a *baseServer[T]) NotFoundHandler() Api[T] {
 	a.router.NotFoundHandler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Errorf("404 page not found: %s", r.URL.Path)
 
@@ -69,27 +45,27 @@ func (a *apiRouterHandlerImpl[T]) NotFoundHandler() Api[T] {
 	return a
 }
 
-func (a *apiRouterHandlerImpl[T]) goToSwaggerUi(w http.ResponseWriter, r *http.Request) {
+func (a *baseServer[T]) goToSwaggerUi(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, a.contextPath+"swagger/index.html", http.StatusMovedPermanently)
 	log.Infof("Redirecting to swagger: %s", r.URL.Path)
 }
 
-func (a *apiRouterHandlerImpl[T]) CustomNotFoundHandler(handler func(w http.ResponseWriter, r *http.Request)) Api[T] {
+func (a *baseServer[T]) CustomNotFoundHandler(handler func(w http.ResponseWriter, r *http.Request)) Api[T] {
 	a.router.NotFoundHandler = http.HandlerFunc(handler)
 	return a
 }
 
-func (a *apiRouterHandlerImpl[T]) Port(port string) Api[T] {
+func (a *baseServer[T]) Port(port string) Api[T] {
 	a.port = port
 	return a
 }
 
-func (a *apiRouterHandlerImpl[T]) ContextPath(contextPath string) Api[T] {
+func (a *baseServer[T]) ContextPath(contextPath string) Api[T] {
 	a.contextPath = contextPath
 	return a
 }
 
-func (a *apiRouterHandlerImpl[T]) StartServerInGoroutine() Api[T] {
+func (a *baseServer[T]) StartServerInGoroutine() Api[T] {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 
@@ -121,7 +97,7 @@ func (a *apiRouterHandlerImpl[T]) StartServerInGoroutine() Api[T] {
 	return a
 }
 
-func (a *apiRouterHandlerImpl[T]) StartServer() {
+func (a *baseServer[T]) StartServer() {
 	if a.port == "" {
 		a.port = apiPort()
 	}
@@ -136,7 +112,7 @@ func (a *apiRouterHandlerImpl[T]) StartServer() {
 
 }
 
-func (a *apiRouterHandlerImpl[T]) getAddr() string {
+func (a *baseServer[T]) getAddr() string {
 	addr := ":" + a.port
 
 	if a.port == "80" {
@@ -147,7 +123,7 @@ func (a *apiRouterHandlerImpl[T]) getAddr() string {
 	return addr
 }
 
-func (a *apiRouterHandlerImpl[T]) StopServer() error {
+func (a *baseServer[T]) StopServer() error {
 	a.mu.Lock()
 	defer a.mu.Unlock()
 
@@ -171,7 +147,7 @@ func (a *apiRouterHandlerImpl[T]) StopServer() error {
 	return nil
 }
 
-func (a *apiRouterHandlerImpl[T]) RestartServer() error {
+func (a *baseServer[T]) RestartServer() error {
 	if err := a.StopServer(); err != nil {
 		return err
 	}

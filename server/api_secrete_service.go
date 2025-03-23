@@ -68,7 +68,7 @@ type ApiKeyGeneratorService[T apicontext.Principal] interface {
 	RequiredScopes() []string
 }
 
-func (a *apiRouterHandlerImpl[T]) apiKeyGeneratorDataHandler(ctx *apicontext.Request[T], apiKeyEntryData ApiKeyEntryData) {
+func (a *baseServer[T]) apiKeyGeneratorDataHandler(ctx *apicontext.Request[T], apiKeyEntryData ApiKeyEntryData) {
 	errorhandler.Handler(func() {
 		log.Infof("API/KEY/GENERATOR: requested by: %s", ctx.AccessId)
 
@@ -135,7 +135,7 @@ func (a *apiRouterHandlerImpl[T]) apiKeyGeneratorDataHandler(ctx *apicontext.Req
 //	 if err != nil {
 //		 log.Printf("Error generating public key: %v", err)
 //	 }
-func (a *apiRouterHandlerImpl[T]) generatePubKey(secretKey string) (string, error) {
+func (a *baseServer[T]) generatePubKey(secretKey string) (string, error) {
 	privateKeyData, err := os.ReadFile(secretKey)
 	if err != nil {
 		log.Fatalf("Failed to read private key file: %s", err.Error())

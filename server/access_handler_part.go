@@ -5,12 +5,12 @@ import (
 	"github.com/softwareplace/http-utils/security/secret"
 )
 
-func (a *apiRouterHandlerImpl[T]) SecretService(service secret.Service[T]) Api[T] {
+func (a *baseServer[T]) SecretService(service secret.Service[T]) Api[T] {
 	a.secretService = service
 	return a.RegisterMiddleware(service.HandlerSecretAccess, secret.AccessHandlerName)
 }
 
-func (a *apiRouterHandlerImpl[T]) SecurityService(service security.Service[T]) Api[T] {
+func (a *baseServer[T]) SecurityService(service security.Service[T]) Api[T] {
 	a.securityService = service
 	return a.RegisterMiddleware(service.AuthorizationHandler, security.ApiSecurityHandlerName)
 }

@@ -9,6 +9,18 @@ import (
 	"time"
 )
 
+func (a *baseServer[T]) RegisterMiddleware(middleware ApiMiddleware[T], name string) Api[T] {
+	a.router.Use(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx := apicontext.Of[T](w, r, name)
+			if middleware(ctx) {
+				ctx.Next(next)
+			}
+		})
+	})
+	return a
+}
+
 // rootAppMiddleware logs each incoming request's method, path, and remote address
 func rootAppMiddleware[T apicontext.Principal](next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

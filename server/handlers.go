@@ -9,7 +9,7 @@ import (
 
 const ErrorHandlerWrapper = "ERROR/HANDLER/WRAPPER"
 
-func (a *apiRouterHandlerImpl[T]) errorHandlerWrapper(next http.Handler) http.Handler {
+func (a *baseServer[T]) errorHandlerWrapper(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := apicontext.Of[T](w, r, ErrorHandlerWrapper)
 		errorhandler.Handler(func() {

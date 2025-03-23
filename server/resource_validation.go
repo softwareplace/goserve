@@ -12,7 +12,7 @@ const (
 	SecurityValidatorResourceAccess = "SECURITY/VALIDATOR/RESOURCE_ACCESS"
 )
 
-func (a *apiRouterHandlerImpl[T]) hasResourceAccess(next http.Handler) http.Handler {
+func (a *baseServer[T]) hasResourceAccess(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := apicontext.Of[T](w, r, SecurityValidatorResourceAccess)
 
@@ -43,7 +43,7 @@ func (a *apiRouterHandlerImpl[T]) hasResourceAccess(next http.Handler) http.Hand
 // Returns:
 //
 //	bool - True if the user has the required roles or if the path does not require roles, false otherwise.
-func (a *apiRouterHandlerImpl[T]) hasResourceAccessRight(ctx apicontext.Request[T]) bool {
+func (a *baseServer[T]) hasResourceAccessRight(ctx apicontext.Request[T]) bool {
 	requiredRoles, isRoleRequired := principal.GetRolesForPath(ctx)
 	userRoles := (*ctx.Principal).GetRoles()
 

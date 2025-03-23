@@ -35,7 +35,7 @@ func SwaggerDocLoader(swaggerFile string) (swagger *openapi3.T, err error) {
 	return swagger, nil
 }
 
-func (a *apiRouterHandlerImpl[T]) SwaggerDocProvider(getSwagger func() (swagger *openapi3.T, err error)) Api[T] {
+func (a *baseServer[T]) SwaggerDocProvider(getSwagger func() (swagger *openapi3.T, err error)) Api[T] {
 	swagger, err := getSwagger()
 
 	if err != nil {
@@ -77,13 +77,13 @@ func (a *apiRouterHandlerImpl[T]) SwaggerDocProvider(getSwagger func() (swagger 
 	return a
 }
 
-func (a *apiRouterHandlerImpl[T]) SwaggerDocHandler(swaggerFile string) Api[T] {
+func (a *baseServer[T]) SwaggerDocHandler(swaggerFile string) Api[T] {
 	return a.SwaggerDocProvider(func() (swagger *openapi3.T, err error) {
 		return SwaggerDocLoader(swaggerFile)
 	})
 }
 
-func (a *apiRouterHandlerImpl[T]) handleSwaggerJSON(swagger *openapi3.T) func(ctx *apicontext.Request[T]) {
+func (a *baseServer[T]) handleSwaggerJSON(swagger *openapi3.T) func(ctx *apicontext.Request[T]) {
 	return func(ctx *apicontext.Request[T]) {
 		ctx.Response(swagger, 200)
 	}
