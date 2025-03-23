@@ -4,10 +4,10 @@
 package gen
 
 import (
-	"github.com/softwareplace/http-utils/request"
 	"time"
 
 	apicontext "github.com/softwareplace/http-utils/context"
+	"github.com/softwareplace/http-utils/request"
 	"github.com/softwareplace/http-utils/server"
 )
 
