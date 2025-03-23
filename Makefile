@@ -3,6 +3,7 @@ update:
 
 impl_test:
 	@make update
+	@make codegen
 	@go test ./...
 
 server-test:

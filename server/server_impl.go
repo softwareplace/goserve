@@ -3,7 +3,7 @@ package server
 import (
 	"github.com/gorilla/mux"
 	errorhandler "github.com/softwareplace/http-utils/error"
-	"github.com/softwareplace/http-utils/login"
+	"github.com/softwareplace/http-utils/security/login"
 	"github.com/softwareplace/http-utils/security/principal"
 	"net/http"
 	"strings"

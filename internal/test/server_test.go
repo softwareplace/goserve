@@ -6,10 +6,10 @@ import (
 	errorhandler "github.com/softwareplace/http-utils/error"
 	"github.com/softwareplace/http-utils/internal/test/gen"
 	"github.com/softwareplace/http-utils/logger"
-	"github.com/softwareplace/http-utils/login"
 	"github.com/softwareplace/http-utils/security"
 	"github.com/softwareplace/http-utils/security/encryptor"
 	"github.com/softwareplace/http-utils/security/jwt"
+	login2 "github.com/softwareplace/http-utils/security/login"
 	"github.com/softwareplace/http-utils/security/principal"
 	"github.com/softwareplace/http-utils/security/secret"
 	"github.com/softwareplace/http-utils/server"
@@ -21,7 +21,7 @@ import (
 )
 
 type loginServiceImpl struct {
-	login.DefaultPasswordValidator[*apicontext.DefaultContext]
+	login2.DefaultPasswordValidator[*apicontext.DefaultContext]
 	securityService security.Service[*apicontext.DefaultContext]
 }
 
@@ -75,7 +75,7 @@ func (l *loginServiceImpl) OnGenerated(data jwt.Response,
 	log.Printf("API KEY GENERATED: from %s - %v", ctx.AccessId, data)
 }
 
-func (l *loginServiceImpl) Login(user login.User) (*apicontext.DefaultContext, error) {
+func (l *loginServiceImpl) Login(user login2.User) (*apicontext.DefaultContext, error) {
 	result := &apicontext.DefaultContext{}
 	result.SetRoles("api:example:user", "api:example:admin", "read:pets", "write:pets", "api:key:generator")
 	password := encryptor.NewEncrypt(user.Password).EncodedPassword()

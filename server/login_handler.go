@@ -4,8 +4,8 @@ import (
 	log "github.com/sirupsen/logrus"
 	apicontext "github.com/softwareplace/http-utils/context"
 	errorhandler "github.com/softwareplace/http-utils/error"
-	"github.com/softwareplace/http-utils/login"
 	"github.com/softwareplace/http-utils/request"
+	"github.com/softwareplace/http-utils/security/login"
 )
 
 func (a *baseServer[T]) Login(ctx *apicontext.Request[T]) {
