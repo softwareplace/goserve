@@ -4,6 +4,7 @@
 package gen
 
 import (
+	"github.com/softwareplace/http-utils/request"
 	"time"
 
 	apicontext "github.com/softwareplace/http-utils/context"
@@ -243,7 +244,7 @@ type UpdateUserParams struct {
 func (rh *requestHandlerImpl[T]) PostLogin(ctx *apicontext.Request[T]) {
 
 	requestBody := LoginRequest{}
-	server.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body LoginRequest) {
+	request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body LoginRequest) {
 		rh.Service.PostLoginRequest(body, ctx)
 	}, func(ctx *apicontext.Request[T], err error) {
 		ctx.InternalServerError("Internal server error")
@@ -254,7 +255,7 @@ func (rh *requestHandlerImpl[T]) PostLogin(ctx *apicontext.Request[T]) {
 func (rh *requestHandlerImpl[T]) AddPet(ctx *apicontext.Request[T]) {
 
 	requestBody := Pet{}
-	server.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body Pet) {
+	request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body Pet) {
 		rh.Service.AddPetRequest(body, ctx)
 	}, func(ctx *apicontext.Request[T], err error) {
 		ctx.InternalServerError("Internal server error")
@@ -265,7 +266,7 @@ func (rh *requestHandlerImpl[T]) AddPet(ctx *apicontext.Request[T]) {
 func (rh *requestHandlerImpl[T]) UpdatePet(ctx *apicontext.Request[T]) {
 
 	requestBody := Pet{}
-	server.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body Pet) {
+	request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body Pet) {
 		rh.Service.UpdatePetRequest(body, ctx)
 	}, func(ctx *apicontext.Request[T], err error) {
 		ctx.InternalServerError("Internal server error")
@@ -332,7 +333,7 @@ func (rh *requestHandlerImpl[T]) GetInventory(ctx *apicontext.Request[T]) {
 func (rh *requestHandlerImpl[T]) PlaceOrder(ctx *apicontext.Request[T]) {
 
 	requestBody := Order{}
-	server.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body Order) {
+	request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body Order) {
 		rh.Service.PlaceOrderRequest(body, ctx)
 	}, func(ctx *apicontext.Request[T], err error) {
 		ctx.InternalServerError("Internal server error")
@@ -359,7 +360,7 @@ func (rh *requestHandlerImpl[T]) GetOrderById(ctx *apicontext.Request[T]) {
 func (rh *requestHandlerImpl[T]) CreateUser(ctx *apicontext.Request[T]) {
 
 	requestBody := User{}
-	server.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body User) {
+	request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body User) {
 		rh.Service.CreateUserRequest(body, ctx)
 	}, func(ctx *apicontext.Request[T], err error) {
 		ctx.InternalServerError("Internal server error")
@@ -370,7 +371,7 @@ func (rh *requestHandlerImpl[T]) CreateUser(ctx *apicontext.Request[T]) {
 func (rh *requestHandlerImpl[T]) CreateUsersWithListInput(ctx *apicontext.Request[T]) {
 
 	requestBody := CreateUsersWithListInputJSONBody{}
-	server.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body CreateUsersWithListInputJSONBody) {
+	request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body CreateUsersWithListInputJSONBody) {
 		rh.Service.CreateUsersWithListInputRequest(body, ctx)
 	}, func(ctx *apicontext.Request[T], err error) {
 		ctx.InternalServerError("Internal server error")
@@ -405,7 +406,7 @@ func (rh *requestHandlerImpl[T]) GetUserByName(ctx *apicontext.Request[T]) {
 func (rh *requestHandlerImpl[T]) UpdateUser(ctx *apicontext.Request[T]) {
 
 	requestBody := User{}
-	server.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body User) {
+	request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body User) {
 		rh.Service.UpdateUserRequest(body, ctx)
 	}, func(ctx *apicontext.Request[T], err error) {
 		ctx.InternalServerError("Internal server error")

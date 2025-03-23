@@ -5,14 +5,15 @@ import (
 	apicontext "github.com/softwareplace/http-utils/context"
 	errorhandler "github.com/softwareplace/http-utils/error"
 	"github.com/softwareplace/http-utils/login"
+	"github.com/softwareplace/http-utils/request"
 )
 
 func (a *baseServer[T]) Login(ctx *apicontext.Request[T]) {
-	GetRequestBody(ctx, login.User{}, a.loginDataHandler, FailedToLoadBody[T])
+	request.GetRequestBody(ctx, login.User{}, a.loginDataHandler, request.FailedToLoadBody[T])
 }
 
 func (a *baseServer[T]) ApiKeyGenerator(ctx *apicontext.Request[T]) {
-	GetRequestBody(ctx, ApiKeyEntryData{}, a.apiKeyGeneratorDataHandler, FailedToLoadBody[T])
+	request.GetRequestBody(ctx, ApiKeyEntryData{}, a.apiKeyGeneratorDataHandler, request.FailedToLoadBody[T])
 }
 
 func (a *baseServer[T]) loginDataHandler(ctx *apicontext.Request[T], user login.User) {
