@@ -2,9 +2,9 @@ package server
 
 import (
 	"github.com/gorilla/mux"
-	errorhandler "github.com/softwareplace/http-utils/error"
-	"github.com/softwareplace/http-utils/security/login"
-	"github.com/softwareplace/http-utils/security/principal"
+	errorhandler "github.com/softwareplace/goserve/error"
+	"github.com/softwareplace/goserve/security/login"
+	"github.com/softwareplace/goserve/security/principal"
 	"net/http"
 	"strings"
 )

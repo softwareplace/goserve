@@ -2,7 +2,7 @@ package request
 
 import (
 	"encoding/json"
-	apicontext "github.com/softwareplace/http-utils/context"
+	apicontext "github.com/softwareplace/goserve/context"
 	"net/http"
 	"reflect"
 	"strings"

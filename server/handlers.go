@@ -2,8 +2,8 @@ package server
 
 import (
 	log "github.com/sirupsen/logrus"
-	apicontext "github.com/softwareplace/http-utils/context"
-	errorhandler "github.com/softwareplace/http-utils/error"
+	apicontext "github.com/softwareplace/goserve/context"
+	errorhandler "github.com/softwareplace/goserve/error"
 	"net/http"
 )
 

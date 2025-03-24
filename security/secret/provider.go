@@ -1,6 +1,6 @@
 package secret
 
-import apicontext "github.com/softwareplace/http-utils/context"
+import apicontext "github.com/softwareplace/goserve/context"
 
 // Provider is an interface designed to provide secure access to API secret keys
 // based on the context of an incoming API request.

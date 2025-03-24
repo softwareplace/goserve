@@ -1,8 +1,8 @@
 package server
 
 import (
-	"github.com/softwareplace/http-utils/security"
-	"github.com/softwareplace/http-utils/security/secret"
+	"github.com/softwareplace/goserve/security"
+	"github.com/softwareplace/goserve/security/secret"
 )
 
 func (a *baseServer[T]) SecretService(service secret.Service[T]) Api[T] {

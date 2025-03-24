@@ -1,8 +1,8 @@
 package provider
 
 import (
-	apicontext "github.com/softwareplace/http-utils/context"
-	"github.com/softwareplace/http-utils/security/secret"
+	apicontext "github.com/softwareplace/goserve/context"
+	"github.com/softwareplace/goserve/security/secret"
 	"sync"
 )
 

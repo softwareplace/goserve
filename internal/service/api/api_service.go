@@ -2,14 +2,14 @@ package api
 
 import (
 	log "github.com/sirupsen/logrus"
-	apicontext "github.com/softwareplace/http-utils/context"
-	"github.com/softwareplace/http-utils/internal/gen"
-	"github.com/softwareplace/http-utils/internal/service/file"
-	"github.com/softwareplace/http-utils/internal/service/inventory"
-	"github.com/softwareplace/http-utils/internal/service/petstore"
-	"github.com/softwareplace/http-utils/internal/service/user"
-	"github.com/softwareplace/http-utils/logger"
-	"github.com/softwareplace/http-utils/server"
+	apicontext "github.com/softwareplace/goserve/context"
+	"github.com/softwareplace/goserve/internal/gen"
+	"github.com/softwareplace/goserve/internal/service/file"
+	"github.com/softwareplace/goserve/internal/service/inventory"
+	"github.com/softwareplace/goserve/internal/service/petstore"
+	"github.com/softwareplace/goserve/internal/service/user"
+	"github.com/softwareplace/goserve/logger"
+	"github.com/softwareplace/goserve/server"
 	"sync"
 )
 

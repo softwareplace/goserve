@@ -3,12 +3,12 @@ package server
 import (
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/gorilla/mux"
-	apicontext "github.com/softwareplace/http-utils/context"
-	errorhandler "github.com/softwareplace/http-utils/error"
-	"github.com/softwareplace/http-utils/security"
-	"github.com/softwareplace/http-utils/security/login"
-	"github.com/softwareplace/http-utils/security/principal"
-	"github.com/softwareplace/http-utils/security/secret"
+	apicontext "github.com/softwareplace/goserve/context"
+	errorhandler "github.com/softwareplace/goserve/error"
+	"github.com/softwareplace/goserve/security"
+	"github.com/softwareplace/goserve/security/login"
+	"github.com/softwareplace/goserve/security/principal"
+	"github.com/softwareplace/goserve/security/secret"
 	"net/http"
 )
 

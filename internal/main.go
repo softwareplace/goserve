@@ -2,14 +2,14 @@ package main
 
 import (
 	log "github.com/sirupsen/logrus"
-	"github.com/softwareplace/http-utils/internal/handler"
-	"github.com/softwareplace/http-utils/internal/service/api"
-	"github.com/softwareplace/http-utils/internal/service/login"
-	"github.com/softwareplace/http-utils/internal/service/provider"
-	"github.com/softwareplace/http-utils/logger"
-	"github.com/softwareplace/http-utils/security"
-	"github.com/softwareplace/http-utils/security/secret"
-	"github.com/softwareplace/http-utils/server"
+	"github.com/softwareplace/goserve/internal/handler"
+	"github.com/softwareplace/goserve/internal/service/api"
+	"github.com/softwareplace/goserve/internal/service/login"
+	"github.com/softwareplace/goserve/internal/service/provider"
+	"github.com/softwareplace/goserve/logger"
+	"github.com/softwareplace/goserve/security"
+	"github.com/softwareplace/goserve/security/secret"
+	"github.com/softwareplace/goserve/server"
 	"os"
 )
 

@@ -1,10 +1,10 @@
 package security
 
 import (
-	apicontext "github.com/softwareplace/http-utils/context"
-	errorhandler "github.com/softwareplace/http-utils/error"
-	"github.com/softwareplace/http-utils/security/jwt"
-	"github.com/softwareplace/http-utils/security/principal"
+	apicontext "github.com/softwareplace/goserve/context"
+	errorhandler "github.com/softwareplace/goserve/error"
+	"github.com/softwareplace/goserve/security/jwt"
+	"github.com/softwareplace/goserve/security/principal"
 )
 
 const (

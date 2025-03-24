@@ -1,4 +1,4 @@
-module github.com/softwareplace/http-utils
+module github.com/softwareplace/goserve
 
 go 1.23.0
 

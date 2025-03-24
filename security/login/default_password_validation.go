@@ -1,8 +1,8 @@
 package login
 
 import (
-	apicontext "github.com/softwareplace/http-utils/context"
-	"github.com/softwareplace/http-utils/security/encryptor"
+	apicontext "github.com/softwareplace/goserve/context"
+	"github.com/softwareplace/goserve/security/encryptor"
 )
 
 // DefaultPasswordValidator is a generic type responsible for validating user passwords

@@ -3,7 +3,7 @@ package logger
 import (
 	nested "github.com/antonfisher/nested-logrus-formatter"
 	log "github.com/sirupsen/logrus"
-	"github.com/softwareplace/http-utils/utils"
+	"github.com/softwareplace/goserve/utils"
 	"gopkg.in/natefinch/lumberjack.v2"
 	"io"
 	"os"

@@ -1,7 +1,7 @@
 package principal
 
 import (
-	apicontext "github.com/softwareplace/http-utils/context"
+	apicontext "github.com/softwareplace/goserve/context"
 )
 
 type Service[T apicontext.Principal] interface {

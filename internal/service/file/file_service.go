@@ -1,7 +1,7 @@
 package file
 
 import (
-	apicontext "github.com/softwareplace/http-utils/context"
+	apicontext "github.com/softwareplace/goserve/context"
 	"sync"
 )
 

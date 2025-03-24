@@ -2,10 +2,10 @@ package server
 
 import (
 	log "github.com/sirupsen/logrus"
-	apicontext "github.com/softwareplace/http-utils/context"
-	errorhandler "github.com/softwareplace/http-utils/error"
-	"github.com/softwareplace/http-utils/request"
-	"github.com/softwareplace/http-utils/security/login"
+	apicontext "github.com/softwareplace/goserve/context"
+	errorhandler "github.com/softwareplace/goserve/error"
+	"github.com/softwareplace/goserve/request"
+	"github.com/softwareplace/goserve/security/login"
 )
 
 func (a *baseServer[T]) Login(ctx *apicontext.Request[T]) {

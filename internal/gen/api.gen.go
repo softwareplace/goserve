@@ -6,9 +6,9 @@ package gen
 import (
 	"time"
 
-	apicontext "github.com/softwareplace/http-utils/context"
-	"github.com/softwareplace/http-utils/request"
-	"github.com/softwareplace/http-utils/server"
+	apicontext "github.com/softwareplace/goserve/context"
+	"github.com/softwareplace/goserve/request"
+	"github.com/softwareplace/goserve/server"
 )
 
 const (
@@ -122,6 +122,11 @@ type User struct {
 
 // Authorization defines model for authorization.
 type Authorization = string
+
+// PostLoginParams defines parameters for PostLogin.
+type PostLoginParams struct {
+	XApiKey *string `json:"X-Api-Key,omitempty"`
+}
 
 // AddPetParams defines parameters for AddPet.
 type AddPetParams struct {

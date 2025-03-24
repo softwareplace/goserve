@@ -6,9 +6,9 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	log "github.com/sirupsen/logrus"
-	apicontext "github.com/softwareplace/http-utils/context"
-	"github.com/softwareplace/http-utils/security"
-	"github.com/softwareplace/http-utils/security/principal"
+	apicontext "github.com/softwareplace/goserve/context"
+	"github.com/softwareplace/goserve/security"
+	"github.com/softwareplace/goserve/security/principal"
 	"net/http"
 	"os"
 )

@@ -1,9 +1,9 @@
 package inventory
 
 import (
-	apicontext "github.com/softwareplace/http-utils/context"
-	"github.com/softwareplace/http-utils/internal/gen"
-	"github.com/softwareplace/http-utils/internal/service/base"
+	apicontext "github.com/softwareplace/goserve/context"
+	"github.com/softwareplace/goserve/internal/gen"
+	"github.com/softwareplace/goserve/internal/service/base"
 	"net/http"
 	"sync"
 )

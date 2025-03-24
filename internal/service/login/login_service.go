@@ -2,14 +2,14 @@ package login
 
 import (
 	log "github.com/sirupsen/logrus"
-	apicontext "github.com/softwareplace/http-utils/context"
-	"github.com/softwareplace/http-utils/internal/service/provider"
-	"github.com/softwareplace/http-utils/security"
-	"github.com/softwareplace/http-utils/security/encryptor"
-	"github.com/softwareplace/http-utils/security/jwt"
-	"github.com/softwareplace/http-utils/security/login"
-	"github.com/softwareplace/http-utils/security/principal"
-	"github.com/softwareplace/http-utils/server"
+	apicontext "github.com/softwareplace/goserve/context"
+	"github.com/softwareplace/goserve/internal/service/provider"
+	"github.com/softwareplace/goserve/security"
+	"github.com/softwareplace/goserve/security/encryptor"
+	"github.com/softwareplace/goserve/security/jwt"
+	"github.com/softwareplace/goserve/security/login"
+	"github.com/softwareplace/goserve/security/principal"
+	"github.com/softwareplace/goserve/server"
 	"sync"
 	"time"
 )

@@ -1,6 +1,6 @@
-# http-utils
+# goserve
 
-`http-utils` is a Go library designed to simplify the creation of backend applications or services that interact with
+`goserve` is a Go library designed to simplify the creation of backend applications or services that interact with
 HTTP requests. It leverages the powerful `gorilla/mux` router to provide flexibility, performance, and scalability while
 adhering to best practices in server development.
 
@@ -18,18 +18,18 @@ adhering to best practices in server development.
 - **Built-in Middleware**: Apply middleware for authentication, role-based access control, and error handling with
   minimal setup.
 
-## Why Choose http-utils?
+## Why Choose goserve?
 
-Whether you're building lightweight services or complex applications, `http-utils` provides a robust and
+Whether you're building lightweight services or complex applications, `goserve` provides a robust and
 developer-friendly approach to creating HTTP servers. Its design ensures security, maintainability, and ease of use,
 enabling you to focus on building features without worrying about boilerplate.
 
 ## Installation
 
-Install `http-utils` using:
+Install `goserve` using:
 
 ```shell
-go get -u github.com/softwareplace/http-utils
+go get -u github.com/softwareplace/goserve
 ```
 
 ## Getting Started
@@ -42,14 +42,14 @@ Configure a server with role-based access control, secure API authentication, an
 package main
 
 import (
-	"github.com/softwareplace/http-utils/internal/handler"
-	"github.com/softwareplace/http-utils/internal/service/api"
-	"github.com/softwareplace/http-utils/internal/service/login"
-	"github.com/softwareplace/http-utils/internal/service/provider"
-	"github.com/softwareplace/http-utils/logger"
-	"github.com/softwareplace/http-utils/security"
-	"github.com/softwareplace/http-utils/security/secret"
-	"github.com/softwareplace/http-utils/server"
+	"github.com/softwareplace/goserve/internal/handler"
+	"github.com/softwareplace/goserve/internal/service/api"
+	"github.com/softwareplace/goserve/internal/service/login"
+	"github.com/softwareplace/goserve/internal/service/provider"
+	"github.com/softwareplace/goserve/logger"
+	"github.com/softwareplace/goserve/security"
+	"github.com/softwareplace/goserve/security/secret"
+	"github.com/softwareplace/goserve/server"
 )
 
 func init() {
@@ -118,7 +118,7 @@ Here's the updated text with the requested change:
 ### Configuration
 
 Below is a required YAML configuration for customizing the code generation process to ensure compatibility with the
-`http-utils` library. This configuration defines the necessary templates and options for generating Go code that works
+`goserve` library. This configuration defines the necessary templates and options for generating Go code that works
 seamlessly with the library.
 
 ```yaml
@@ -130,13 +130,13 @@ generate:
 output: ./gen/api.gen.go
 output-options:
   user-templates:
-    imports.tmpl: https://raw.githubusercontent.com/softwareplace/http-utils/refs/heads/main/resource/templates/imports.tmpl
-    param-types.tmpl: https://raw.githubusercontent.com/softwareplace/http-utils/refs/heads/main/resource/templates/param-types.tmpl
-    request-bodies.tmpl: https://raw.githubusercontent.com/softwareplace/http-utils/refs/heads/main/resource/templates/request-bodies.tmpl
-    typedef.tmpl: https://raw.githubusercontent.com/softwareplace/http-utils/refs/heads/main/resource/templates/typedef.tmpl
-    gorilla/gorilla-register.tmpl: https://raw.githubusercontent.com/softwareplace/http-utils/refs/heads/main/resource/templates/gorilla/gorilla-register.tmpl
-    gorilla/gorilla-middleware.tmpl: https://raw.githubusercontent.com/softwareplace/http-utils/refs/heads/main/resource/templates/gorilla/gorilla-middleware.tmpl
-    gorilla/gorilla-interface.tmpl: https://raw.githubusercontent.com/softwareplace/http-utils/refs/heads/main/resource/templates/gorilla/gorilla-interface.tmpl
+    imports.tmpl: https://raw.githubusercontent.com/softwareplace/goserve/refs/heads/main/resource/templates/imports.tmpl
+    param-types.tmpl: https://raw.githubusercontent.com/softwareplace/goserve/refs/heads/main/resource/templates/param-types.tmpl
+    request-bodies.tmpl: https://raw.githubusercontent.com/softwareplace/goserve/refs/heads/main/resource/templates/request-bodies.tmpl
+    typedef.tmpl: https://raw.githubusercontent.com/softwareplace/goserve/refs/heads/main/resource/templates/typedef.tmpl
+    gorilla/gorilla-register.tmpl: https://raw.githubusercontent.com/softwareplace/goserve/refs/heads/main/resource/templates/gorilla/gorilla-register.tmpl
+    gorilla/gorilla-middleware.tmpl: https://raw.githubusercontent.com/softwareplace/goserve/refs/heads/main/resource/templates/gorilla/gorilla-middleware.tmpl
+    gorilla/gorilla-interface.tmpl: https://raw.githubusercontent.com/softwareplace/goserve/refs/heads/main/resource/templates/gorilla/gorilla-interface.tmpl
 ```
 
 ---
@@ -201,9 +201,9 @@ PROTECTED_API=true go run internal/main.go
   Go routers.
 - **Middleware Order**: The `apply-gorilla-middleware-first-to-last` option guarantees correct middleware application
   order.
-- **Custom Templates**: Utilize hosted templates to align generated code with `http-utils` conventions.
+- **Custom Templates**: Utilize hosted templates to align generated code with `goserve` conventions.
 
-By following these steps, you can harness the full potential of `http-utils` to build secure, scalable, and maintainable
+By following these steps, you can harness the full potential of `goserve` to build secure, scalable, and maintainable
 HTTP servers in Go.
 
 --- 

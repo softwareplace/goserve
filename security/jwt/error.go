@@ -1,6 +1,6 @@
 package jwt
 
-import apicontext "github.com/softwareplace/http-utils/context"
+import apicontext "github.com/softwareplace/goserve/context"
 
 func (a *serviceImpl[T]) HandlerErrorOrElse(
 	ctx *apicontext.Request[T],

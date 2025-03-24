@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	log "github.com/sirupsen/logrus"
-	apicontext "github.com/softwareplace/http-utils/context"
+	apicontext "github.com/softwareplace/goserve/context"
 	"net/http"
 	"time"
 )
