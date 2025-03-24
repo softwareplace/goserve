@@ -137,6 +137,42 @@ output-options:
 
 ---
 
+## Api Test
+
+### Start server
+
+```shell
+go run internal/main.go
+```
+
+> Trying to access http://localhost:8080/swagger/index.html, it might respond with
+>
+> ![swagger-ui-example.png](internal/doc/swagger-ui-example.png)
+
+### Start server in protected mode
+
+```shell
+PROTECTED_API=true go run internal/main.go
+```
+
+> Trying to access http://localhost:8080/swagger/index.html, it might respond with 401
+>
+> ```json
+> {
+>  "message": "You are not allowed to access this resource",
+>  "statusCode": 401,
+>  "timestamp": 1742781093916
+> }
+>```
+
+> Try now passing jwt header of `X-Api-Key` and might respond with the swagger html entry.
+> ````shell
+> curl -X 'GET' \
+> 'http://localhost:8080/swagger/index.html' \
+> -H 'accept: application/json' \
+> -H 'X-Api-Key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlLZXkiOiJTL2VTYzVDQ3Jub1laaDAyU2pLdFVsSzFXdmRaaVA1OXpFUU9jNE54K0pjL1c1dkhMa0tndE1ueExHN3dKTUwvIiwiY2xpZW50IjoiU29mdHdhcmUgUGxhY2UiLCJleHAiOjMwMzM5MzczNTcsInNjb3BlIjpbIkhFMSs0cEVwM3YzZFBzWXNLa3FLMGkzdiswSjMvYjFVN01YQkx3ZzhxQ0E9IiwiR2lQWUVNU1IvK1BjNUdaTm9OcUpqZDRkS1FZbjZ6QzBMbmdYTHVxdFc4VzkiLCJjY294TWNaT0tEZ0srTUZuend0YWFEWXgxaEtPSVlKNDl3PT0iLCJxOWRHb3V5bTBxZWxvV1V4bElKZ2Y1U3l6UnIrU3YwWWwvVT0iLCJNOHdrRkN3cmZpeVBKc2hjb3NrQU5GS0RZZ2ZxRnJOWXkwVmljOEdlM3dPSyJdfQ.n5_8kp3nNqXOAZVB73GCIXcv61gNyyihqz6xDIjIA0k'
+> ````
+
 ## Important Notes
 
 - **Gorilla Mux Support**: The `gorilla-server` option ensures compatibility with `gorilla/mux`, one of the most popular

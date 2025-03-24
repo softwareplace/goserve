@@ -17,21 +17,21 @@ import (
 type PrincipalServiceImpl struct {
 }
 
-type loginServiceImpl struct {
+type Service struct {
 	login.DefaultPasswordValidator[*apicontext.DefaultContext]
 	securityService security.Service[*apicontext.DefaultContext]
 }
 
 var principalServiceService sync.Once
 var onceLoginService sync.Once
-var loginServiceInstance *loginServiceImpl
+var loginServiceInstance *Service
 var principalServiceInstance *PrincipalServiceImpl
 
 func NewLoginService(
 	service security.Service[*apicontext.DefaultContext],
-) login.Service[*apicontext.DefaultContext] {
+) *Service {
 	onceLoginService.Do(func() {
-		loginServiceInstance = &loginServiceImpl{
+		loginServiceInstance = &Service{
 			securityService: service,
 		}
 	})
@@ -57,13 +57,13 @@ func (d *PrincipalServiceImpl) LoadPrincipal(ctx *apicontext.Request[*apicontext
 	return true
 }
 
-func (l *loginServiceImpl) RequiredScopes() []string {
+func (l *Service) RequiredScopes() []string {
 	return []string{
 		"api:key:generator",
 	}
 }
 
-func (l *loginServiceImpl) GetApiJWTInfo(apiKeyEntryData server.ApiKeyEntryData,
+func (l *Service) GetApiJWTInfo(apiKeyEntryData server.ApiKeyEntryData,
 	_ *apicontext.Request[*apicontext.DefaultContext],
 ) (jwt.Entry, error) {
 	return jwt.Entry{
@@ -80,7 +80,7 @@ func (l *loginServiceImpl) GetApiJWTInfo(apiKeyEntryData server.ApiKeyEntryData,
 	}, nil
 }
 
-func (l *loginServiceImpl) OnGenerated(data jwt.Response,
+func (l *Service) OnGenerated(data jwt.Response,
 	jwtEntry jwt.Entry,
 	ctx apicontext.SampleContext[*apicontext.DefaultContext],
 ) {
@@ -89,7 +89,7 @@ func (l *loginServiceImpl) OnGenerated(data jwt.Response,
 	log.Printf("API KEY GENERATED: from %s - %v", ctx.AccessId, data)
 }
 
-func (l *loginServiceImpl) Login(user login.User) (*apicontext.DefaultContext, error) {
+func (l *Service) Login(user login.User) (*apicontext.DefaultContext, error) {
 	result := &apicontext.DefaultContext{}
 	result.SetRoles("api:example:user", "api:example:admin", "read:pets", "write:pets", "api:key:generator")
 	password := encryptor.NewEncrypt(user.Password).EncodedPassword()
@@ -97,6 +97,10 @@ func (l *loginServiceImpl) Login(user login.User) (*apicontext.DefaultContext, e
 	return result, nil
 }
 
-func (l *loginServiceImpl) TokenDuration() time.Duration {
+func (l *Service) TokenDuration() time.Duration {
 	return time.Minute * 15
+}
+
+func (l *Service) SecurityService() security.Service[*apicontext.DefaultContext] {
+	return l.securityService
 }

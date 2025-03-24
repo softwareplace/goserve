@@ -240,7 +240,7 @@ type Api[T apicontext.Principal] interface {
 	//   - Api[T]: The router handler for chaining further route configurations.
 	ErrorHandler(handler errorhandler.ApiHandler[T]) Api[T]
 
-	// LoginResource sets the login service for the API router and registers a public
+	// LoginService sets the login service for the API router and registers a public
 	// route for the login functionality. This route is accessible without requiring any
 	// authentication or additional middleware.
 	//
@@ -253,7 +253,7 @@ type Api[T apicontext.Principal] interface {
 	//
 	// Returns:
 	//  - Api[T]: This allows chaining additional configuration or service registrations.
-	LoginResource(service login.Service[T]) Api[T]
+	LoginService(service login.Service[T]) Api[T]
 
 	// ApiKeyGeneratorResource configures the Api with a provided ApiKeyGeneratorService.
 	// It registers a POST endpoint for generating API keys at the route path "/api-keys/generate".

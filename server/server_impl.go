@@ -19,7 +19,7 @@ func (a *baseServer[T]) ErrorHandler(handler errorhandler.ApiHandler[T]) Api[T] 
 	return a
 }
 
-func (a *baseServer[T]) LoginResource(service login.Service[T]) Api[T] {
+func (a *baseServer[T]) LoginService(service login.Service[T]) Api[T] {
 	a.loginService = service
 	if a.loginResourceEnable {
 		a.PublicRouter(a.Login, "login", "POST")

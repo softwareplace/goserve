@@ -2,6 +2,7 @@ package main
 
 import (
 	apicontext "github.com/softwareplace/http-utils/context"
+	"github.com/softwareplace/http-utils/internal/handler"
 	"github.com/softwareplace/http-utils/internal/service/api"
 	"github.com/softwareplace/http-utils/internal/service/login"
 	"github.com/softwareplace/http-utils/internal/service/provider"
@@ -15,19 +16,6 @@ import (
 	"testing"
 )
 
-type errorHandlerImpl struct {
-}
-
-func (p *errorHandlerImpl) Handler(ctx *apicontext.Request[*apicontext.DefaultContext], _ error, source string) {
-	if source == server.ErrorHandlerWrapper {
-		ctx.InternalServerError("Internal server error")
-	}
-
-	if source == server.SecurityValidatorResourceAccess {
-		ctx.Unauthorized()
-	}
-}
-
 func init() {
 	logger.LogReportCaller = true
 	logger.LogSetup()
@@ -35,7 +23,7 @@ func init() {
 
 var (
 	userPrincipalService = login.NewPrincipalService()
-	errorHandler         = &errorHandlerImpl{}
+	errorHandler         = handler.New()
 	securityService      = security.New(
 		"ue1pUOtCGaYS7Z1DLJ80nFtZ",
 		userPrincipalService,
@@ -68,7 +56,7 @@ func TestMockServer(t *testing.T) {
 		rr := httptest.NewRecorder()
 
 		server.Default().
-			LoginResource(loginService).
+			LoginService(loginService).
 			SecurityService(securityService).
 			PrincipalService(userPrincipalService).
 			NotFoundHandler().
@@ -99,7 +87,7 @@ func TestMockServer(t *testing.T) {
 		)
 
 		server.Default().
-			LoginResource(loginService).
+			LoginService(loginService).
 			SecretService(secretHandler).
 			SecurityService(securityService).
 			PrincipalService(userPrincipalService).
@@ -126,7 +114,7 @@ func TestMockServer(t *testing.T) {
 		rr := httptest.NewRecorder()
 
 		server.Default().
-			LoginResource(loginService).
+			LoginService(loginService).
 			SecretService(secretHandler).
 			SecurityService(securityService).
 			PrincipalService(userPrincipalService).
