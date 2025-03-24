@@ -1,8 +1,9 @@
-package service
+package login
 
 import (
 	log "github.com/sirupsen/logrus"
 	apicontext "github.com/softwareplace/http-utils/context"
+	"github.com/softwareplace/http-utils/internal/service/provider"
 	"github.com/softwareplace/http-utils/security"
 	"github.com/softwareplace/http-utils/security/encryptor"
 	"github.com/softwareplace/http-utils/security/jwt"
@@ -16,20 +17,21 @@ import (
 type PrincipalServiceImpl struct {
 }
 
-type LoginServiceImpl struct {
+type loginServiceImpl struct {
 	login.DefaultPasswordValidator[*apicontext.DefaultContext]
 	securityService security.Service[*apicontext.DefaultContext]
 }
 
+var principalServiceService sync.Once
 var onceLoginService sync.Once
-var loginServiceInstance *LoginServiceImpl
+var loginServiceInstance *loginServiceImpl
 var principalServiceInstance *PrincipalServiceImpl
 
 func NewLoginService(
 	service security.Service[*apicontext.DefaultContext],
 ) login.Service[*apicontext.DefaultContext] {
 	onceLoginService.Do(func() {
-		loginServiceInstance = &LoginServiceImpl{
+		loginServiceInstance = &loginServiceImpl{
 			securityService: service,
 		}
 	})
@@ -37,7 +39,7 @@ func NewLoginService(
 }
 
 func NewPrincipalService() principal.Service[*apicontext.DefaultContext] {
-	onceLoginService.Do(func() {
+	principalServiceService.Do(func() {
 		principalServiceInstance = &PrincipalServiceImpl{}
 	})
 	return principalServiceInstance
@@ -55,13 +57,13 @@ func (d *PrincipalServiceImpl) LoadPrincipal(ctx *apicontext.Request[*apicontext
 	return true
 }
 
-func (l *LoginServiceImpl) RequiredScopes() []string {
+func (l *loginServiceImpl) RequiredScopes() []string {
 	return []string{
 		"api:key:generator",
 	}
 }
 
-func (l *LoginServiceImpl) GetApiJWTInfo(apiKeyEntryData server.ApiKeyEntryData,
+func (l *loginServiceImpl) GetApiJWTInfo(apiKeyEntryData server.ApiKeyEntryData,
 	_ *apicontext.Request[*apicontext.DefaultContext],
 ) (jwt.Entry, error) {
 	return jwt.Entry{
@@ -78,16 +80,16 @@ func (l *LoginServiceImpl) GetApiJWTInfo(apiKeyEntryData server.ApiKeyEntryData,
 	}, nil
 }
 
-func (l *LoginServiceImpl) OnGenerated(data jwt.Response,
+func (l *loginServiceImpl) OnGenerated(data jwt.Response,
 	jwtEntry jwt.Entry,
 	ctx apicontext.SampleContext[*apicontext.DefaultContext],
 ) {
-	mockStore[jwtEntry.Key] = *jwtEntry.PublicKey
+	provider.MockStore[jwtEntry.Key] = *jwtEntry.PublicKey
 	log.Printf("%s - %s", jwtEntry.Key, data.Token)
 	log.Printf("API KEY GENERATED: from %s - %v", ctx.AccessId, data)
 }
 
-func (l *LoginServiceImpl) Login(user login.User) (*apicontext.DefaultContext, error) {
+func (l *loginServiceImpl) Login(user login.User) (*apicontext.DefaultContext, error) {
 	result := &apicontext.DefaultContext{}
 	result.SetRoles("api:example:user", "api:example:admin", "read:pets", "write:pets", "api:key:generator")
 	password := encryptor.NewEncrypt(user.Password).EncodedPassword()
@@ -95,6 +97,6 @@ func (l *LoginServiceImpl) Login(user login.User) (*apicontext.DefaultContext, e
 	return result, nil
 }
 
-func (l *LoginServiceImpl) TokenDuration() time.Duration {
+func (l *loginServiceImpl) TokenDuration() time.Duration {
 	return time.Minute * 15
 }

@@ -15,6 +15,7 @@ func init() {
 func main() {
 	server.Default().
 		EmbeddedServer(api.Handler).
+		SwaggerDocHandler("./internal/resource/pet-store.yaml").
 		Get(api.ReportCallerHandler, "/report/caller").
 		StartServer()
 }

@@ -6,10 +6,6 @@ test:
 	@make codegen
 	@go test ./...
 
-server-test:
-	@make codegen
-	@cd test && go test
-
 codegen:
 	 @rm -rf ./internal/gen/api.gen.go
 	 @oapi-codegen --config ./internal/resource/config.yaml ./internal/resource/pet-store.yaml

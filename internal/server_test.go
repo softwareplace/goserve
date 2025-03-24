@@ -2,9 +2,9 @@ package main
 
 import (
 	apicontext "github.com/softwareplace/http-utils/context"
-	errorhandler "github.com/softwareplace/http-utils/error"
-	"github.com/softwareplace/http-utils/internal/service"
 	"github.com/softwareplace/http-utils/internal/service/api"
+	"github.com/softwareplace/http-utils/internal/service/login"
+	"github.com/softwareplace/http-utils/internal/service/provider"
 	"github.com/softwareplace/http-utils/logger"
 	"github.com/softwareplace/http-utils/security"
 	"github.com/softwareplace/http-utils/security/secret"
@@ -31,20 +31,19 @@ func (p *errorHandlerImpl) Handler(ctx *apicontext.Request[*apicontext.DefaultCo
 func init() {
 	logger.LogReportCaller = true
 	logger.LogSetup()
-
 }
 
 var (
-	userPrincipalService                                                     = service.NewPrincipalService()
-	errorHandler         errorhandler.ApiHandler[*apicontext.DefaultContext] = &errorHandlerImpl{}
-	securityService                                                          = security.New(
+	userPrincipalService = login.NewPrincipalService()
+	errorHandler         = &errorHandlerImpl{}
+	securityService      = security.New(
 		"ue1pUOtCGaYS7Z1DLJ80nFtZ",
 		userPrincipalService,
 		errorHandler,
 	)
 
-	loginService   = service.NewLoginService(securityService)
-	secretProvider = service.NewSecretProvider()
+	loginService   = login.NewLoginService(securityService)
+	secretProvider = provider.NewSecretProvider()
 
 	secretHandler = secret.New(
 		"./secret/private.key",
@@ -60,6 +59,7 @@ func TestMockServer(t *testing.T) {
 		// Create a new request
 		loginBody := strings.NewReader(`{"username": "my-username","password": "ynT9558iiMga&ayTVGs3Gc6ug1"}`)
 		req, err := http.NewRequest("POST", "/login", loginBody)
+		//req.Header.Set("Content-Type", "application/json")
 
 		if err != nil {
 			t.Fatalf("Failed to create request: %v", err)
@@ -91,7 +91,7 @@ func TestMockServer(t *testing.T) {
 
 		rr := httptest.NewRecorder()
 
-		secretProvider := service.NewSecretProvider()
+		secretProvider := provider.NewSecretProvider()
 		secretHandler := secret.New(
 			"./secret/private.key",
 			secretProvider,
@@ -209,7 +209,7 @@ func TestMockServer(t *testing.T) {
 		server.Default().
 			PrincipalService(userPrincipalService).
 			EmbeddedServer(api.Handler).
-			SwaggerDocHandler("./internal/resource/pet-store.yaml").
+			SwaggerDocHandler("./resource/pet-store.yaml").
 			ServeHTTP(rr, req)
 
 		if status := rr.Code; status != http.StatusMovedPermanently {

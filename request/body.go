@@ -25,6 +25,8 @@ func GetRequestBody[B any, T apicontext.Principal](
 	contentType := ctx.Request.Header.Get("Content-Type")
 
 	if !strings.Contains(contentType, "application/json") {
+		// Decode the JSON body
+		_ = json.NewDecoder(ctx.Request.Body).Decode(&target)
 		onSuccess(ctx, target)
 		return
 	}
