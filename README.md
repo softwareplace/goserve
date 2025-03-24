@@ -34,7 +34,7 @@ go get -u github.com/softwareplace/http-utils
 
 ## Getting Started
 
-### Setting Up a Secure Backend Server
+### Setting Up a Secure Backend Server as [example](./internal/main.go)
 
 Configure a server with role-based access control, secure API authentication, and integrated middleware:
 
@@ -42,9 +42,14 @@ Configure a server with role-based access control, secure API authentication, an
 package main
 
 import (
-	"github.com/softwareplace/http-utils/example/gen"
-	"github.com/softwareplace/http-utils/server"
+	"github.com/softwareplace/http-utils/internal/handler"
+	"github.com/softwareplace/http-utils/internal/service/api"
+	"github.com/softwareplace/http-utils/internal/service/login"
+	"github.com/softwareplace/http-utils/internal/service/provider"
 	"github.com/softwareplace/http-utils/logger"
+	"github.com/softwareplace/http-utils/security"
+	"github.com/softwareplace/http-utils/security/secret"
+	"github.com/softwareplace/http-utils/server"
 )
 
 func init() {
@@ -54,20 +59,37 @@ func init() {
 }
 
 func main() {
+	userPrincipalService := login.NewPrincipalService()
+	errorHandler := handler.New()
+	securityService := security.New(
+		"ue1pUOtCGaYS7Z1DLJ80nFtZ",
+		userPrincipalService,
+		errorHandler,
+	)
+
+	loginService := login.NewLoginService(securityService)
+	secretProvider := provider.NewSecretProvider()
+
+	secretHandler := secret.New(
+		"./internal/secret/private.key",
+		secretProvider,
+		securityService,
+	)
+
 	server.Default().
-		LoginResourceEnabled(true). // Enable login resource
-		SecretKeyGeneratorResourceEnabled(true). // Enable API secret key generator resource
-		LoginResource(loginService). // Attach the login service
-		ApiKeyGeneratorResource(loginService). // Attach API key generator service
-		EmbeddedServer(gen.Handler(&_service{})). // Add embedded API resource handler
-		SwaggerDocHandler("path/of/swagger/file.yaml"). // Serve Swagger-UI
-		SecretService(secretHandler). // Configure secret access handler
-		SecurityService(securityService). // Set up security service
-		PrincipalService(userPrincipalService). // Set the principal service
-		ErrorHandler(errorHandler). // Define custom error handler
-		NotFoundHandler(). // Handle 404 errors
-		StartServer() // Start the server
+		LoginResourceEnabled(true).
+		SecretKeyGeneratorResourceEnabled(true).
+		ApiKeyGeneratorResource(loginService).
+		LoginService(loginService).
+		SecretService(secretHandler).
+		SecurityService(securityService).
+		PrincipalService(userPrincipalService).
+		EmbeddedServer(api.Handler).
+		SwaggerDocHandler("./internal/resource/pet-store.yaml").
+		Get(api.ReportCallerHandler, "/report/caller").
+		StartServer()
 }
+
 ```
 
 ---
