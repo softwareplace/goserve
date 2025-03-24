@@ -1,10 +1,10 @@
 package principal
 
 import (
-	"github.com/softwareplace/http-utils/api_context"
+	apicontext "github.com/softwareplace/goserve/context"
 )
 
-type PService[T api_context.ApiPrincipalContext] interface {
+type Service[T apicontext.Principal] interface {
 
 	// LoadPrincipal loads the principal information for the given API request context.
 	// This method is responsible for extracting and validating the user or session-specific
@@ -16,5 +16,5 @@ type PService[T api_context.ApiPrincipalContext] interface {
 	// Returns:
 	//   - A boolean value indicating whether the principal was successfully loaded.
 	//	 Returns true if the principal is valid and loaded successfully; otherwise, false.
-	LoadPrincipal(ctx *api_context.ApiRequestContext[T]) bool
+	LoadPrincipal(ctx *apicontext.Request[T]) bool
 }

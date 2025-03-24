@@ -1,13 +1,16 @@
 package server
 
-import "github.com/softwareplace/http-utils/security"
+import (
+	"github.com/softwareplace/goserve/security"
+	"github.com/softwareplace/goserve/security/secret"
+)
 
-func (a *apiRouterHandlerImpl[T]) WithApiSecretAccessHandler(apiSecretAccessHandler security.ApiSecretAccessHandler[T]) ApiRouterHandler[T] {
-	a.apiSecretAccessHandler = apiSecretAccessHandler
-	return a.RegisterMiddleware(apiSecretAccessHandler.HandlerSecretAccess, security.ApiSecretAccessHandlerName)
+func (a *baseServer[T]) SecretService(service secret.Service[T]) Api[T] {
+	a.secretService = service
+	return a.RegisterMiddleware(service.HandlerSecretAccess, secret.AccessHandlerName)
 }
 
-func (a *apiRouterHandlerImpl[T]) WithApiSecurityService(apiSecurityService security.ApiSecurityService[T]) ApiRouterHandler[T] {
-	a.apiSecurityService = apiSecurityService
-	return a.RegisterMiddleware(apiSecurityService.AuthorizationHandler, security.ApiSecurityHandlerName)
+func (a *baseServer[T]) SecurityService(service security.Service[T]) Api[T] {
+	a.securityService = service
+	return a.RegisterMiddleware(service.AuthorizationHandler, security.ApiSecurityHandlerName)
 }

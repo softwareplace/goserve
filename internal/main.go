@@ -2,9 +2,15 @@ package main
 
 import (
 	log "github.com/sirupsen/logrus"
-	"github.com/softwareplace/http-utils/api_context"
-	"github.com/softwareplace/http-utils/logger"
-	"github.com/softwareplace/http-utils/server"
+	"github.com/softwareplace/goserve/internal/handler"
+	"github.com/softwareplace/goserve/internal/service/api"
+	"github.com/softwareplace/goserve/internal/service/login"
+	"github.com/softwareplace/goserve/internal/service/provider"
+	"github.com/softwareplace/goserve/logger"
+	"github.com/softwareplace/goserve/security"
+	"github.com/softwareplace/goserve/security/secret"
+	"github.com/softwareplace/goserve/server"
+	"os"
 )
 
 func init() {
@@ -13,26 +19,66 @@ func init() {
 	logger.LogSetup()
 }
 
-func main() {
+func runSecretApi() {
+	userPrincipalService := login.NewPrincipalService()
+	errorHandler := handler.New()
+	securityService := security.New(
+		"ue1pUOtCGaYS7Z1DLJ80nFtZ",
+		userPrincipalService,
+		errorHandler,
+	)
+
+	loginService := login.NewLoginService(securityService)
+	secretProvider := provider.NewSecretProvider()
+
+	secretHandler := secret.New(
+		"./internal/secret/private.key",
+		secretProvider,
+		securityService,
+	)
+
 	server.Default().
-		Get(ReportCallerHandler, "/report/caller").
+		LoginResourceEnabled(true).
+		SecretKeyGeneratorResourceEnabled(true).
+		ApiKeyGeneratorResource(loginService).
+		LoginService(loginService).
+		SecretService(secretHandler).
+		SecurityService(securityService).
+		PrincipalService(userPrincipalService).
+		EmbeddedServer(api.Handler).
+		SwaggerDocHandler("./internal/resource/pet-store.yaml").
+		Get(api.ReportCallerHandler, "/report/caller").
 		StartServer()
 }
 
-func ReportCallerHandler(ctx *api_context.ApiRequestContext[*api_context.DefaultContext]) {
-	enable := ctx.QueryOf("enable")
-	if enable == "true" {
-		logger.LogReportCaller = true
-		log.SetReportCaller(true)
-		ctx.Ok(map[string]interface{}{
-			"message": "Logger report caller enabled",
-		})
-	} else {
-		logger.LogReportCaller = false
-		log.SetReportCaller(false)
-		ctx.Ok(map[string]interface{}{
-			"message": "Logger report caller disabled",
-		})
-	}
+func runPublicApi() {
+	userPrincipalService := login.NewPrincipalService()
+	errorHandler := handler.New()
+	securityService := security.New(
+		"ue1pUOtCGaYS7Z1DLJ80nFtZ",
+		userPrincipalService,
+		errorHandler,
+	)
 
+	loginService := login.NewLoginService(securityService)
+
+	server.Default().
+		LoginResourceEnabled(true).
+		LoginService(loginService).
+		SecurityService(securityService).
+		PrincipalService(userPrincipalService).
+		EmbeddedServer(api.Handler).
+		SwaggerDocHandler("./internal/resource/pet-store.yaml").
+		Get(api.ReportCallerHandler, "/report/caller").
+		StartServer()
+}
+
+func main() {
+	if env, _ := os.LookupEnv("PROTECTED_API"); env == "true" {
+		log.Info("Protected API enabled")
+		runSecretApi()
+	} else {
+		log.Warning("Protected API disabled.")
+		runPublicApi()
+	}
 }

@@ -7,15 +7,15 @@ type {{.TypeName}} {{if .IsAlias}}={{end}} {{.Schema.TypeDecl}}
 
 {{range .}}{{$entry := .}}
 {{$opid := $entry.OperationId}}
-func (rh *requestHandlerImpl[T]){{$opid}}(ctx *api_context.ApiRequestContext[T]) {
+func (rh *resourceHandlerImpl[T]){{$opid}}(ctx *apicontext.Request[T]) {
     {{ $processed := false -}}
     {{range .Bodies}}
     {{if and (not $processed) .IsSupported -}}
     {{$contentType := .ContentType -}}
         requestBody := {{.Schema.TypeDecl}}{}
-        server.GetRequestBody(ctx, requestBody, func(ctx *api_context.ApiRequestContext[T], body {{.Schema.TypeDecl}}) {
+        request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body {{.Schema.TypeDecl}}) {
         rh.Service.{{$entry.OperationId}}Request(body, ctx)
-        }, func(ctx *api_context.ApiRequestContext[T], err error) {
+        }, func(ctx *apicontext.Request[T], err error) {
         ctx.InternalServerError("Internal server error")
         })
         {{ $processed = true -}}

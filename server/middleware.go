@@ -3,20 +3,32 @@ package server
 import (
 	"encoding/json"
 	log "github.com/sirupsen/logrus"
-	"github.com/softwareplace/http-utils/api_context"
-	"github.com/softwareplace/http-utils/error_handler"
+	apicontext "github.com/softwareplace/goserve/context"
+	errorhandler "github.com/softwareplace/goserve/error"
 	"net/http"
 	"time"
 )
 
-// rootAppMiddleware logs each incoming request's method, path, and remote address
-func rootAppMiddleware[T api_context.ApiPrincipalContext](next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var ctx *api_context.ApiRequestContext[T]
+func (a *baseServer[T]) RegisterMiddleware(middleware ApiMiddleware[T], name string) Api[T] {
+	a.router.Use(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx := apicontext.Of[T](w, r, name)
+			if middleware(ctx) {
+				ctx.Next(next)
+			}
+		})
+	})
+	return a
+}
 
-		error_handler.Handler(func() {
+// rootAppMiddleware logs each incoming request's method, path, and remote address
+func rootAppMiddleware[T apicontext.Principal](next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var ctx *apicontext.Request[T]
+
+		errorhandler.Handler(func() {
 			start := time.Now() // Record the start time
-			ctx = api_context.Of[T](w, r, "MIDDLEWARE/ROOT_APP")
+			ctx = apicontext.Of[T](w, r, "MIDDLEWARE/ROOT_APP")
 			queryParam := ""
 			if r.URL.RawQuery != "" {
 				queryParam = "?" + r.URL.RawQuery
@@ -40,7 +52,7 @@ func rootAppMiddleware[T api_context.ApiPrincipalContext](next http.Handler) htt
 		})
 
 		defer func() {
-			error_handler.Handler(ctx.Flush, func(err error) {
+			errorhandler.Handler(ctx.Flush, func(err error) {
 				log.Printf("Error flushing context: %v", err)
 			})
 			ctx = nil

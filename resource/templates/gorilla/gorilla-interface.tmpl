@@ -1,30 +1,31 @@
-// RequestHandler represents all server handlers.
-type RequestHandler[T api_context.ApiPrincipalContext] interface {
+// resourceHandler represents all server handlers.
+type resourceHandler[T apicontext.Principal] interface {
 {{range .}}{{.SummaryAsComment }}
 // ({{.Method}} {{.Path}})
-{{.OperationId}}(ctx *api_context.ApiRequestContext[T])
+{{.OperationId}}(ctx *apicontext.Request[T])
 {{end}}
 }
 
-type ServiceRequestHandler[T api_context.ApiPrincipalContext] interface {
+type ApiRequestService[T apicontext.Principal] interface {
 {{range .}}{{$entry := .}}
     {{$opid := $entry.OperationId}}
     {{ $processed := false -}}
     {{range .Bodies}}
     {{if and .IsSupported (not $processed) -}}
     {{$contentType := .ContentType -}}
-        // {{$opid}}Request(requestBody {{.Schema.TypeDecl}}, requestParams {{$opid}}RequestParams, ctx *api_context.ApiRequestContext[T])
-        {{$opid}}Request(requestBody {{.Schema.TypeDecl}}, ctx *api_context.ApiRequestContext[T])
+        // {{$opid}}Request(requestBody {{.Schema.TypeDecl}}, requestParams {{$opid}}RequestParams, ctx *apicontext.Request[T])
+        {{$opid}}Request(requestBody {{.Schema.TypeDecl}}, ctx *apicontext.Request[T])
         {{ $processed = true -}}
     {{end}}
     {{end}}
     {{if not $processed}}
-    {{$opid}}Request(ctx *api_context.ApiRequestContext[T])
+    // {{$opid}}Request(ctx *apicontext.Request[T])
+    {{$opid}}Request(ctx *apicontext.Request[T])
     {{end}}
 {{end}}
 }
 
-type requestHandlerImpl[T api_context.ApiPrincipalContext] struct {
-    Service ServiceRequestHandler[T]
+type resourceHandlerImpl[T apicontext.Principal] struct {
+    Service ApiRequestService[T]
 }
 

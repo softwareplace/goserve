@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"github.com/getkin/kin-openapi/openapi3"
 	log "github.com/sirupsen/logrus"
-	"github.com/softwareplace/http-utils/api_context"
-	"github.com/softwareplace/http-utils/security/principal"
+	apicontext "github.com/softwareplace/goserve/context"
+	"github.com/softwareplace/goserve/security/principal"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"os"
 	"strings"
@@ -35,7 +35,7 @@ func SwaggerDocLoader(swaggerFile string) (swagger *openapi3.T, err error) {
 	return swagger, nil
 }
 
-func (a *apiRouterHandlerImpl[T]) SwaggerDocProvider(getSwagger func() (swagger *openapi3.T, err error)) ApiRouterHandler[T] {
+func (a *baseServer[T]) SwaggerDocProvider(getSwagger func() (swagger *openapi3.T, err error)) Api[T] {
 	swagger, err := getSwagger()
 
 	if err != nil {
@@ -77,14 +77,14 @@ func (a *apiRouterHandlerImpl[T]) SwaggerDocProvider(getSwagger func() (swagger 
 	return a
 }
 
-func (a *apiRouterHandlerImpl[T]) SwaggerDocHandler(swaggerFile string) ApiRouterHandler[T] {
+func (a *baseServer[T]) SwaggerDocHandler(swaggerFile string) Api[T] {
 	return a.SwaggerDocProvider(func() (swagger *openapi3.T, err error) {
 		return SwaggerDocLoader(swaggerFile)
 	})
 }
 
-func (a *apiRouterHandlerImpl[T]) handleSwaggerJSON(swagger *openapi3.T) func(ctx *api_context.ApiRequestContext[T]) {
-	return func(ctx *api_context.ApiRequestContext[T]) {
+func (a *baseServer[T]) handleSwaggerJSON(swagger *openapi3.T) func(ctx *apicontext.Request[T]) {
+	return func(ctx *apicontext.Request[T]) {
 		ctx.Response(swagger, 200)
 	}
 }

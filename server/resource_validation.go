@@ -2,8 +2,8 @@ package server
 
 import (
 	log "github.com/sirupsen/logrus"
-	"github.com/softwareplace/http-utils/api_context"
-	"github.com/softwareplace/http-utils/security/principal"
+	apicontext "github.com/softwareplace/goserve/context"
+	"github.com/softwareplace/goserve/security/principal"
 	"net/http"
 	"strings"
 )
@@ -12,9 +12,9 @@ const (
 	SecurityValidatorResourceAccess = "SECURITY/VALIDATOR/RESOURCE_ACCESS"
 )
 
-func (a *apiRouterHandlerImpl[T]) hasResourceAccess(next http.Handler) http.Handler {
+func (a *baseServer[T]) hasResourceAccess(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := api_context.Of[T](w, r, SecurityValidatorResourceAccess)
+		ctx := apicontext.Of[T](w, r, SecurityValidatorResourceAccess)
 
 		if principal.IsPublicPath[T](*ctx) {
 			ctx.Next(next)
@@ -43,7 +43,7 @@ func (a *apiRouterHandlerImpl[T]) hasResourceAccess(next http.Handler) http.Hand
 // Returns:
 //
 //	bool - True if the user has the required roles or if the path does not require roles, false otherwise.
-func (a *apiRouterHandlerImpl[T]) hasResourceAccessRight(ctx api_context.ApiRequestContext[T]) bool {
+func (a *baseServer[T]) hasResourceAccessRight(ctx apicontext.Request[T]) bool {
 	requiredRoles, isRoleRequired := principal.GetRolesForPath(ctx)
 	userRoles := (*ctx.Principal).GetRoles()
 

@@ -17,9 +17,9 @@ jobs:
           go-version: 1.23.4
       - name: Code Gen Test
         run: |
-          rm ./test/gen/api.gen.go
+          rm ./internal/gen/api.gen.go
           go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
-          oapi-codegen --config ./test/resource/config.yaml ./test/resource/pet-store.yaml
+          oapi-codegen --config ./internal/resource/config.yaml ./internal/resource/pet-store.yaml
       - name: Example test
         run: |
           go test ./...

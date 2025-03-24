@@ -1,35 +1,35 @@
-{{range .}}// - RequestHandler.{{.OperationId}}
+{{range .}}// - resourceHandler.{{.OperationId}}
 {{end}}// Parameters:
-//   - apiServer: The API router handler used for setting up routes and middleware.
+//   - server: The API router handler used for setting up routes and middleware.
 //   - server: The server interface implementation containing the endpoint handlers.
 //
 // Generics:
-//   - T: A type that satisfies the api_context.ApiPrincipalContext interface, representing the principal/context
+//   - T: A type that satisfies the apicontext.Principal interface, representing the principal/context
 //		involved in the API operations.
 // 
-// This function will use the RequestHandler implementation
+// This function will use the Handler implementation
 // that has already been generated to bind specific API routes 
 // dynamically at runtime, based on the provided security definitions 
 // and endpoint configurations.
-func ResourcesHandler[T api_context.ApiPrincipalContext](apiServer server.ApiRouterHandler[T], service ServiceRequestHandler[T])  {
-handler := &requestHandlerImpl[T]{
+func apiResourceHandler[T apicontext.Principal](server server.Api[T], service ApiRequestService[T])  {
+handler := &resourceHandlerImpl[T]{
 		Service: service,
 	}
-    ApiResourceRegister(apiServer, handler)
+    apiResourceRegister(server, handler)
 }
 
-// ApiResourceRegister is a customizable resource handler that registers API endpoints from generated code.
-// This method binds the custom `RequestHandler` implementation to specific API routes,
+// apiResourceRegister is a customizable resource handler that registers API endpoints from generated code.
+// This method binds the custom `Handler` implementation to specific API routes,
 // allowing dynamic configuration of handlers.
 //
 // Parameters:
-//   - apiServer: The API router handler used for setting up routes and middleware.
-//   - handler: The `RequestHandler` interface implementation containing the actual endpoint handlers.
+//   - server: The API router handler used for setting up routes and middleware.
+//   - handler: The `Handler` interface implementation containing the actual endpoint handlers.
 //
 // Generics:
-//   - T: A type that satisfies the api_context.ApiPrincipalContext interface, representing the principal/context
+//   - T: A type that satisfies the apicontext.Principal interface, representing the principal/context
 //	 involved in the API operations.
-func ApiResourceRegister[T api_context.ApiPrincipalContext](apiServer server.ApiRouterHandler[T], handler RequestHandler[T]) {
+func apiResourceRegister[T apicontext.Principal](server server.Api[T], handler resourceHandler[T]) {
 {{range .}}
     {{- $scopes := "" -}} // Initialize an empty string for the merged scopes.
     {{- range .SecurityDefinitions -}}
@@ -43,17 +43,17 @@ func ApiResourceRegister[T api_context.ApiPrincipalContext](apiServer server.Api
     {{- end -}}
 
     {{if $scopes}}
-    apiServer.Add(handler.{{.OperationId}}, "{{.Path | swaggerUriToGorillaUri }}", "{{.Method }}", []string{ {{$scopes}} }...)
+    server.Add(handler.{{.OperationId}}, "{{.Path | swaggerUriToGorillaUri }}", "{{.Method }}", []string{ {{$scopes}} }...)
     {{else}}
-    apiServer.PublicRouter(handler.{{.OperationId}}, "{{.Path | swaggerUriToGorillaUri }}", "{{.Method }}")
+    server.PublicRouter(handler.{{.OperationId}}, "{{.Path | swaggerUriToGorillaUri }}", "{{.Method }}")
     {{end}}
 {{end}}
 }
 
 
 
-func ApiResourceHandler[T api_context.ApiPrincipalContext](service ServiceRequestHandler[T]) func(handler server.ApiRouterHandler[T]) {
-	return func(handler server.ApiRouterHandler[T]) {
-		ResourcesHandler(handler, service)
+func Api[T apicontext.Principal](service ApiRequestService[T]) func(handler server.Api[T]) {
+	return func(handler server.Api[T]) {
+		apiResourceHandler(handler, service)
 	}
 }

@@ -6,9 +6,10 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	log "github.com/sirupsen/logrus"
-	"github.com/softwareplace/http-utils/api_context"
-	"github.com/softwareplace/http-utils/error_handler"
-	"github.com/softwareplace/http-utils/security"
+	apicontext "github.com/softwareplace/goserve/context"
+	errorhandler "github.com/softwareplace/goserve/error"
+	"github.com/softwareplace/goserve/security"
+	"github.com/softwareplace/goserve/security/jwt"
 	"os"
 	"time"
 )
@@ -19,18 +20,18 @@ type ApiKeyEntryData struct {
 	ClientId   string        `json:"clientId"`   // ClientId represents the unique identifier for the client associated with the API key entry (required).
 }
 
-type ApiKeyGeneratorService[T api_context.ApiPrincipalContext] interface {
+type ApiKeyGeneratorService[T apicontext.Principal] interface {
 
-	// SecurityService returns an instance of ApiSecurityService responsible for handling security-related operations.
+	// SecurityService returns an instance of SecurityService responsible for handling security-related operations.
 	// This includes operations such as JWT generation, claims extraction, encryption, decryption, and authorization handling.
 	// It provides the foundational security mechanisms required by the ApiKeyGeneratorService.
 	//
 	// Returns:
-	//   - security.ApiSecurityService[T]: The security service instance associated with the implementing service,
+	//   - security.Service[T]: The security service instance associated with the implementing service,
 	//	 providing security functionalities for API keys, JWTs, and authorization processes.
-	SecurityService() security.ApiSecurityService[T]
+	SecurityService() security.Service[T]
 
-	// GetApiJWTInfo generates the security.ApiJWTInfo for the given ApiKeyEntryData and ApiRequestContext.
+	// GetApiJWTInfo generates the jwt.Entry for the given ApiKeyEntryData and Request.
 	// This method is responsible for processing the API key entry data and request context to create an ApiJWTInfo object,
 	// which contains essential JWT-related information such as the client, key, and expiration details.
 	//
@@ -39,20 +40,20 @@ type ApiKeyGeneratorService[T api_context.ApiPrincipalContext] interface {
 	//   - ctx: The API request context, which contains metadata and principal information related to the API key generation process.
 	//
 	// Returns:
-	//   - security.ApiJWTInfo: The generated ApiJWTInfo object containing JWT details necessary for creating the API secret JWT.
+	//   - jwt.Entry: The generated ApiJWTInfo object containing JWT details necessary for creating the API secret JWT.
 	//   - error: If an error occurs during the process, it returns the corresponding error; otherwise, nil.
-	GetApiJWTInfo(apiKeyEntryData ApiKeyEntryData, ctx *api_context.ApiRequestContext[T]) (security.ApiJWTInfo, error)
+	GetApiJWTInfo(apiKeyEntryData ApiKeyEntryData, ctx *apicontext.Request[T]) (jwt.Entry, error)
 
 	// OnGenerated is invoked after an API key has been successfully generated.
 	// This function allows additional processing or handling, such as logging,
 	// auditing, or notifying dependent systems of the newly generated API key.
 	//
 	// Parameters:
-	//   - data: The generated token as security.JwtResponse.
-	//   - apiJWTInfo: The requested security.ApiJWTInfo.
+	//   - response: The generated token as jwt.Response.
+	//   - jwtEntry: The requested jwt.Entry.
 	//   - ctx: The API request context, containing metadata and principal
 	//		  information related to the API key generation.
-	OnGenerated(data security.JwtResponse, apiJWTInfo security.ApiJWTInfo, ctx api_context.SampleContext[T])
+	OnGenerated(response jwt.Response, jwtEntry jwt.Entry, ctx apicontext.SampleContext[T])
 
 	// RequiredScopes defines the list of scopes that are required to access the API key generator functionality.
 	//
@@ -67,8 +68,8 @@ type ApiKeyGeneratorService[T api_context.ApiPrincipalContext] interface {
 	RequiredScopes() []string
 }
 
-func (a *apiRouterHandlerImpl[T]) apiKeyGeneratorDataHandler(ctx *api_context.ApiRequestContext[T], apiKeyEntryData ApiKeyEntryData) {
-	error_handler.Handler(func() {
+func (a *baseServer[T]) apiKeyGeneratorDataHandler(ctx *apicontext.Request[T], apiKeyEntryData ApiKeyEntryData) {
+	errorhandler.Handler(func() {
 		log.Infof("API/KEY/GENERATOR: requested by: %s", ctx.AccessId)
 
 		jwtInfo, err := a.apiKeyGeneratorService.GetApiJWTInfo(apiKeyEntryData, ctx)
@@ -80,7 +81,7 @@ func (a *apiRouterHandlerImpl[T]) apiKeyGeneratorDataHandler(ctx *api_context.Ap
 		}
 
 		if jwtInfo.PublicKey == nil || *jwtInfo.PublicKey == "" {
-			key, err := a.generatePubKey(a.apiSecretAccessHandler.SecretKey())
+			key, err := a.generatePubKey(a.secretService.SecretKey())
 			if err != nil {
 				log.Errorf("API/KEY/GENERATOR: Failed to generate public key: %v", err)
 				ctx.InternalServerError("Failed to generate JWT. Please try again later.")
@@ -91,7 +92,7 @@ func (a *apiRouterHandlerImpl[T]) apiKeyGeneratorDataHandler(ctx *api_context.Ap
 		}
 
 		jwtInfo.Expiration = time.Hour * jwtInfo.Expiration
-		jwt, err := a.apiSecurityService.GenerateApiSecretJWT(jwtInfo)
+		jwt, err := a.securityService.GenerateApiSecretJWT(jwtInfo)
 
 		if err != nil {
 			log.Errorf("API/KEY/GENERATOR: Failed to generate JWT: %v", err)
@@ -134,7 +135,7 @@ func (a *apiRouterHandlerImpl[T]) apiKeyGeneratorDataHandler(ctx *api_context.Ap
 //	 if err != nil {
 //		 log.Printf("Error generating public key: %v", err)
 //	 }
-func (a *apiRouterHandlerImpl[T]) generatePubKey(secretKey string) (string, error) {
+func (a *baseServer[T]) generatePubKey(secretKey string) (string, error) {
 	privateKeyData, err := os.ReadFile(secretKey)
 	if err != nil {
 		log.Fatalf("Failed to read private key file: %s", err.Error())
@@ -177,7 +178,7 @@ func (a *apiRouterHandlerImpl[T]) generatePubKey(secretKey string) (string, erro
 		Bytes: publicKeyBytes,
 	})
 
-	encryptedKey, err := a.apiSecurityService.Encrypt(string(publicKeyPEM))
+	encryptedKey, err := a.securityService.Encrypt(string(publicKeyPEM))
 
 	if err != nil {
 		log.Fatalf("Failed to encryptor public key: %s", err)
