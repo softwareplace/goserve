@@ -65,10 +65,11 @@ func runPublicApi() {
 	server.Default().
 		LoginResourceEnabled(true).
 		LoginService(loginService).
+		ErrorHandler(handler.New()).
 		SecurityService(securityService).
 		PrincipalService(userPrincipalService).
-		EmbeddedServer(api.Handler).
 		SwaggerDocHandler("./internal/resource/pet-store.yaml").
+		EmbeddedServer(api.Handler).
 		Get(api.ReportCallerHandler, "/report/caller").
 		StartServer()
 }

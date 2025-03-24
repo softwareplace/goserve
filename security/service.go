@@ -59,9 +59,14 @@ func New[T apicontext.Principal](
 }
 
 func (a *impl[T]) AuthorizationHandler(ctx *apicontext.Request[T]) (doNext bool) {
-	a.ExtractJWTClaims(ctx)
 	if principal.IsPublicPath[T](*ctx) {
 		return true
 	}
+
+	if !a.ExtractJWTClaims(ctx) {
+		ctx.Forbidden("Invalid JWT token")
+		return false
+	}
+
 	return a.PService.LoadPrincipal(ctx)
 }

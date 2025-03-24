@@ -15,12 +15,17 @@ func (a *baseServer[T]) errorHandlerWrapper(next http.Handler) http.Handler {
 		errorhandler.Handler(func() {
 			ctx.Next(next)
 		}, func(err error) {
-			if a.errorHandler != nil {
-				a.errorHandler.Handler(ctx, err, ErrorHandlerWrapper)
-			} else {
-				log.Errorf("Error processing request: %+v", err)
-				ctx.Error("Failed to handle the request", http.StatusInternalServerError)
-			}
+			a.onError(err, ctx)
 		})
 	})
+}
+
+func (a *baseServer[T]) onError(err error, ctx *apicontext.Request[T]) {
+	if a.errorHandler == nil {
+		log.Errorf("Error processing request: %+v", err)
+		ctx.Error("Failed to handle the request", http.StatusInternalServerError)
+		return
+	}
+
+	a.errorHandler.Handler(ctx, err, ErrorHandlerWrapper)
 }

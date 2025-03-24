@@ -48,11 +48,11 @@ func NewPrincipalService() principal.Service[*apicontext.DefaultContext] {
 func (d *PrincipalServiceImpl) LoadPrincipal(ctx *apicontext.Request[*apicontext.DefaultContext]) bool {
 	if ctx.Authorization == "" {
 		return false
-
 	}
 
 	context := apicontext.NewDefaultCtx()
 	context.SetRoles("api:key:generator")
+	//context.SetRoles("api:key:generator", "write:pets", "read:pets")
 	ctx.Principal = &context
 	return true
 }

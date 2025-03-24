@@ -28,7 +28,10 @@ func (a *baseServer[T]) hasResourceAccess(next http.Handler) http.Handler {
 
 		if a.errorHandler != nil {
 			a.errorHandler.Handler(ctx, nil, SecurityValidatorResourceAccess)
+			return
 		}
+
+		ctx.Forbidden("Access denied")
 	})
 }
 

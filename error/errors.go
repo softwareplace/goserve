@@ -10,12 +10,12 @@ func Handler(try func(), catch func(err error)) {
 	defer func() {
 		if r := recover(); r != nil {
 			_, file, line, ok := runtime.Caller(2) // Adjust caller depth to log where the error originates
-			var errMessage string
-			if ok {
-				errMessage = fmt.Sprintf("panic occurred at %s:%d - %v", file, line, r)
-			} else {
+			var errMessage = fmt.Sprintf("panic occurred at %s:%d - %v", file, line, r)
+
+			if !ok {
 				errMessage = fmt.Sprintf("panic occurred - %v", r)
 			}
+
 			catch(Wrapper(fmt.Errorf(errMessage), "Recovered panic"))
 		}
 	}()

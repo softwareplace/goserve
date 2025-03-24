@@ -50,6 +50,7 @@ func New() gen.ApiRequestService[*apicontext.DefaultContext] {
 
 func Handler(handler server.Api[*apicontext.DefaultContext]) {
 	handler.EmbeddedServer(gen.Api(New()))
+
 }
 
 func ReportCallerHandler(ctx *apicontext.Request[*apicontext.DefaultContext]) {
