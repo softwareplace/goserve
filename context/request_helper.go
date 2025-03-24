@@ -129,7 +129,7 @@ func (ctx *Request[T]) HeaderOfOrElse(key string, defaultHeader string) string {
 	return defaultHeader
 }
 
-// PathValuesOf retrieves the value of the specified path variable from the request URL.
+// PathValueOf retrieves the value of the specified path variable from the request URL.
 // Path variables are extracted from dynamic segments of the route defined in the router.
 //
 // Parameters:
@@ -137,7 +137,7 @@ func (ctx *Request[T]) HeaderOfOrElse(key string, defaultHeader string) string {
 //
 // Returns:
 //   - The value of the path variable or an empty string if it does not exist.
-func (ctx *Request[T]) PathValuesOf(key string) string {
+func (ctx *Request[T]) PathValueOf(key string) string {
 	return ctx.PathValues[key]
 }
 

@@ -43,7 +43,11 @@ var (
 
 func New() gen.ApiRequestService[*apicontext.DefaultContext] {
 	serviceOnce.Do(func() {
-		serviceInstance = &Service{}
+		serviceInstance = &Service{
+			petStoreService: petStoreService{
+				Service: *petstore.New(),
+			},
+		}
 	})
 	return serviceInstance
 }

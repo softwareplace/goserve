@@ -67,10 +67,7 @@ type LoginRequest struct {
 }
 
 // LoginResponse defines model for LoginResponse.
-type LoginResponse struct {
-	Expires *int    `json:"expires,omitempty"`
-	Token   *string `json:"token,omitempty"`
-}
+type LoginResponse = BaseResponse
 
 // Order defines model for Order.
 type Order struct {
@@ -130,14 +127,14 @@ type PostLoginParams struct {
 	XApiKey *string `json:"X-Api-Key,omitempty"`
 }
 
-// AddPetParams defines parameters for AddPet.
-type AddPetParams struct {
+// FindAllPetsParams defines parameters for FindAllPets.
+type FindAllPetsParams struct {
 	// Authorization jwt
 	Authorization Authorization `json:"Authorization"`
 }
 
-// UpdatePetParams defines parameters for UpdatePet.
-type UpdatePetParams struct {
+// AddPetParams defines parameters for AddPet.
+type AddPetParams struct {
 	// Authorization jwt
 	Authorization Authorization `json:"Authorization"`
 }
@@ -184,6 +181,12 @@ type UpdatePetWithFormParams struct {
 	// Status Status of pet that needs to be updated
 	Status *string `form:"status,omitempty" json:"status,omitempty"`
 
+	// Authorization jwt
+	Authorization Authorization `json:"Authorization"`
+}
+
+// UpdatePetParams defines parameters for UpdatePet.
+type UpdatePetParams struct {
 	// Authorization jwt
 	Authorization Authorization `json:"Authorization"`
 }
@@ -264,6 +267,19 @@ func (rh *resourceHandlerImpl[T]) PostLogin(ctx *apicontext.Request[T]) {
 
 }
 
+func (rh *resourceHandlerImpl[T]) FindAllPets(ctx *apicontext.Request[T]) {
+
+	// request := FindAllPetsRequestParams{}
+	// server.PopulateFieldsFromRequest(ctx, &request)
+	errorhandler.Handler(func() {
+		rh.Service.FindAllPetsRequest(ctx)
+	}, func(err error) {
+		log.Errorf("[GET /pet]:: FindAllPets result with error: %+v", err)
+		ctx.InternalServerError("Internal server error")
+	})
+
+}
+
 func (rh *resourceHandlerImpl[T]) AddPet(ctx *apicontext.Request[T]) {
 
 	errorhandler.Handler(func() {
@@ -275,22 +291,6 @@ func (rh *resourceHandlerImpl[T]) AddPet(ctx *apicontext.Request[T]) {
 		})
 	}, func(err error) {
 		log.Errorf("[POST /pet]:: AddPet result with error: %+v", err)
-		ctx.InternalServerError("Internal server error")
-	})
-
-}
-
-func (rh *resourceHandlerImpl[T]) UpdatePet(ctx *apicontext.Request[T]) {
-
-	errorhandler.Handler(func() {
-		requestBody := Pet{}
-		request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body Pet) {
-			rh.Service.UpdatePetRequest(body, ctx)
-		}, func(ctx *apicontext.Request[T], err error) {
-			ctx.InternalServerError("Internal server error")
-		})
-	}, func(err error) {
-		log.Errorf("[PUT /pet]:: UpdatePet result with error: %+v", err)
 		ctx.InternalServerError("Internal server error")
 	})
 
@@ -356,6 +356,22 @@ func (rh *resourceHandlerImpl[T]) UpdatePetWithForm(ctx *apicontext.Request[T]) 
 		rh.Service.UpdatePetWithFormRequest(ctx)
 	}, func(err error) {
 		log.Errorf("[POST /pet/{petId}]:: UpdatePetWithForm result with error: %+v", err)
+		ctx.InternalServerError("Internal server error")
+	})
+
+}
+
+func (rh *resourceHandlerImpl[T]) UpdatePet(ctx *apicontext.Request[T]) {
+
+	errorhandler.Handler(func() {
+		requestBody := Pet{}
+		request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body Pet) {
+			rh.Service.UpdatePetRequest(body, ctx)
+		}, func(ctx *apicontext.Request[T], err error) {
+			ctx.InternalServerError("Internal server error")
+		})
+	}, func(err error) {
+		log.Errorf("[PUT /pet/{petId}]:: UpdatePet result with error: %+v", err)
 		ctx.InternalServerError("Internal server error")
 	})
 
@@ -542,12 +558,12 @@ type resourceHandler[T apicontext.Principal] interface {
 	// Authentication endpoint
 	// (POST /login)
 	PostLogin(ctx *apicontext.Request[T])
+	// Finds Pets by status
+	// (GET /pet)
+	FindAllPets(ctx *apicontext.Request[T])
 	// Add a new pet to the store
 	// (POST /pet)
 	AddPet(ctx *apicontext.Request[T])
-	// Update an existing pet
-	// (PUT /pet)
-	UpdatePet(ctx *apicontext.Request[T])
 	// Finds Pets by status
 	// (GET /pet/findByStatus)
 	FindPetsByStatus(ctx *apicontext.Request[T])
@@ -563,6 +579,9 @@ type resourceHandler[T apicontext.Principal] interface {
 	// Updates a pet in the store with form data
 	// (POST /pet/{petId})
 	UpdatePetWithForm(ctx *apicontext.Request[T])
+	// Update an existing pet
+	// (PUT /pet/{petId})
+	UpdatePet(ctx *apicontext.Request[T])
 	// uploads an image
 	// (POST /pet/{petId}/uploadImage)
 	UploadFile(ctx *apicontext.Request[T])
@@ -603,11 +622,11 @@ type ApiRequestService[T apicontext.Principal] interface {
 	// PostLoginRequest(requestBody LoginRequest, requestParams PostLoginRequestParams, ctx *apicontext.Request[T])
 	PostLoginRequest(requestBody LoginRequest, ctx *apicontext.Request[T])
 
+	// FindAllPetsRequest(ctx *apicontext.Request[T])
+	FindAllPetsRequest(ctx *apicontext.Request[T])
+
 	// AddPetRequest(requestBody Pet, requestParams AddPetRequestParams, ctx *apicontext.Request[T])
 	AddPetRequest(requestBody Pet, ctx *apicontext.Request[T])
-
-	// UpdatePetRequest(requestBody Pet, requestParams UpdatePetRequestParams, ctx *apicontext.Request[T])
-	UpdatePetRequest(requestBody Pet, ctx *apicontext.Request[T])
 
 	// FindPetsByStatusRequest(ctx *apicontext.Request[T])
 	FindPetsByStatusRequest(ctx *apicontext.Request[T])
@@ -623,6 +642,9 @@ type ApiRequestService[T apicontext.Principal] interface {
 
 	// UpdatePetWithFormRequest(ctx *apicontext.Request[T])
 	UpdatePetWithFormRequest(ctx *apicontext.Request[T])
+
+	// UpdatePetRequest(requestBody Pet, requestParams UpdatePetRequestParams, ctx *apicontext.Request[T])
+	UpdatePetRequest(requestBody Pet, ctx *apicontext.Request[T])
 
 	// UploadFileRequest(ctx *apicontext.Request[T])
 	UploadFileRequest(ctx *apicontext.Request[T])
@@ -665,13 +687,14 @@ type resourceHandlerImpl[T apicontext.Principal] struct {
 // apiResourceHandler registers API endpoints from generated code.
 
 // - resourceHandler.PostLogin
+// - resourceHandler.FindAllPets
 // - resourceHandler.AddPet
-// - resourceHandler.UpdatePet
 // - resourceHandler.FindPetsByStatus
 // - resourceHandler.FindPetsByTags
 // - resourceHandler.DeletePet
 // - resourceHandler.GetPetById
 // - resourceHandler.UpdatePetWithForm
+// - resourceHandler.UpdatePet
 // - resourceHandler.UploadFile
 // - resourceHandler.GetInventory
 // - resourceHandler.PlaceOrder
@@ -718,10 +741,10 @@ func apiResourceRegister[T apicontext.Principal](server server.Api[T], handler r
 	server.PublicRouter(handler.PostLogin, "/login", "POST")
 
 	// Initialize an empty string for the merged scopes.// Initialize $scopes if it's empty.// Append with a comma if $scopes is not empty.
-	server.Add(handler.AddPet, "/pet", "POST", []string{"write:pets", "read:pets"}...)
+	server.Add(handler.FindAllPets, "/pet", "GET", []string{"write:pets", "read:pets"}...)
 
 	// Initialize an empty string for the merged scopes.// Initialize $scopes if it's empty.// Append with a comma if $scopes is not empty.
-	server.Add(handler.UpdatePet, "/pet", "PUT", []string{"write:pets", "read:pets"}...)
+	server.Add(handler.AddPet, "/pet", "POST", []string{"write:pets", "read:pets"}...)
 
 	// Initialize an empty string for the merged scopes.// Initialize $scopes if it's empty.// Append with a comma if $scopes is not empty.
 	server.Add(handler.FindPetsByStatus, "/pet/findByStatus", "GET", []string{"write:pets", "read:pets"}...)
@@ -737,6 +760,9 @@ func apiResourceRegister[T apicontext.Principal](server server.Api[T], handler r
 
 	// Initialize an empty string for the merged scopes.// Initialize $scopes if it's empty.// Append with a comma if $scopes is not empty.
 	server.Add(handler.UpdatePetWithForm, "/pet/{petId}", "POST", []string{"write:pets", "read:pets"}...)
+
+	// Initialize an empty string for the merged scopes.// Initialize $scopes if it's empty.// Append with a comma if $scopes is not empty.
+	server.Add(handler.UpdatePet, "/pet/{petId}", "PUT", []string{"write:pets", "read:pets"}...)
 
 	// Initialize an empty string for the merged scopes.// Initialize $scopes if it's empty.// Append with a comma if $scopes is not empty.
 	server.Add(handler.UploadFile, "/pet/{petId}/uploadImage", "POST", []string{"write:pets", "read:pets"}...)
