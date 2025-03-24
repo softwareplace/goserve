@@ -59,7 +59,7 @@ func main() {
 		SecretKeyGeneratorResourceEnabled(true). // Enable API secret key generator resource
 		LoginResource(loginService). // Attach the login service
 		ApiKeyGeneratorResource(loginService). // Attach API key generator service
-		EmbeddedServer(gen.ApiResourceHandler(&_service{})). // Add embedded API resource handler
+		EmbeddedServer(gen.Handler(&_service{})). // Add embedded API resource handler
 		SwaggerDocHandler("path/of/swagger/file.yaml"). // Serve Swagger-UI
 		SecretService(secretHandler). // Configure secret access handler
 		SecurityService(securityService). // Set up security service

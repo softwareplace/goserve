@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/softwareplace/http-utils/internal/service"
+	"github.com/softwareplace/http-utils/internal/service/api"
 	"github.com/softwareplace/http-utils/logger"
 	"github.com/softwareplace/http-utils/server"
 )
@@ -14,8 +14,7 @@ func init() {
 
 func main() {
 	server.Default().
-		EmbeddedServer(service.ApiServiceHandler).
-		Get(service.ReportCallerHandler, "/report/caller").
-		SwaggerDocHandler("./internal/resource/pet-store.yaml").
+		EmbeddedServer(api.Handler).
+		Get(api.ReportCallerHandler, "/report/caller").
 		StartServer()
 }

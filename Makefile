@@ -1,7 +1,7 @@
 update:
 	@go mod tidy
 
-impl_test:
+test:
 	@make update
 	@make codegen
 	@go test ./...

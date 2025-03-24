@@ -3,8 +3,8 @@ package main
 import (
 	apicontext "github.com/softwareplace/http-utils/context"
 	errorhandler "github.com/softwareplace/http-utils/error"
-	"github.com/softwareplace/http-utils/internal/gen"
 	"github.com/softwareplace/http-utils/internal/service"
+	"github.com/softwareplace/http-utils/internal/service/api"
 	"github.com/softwareplace/http-utils/logger"
 	"github.com/softwareplace/http-utils/security"
 	"github.com/softwareplace/http-utils/security/secret"
@@ -208,8 +208,8 @@ func TestMockServer(t *testing.T) {
 
 		server.Default().
 			PrincipalService(userPrincipalService).
-			EmbeddedServer(gen.ApiResourceHandler(&service.ApiService{})).
-			SwaggerDocHandler("./resource/pet-store.yaml").
+			EmbeddedServer(api.Handler).
+			SwaggerDocHandler("./internal/resource/pet-store.yaml").
 			ServeHTTP(rr, req)
 
 		if status := rr.Code; status != http.StatusMovedPermanently {

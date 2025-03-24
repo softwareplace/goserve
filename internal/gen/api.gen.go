@@ -241,7 +241,7 @@ type UpdateUserParams struct {
 	Authorization Authorization `json:"Authorization"`
 }
 
-func (rh *requestHandlerImpl[T]) PostLogin(ctx *apicontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]) PostLogin(ctx *apicontext.Request[T]) {
 
 	requestBody := LoginRequest{}
 	request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body LoginRequest) {
@@ -252,7 +252,7 @@ func (rh *requestHandlerImpl[T]) PostLogin(ctx *apicontext.Request[T]) {
 
 }
 
-func (rh *requestHandlerImpl[T]) AddPet(ctx *apicontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]) AddPet(ctx *apicontext.Request[T]) {
 
 	requestBody := Pet{}
 	request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body Pet) {
@@ -263,7 +263,7 @@ func (rh *requestHandlerImpl[T]) AddPet(ctx *apicontext.Request[T]) {
 
 }
 
-func (rh *requestHandlerImpl[T]) UpdatePet(ctx *apicontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]) UpdatePet(ctx *apicontext.Request[T]) {
 
 	requestBody := Pet{}
 	request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body Pet) {
@@ -274,7 +274,7 @@ func (rh *requestHandlerImpl[T]) UpdatePet(ctx *apicontext.Request[T]) {
 
 }
 
-func (rh *requestHandlerImpl[T]) FindPetsByStatus(ctx *apicontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]) FindPetsByStatus(ctx *apicontext.Request[T]) {
 
 	//request := FindPetsByStatusRequestParams{}
 	// server.PopulateFieldsFromRequest(ctx, &request)
@@ -282,7 +282,7 @@ func (rh *requestHandlerImpl[T]) FindPetsByStatus(ctx *apicontext.Request[T]) {
 
 }
 
-func (rh *requestHandlerImpl[T]) FindPetsByTags(ctx *apicontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]) FindPetsByTags(ctx *apicontext.Request[T]) {
 
 	//request := FindPetsByTagsRequestParams{}
 	// server.PopulateFieldsFromRequest(ctx, &request)
@@ -290,7 +290,7 @@ func (rh *requestHandlerImpl[T]) FindPetsByTags(ctx *apicontext.Request[T]) {
 
 }
 
-func (rh *requestHandlerImpl[T]) DeletePet(ctx *apicontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]) DeletePet(ctx *apicontext.Request[T]) {
 
 	//request := DeletePetRequestParams{}
 	// server.PopulateFieldsFromRequest(ctx, &request)
@@ -298,7 +298,7 @@ func (rh *requestHandlerImpl[T]) DeletePet(ctx *apicontext.Request[T]) {
 
 }
 
-func (rh *requestHandlerImpl[T]) GetPetById(ctx *apicontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]) GetPetById(ctx *apicontext.Request[T]) {
 
 	//request := GetPetByIdRequestParams{}
 	// server.PopulateFieldsFromRequest(ctx, &request)
@@ -306,7 +306,7 @@ func (rh *requestHandlerImpl[T]) GetPetById(ctx *apicontext.Request[T]) {
 
 }
 
-func (rh *requestHandlerImpl[T]) UpdatePetWithForm(ctx *apicontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]) UpdatePetWithForm(ctx *apicontext.Request[T]) {
 
 	//request := UpdatePetWithFormRequestParams{}
 	// server.PopulateFieldsFromRequest(ctx, &request)
@@ -314,7 +314,7 @@ func (rh *requestHandlerImpl[T]) UpdatePetWithForm(ctx *apicontext.Request[T]) {
 
 }
 
-func (rh *requestHandlerImpl[T]) UploadFile(ctx *apicontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]) UploadFile(ctx *apicontext.Request[T]) {
 
 	//request := UploadFileRequestParams{}
 	// server.PopulateFieldsFromRequest(ctx, &request)
@@ -322,7 +322,7 @@ func (rh *requestHandlerImpl[T]) UploadFile(ctx *apicontext.Request[T]) {
 
 }
 
-func (rh *requestHandlerImpl[T]) GetInventory(ctx *apicontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]) GetInventory(ctx *apicontext.Request[T]) {
 
 	//request := GetInventoryRequestParams{}
 	// server.PopulateFieldsFromRequest(ctx, &request)
@@ -330,7 +330,7 @@ func (rh *requestHandlerImpl[T]) GetInventory(ctx *apicontext.Request[T]) {
 
 }
 
-func (rh *requestHandlerImpl[T]) PlaceOrder(ctx *apicontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]) PlaceOrder(ctx *apicontext.Request[T]) {
 
 	requestBody := Order{}
 	request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body Order) {
@@ -341,7 +341,7 @@ func (rh *requestHandlerImpl[T]) PlaceOrder(ctx *apicontext.Request[T]) {
 
 }
 
-func (rh *requestHandlerImpl[T]) DeleteOrder(ctx *apicontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]) DeleteOrder(ctx *apicontext.Request[T]) {
 
 	//request := DeleteOrderRequestParams{}
 	// server.PopulateFieldsFromRequest(ctx, &request)
@@ -349,7 +349,7 @@ func (rh *requestHandlerImpl[T]) DeleteOrder(ctx *apicontext.Request[T]) {
 
 }
 
-func (rh *requestHandlerImpl[T]) GetOrderById(ctx *apicontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]) GetOrderById(ctx *apicontext.Request[T]) {
 
 	//request := GetOrderByIdRequestParams{}
 	// server.PopulateFieldsFromRequest(ctx, &request)
@@ -357,7 +357,7 @@ func (rh *requestHandlerImpl[T]) GetOrderById(ctx *apicontext.Request[T]) {
 
 }
 
-func (rh *requestHandlerImpl[T]) CreateUser(ctx *apicontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]) CreateUser(ctx *apicontext.Request[T]) {
 
 	requestBody := User{}
 	request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body User) {
@@ -368,7 +368,7 @@ func (rh *requestHandlerImpl[T]) CreateUser(ctx *apicontext.Request[T]) {
 
 }
 
-func (rh *requestHandlerImpl[T]) CreateUsersWithListInput(ctx *apicontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]) CreateUsersWithListInput(ctx *apicontext.Request[T]) {
 
 	requestBody := CreateUsersWithListInputJSONBody{}
 	request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body CreateUsersWithListInputJSONBody) {
@@ -379,7 +379,7 @@ func (rh *requestHandlerImpl[T]) CreateUsersWithListInput(ctx *apicontext.Reques
 
 }
 
-func (rh *requestHandlerImpl[T]) LogoutUser(ctx *apicontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]) LogoutUser(ctx *apicontext.Request[T]) {
 
 	//request := LogoutUserRequestParams{}
 	// server.PopulateFieldsFromRequest(ctx, &request)
@@ -387,7 +387,7 @@ func (rh *requestHandlerImpl[T]) LogoutUser(ctx *apicontext.Request[T]) {
 
 }
 
-func (rh *requestHandlerImpl[T]) DeleteUser(ctx *apicontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]) DeleteUser(ctx *apicontext.Request[T]) {
 
 	//request := DeleteUserRequestParams{}
 	// server.PopulateFieldsFromRequest(ctx, &request)
@@ -395,7 +395,7 @@ func (rh *requestHandlerImpl[T]) DeleteUser(ctx *apicontext.Request[T]) {
 
 }
 
-func (rh *requestHandlerImpl[T]) GetUserByName(ctx *apicontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]) GetUserByName(ctx *apicontext.Request[T]) {
 
 	//request := GetUserByNameRequestParams{}
 	// server.PopulateFieldsFromRequest(ctx, &request)
@@ -403,7 +403,7 @@ func (rh *requestHandlerImpl[T]) GetUserByName(ctx *apicontext.Request[T]) {
 
 }
 
-func (rh *requestHandlerImpl[T]) UpdateUser(ctx *apicontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]) UpdateUser(ctx *apicontext.Request[T]) {
 
 	requestBody := User{}
 	request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body User) {
@@ -435,8 +435,8 @@ type CreateUsersWithListInputRequest = CreateUsersWithListInputJSONBody
 // UpdateUserJSONRequestBody defines body for UpdateUser for application/json ContentType.
 type UpdateUserRequest = User
 
-// RequestHandler represents all server handlers.
-type RequestHandler[T apicontext.Principal] interface {
+// resourceHandler represents all server handlers.
+type resourceHandler[T apicontext.Principal] interface {
 	// Authentication endpoint
 	// (POST /login)
 	PostLogin(ctx *apicontext.Request[T])
@@ -496,7 +496,7 @@ type RequestHandler[T apicontext.Principal] interface {
 	UpdateUser(ctx *apicontext.Request[T])
 }
 
-type ServiceRequestHandler[T apicontext.Principal] interface {
+type ApiRequestService[T apicontext.Principal] interface {
 
 	// PostLoginRequest(requestBody LoginRequest, requestParams PostLoginRequestParams, ctx *apicontext.Request[T])
 	PostLoginRequest(requestBody LoginRequest, ctx *apicontext.Request[T])
@@ -507,25 +507,34 @@ type ServiceRequestHandler[T apicontext.Principal] interface {
 	// UpdatePetRequest(requestBody Pet, requestParams UpdatePetRequestParams, ctx *apicontext.Request[T])
 	UpdatePetRequest(requestBody Pet, ctx *apicontext.Request[T])
 
+	// FindPetsByStatusRequest(ctx *apicontext.Request[T])
 	FindPetsByStatusRequest(ctx *apicontext.Request[T])
 
+	// FindPetsByTagsRequest(ctx *apicontext.Request[T])
 	FindPetsByTagsRequest(ctx *apicontext.Request[T])
 
+	// DeletePetRequest(ctx *apicontext.Request[T])
 	DeletePetRequest(ctx *apicontext.Request[T])
 
+	// GetPetByIdRequest(ctx *apicontext.Request[T])
 	GetPetByIdRequest(ctx *apicontext.Request[T])
 
+	// UpdatePetWithFormRequest(ctx *apicontext.Request[T])
 	UpdatePetWithFormRequest(ctx *apicontext.Request[T])
 
+	// UploadFileRequest(ctx *apicontext.Request[T])
 	UploadFileRequest(ctx *apicontext.Request[T])
 
+	// GetInventoryRequest(ctx *apicontext.Request[T])
 	GetInventoryRequest(ctx *apicontext.Request[T])
 
 	// PlaceOrderRequest(requestBody Order, requestParams PlaceOrderRequestParams, ctx *apicontext.Request[T])
 	PlaceOrderRequest(requestBody Order, ctx *apicontext.Request[T])
 
+	// DeleteOrderRequest(ctx *apicontext.Request[T])
 	DeleteOrderRequest(ctx *apicontext.Request[T])
 
+	// GetOrderByIdRequest(ctx *apicontext.Request[T])
 	GetOrderByIdRequest(ctx *apicontext.Request[T])
 
 	// CreateUserRequest(requestBody User, requestParams CreateUserRequestParams, ctx *apicontext.Request[T])
@@ -534,133 +543,136 @@ type ServiceRequestHandler[T apicontext.Principal] interface {
 	// CreateUsersWithListInputRequest(requestBody CreateUsersWithListInputJSONBody, requestParams CreateUsersWithListInputRequestParams, ctx *apicontext.Request[T])
 	CreateUsersWithListInputRequest(requestBody CreateUsersWithListInputJSONBody, ctx *apicontext.Request[T])
 
+	// LogoutUserRequest(ctx *apicontext.Request[T])
 	LogoutUserRequest(ctx *apicontext.Request[T])
 
+	// DeleteUserRequest(ctx *apicontext.Request[T])
 	DeleteUserRequest(ctx *apicontext.Request[T])
 
+	// GetUserByNameRequest(ctx *apicontext.Request[T])
 	GetUserByNameRequest(ctx *apicontext.Request[T])
 
 	// UpdateUserRequest(requestBody User, requestParams UpdateUserRequestParams, ctx *apicontext.Request[T])
 	UpdateUserRequest(requestBody User, ctx *apicontext.Request[T])
 }
 
-type requestHandlerImpl[T apicontext.Principal] struct {
-	Service ServiceRequestHandler[T]
+type resourceHandlerImpl[T apicontext.Principal] struct {
+	Service ApiRequestService[T]
 }
 
-// ResourcesHandler registers API endpoints from generated code.
+// apiResourceHandler registers API endpoints from generated code.
 
-// - RequestHandler.PostLogin
-// - RequestHandler.AddPet
-// - RequestHandler.UpdatePet
-// - RequestHandler.FindPetsByStatus
-// - RequestHandler.FindPetsByTags
-// - RequestHandler.DeletePet
-// - RequestHandler.GetPetById
-// - RequestHandler.UpdatePetWithForm
-// - RequestHandler.UploadFile
-// - RequestHandler.GetInventory
-// - RequestHandler.PlaceOrder
-// - RequestHandler.DeleteOrder
-// - RequestHandler.GetOrderById
-// - RequestHandler.CreateUser
-// - RequestHandler.CreateUsersWithListInput
-// - RequestHandler.LogoutUser
-// - RequestHandler.DeleteUser
-// - RequestHandler.GetUserByName
-// - RequestHandler.UpdateUser
+// - resourceHandler.PostLogin
+// - resourceHandler.AddPet
+// - resourceHandler.UpdatePet
+// - resourceHandler.FindPetsByStatus
+// - resourceHandler.FindPetsByTags
+// - resourceHandler.DeletePet
+// - resourceHandler.GetPetById
+// - resourceHandler.UpdatePetWithForm
+// - resourceHandler.UploadFile
+// - resourceHandler.GetInventory
+// - resourceHandler.PlaceOrder
+// - resourceHandler.DeleteOrder
+// - resourceHandler.GetOrderById
+// - resourceHandler.CreateUser
+// - resourceHandler.CreateUsersWithListInput
+// - resourceHandler.LogoutUser
+// - resourceHandler.DeleteUser
+// - resourceHandler.GetUserByName
+// - resourceHandler.UpdateUser
 // Parameters:
-//   - apiServer: The API router handler used for setting up routes and middleware.
+//   - server: The API router handler used for setting up routes and middleware.
 //   - server: The server interface implementation containing the endpoint handlers.
 //
 // Generics:
 //   - T: A type that satisfies the apicontext.Principal interface, representing the principal/context
 //     involved in the API operations.
 //
-// This function will use the RequestHandler implementation
+// This function will use the Handler implementation
 // that has already been generated to bind specific API routes
 // dynamically at runtime, based on the provided security definitions
 // and endpoint configurations.
-func ResourcesHandler[T apicontext.Principal](apiServer server.Api[T], service ServiceRequestHandler[T]) {
-	handler := &requestHandlerImpl[T]{
+func apiResourceHandler[T apicontext.Principal](server server.Api[T], service ApiRequestService[T]) {
+	handler := &resourceHandlerImpl[T]{
 		Service: service,
 	}
-	ApiResourceRegister(apiServer, handler)
+	apiResourceRegister(server, handler)
 }
 
-// ApiResourceRegister is a customizable resource handler that registers API endpoints from generated code.
-// This method binds the custom `RequestHandler` implementation to specific API routes,
+// apiResourceRegister is a customizable resource handler that registers API endpoints from generated code.
+// This method binds the custom `Handler` implementation to specific API routes,
 // allowing dynamic configuration of handlers.
 //
 // Parameters:
-//   - apiServer: The API router handler used for setting up routes and middleware.
-//   - handler: The `RequestHandler` interface implementation containing the actual endpoint handlers.
+//   - server: The API router handler used for setting up routes and middleware.
+//   - handler: The `Handler` interface implementation containing the actual endpoint handlers.
 //
 // Generics:
 //   - T: A type that satisfies the apicontext.Principal interface, representing the principal/context
 //     involved in the API operations.
-func ApiResourceRegister[T apicontext.Principal](apiServer server.Api[T], handler RequestHandler[T]) {
+func apiResourceRegister[T apicontext.Principal](server server.Api[T], handler resourceHandler[T]) {
 	// Initialize an empty string for the merged scopes.
-	apiServer.PublicRouter(handler.PostLogin, "/login", "POST")
+	server.PublicRouter(handler.PostLogin, "/login", "POST")
 
 	// Initialize an empty string for the merged scopes.// Initialize $scopes if it's empty.// Append with a comma if $scopes is not empty.
-	apiServer.Add(handler.AddPet, "/pet", "POST", []string{"write:pets", "read:pets"}...)
+	server.Add(handler.AddPet, "/pet", "POST", []string{"write:pets", "read:pets"}...)
 
 	// Initialize an empty string for the merged scopes.// Initialize $scopes if it's empty.// Append with a comma if $scopes is not empty.
-	apiServer.Add(handler.UpdatePet, "/pet", "PUT", []string{"write:pets", "read:pets"}...)
+	server.Add(handler.UpdatePet, "/pet", "PUT", []string{"write:pets", "read:pets"}...)
 
 	// Initialize an empty string for the merged scopes.// Initialize $scopes if it's empty.// Append with a comma if $scopes is not empty.
-	apiServer.Add(handler.FindPetsByStatus, "/pet/findByStatus", "GET", []string{"write:pets", "read:pets"}...)
+	server.Add(handler.FindPetsByStatus, "/pet/findByStatus", "GET", []string{"write:pets", "read:pets"}...)
 
 	// Initialize an empty string for the merged scopes.// Initialize $scopes if it's empty.// Append with a comma if $scopes is not empty.
-	apiServer.Add(handler.FindPetsByTags, "/pet/findByTags", "GET", []string{"write:pets", "read:pets"}...)
+	server.Add(handler.FindPetsByTags, "/pet/findByTags", "GET", []string{"write:pets", "read:pets"}...)
 
 	// Initialize an empty string for the merged scopes.// Initialize $scopes if it's empty.// Append with a comma if $scopes is not empty.
-	apiServer.Add(handler.DeletePet, "/pet/{petId}", "DELETE", []string{"write:pets", "read:pets"}...)
+	server.Add(handler.DeletePet, "/pet/{petId}", "DELETE", []string{"write:pets", "read:pets"}...)
 
 	// Initialize an empty string for the merged scopes.// Initialize $scopes if it's empty.// Append with a comma if $scopes is not empty.// Append with a comma if $scopes is not empty.
-	apiServer.Add(handler.GetPetById, "/pet/{petId}", "GET", []string{"api_key", "write:pets", "read:pets"}...)
+	server.Add(handler.GetPetById, "/pet/{petId}", "GET", []string{"api_key", "write:pets", "read:pets"}...)
 
 	// Initialize an empty string for the merged scopes.// Initialize $scopes if it's empty.// Append with a comma if $scopes is not empty.
-	apiServer.Add(handler.UpdatePetWithForm, "/pet/{petId}", "POST", []string{"write:pets", "read:pets"}...)
+	server.Add(handler.UpdatePetWithForm, "/pet/{petId}", "POST", []string{"write:pets", "read:pets"}...)
 
 	// Initialize an empty string for the merged scopes.// Initialize $scopes if it's empty.// Append with a comma if $scopes is not empty.
-	apiServer.Add(handler.UploadFile, "/pet/{petId}/uploadImage", "POST", []string{"write:pets", "read:pets"}...)
+	server.Add(handler.UploadFile, "/pet/{petId}/uploadImage", "POST", []string{"write:pets", "read:pets"}...)
 
 	// Initialize an empty string for the merged scopes.
-	apiServer.PublicRouter(handler.GetInventory, "/store/inventory", "GET")
+	server.PublicRouter(handler.GetInventory, "/store/inventory", "GET")
 
 	// Initialize an empty string for the merged scopes.
-	apiServer.PublicRouter(handler.PlaceOrder, "/store/order", "POST")
+	server.PublicRouter(handler.PlaceOrder, "/store/order", "POST")
 
 	// Initialize an empty string for the merged scopes.
-	apiServer.PublicRouter(handler.DeleteOrder, "/store/order/{orderId}", "DELETE")
+	server.PublicRouter(handler.DeleteOrder, "/store/order/{orderId}", "DELETE")
 
 	// Initialize an empty string for the merged scopes.
-	apiServer.PublicRouter(handler.GetOrderById, "/store/order/{orderId}", "GET")
+	server.PublicRouter(handler.GetOrderById, "/store/order/{orderId}", "GET")
 
 	// Initialize an empty string for the merged scopes.
-	apiServer.PublicRouter(handler.CreateUser, "/user", "POST")
+	server.PublicRouter(handler.CreateUser, "/user", "POST")
 
 	// Initialize an empty string for the merged scopes.
-	apiServer.PublicRouter(handler.CreateUsersWithListInput, "/user/createWithList", "POST")
+	server.PublicRouter(handler.CreateUsersWithListInput, "/user/createWithList", "POST")
 
 	// Initialize an empty string for the merged scopes.
-	apiServer.PublicRouter(handler.LogoutUser, "/user/logout", "GET")
+	server.PublicRouter(handler.LogoutUser, "/user/logout", "GET")
 
 	// Initialize an empty string for the merged scopes.
-	apiServer.PublicRouter(handler.DeleteUser, "/user/{username}", "DELETE")
+	server.PublicRouter(handler.DeleteUser, "/user/{username}", "DELETE")
 
 	// Initialize an empty string for the merged scopes.
-	apiServer.PublicRouter(handler.GetUserByName, "/user/{username}", "GET")
+	server.PublicRouter(handler.GetUserByName, "/user/{username}", "GET")
 
 	// Initialize an empty string for the merged scopes.
-	apiServer.PublicRouter(handler.UpdateUser, "/user/{username}", "PUT")
+	server.PublicRouter(handler.UpdateUser, "/user/{username}", "PUT")
 
 }
 
-func ApiResourceHandler[T apicontext.Principal](service ServiceRequestHandler[T]) func(handler server.Api[T]) {
+func Api[T apicontext.Principal](service ApiRequestService[T]) func(handler server.Api[T]) {
 	return func(handler server.Api[T]) {
-		ResourcesHandler(handler, service)
+		apiResourceHandler(handler, service)
 	}
 }

@@ -1,12 +1,12 @@
-// RequestHandler represents all server handlers.
-type RequestHandler[T apicontext.Principal] interface {
+// resourceHandler represents all server handlers.
+type resourceHandler[T apicontext.Principal] interface {
 {{range .}}{{.SummaryAsComment }}
 // ({{.Method}} {{.Path}})
 {{.OperationId}}(ctx *apicontext.Request[T])
 {{end}}
 }
 
-type ServiceRequestHandler[T apicontext.Principal] interface {
+type ApiRequestService[T apicontext.Principal] interface {
 {{range .}}{{$entry := .}}
     {{$opid := $entry.OperationId}}
     {{ $processed := false -}}
@@ -19,12 +19,13 @@ type ServiceRequestHandler[T apicontext.Principal] interface {
     {{end}}
     {{end}}
     {{if not $processed}}
+    // {{$opid}}Request(ctx *apicontext.Request[T])
     {{$opid}}Request(ctx *apicontext.Request[T])
     {{end}}
 {{end}}
 }
 
-type requestHandlerImpl[T apicontext.Principal] struct {
-    Service ServiceRequestHandler[T]
+type resourceHandlerImpl[T apicontext.Principal] struct {
+    Service ApiRequestService[T]
 }
 

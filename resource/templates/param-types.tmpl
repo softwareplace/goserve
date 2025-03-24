@@ -7,7 +7,7 @@ type {{.TypeName}} {{if .IsAlias}}={{end}} {{.Schema.TypeDecl}}
 
 {{range .}}{{$entry := .}}
 {{$opid := $entry.OperationId}}
-func (rh *requestHandlerImpl[T]){{$opid}}(ctx *apicontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]){{$opid}}(ctx *apicontext.Request[T]) {
     {{ $processed := false -}}
     {{range .Bodies}}
     {{if and (not $processed) .IsSupported -}}
