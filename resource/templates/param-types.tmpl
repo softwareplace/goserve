@@ -12,19 +12,29 @@ func (rh *resourceHandlerImpl[T]){{$opid}}(ctx *apicontext.Request[T]) {
     {{range .Bodies}}
     {{if and (not $processed) .IsSupported -}}
     {{$contentType := .ContentType -}}
-        requestBody := {{.Schema.TypeDecl}}{}
-        request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body {{.Schema.TypeDecl}}) {
-        rh.Service.{{$entry.OperationId}}Request(body, ctx)
-        }, func(ctx *apicontext.Request[T], err error) {
-        ctx.InternalServerError("Internal server error")
+        errorhandler.Handler(func() {
+            requestBody := {{.Schema.TypeDecl}}{}
+            request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body {{.Schema.TypeDecl}}) {
+            rh.Service.{{$entry.OperationId}}Request(body, ctx)
+            }, func(ctx *apicontext.Request[T], err error) {
+            ctx.InternalServerError("Internal server error")
+            })
+        }, func(err error) {
+            log.Errorf("[{{$entry.Method}} {{$entry.Path}}]:: {{$opid}} result with error: %+v", err)
+            ctx.InternalServerError("Internal server error")
         })
         {{ $processed = true -}}
         {{end}}
         {{end}}
         {{if not $processed -}}
-        //request := {{$entry.OperationId}}RequestParams{}
+        // request := {{$entry.OperationId}}RequestParams{}
         // server.PopulateFieldsFromRequest(ctx, &request)
-        rh.Service.{{$entry.OperationId}}Request(ctx)
+        errorhandler.Handler(func() {
+            rh.Service.{{$entry.OperationId}}Request(ctx)
+        }, func(err error) {
+            log.Errorf("[{{.Method}} {{.Path}}]:: {{$opid}} result with error: %+v", err)
+            ctx.InternalServerError("Internal server error")
+        })
         {{end}}
         }
 {{end}}

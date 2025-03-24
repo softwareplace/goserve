@@ -41,6 +41,8 @@ openapi_types "github.com/oapi-codegen/runtime/types"
 apicontext "github.com/softwareplace/goserve/context"
 "github.com/softwareplace/goserve/server"
 "github.com/softwareplace/goserve/request"
+errorhandler "github.com/softwareplace/goserve/error"
+log "github.com/sirupsen/logrus"
 {{- range .ExternalImports}}
 {{ . }}
 {{- end}}

@@ -6,7 +6,9 @@ package gen
 import (
 	"time"
 
+	log "github.com/sirupsen/logrus"
 	apicontext "github.com/softwareplace/goserve/context"
+	errorhandler "github.com/softwareplace/goserve/error"
 	"github.com/softwareplace/goserve/request"
 	"github.com/softwareplace/goserve/server"
 )
@@ -248,10 +250,15 @@ type UpdateUserParams struct {
 
 func (rh *resourceHandlerImpl[T]) PostLogin(ctx *apicontext.Request[T]) {
 
-	requestBody := LoginRequest{}
-	request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body LoginRequest) {
-		rh.Service.PostLoginRequest(body, ctx)
-	}, func(ctx *apicontext.Request[T], err error) {
+	errorhandler.Handler(func() {
+		requestBody := LoginRequest{}
+		request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body LoginRequest) {
+			rh.Service.PostLoginRequest(body, ctx)
+		}, func(ctx *apicontext.Request[T], err error) {
+			ctx.InternalServerError("Internal server error")
+		})
+	}, func(err error) {
+		log.Errorf("[POST /login]:: PostLogin result with error: %+v", err)
 		ctx.InternalServerError("Internal server error")
 	})
 
@@ -259,10 +266,15 @@ func (rh *resourceHandlerImpl[T]) PostLogin(ctx *apicontext.Request[T]) {
 
 func (rh *resourceHandlerImpl[T]) AddPet(ctx *apicontext.Request[T]) {
 
-	requestBody := Pet{}
-	request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body Pet) {
-		rh.Service.AddPetRequest(body, ctx)
-	}, func(ctx *apicontext.Request[T], err error) {
+	errorhandler.Handler(func() {
+		requestBody := Pet{}
+		request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body Pet) {
+			rh.Service.AddPetRequest(body, ctx)
+		}, func(ctx *apicontext.Request[T], err error) {
+			ctx.InternalServerError("Internal server error")
+		})
+	}, func(err error) {
+		log.Errorf("[POST /pet]:: AddPet result with error: %+v", err)
 		ctx.InternalServerError("Internal server error")
 	})
 
@@ -270,10 +282,15 @@ func (rh *resourceHandlerImpl[T]) AddPet(ctx *apicontext.Request[T]) {
 
 func (rh *resourceHandlerImpl[T]) UpdatePet(ctx *apicontext.Request[T]) {
 
-	requestBody := Pet{}
-	request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body Pet) {
-		rh.Service.UpdatePetRequest(body, ctx)
-	}, func(ctx *apicontext.Request[T], err error) {
+	errorhandler.Handler(func() {
+		requestBody := Pet{}
+		request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body Pet) {
+			rh.Service.UpdatePetRequest(body, ctx)
+		}, func(ctx *apicontext.Request[T], err error) {
+			ctx.InternalServerError("Internal server error")
+		})
+	}, func(err error) {
+		log.Errorf("[PUT /pet]:: UpdatePet result with error: %+v", err)
 		ctx.InternalServerError("Internal server error")
 	})
 
@@ -281,66 +298,106 @@ func (rh *resourceHandlerImpl[T]) UpdatePet(ctx *apicontext.Request[T]) {
 
 func (rh *resourceHandlerImpl[T]) FindPetsByStatus(ctx *apicontext.Request[T]) {
 
-	//request := FindPetsByStatusRequestParams{}
+	// request := FindPetsByStatusRequestParams{}
 	// server.PopulateFieldsFromRequest(ctx, &request)
-	rh.Service.FindPetsByStatusRequest(ctx)
+	errorhandler.Handler(func() {
+		rh.Service.FindPetsByStatusRequest(ctx)
+	}, func(err error) {
+		log.Errorf("[GET /pet/findByStatus]:: FindPetsByStatus result with error: %+v", err)
+		ctx.InternalServerError("Internal server error")
+	})
 
 }
 
 func (rh *resourceHandlerImpl[T]) FindPetsByTags(ctx *apicontext.Request[T]) {
 
-	//request := FindPetsByTagsRequestParams{}
+	// request := FindPetsByTagsRequestParams{}
 	// server.PopulateFieldsFromRequest(ctx, &request)
-	rh.Service.FindPetsByTagsRequest(ctx)
+	errorhandler.Handler(func() {
+		rh.Service.FindPetsByTagsRequest(ctx)
+	}, func(err error) {
+		log.Errorf("[GET /pet/findByTags]:: FindPetsByTags result with error: %+v", err)
+		ctx.InternalServerError("Internal server error")
+	})
 
 }
 
 func (rh *resourceHandlerImpl[T]) DeletePet(ctx *apicontext.Request[T]) {
 
-	//request := DeletePetRequestParams{}
+	// request := DeletePetRequestParams{}
 	// server.PopulateFieldsFromRequest(ctx, &request)
-	rh.Service.DeletePetRequest(ctx)
+	errorhandler.Handler(func() {
+		rh.Service.DeletePetRequest(ctx)
+	}, func(err error) {
+		log.Errorf("[DELETE /pet/{petId}]:: DeletePet result with error: %+v", err)
+		ctx.InternalServerError("Internal server error")
+	})
 
 }
 
 func (rh *resourceHandlerImpl[T]) GetPetById(ctx *apicontext.Request[T]) {
 
-	//request := GetPetByIdRequestParams{}
+	// request := GetPetByIdRequestParams{}
 	// server.PopulateFieldsFromRequest(ctx, &request)
-	rh.Service.GetPetByIdRequest(ctx)
+	errorhandler.Handler(func() {
+		rh.Service.GetPetByIdRequest(ctx)
+	}, func(err error) {
+		log.Errorf("[GET /pet/{petId}]:: GetPetById result with error: %+v", err)
+		ctx.InternalServerError("Internal server error")
+	})
 
 }
 
 func (rh *resourceHandlerImpl[T]) UpdatePetWithForm(ctx *apicontext.Request[T]) {
 
-	//request := UpdatePetWithFormRequestParams{}
+	// request := UpdatePetWithFormRequestParams{}
 	// server.PopulateFieldsFromRequest(ctx, &request)
-	rh.Service.UpdatePetWithFormRequest(ctx)
+	errorhandler.Handler(func() {
+		rh.Service.UpdatePetWithFormRequest(ctx)
+	}, func(err error) {
+		log.Errorf("[POST /pet/{petId}]:: UpdatePetWithForm result with error: %+v", err)
+		ctx.InternalServerError("Internal server error")
+	})
 
 }
 
 func (rh *resourceHandlerImpl[T]) UploadFile(ctx *apicontext.Request[T]) {
 
-	//request := UploadFileRequestParams{}
+	// request := UploadFileRequestParams{}
 	// server.PopulateFieldsFromRequest(ctx, &request)
-	rh.Service.UploadFileRequest(ctx)
+	errorhandler.Handler(func() {
+		rh.Service.UploadFileRequest(ctx)
+	}, func(err error) {
+		log.Errorf("[POST /pet/{petId}/uploadImage]:: UploadFile result with error: %+v", err)
+		ctx.InternalServerError("Internal server error")
+	})
 
 }
 
 func (rh *resourceHandlerImpl[T]) GetInventory(ctx *apicontext.Request[T]) {
 
-	//request := GetInventoryRequestParams{}
+	// request := GetInventoryRequestParams{}
 	// server.PopulateFieldsFromRequest(ctx, &request)
-	rh.Service.GetInventoryRequest(ctx)
+	errorhandler.Handler(func() {
+		rh.Service.GetInventoryRequest(ctx)
+	}, func(err error) {
+		log.Errorf("[GET /store/inventory]:: GetInventory result with error: %+v", err)
+		ctx.InternalServerError("Internal server error")
+	})
 
 }
 
 func (rh *resourceHandlerImpl[T]) PlaceOrder(ctx *apicontext.Request[T]) {
 
-	requestBody := Order{}
-	request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body Order) {
-		rh.Service.PlaceOrderRequest(body, ctx)
-	}, func(ctx *apicontext.Request[T], err error) {
+	errorhandler.Handler(func() {
+		requestBody := Order{}
+		request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body Order) {
+			rh.Service.PlaceOrderRequest(body, ctx)
+		}, func(ctx *apicontext.Request[T], err error) {
+			ctx.InternalServerError("Internal server error")
+		})
+	}, func(err error) {
+		log.Errorf("[POST /store/order]:: PlaceOrder result with error: %+v", err)
 		ctx.InternalServerError("Internal server error")
 	})
 
@@ -348,26 +405,41 @@ func (rh *resourceHandlerImpl[T]) PlaceOrder(ctx *apicontext.Request[T]) {
 
 func (rh *resourceHandlerImpl[T]) DeleteOrder(ctx *apicontext.Request[T]) {
 
-	//request := DeleteOrderRequestParams{}
+	// request := DeleteOrderRequestParams{}
 	// server.PopulateFieldsFromRequest(ctx, &request)
-	rh.Service.DeleteOrderRequest(ctx)
+	errorhandler.Handler(func() {
+		rh.Service.DeleteOrderRequest(ctx)
+	}, func(err error) {
+		log.Errorf("[DELETE /store/order/{orderId}]:: DeleteOrder result with error: %+v", err)
+		ctx.InternalServerError("Internal server error")
+	})
 
 }
 
 func (rh *resourceHandlerImpl[T]) GetOrderById(ctx *apicontext.Request[T]) {
 
-	//request := GetOrderByIdRequestParams{}
+	// request := GetOrderByIdRequestParams{}
 	// server.PopulateFieldsFromRequest(ctx, &request)
-	rh.Service.GetOrderByIdRequest(ctx)
+	errorhandler.Handler(func() {
+		rh.Service.GetOrderByIdRequest(ctx)
+	}, func(err error) {
+		log.Errorf("[GET /store/order/{orderId}]:: GetOrderById result with error: %+v", err)
+		ctx.InternalServerError("Internal server error")
+	})
 
 }
 
 func (rh *resourceHandlerImpl[T]) CreateUser(ctx *apicontext.Request[T]) {
 
-	requestBody := User{}
-	request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body User) {
-		rh.Service.CreateUserRequest(body, ctx)
-	}, func(ctx *apicontext.Request[T], err error) {
+	errorhandler.Handler(func() {
+		requestBody := User{}
+		request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body User) {
+			rh.Service.CreateUserRequest(body, ctx)
+		}, func(ctx *apicontext.Request[T], err error) {
+			ctx.InternalServerError("Internal server error")
+		})
+	}, func(err error) {
+		log.Errorf("[POST /user]:: CreateUser result with error: %+v", err)
 		ctx.InternalServerError("Internal server error")
 	})
 
@@ -375,10 +447,15 @@ func (rh *resourceHandlerImpl[T]) CreateUser(ctx *apicontext.Request[T]) {
 
 func (rh *resourceHandlerImpl[T]) CreateUsersWithListInput(ctx *apicontext.Request[T]) {
 
-	requestBody := CreateUsersWithListInputJSONBody{}
-	request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body CreateUsersWithListInputJSONBody) {
-		rh.Service.CreateUsersWithListInputRequest(body, ctx)
-	}, func(ctx *apicontext.Request[T], err error) {
+	errorhandler.Handler(func() {
+		requestBody := CreateUsersWithListInputJSONBody{}
+		request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body CreateUsersWithListInputJSONBody) {
+			rh.Service.CreateUsersWithListInputRequest(body, ctx)
+		}, func(ctx *apicontext.Request[T], err error) {
+			ctx.InternalServerError("Internal server error")
+		})
+	}, func(err error) {
+		log.Errorf("[POST /user/createWithList]:: CreateUsersWithListInput result with error: %+v", err)
 		ctx.InternalServerError("Internal server error")
 	})
 
@@ -386,34 +463,54 @@ func (rh *resourceHandlerImpl[T]) CreateUsersWithListInput(ctx *apicontext.Reque
 
 func (rh *resourceHandlerImpl[T]) LogoutUser(ctx *apicontext.Request[T]) {
 
-	//request := LogoutUserRequestParams{}
+	// request := LogoutUserRequestParams{}
 	// server.PopulateFieldsFromRequest(ctx, &request)
-	rh.Service.LogoutUserRequest(ctx)
+	errorhandler.Handler(func() {
+		rh.Service.LogoutUserRequest(ctx)
+	}, func(err error) {
+		log.Errorf("[GET /user/logout]:: LogoutUser result with error: %+v", err)
+		ctx.InternalServerError("Internal server error")
+	})
 
 }
 
 func (rh *resourceHandlerImpl[T]) DeleteUser(ctx *apicontext.Request[T]) {
 
-	//request := DeleteUserRequestParams{}
+	// request := DeleteUserRequestParams{}
 	// server.PopulateFieldsFromRequest(ctx, &request)
-	rh.Service.DeleteUserRequest(ctx)
+	errorhandler.Handler(func() {
+		rh.Service.DeleteUserRequest(ctx)
+	}, func(err error) {
+		log.Errorf("[DELETE /user/{username}]:: DeleteUser result with error: %+v", err)
+		ctx.InternalServerError("Internal server error")
+	})
 
 }
 
 func (rh *resourceHandlerImpl[T]) GetUserByName(ctx *apicontext.Request[T]) {
 
-	//request := GetUserByNameRequestParams{}
+	// request := GetUserByNameRequestParams{}
 	// server.PopulateFieldsFromRequest(ctx, &request)
-	rh.Service.GetUserByNameRequest(ctx)
+	errorhandler.Handler(func() {
+		rh.Service.GetUserByNameRequest(ctx)
+	}, func(err error) {
+		log.Errorf("[GET /user/{username}]:: GetUserByName result with error: %+v", err)
+		ctx.InternalServerError("Internal server error")
+	})
 
 }
 
 func (rh *resourceHandlerImpl[T]) UpdateUser(ctx *apicontext.Request[T]) {
 
-	requestBody := User{}
-	request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body User) {
-		rh.Service.UpdateUserRequest(body, ctx)
-	}, func(ctx *apicontext.Request[T], err error) {
+	errorhandler.Handler(func() {
+		requestBody := User{}
+		request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body User) {
+			rh.Service.UpdateUserRequest(body, ctx)
+		}, func(ctx *apicontext.Request[T], err error) {
+			ctx.InternalServerError("Internal server error")
+		})
+	}, func(err error) {
+		log.Errorf("[PUT /user/{username}]:: UpdateUser result with error: %+v", err)
 		ctx.InternalServerError("Internal server error")
 	})
 

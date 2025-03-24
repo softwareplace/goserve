@@ -51,7 +51,7 @@ func (a *baseServer[T]) hasResourceAccessRight(ctx apicontext.Request[T]) bool {
 	userRoles := (*ctx.Principal).GetRoles()
 
 	if userRoles == nil || len(userRoles) == 0 {
-		log.Printf("Error: User roles are nil. Required roles: %v", requiredRoles)
+		log.Errorf("Error: User roles are nil. Required roles: %v", requiredRoles)
 		return false
 	}
 
@@ -63,7 +63,7 @@ func (a *baseServer[T]) hasResourceAccessRight(ctx apicontext.Request[T]) bool {
 		}
 	}
 
-	log.Printf("Error: User roles are nil. Required roles: [%s] but found [%v]",
+	log.Errorf("Error: User roles are nil. Required roles: [%s] but found [%v]",
 		strings.Join(requiredRoles, ", "),
 		strings.Join(userRoles, ", "),
 	)

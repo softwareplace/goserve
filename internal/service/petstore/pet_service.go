@@ -9,6 +9,8 @@ import (
 )
 
 type Service struct {
+	// Mapped pets id and pet status
+	pets map[int64]*gen.Pet
 }
 
 var (
@@ -18,12 +20,20 @@ var (
 
 func New() *Service {
 	serviceOnce.Do(func() {
-		serviceInstance = &Service{}
+		serviceInstance = &Service{
+			pets: make(map[int64]*gen.Pet),
+		}
 	})
 	return serviceInstance
 }
 
 func (s *Service) AddPetRequest(requestBody gen.Pet, ctx *apicontext.Request[*apicontext.DefaultContext]) {
+	if s.pets[*requestBody.Id] != nil {
+		ctx.BadRequest("Pet already exists")
+		return
+	}
+
+	s.pets[*requestBody.Id] = &requestBody
 	ctx.Response(requestBody, http.StatusOK)
 }
 

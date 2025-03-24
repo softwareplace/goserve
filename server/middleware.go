@@ -53,7 +53,7 @@ func rootAppMiddleware[T apicontext.Principal](next http.Handler) http.Handler {
 
 		defer func() {
 			errorhandler.Handler(ctx.Flush, func(err error) {
-				log.Printf("Error flushing context: %v", err)
+				log.Errorf("Error flushing context: %v", err)
 			})
 			ctx = nil
 		}()
@@ -61,7 +61,7 @@ func rootAppMiddleware[T apicontext.Principal](next http.Handler) http.Handler {
 }
 
 func onError(err any, w http.ResponseWriter) {
-	log.Printf("Error processing request: %+v", err)
+	log.Errorf("Error processing request: %+v", err)
 
 	w.WriteHeader(http.StatusInternalServerError)
 	w.Header().Set("Content-Type", "application/json")

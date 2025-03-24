@@ -51,8 +51,8 @@ func (d *PrincipalServiceImpl) LoadPrincipal(ctx *apicontext.Request[*apicontext
 	}
 
 	context := apicontext.NewDefaultCtx()
-	context.SetRoles("api:key:generator")
-	//context.SetRoles("api:key:generator", "write:pets", "read:pets")
+	//context.SetRoles("api:key:generator")
+	context.SetRoles("api:key:generator", "write:pets", "read:pets")
 	ctx.Principal = &context
 	return true
 }

@@ -83,7 +83,7 @@ func (a *apiSecretHandlerImpl[T]) initAPISecretKey() {
 	// Load private key from the provided secretKey file path
 	privateKeyData, err := os.ReadFile(a.secretKey)
 	if err != nil {
-		log.Fatalf("Failed to read private key file: %s", err.Error())
+		log.Fatalf("Failed to read private key file: %+v", err)
 	}
 
 	// Decode PEM block from the private key data
@@ -95,7 +95,7 @@ func (a *apiSecretHandlerImpl[T]) initAPISecretKey() {
 	// Parse the private key using ParsePKCS8PrivateKey
 	privateKey, err := x509.ParsePKCS8PrivateKey(block.Bytes)
 	if err != nil {
-		log.Fatalf("Failed to parse private key: %s", err.Error())
+		log.Fatalf("Failed to parse private key: %+v", err)
 	}
 	a.apiSecret = privateKey
 
@@ -137,7 +137,7 @@ func (a *apiSecretHandlerImpl[T]) apiSecretKeyValidation(ctx *apicontext.Request
 	claims, err := a.service.JWTClaims(ctx)
 
 	if err != nil {
-		log.Printf("JWT/CLAIMS_EXTRACT: AuthorizationHandler failed: %v", err)
+		log.Errorf("JWT/CLAIMS_EXTRACT: AuthorizationHandler failed: %+v", err)
 		return false
 	}
 
@@ -146,7 +146,7 @@ func (a *apiSecretHandlerImpl[T]) apiSecretKeyValidation(ctx *apicontext.Request
 	apiKey, err := a.service.Decrypt(claims["apiKey"].(string))
 
 	if err != nil {
-		log.Printf("JWT/CLAIMS_EXTRACT: AuthorizationHandler failed: %v", err)
+		log.Errorf("JWT/CLAIMS_EXTRACT: AuthorizationHandler failed: %v", err)
 		return false
 	}
 
@@ -154,26 +154,26 @@ func (a *apiSecretHandlerImpl[T]) apiSecretKeyValidation(ctx *apicontext.Request
 
 	apiAccessKey, err := a.provider.Get(ctx)
 	if err != nil {
-		log.Printf("API_SECRET_LOADER: AuthorizationHandler failed: %v", err)
+		log.Errorf("API_SECRET_LOADER: AuthorizationHandler failed: %v", err)
 		return false
 	}
 
 	// Decode the PEM-encoded public key
 	decryptKey, err := a.service.Decrypt(apiAccessKey)
 	if err != nil {
-		log.Printf("API_SECRET_DECRYPT: AuthorizationHandler failed: %v", err)
+		log.Errorf("API_SECRET_DECRYPT: AuthorizationHandler failed: %v", err)
 		return false
 	}
 	block, _ := pem.Decode([]byte(decryptKey))
 	if block == nil || block.Type != "PUBLIC KEY" {
-		log.Printf("Failed to decode public key PEM block")
+		log.Errorf("Failed to decode public key PEM block")
 		return false
 	}
 
 	// Parse the public key
 	parsedPublicKey, err := x509.ParsePKIXPublicKey(block.Bytes)
 	if err != nil {
-		log.Printf("Failed to parse public key: %v", err)
+		log.Errorf("Failed to parse public key: %v", err)
 		return false
 	}
 
@@ -182,32 +182,32 @@ func (a *apiSecretHandlerImpl[T]) apiSecretKeyValidation(ctx *apicontext.Request
 		// Ensure the type of the public key matches ECDSA
 		publicKey, ok := parsedPublicKey.(*ecdsa.PublicKey)
 		if !ok {
-			log.Printf("invalid public key type, expected ECDSA")
+			log.Errorf("invalid public key type, expected ECDSA")
 			return false
 		}
 
 		// Validate if the public key corresponds to the private key
 		privateKeyPubKey := &privateKey.PublicKey
 		if publicKey.X.Cmp(privateKeyPubKey.X) != 0 || publicKey.Y.Cmp(privateKeyPubKey.Y) != 0 {
-			log.Printf("public key does not match the private key")
+			log.Errorf("public key does not match the private key")
 			return false
 		}
 	case *rsa.PrivateKey:
 		// Ensure the type of the public key matches RSA
 		publicKey, ok := parsedPublicKey.(*rsa.PublicKey)
 		if !ok {
-			log.Printf("invalid public key type, expected RSA")
+			log.Errorf("invalid public key type, expected RSA")
 			return false
 		}
 
 		// Validate if the public key corresponds to the private key
 		privateKeyPubKey := &privateKey.PublicKey
 		if publicKey.E != privateKeyPubKey.E || publicKey.N.Cmp(privateKeyPubKey.N) != 0 {
-			log.Printf("public key does not match the private key")
+			log.Errorf("public key does not match the private key")
 			return false
 		}
 	default:
-		log.Printf("unsupported private key type: %T", privateKey)
+		log.Errorf("unsupported private key type: %T", privateKey)
 		return false
 	}
 
@@ -243,7 +243,7 @@ func (a *apiSecretHandlerImpl[T]) apiSecretKeyValidation(ctx *apicontext.Request
 func (a *apiSecretHandlerImpl[T]) GeneratePubKey(secretKey string) (string, error) {
 	privateKeyData, err := os.ReadFile(secretKey)
 	if err != nil {
-		log.Fatalf("Failed to read private key file: %s", err.Error())
+		log.Fatalf("Failed to read private key file: %+v", err)
 	}
 
 	// Decode PEM block from the private key data
@@ -255,7 +255,7 @@ func (a *apiSecretHandlerImpl[T]) GeneratePubKey(secretKey string) (string, erro
 	// Parse the private key using ParsePKCS8PrivateKey
 	privateKey, err := x509.ParsePKCS8PrivateKey(block.Bytes)
 	if err != nil {
-		log.Fatalf("Failed to parse private key: %s", err.Error())
+		log.Fatalf("Failed to parse private key: %+v", err)
 	}
 
 	// Generate and log the corresponding public key
@@ -265,13 +265,13 @@ func (a *apiSecretHandlerImpl[T]) GeneratePubKey(secretKey string) (string, erro
 		log.Println("Loaded ECDSA private key successfully")
 		publicKeyBytes, err = x509.MarshalPKIXPublicKey(&key.PublicKey)
 		if err != nil {
-			log.Fatalf("Failed to marshal ECDSA public key: %s", err.Error())
+			log.Fatalf("Failed to marshal ECDSA public key: %+v", err)
 		}
 	case *rsa.PrivateKey:
 		log.Println("Loaded RSA private key successfully")
 		publicKeyBytes, err = x509.MarshalPKIXPublicKey(&key.PublicKey)
 		if err != nil {
-			log.Fatalf("Failed to marshal RSA public key: %s", err.Error())
+			log.Fatalf("Failed to marshal RSA public key: %+v", err)
 		}
 	default:
 		log.Fatalf("Unsupported private key type: %T", key)
@@ -286,7 +286,7 @@ func (a *apiSecretHandlerImpl[T]) GeneratePubKey(secretKey string) (string, erro
 	encryptedKey, err := a.service.Encrypt(string(publicKeyPEM))
 
 	if err != nil {
-		log.Fatalf("Failed to encryptor public key: %s", err)
+		log.Fatalf("Failed to encryptor public key: %+v", err)
 		return "", nil
 	}
 	return encryptedKey, err

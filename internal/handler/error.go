@@ -1,6 +1,7 @@
 package handler
 
 import (
+	log "github.com/sirupsen/logrus"
 	apicontext "github.com/softwareplace/goserve/context"
 	errorhandler "github.com/softwareplace/goserve/error"
 	"github.com/softwareplace/goserve/server"
@@ -22,7 +23,8 @@ func New() errorhandler.ApiHandler[*apicontext.DefaultContext] {
 	return errorHandlerInstance
 }
 
-func (p *errorHandlerImpl) Handler(ctx *apicontext.Request[*apicontext.DefaultContext], _ error, source string) {
+func (p *errorHandlerImpl) Handler(ctx *apicontext.Request[*apicontext.DefaultContext], err error, source string) {
+	log.Errorf("%s failed with error: %+v", source, err)
 	if source == server.ErrorHandlerWrapper {
 		ctx.InternalServerError("Internal server error")
 	}

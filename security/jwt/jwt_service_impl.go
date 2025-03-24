@@ -37,7 +37,7 @@ func (a *serviceImpl[T]) ExtractJWTClaims(ctx *apicontext.Request[T]) bool {
 	})
 
 	if err != nil {
-		log.Printf("JWT/PARSE: AuthorizationHandler failed: %v", err)
+		log.Errorf("JWT/PARSE: AuthorizationHandler failed: %+v", err)
 		return false
 	}
 
@@ -47,7 +47,7 @@ func (a *serviceImpl[T]) ExtractJWTClaims(ctx *apicontext.Request[T]) bool {
 		requester, err := a.Decrypt(claims["request"].(string))
 
 		if err != nil {
-			log.Printf("%s: AuthorizationHandler failed: %v", ExtractClaimsError, err)
+			log.Errorf("%s: AuthorizationHandler failed: %+v", ExtractClaimsError, err)
 			a.HandlerErrorOrElse(ctx, err, ExtractClaimsError, func() {
 				ctx.Error("AuthorizationHandler failed", http.StatusForbidden)
 			})
@@ -59,7 +59,7 @@ func (a *serviceImpl[T]) ExtractJWTClaims(ctx *apicontext.Request[T]) bool {
 		return true
 	}
 
-	log.Printf("JWT/CLAIMS_EXTRACT: failed with error: %v", err)
+	log.Errorf("JWT/CLAIMS_EXTRACT: failed with error: %+v", err)
 
 	a.HandlerErrorOrElse(ctx, err, ExtractClaimsError, func() {
 		ctx.Error("AuthorizationHandler failed", http.StatusForbidden)
