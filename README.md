@@ -42,14 +42,16 @@ Configure a server with role-based access control, secure API authentication, an
 package main
 
 import (
+	log "github.com/sirupsen/logrus"
 	"github.com/softwareplace/goserve/internal/handler"
-	"github.com/softwareplace/goserve/internal/service/api"
+	"github.com/softwareplace/goserve/internal/service/apiservice"
 	"github.com/softwareplace/goserve/internal/service/login"
 	"github.com/softwareplace/goserve/internal/service/provider"
 	"github.com/softwareplace/goserve/logger"
 	"github.com/softwareplace/goserve/security"
 	"github.com/softwareplace/goserve/security/secret"
 	"github.com/softwareplace/goserve/server"
+	"os"
 )
 
 func init() {
@@ -58,24 +60,26 @@ func init() {
 	logger.LogSetup()
 }
 
-func main() {
-	userPrincipalService := login.NewPrincipalService()
-	errorHandler := handler.New()
-	securityService := security.New(
+var (
+	userPrincipalService = login.NewPrincipalService()
+	errorHandler         = handler.New()
+	securityService      = security.New(
 		"ue1pUOtCGaYS7Z1DLJ80nFtZ",
 		userPrincipalService,
 		errorHandler,
 	)
 
-	loginService := login.NewLoginService(securityService)
-	secretProvider := provider.NewSecretProvider()
+	loginService   = login.NewLoginService(securityService)
+	secretProvider = provider.NewSecretProvider()
 
-	secretHandler := secret.New(
+	secretHandler = secret.New(
 		"./internal/secret/private.key",
 		secretProvider,
 		securityService,
 	)
+)
 
+func main() {
 	server.Default().
 		LoginResourceEnabled(true).
 		SecretKeyGeneratorResourceEnabled(true).
@@ -84,9 +88,9 @@ func main() {
 		SecretService(secretHandler).
 		SecurityService(securityService).
 		PrincipalService(userPrincipalService).
-		EmbeddedServer(api.Handler).
+		EmbeddedServer(apiservice.Register).
+		Get(apiservice.ReportCallerHandler, "/report/caller").
 		SwaggerDocHandler("./internal/resource/pet-store.yaml").
-		Get(api.ReportCallerHandler, "/report/caller").
 		StartServer()
 }
 
@@ -96,18 +100,18 @@ func main() {
 
 ### Context Path Configuration
 
-By default, the server runs at `http://localhost:8080/api/app/v1/`. You can change the port and context path using the
+By default, the server runs at `http://localhost:8080/`. You can change the port and context path using the
 following environment variables:
 
-| Name                      | Required | Default      | Description                                                                                      |
-|---------------------------|----------|--------------|--------------------------------------------------------------------------------------------------|
-| CONTEXT_PATH              | No       | /api/app/v1/ | The base path for the application API.                                                           |
-| PORT                      | No       | 8080         | The port on which the application runs.                                                          |
-| B_CRYPT_COST              | No       | 10           | The cost factor for bcrypt hashing.                                                              |
-| LOG_DIR                   | No       | ./.log       | The directory path where log files will be stored.                                               |
-| LOG_APP_NAME              | No       |              | The application name tha used to define the log file name.                                       |
-| LOG_REPORT_CALLER         | No       | false        | [Logging Method Name](https://github.com/sirupsen/logrus?tab=readme-ov-file#logging-method-name) |
-| LOG_FILE_NAME_DATE_FORMAT | No       | 2006-01-02   | Defines the date format (YYYY-MM-DD) used for naming log files and tracking the current date     |
+| Name                      | Required | Default    | Description                                                                                      |
+|---------------------------|----------|------------|--------------------------------------------------------------------------------------------------|
+| CONTEXT_PATH              | No       | /          | The base path for the application API.                                                           |
+| PORT                      | No       | 8080       | The port on which the application runs.                                                          |
+| B_CRYPT_COST              | No       | 10         | The cost factor for bcrypt hashing.                                                              |
+| LOG_DIR                   | No       | ./.log     | The directory path where log files will be stored.                                               |
+| LOG_APP_NAME              | No       |            | The application name tha used to define the log file name.                                       |
+| LOG_REPORT_CALLER         | No       | false      | [Logging Method Name](https://github.com/sirupsen/logrus?tab=readme-ov-file#logging-method-name) |
+| LOG_FILE_NAME_DATE_FORMAT | No       | 2006-01-02 | Defines the date format (YYYY-MM-DD) used for naming log files and tracking the current date     |
 
 ### Advanced Configuration with Code Generation
 
