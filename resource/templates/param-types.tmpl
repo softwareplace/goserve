@@ -8,14 +8,27 @@ type {{.TypeName}} {{if .IsAlias}}={{end}} {{.Schema.TypeDecl}}
 {{range .}}{{$entry := .}}
 {{$opid := $entry.OperationId}}
 func (rh *resourceHandlerImpl[T]){{$opid}}(ctx *apicontext.Request[T]) {
+    {{$opid := .OperationId}}
     {{ $processed := false -}}
+    {{$hasParams := or .PathParams .QueryParams .HeaderParams}}
+    {{$hasBody := gt (len .Bodies) 0}}
     {{range .Bodies}}
     {{if and (not $processed) .IsSupported -}}
     {{$contentType := .ContentType -}}
         errorhandler.Handler(func() {
             requestBody := {{.Schema.TypeDecl}}{}
             request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body {{.Schema.TypeDecl}}) {
-            rh.Service.{{$entry.OperationId}}Request(body, ctx)
+            clientRequest := {{$entry.OperationId}}ClientRequest{
+                                    Body: body,
+                                }
+            {{if or $hasParams }}err := ctx.BindRequestParams(&clientRequest)
+                if err != nil {
+                    log.Errorf("Failed to bind {{$entry.OperationId}}ClientRequest request params: %+v", err)
+                    ctx.InternalServerError(err.Error())
+                    return
+                }
+            {{ end }}
+            rh.Service.{{$entry.OperationId}}(clientRequest, ctx)
             }, func(ctx *apicontext.Request[T], err error) {
             ctx.InternalServerError("Internal server error")
             })
@@ -27,10 +40,21 @@ func (rh *resourceHandlerImpl[T]){{$opid}}(ctx *apicontext.Request[T]) {
         {{end}}
         {{end}}
         {{if not $processed -}}
-        // request := {{$entry.OperationId}}RequestParams{}
-        // server.PopulateFieldsFromRequest(ctx, &request)
         errorhandler.Handler(func() {
-            rh.Service.{{$entry.OperationId}}Request(ctx)
+            {{if or $hasParams }}
+            clientRequest := {{$entry.OperationId}}ClientRequest{
+            }
+            err := ctx.BindRequestParams(&clientRequest)
+                if err != nil {
+                    log.Errorf("Failed to bind {{$entry.OperationId}}ClientRequest request params: %+v", err)
+                    ctx.InternalServerError(err.Error())
+                    return
+                }
+                rh.Service.{{$entry.OperationId}}(clientRequest, ctx)
+                {{ else }}
+                rh.Service.{{$entry.OperationId}}(ctx)
+            {{ end }}
+
         }, func(err error) {
             log.Errorf("[{{.Method}} {{.Path}}]:: {{$opid}} result with error: %+v", err)
             ctx.InternalServerError("Internal server error")

@@ -57,19 +57,23 @@ type {{$entry.OperationId}}ClientRequest struct { {{ $processed := false -}}
 
 type ApiRequestService[T apicontext.Principal] interface {
 {{range .}}{{$entry := .}}
+    {{$hasParams := or .PathParams .QueryParams .HeaderParams}}
+    {{$hasBody := gt (len .Bodies) 0}}
     {{$opid := $entry.OperationId}}
     {{ $processed := false -}}
     {{range .Bodies}}
     {{if and .IsSupported (not $processed) -}}
     {{$contentType := .ContentType -}}
-        // {{$opid}}Request(requestBody {{.Schema.TypeDecl}}, requestParams {{$opid}}RequestParams, ctx *apicontext.Request[T])
-        {{$opid}}Request(requestBody {{.Schema.TypeDecl}}, ctx *apicontext.Request[T])
+        {{$opid}}(request {{$entry.OperationId}}ClientRequest, ctx *apicontext.Request[T])
         {{ $processed = true -}}
     {{end}}
     {{end}}
     {{if not $processed}}
-    // {{$opid}}Request(ctx *apicontext.Request[T])
-    {{$opid}}Request(ctx *apicontext.Request[T])
+    {{if or $hasParams }}
+    {{$opid}}(request {{$entry.OperationId}}ClientRequest, ctx *apicontext.Request[T])
+    {{ else }}
+    {{$opid}}(ctx *apicontext.Request[T])
+    {{end}}
     {{end}}
 {{end}}
 }

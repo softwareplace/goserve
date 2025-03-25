@@ -3,8 +3,6 @@ package user
 import (
 	apicontext "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/internal/gen"
-	"github.com/softwareplace/goserve/internal/service/base"
-	"net/http"
 	"sync"
 )
 
@@ -23,29 +21,36 @@ func New() *Service {
 	return serviceInstance
 }
 
-func (s *Service) PostLoginRequest(requestBody gen.LoginRequest, ctx *apicontext.Request[*apicontext.DefaultContext]) {
+func (s Service) PostLogin(request gen.PostLoginClientRequest, ctx *apicontext.Request[*apicontext.DefaultContext]) {
+	//TODO implement me
+	panic("implement me")
 }
 
-func (s *Service) CreateUserRequest(requestBody gen.User, ctx *apicontext.Request[*apicontext.DefaultContext]) {
-	ctx.Ok(requestBody)
+func (s Service) CreateUser(request gen.CreateUserClientRequest, ctx *apicontext.Request[*apicontext.DefaultContext]) {
+	//TODO implement me
+	panic("implement me")
 }
 
-func (s *Service) CreateUsersWithListInputRequest(requestBody gen.CreateUsersWithListInputJSONBody, ctx *apicontext.Request[*apicontext.DefaultContext]) {
-	ctx.Ok(requestBody)
+func (s Service) CreateUsersWithListInput(request gen.CreateUsersWithListInputClientRequest, ctx *apicontext.Request[*apicontext.DefaultContext]) {
+	//TODO implement me
+	panic("implement me")
 }
 
-func (s *Service) LogoutUserRequest(ctx *apicontext.Request[*apicontext.DefaultContext]) {
-	ctx.Ok(base.Response("Logout successful", http.StatusOK))
+func (s Service) LogoutUser(request gen.LogoutUserClientRequest, ctx *apicontext.Request[*apicontext.DefaultContext]) {
+	//TODO implement me
+	panic("implement me")
 }
 
-func (s *Service) DeleteUserRequest(ctx *apicontext.Request[*apicontext.DefaultContext]) {
-	ctx.Ok(base.Response("User deleted", http.StatusOK))
+func (s Service) DeleteUser(request gen.DeleteUserClientRequest, ctx *apicontext.Request[*apicontext.DefaultContext]) {
+	//TODO implement me
+	panic("implement me")
 }
 
-func (s *Service) GetUserByNameRequest(ctx *apicontext.Request[*apicontext.DefaultContext]) {
-	ctx.NotFount(base.Response("User not found", http.StatusNotFound))
+func (s Service) GetUserByName(request gen.GetUserByNameClientRequest, ctx *apicontext.Request[*apicontext.DefaultContext]) {
+	ctx.Ok(request)
 }
 
-func (s *Service) UpdateUserRequest(requestBody gen.User, ctx *apicontext.Request[*apicontext.DefaultContext]) {
-	ctx.Ok(requestBody)
+func (s Service) UpdateUser(request gen.UpdateUserClientRequest, ctx *apicontext.Request[*apicontext.DefaultContext]) {
+	//TODO implement me
+	panic("implement me")
 }

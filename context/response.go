@@ -2,9 +2,7 @@ package context
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"io"
 	"net/http"
 	"time"
@@ -70,11 +68,7 @@ func (ctx *Request[T]) Error(message string, status int) {
 // Response sends a generic HTTP response with a given body and status code.
 // It serializes the body to JSON and writes it to the response writer.
 func (ctx *Request[T]) Response(body any, status int) {
-	(*ctx.Writer).WriteHeader(status)
-	err := json.NewEncoder(*ctx.Writer).Encode(body)
-	if err != nil {
-		log.Printf("Error encoding response: %v", err)
-	}
+	ctx.Write(body, status)
 }
 
 // WriteFile streams a file as a response for download, using a given file name.
@@ -86,6 +80,7 @@ func (ctx *Request[T]) WriteFile(file []byte, fileName string) error {
 	writer.Header().Set("Content-Type", "application/octet-stream")
 
 	_, err := io.Copy(writer, bytes.NewReader(file))
+	ctx.Done()
 	return err
 }
 
@@ -98,5 +93,6 @@ func (ctx *Request[T]) WriteReader(reader *bytes.Reader, fileName string) error 
 	writer.Header().Set("Content-Type", "application/octet-stream")
 
 	_, err := io.Copy(writer, reader)
+	ctx.Done()
 	return err
 }

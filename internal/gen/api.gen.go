@@ -145,7 +145,7 @@ type AddPetParams struct {
 // FindPetsByStatusParams defines parameters for FindPetsByStatus.
 type FindPetsByStatusParams struct {
 	// Status Status values that need to be considered for filter
-	Status *FindPetsByStatusParamsStatus `form:"status,omitempty" json:"status,omitempty"`
+	Status []FindPetsByStatusParamsStatus `form:"status" json:"status"`
 
 	// Authorization jwt
 	Authorization Authorization `json:"Authorization"`
@@ -259,7 +259,17 @@ func (rh *resourceHandlerImpl[T]) PostLogin(ctx *apicontext.Request[T]) {
 	errorhandler.Handler(func() {
 		requestBody := LoginRequest{}
 		request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body LoginRequest) {
-			rh.Service.PostLoginRequest(body, ctx)
+			clientRequest := PostLoginClientRequest{
+				Body: body,
+			}
+			err := ctx.BindRequestParams(&clientRequest)
+			if err != nil {
+				log.Errorf("Failed to bind PostLoginClientRequest request params: %+v", err)
+				ctx.InternalServerError(err.Error())
+				return
+			}
+
+			rh.Service.PostLogin(clientRequest, ctx)
 		}, func(ctx *apicontext.Request[T], err error) {
 			ctx.InternalServerError("Internal server error")
 		})
@@ -272,10 +282,17 @@ func (rh *resourceHandlerImpl[T]) PostLogin(ctx *apicontext.Request[T]) {
 
 func (rh *resourceHandlerImpl[T]) FindAllPets(ctx *apicontext.Request[T]) {
 
-	// request := FindAllPetsRequestParams{}
-	// server.PopulateFieldsFromRequest(ctx, &request)
 	errorhandler.Handler(func() {
-		rh.Service.FindAllPetsRequest(ctx)
+
+		clientRequest := FindAllPetsClientRequest{}
+		err := ctx.BindRequestParams(&clientRequest)
+		if err != nil {
+			log.Errorf("Failed to bind FindAllPetsClientRequest request params: %+v", err)
+			ctx.InternalServerError(err.Error())
+			return
+		}
+		rh.Service.FindAllPets(clientRequest, ctx)
+
 	}, func(err error) {
 		log.Errorf("[GET /pet]:: FindAllPets result with error: %+v", err)
 		ctx.InternalServerError("Internal server error")
@@ -288,7 +305,17 @@ func (rh *resourceHandlerImpl[T]) AddPet(ctx *apicontext.Request[T]) {
 	errorhandler.Handler(func() {
 		requestBody := Pet{}
 		request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body Pet) {
-			rh.Service.AddPetRequest(body, ctx)
+			clientRequest := AddPetClientRequest{
+				Body: body,
+			}
+			err := ctx.BindRequestParams(&clientRequest)
+			if err != nil {
+				log.Errorf("Failed to bind AddPetClientRequest request params: %+v", err)
+				ctx.InternalServerError(err.Error())
+				return
+			}
+
+			rh.Service.AddPet(clientRequest, ctx)
 		}, func(ctx *apicontext.Request[T], err error) {
 			ctx.InternalServerError("Internal server error")
 		})
@@ -301,10 +328,17 @@ func (rh *resourceHandlerImpl[T]) AddPet(ctx *apicontext.Request[T]) {
 
 func (rh *resourceHandlerImpl[T]) FindPetsByStatus(ctx *apicontext.Request[T]) {
 
-	// request := FindPetsByStatusRequestParams{}
-	// server.PopulateFieldsFromRequest(ctx, &request)
 	errorhandler.Handler(func() {
-		rh.Service.FindPetsByStatusRequest(ctx)
+
+		clientRequest := FindPetsByStatusClientRequest{}
+		err := ctx.BindRequestParams(&clientRequest)
+		if err != nil {
+			log.Errorf("Failed to bind FindPetsByStatusClientRequest request params: %+v", err)
+			ctx.InternalServerError(err.Error())
+			return
+		}
+		rh.Service.FindPetsByStatus(clientRequest, ctx)
+
 	}, func(err error) {
 		log.Errorf("[GET /pet/findByStatus]:: FindPetsByStatus result with error: %+v", err)
 		ctx.InternalServerError("Internal server error")
@@ -314,10 +348,17 @@ func (rh *resourceHandlerImpl[T]) FindPetsByStatus(ctx *apicontext.Request[T]) {
 
 func (rh *resourceHandlerImpl[T]) FindPetsByTags(ctx *apicontext.Request[T]) {
 
-	// request := FindPetsByTagsRequestParams{}
-	// server.PopulateFieldsFromRequest(ctx, &request)
 	errorhandler.Handler(func() {
-		rh.Service.FindPetsByTagsRequest(ctx)
+
+		clientRequest := FindPetsByTagsClientRequest{}
+		err := ctx.BindRequestParams(&clientRequest)
+		if err != nil {
+			log.Errorf("Failed to bind FindPetsByTagsClientRequest request params: %+v", err)
+			ctx.InternalServerError(err.Error())
+			return
+		}
+		rh.Service.FindPetsByTags(clientRequest, ctx)
+
 	}, func(err error) {
 		log.Errorf("[GET /pet/findByTags]:: FindPetsByTags result with error: %+v", err)
 		ctx.InternalServerError("Internal server error")
@@ -327,10 +368,17 @@ func (rh *resourceHandlerImpl[T]) FindPetsByTags(ctx *apicontext.Request[T]) {
 
 func (rh *resourceHandlerImpl[T]) DeletePet(ctx *apicontext.Request[T]) {
 
-	// request := DeletePetRequestParams{}
-	// server.PopulateFieldsFromRequest(ctx, &request)
 	errorhandler.Handler(func() {
-		rh.Service.DeletePetRequest(ctx)
+
+		clientRequest := DeletePetClientRequest{}
+		err := ctx.BindRequestParams(&clientRequest)
+		if err != nil {
+			log.Errorf("Failed to bind DeletePetClientRequest request params: %+v", err)
+			ctx.InternalServerError(err.Error())
+			return
+		}
+		rh.Service.DeletePet(clientRequest, ctx)
+
 	}, func(err error) {
 		log.Errorf("[DELETE /pet/{petId}]:: DeletePet result with error: %+v", err)
 		ctx.InternalServerError("Internal server error")
@@ -340,10 +388,17 @@ func (rh *resourceHandlerImpl[T]) DeletePet(ctx *apicontext.Request[T]) {
 
 func (rh *resourceHandlerImpl[T]) GetPetById(ctx *apicontext.Request[T]) {
 
-	// request := GetPetByIdRequestParams{}
-	// server.PopulateFieldsFromRequest(ctx, &request)
 	errorhandler.Handler(func() {
-		rh.Service.GetPetByIdRequest(ctx)
+
+		clientRequest := GetPetByIdClientRequest{}
+		err := ctx.BindRequestParams(&clientRequest)
+		if err != nil {
+			log.Errorf("Failed to bind GetPetByIdClientRequest request params: %+v", err)
+			ctx.InternalServerError(err.Error())
+			return
+		}
+		rh.Service.GetPetById(clientRequest, ctx)
+
 	}, func(err error) {
 		log.Errorf("[GET /pet/{petId}]:: GetPetById result with error: %+v", err)
 		ctx.InternalServerError("Internal server error")
@@ -353,10 +408,17 @@ func (rh *resourceHandlerImpl[T]) GetPetById(ctx *apicontext.Request[T]) {
 
 func (rh *resourceHandlerImpl[T]) UpdatePetWithForm(ctx *apicontext.Request[T]) {
 
-	// request := UpdatePetWithFormRequestParams{}
-	// server.PopulateFieldsFromRequest(ctx, &request)
 	errorhandler.Handler(func() {
-		rh.Service.UpdatePetWithFormRequest(ctx)
+
+		clientRequest := UpdatePetWithFormClientRequest{}
+		err := ctx.BindRequestParams(&clientRequest)
+		if err != nil {
+			log.Errorf("Failed to bind UpdatePetWithFormClientRequest request params: %+v", err)
+			ctx.InternalServerError(err.Error())
+			return
+		}
+		rh.Service.UpdatePetWithForm(clientRequest, ctx)
+
 	}, func(err error) {
 		log.Errorf("[POST /pet/{petId}]:: UpdatePetWithForm result with error: %+v", err)
 		ctx.InternalServerError("Internal server error")
@@ -369,7 +431,17 @@ func (rh *resourceHandlerImpl[T]) UpdatePet(ctx *apicontext.Request[T]) {
 	errorhandler.Handler(func() {
 		requestBody := Pet{}
 		request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body Pet) {
-			rh.Service.UpdatePetRequest(body, ctx)
+			clientRequest := UpdatePetClientRequest{
+				Body: body,
+			}
+			err := ctx.BindRequestParams(&clientRequest)
+			if err != nil {
+				log.Errorf("Failed to bind UpdatePetClientRequest request params: %+v", err)
+				ctx.InternalServerError(err.Error())
+				return
+			}
+
+			rh.Service.UpdatePet(clientRequest, ctx)
 		}, func(ctx *apicontext.Request[T], err error) {
 			ctx.InternalServerError("Internal server error")
 		})
@@ -382,10 +454,17 @@ func (rh *resourceHandlerImpl[T]) UpdatePet(ctx *apicontext.Request[T]) {
 
 func (rh *resourceHandlerImpl[T]) UploadFile(ctx *apicontext.Request[T]) {
 
-	// request := UploadFileRequestParams{}
-	// server.PopulateFieldsFromRequest(ctx, &request)
 	errorhandler.Handler(func() {
-		rh.Service.UploadFileRequest(ctx)
+
+		clientRequest := UploadFileClientRequest{}
+		err := ctx.BindRequestParams(&clientRequest)
+		if err != nil {
+			log.Errorf("Failed to bind UploadFileClientRequest request params: %+v", err)
+			ctx.InternalServerError(err.Error())
+			return
+		}
+		rh.Service.UploadFile(clientRequest, ctx)
+
 	}, func(err error) {
 		log.Errorf("[POST /pet/{petId}/uploadImage]:: UploadFile result with error: %+v", err)
 		ctx.InternalServerError("Internal server error")
@@ -395,10 +474,10 @@ func (rh *resourceHandlerImpl[T]) UploadFile(ctx *apicontext.Request[T]) {
 
 func (rh *resourceHandlerImpl[T]) GetInventory(ctx *apicontext.Request[T]) {
 
-	// request := GetInventoryRequestParams{}
-	// server.PopulateFieldsFromRequest(ctx, &request)
 	errorhandler.Handler(func() {
-		rh.Service.GetInventoryRequest(ctx)
+
+		rh.Service.GetInventory(ctx)
+
 	}, func(err error) {
 		log.Errorf("[GET /store/inventory]:: GetInventory result with error: %+v", err)
 		ctx.InternalServerError("Internal server error")
@@ -411,7 +490,17 @@ func (rh *resourceHandlerImpl[T]) PlaceOrder(ctx *apicontext.Request[T]) {
 	errorhandler.Handler(func() {
 		requestBody := Order{}
 		request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body Order) {
-			rh.Service.PlaceOrderRequest(body, ctx)
+			clientRequest := PlaceOrderClientRequest{
+				Body: body,
+			}
+			err := ctx.BindRequestParams(&clientRequest)
+			if err != nil {
+				log.Errorf("Failed to bind PlaceOrderClientRequest request params: %+v", err)
+				ctx.InternalServerError(err.Error())
+				return
+			}
+
+			rh.Service.PlaceOrder(clientRequest, ctx)
 		}, func(ctx *apicontext.Request[T], err error) {
 			ctx.InternalServerError("Internal server error")
 		})
@@ -424,10 +513,17 @@ func (rh *resourceHandlerImpl[T]) PlaceOrder(ctx *apicontext.Request[T]) {
 
 func (rh *resourceHandlerImpl[T]) DeleteOrder(ctx *apicontext.Request[T]) {
 
-	// request := DeleteOrderRequestParams{}
-	// server.PopulateFieldsFromRequest(ctx, &request)
 	errorhandler.Handler(func() {
-		rh.Service.DeleteOrderRequest(ctx)
+
+		clientRequest := DeleteOrderClientRequest{}
+		err := ctx.BindRequestParams(&clientRequest)
+		if err != nil {
+			log.Errorf("Failed to bind DeleteOrderClientRequest request params: %+v", err)
+			ctx.InternalServerError(err.Error())
+			return
+		}
+		rh.Service.DeleteOrder(clientRequest, ctx)
+
 	}, func(err error) {
 		log.Errorf("[DELETE /store/order/{orderId}]:: DeleteOrder result with error: %+v", err)
 		ctx.InternalServerError("Internal server error")
@@ -437,10 +533,17 @@ func (rh *resourceHandlerImpl[T]) DeleteOrder(ctx *apicontext.Request[T]) {
 
 func (rh *resourceHandlerImpl[T]) GetOrderById(ctx *apicontext.Request[T]) {
 
-	// request := GetOrderByIdRequestParams{}
-	// server.PopulateFieldsFromRequest(ctx, &request)
 	errorhandler.Handler(func() {
-		rh.Service.GetOrderByIdRequest(ctx)
+
+		clientRequest := GetOrderByIdClientRequest{}
+		err := ctx.BindRequestParams(&clientRequest)
+		if err != nil {
+			log.Errorf("Failed to bind GetOrderByIdClientRequest request params: %+v", err)
+			ctx.InternalServerError(err.Error())
+			return
+		}
+		rh.Service.GetOrderById(clientRequest, ctx)
+
 	}, func(err error) {
 		log.Errorf("[GET /store/order/{orderId}]:: GetOrderById result with error: %+v", err)
 		ctx.InternalServerError("Internal server error")
@@ -453,7 +556,11 @@ func (rh *resourceHandlerImpl[T]) CreateUser(ctx *apicontext.Request[T]) {
 	errorhandler.Handler(func() {
 		requestBody := User{}
 		request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body User) {
-			rh.Service.CreateUserRequest(body, ctx)
+			clientRequest := CreateUserClientRequest{
+				Body: body,
+			}
+
+			rh.Service.CreateUser(clientRequest, ctx)
 		}, func(ctx *apicontext.Request[T], err error) {
 			ctx.InternalServerError("Internal server error")
 		})
@@ -469,7 +576,17 @@ func (rh *resourceHandlerImpl[T]) CreateUsersWithListInput(ctx *apicontext.Reque
 	errorhandler.Handler(func() {
 		requestBody := CreateUsersWithListInputJSONBody{}
 		request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body CreateUsersWithListInputJSONBody) {
-			rh.Service.CreateUsersWithListInputRequest(body, ctx)
+			clientRequest := CreateUsersWithListInputClientRequest{
+				Body: body,
+			}
+			err := ctx.BindRequestParams(&clientRequest)
+			if err != nil {
+				log.Errorf("Failed to bind CreateUsersWithListInputClientRequest request params: %+v", err)
+				ctx.InternalServerError(err.Error())
+				return
+			}
+
+			rh.Service.CreateUsersWithListInput(clientRequest, ctx)
 		}, func(ctx *apicontext.Request[T], err error) {
 			ctx.InternalServerError("Internal server error")
 		})
@@ -482,10 +599,17 @@ func (rh *resourceHandlerImpl[T]) CreateUsersWithListInput(ctx *apicontext.Reque
 
 func (rh *resourceHandlerImpl[T]) LogoutUser(ctx *apicontext.Request[T]) {
 
-	// request := LogoutUserRequestParams{}
-	// server.PopulateFieldsFromRequest(ctx, &request)
 	errorhandler.Handler(func() {
-		rh.Service.LogoutUserRequest(ctx)
+
+		clientRequest := LogoutUserClientRequest{}
+		err := ctx.BindRequestParams(&clientRequest)
+		if err != nil {
+			log.Errorf("Failed to bind LogoutUserClientRequest request params: %+v", err)
+			ctx.InternalServerError(err.Error())
+			return
+		}
+		rh.Service.LogoutUser(clientRequest, ctx)
+
 	}, func(err error) {
 		log.Errorf("[GET /user/logout]:: LogoutUser result with error: %+v", err)
 		ctx.InternalServerError("Internal server error")
@@ -495,10 +619,17 @@ func (rh *resourceHandlerImpl[T]) LogoutUser(ctx *apicontext.Request[T]) {
 
 func (rh *resourceHandlerImpl[T]) DeleteUser(ctx *apicontext.Request[T]) {
 
-	// request := DeleteUserRequestParams{}
-	// server.PopulateFieldsFromRequest(ctx, &request)
 	errorhandler.Handler(func() {
-		rh.Service.DeleteUserRequest(ctx)
+
+		clientRequest := DeleteUserClientRequest{}
+		err := ctx.BindRequestParams(&clientRequest)
+		if err != nil {
+			log.Errorf("Failed to bind DeleteUserClientRequest request params: %+v", err)
+			ctx.InternalServerError(err.Error())
+			return
+		}
+		rh.Service.DeleteUser(clientRequest, ctx)
+
 	}, func(err error) {
 		log.Errorf("[DELETE /user/{username}]:: DeleteUser result with error: %+v", err)
 		ctx.InternalServerError("Internal server error")
@@ -508,10 +639,17 @@ func (rh *resourceHandlerImpl[T]) DeleteUser(ctx *apicontext.Request[T]) {
 
 func (rh *resourceHandlerImpl[T]) GetUserByName(ctx *apicontext.Request[T]) {
 
-	// request := GetUserByNameRequestParams{}
-	// server.PopulateFieldsFromRequest(ctx, &request)
 	errorhandler.Handler(func() {
-		rh.Service.GetUserByNameRequest(ctx)
+
+		clientRequest := GetUserByNameClientRequest{}
+		err := ctx.BindRequestParams(&clientRequest)
+		if err != nil {
+			log.Errorf("Failed to bind GetUserByNameClientRequest request params: %+v", err)
+			ctx.InternalServerError(err.Error())
+			return
+		}
+		rh.Service.GetUserByName(clientRequest, ctx)
+
 	}, func(err error) {
 		log.Errorf("[GET /user/{username}]:: GetUserByName result with error: %+v", err)
 		ctx.InternalServerError("Internal server error")
@@ -524,7 +662,17 @@ func (rh *resourceHandlerImpl[T]) UpdateUser(ctx *apicontext.Request[T]) {
 	errorhandler.Handler(func() {
 		requestBody := User{}
 		request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body User) {
-			rh.Service.UpdateUserRequest(body, ctx)
+			clientRequest := UpdateUserClientRequest{
+				Body: body,
+			}
+			err := ctx.BindRequestParams(&clientRequest)
+			if err != nil {
+				log.Errorf("Failed to bind UpdateUserClientRequest request params: %+v", err)
+				ctx.InternalServerError(err.Error())
+				return
+			}
+
+			rh.Service.UpdateUser(clientRequest, ctx)
 		}, func(ctx *apicontext.Request[T], err error) {
 			ctx.InternalServerError("Internal server error")
 		})
@@ -649,7 +797,7 @@ type AddPetClientRequest struct {
 type FindPetsByStatusClientRequest struct {
 
 	// status - Query parameter
-	Status FindPetsByStatusParamsStatus `query:"status"`
+	Status []FindPetsByStatusParamsStatus `query:"status" required:"true"`
 
 	// Authorization - Header parameter
 	Authorization Authorization `header:"Authorization" required:"true"`
@@ -814,66 +962,45 @@ type UpdateUserClientRequest struct {
 }
 
 type ApiRequestService[T apicontext.Principal] interface {
+	PostLogin(request PostLoginClientRequest, ctx *apicontext.Request[T])
 
-	// PostLoginRequest(requestBody LoginRequest, requestParams PostLoginRequestParams, ctx *apicontext.Request[T])
-	PostLoginRequest(requestBody LoginRequest, ctx *apicontext.Request[T])
+	FindAllPets(request FindAllPetsClientRequest, ctx *apicontext.Request[T])
 
-	// FindAllPetsRequest(ctx *apicontext.Request[T])
-	FindAllPetsRequest(ctx *apicontext.Request[T])
+	AddPet(request AddPetClientRequest, ctx *apicontext.Request[T])
 
-	// AddPetRequest(requestBody Pet, requestParams AddPetRequestParams, ctx *apicontext.Request[T])
-	AddPetRequest(requestBody Pet, ctx *apicontext.Request[T])
+	FindPetsByStatus(request FindPetsByStatusClientRequest, ctx *apicontext.Request[T])
 
-	// FindPetsByStatusRequest(ctx *apicontext.Request[T])
-	FindPetsByStatusRequest(ctx *apicontext.Request[T])
+	FindPetsByTags(request FindPetsByTagsClientRequest, ctx *apicontext.Request[T])
 
-	// FindPetsByTagsRequest(ctx *apicontext.Request[T])
-	FindPetsByTagsRequest(ctx *apicontext.Request[T])
+	DeletePet(request DeletePetClientRequest, ctx *apicontext.Request[T])
 
-	// DeletePetRequest(ctx *apicontext.Request[T])
-	DeletePetRequest(ctx *apicontext.Request[T])
+	GetPetById(request GetPetByIdClientRequest, ctx *apicontext.Request[T])
 
-	// GetPetByIdRequest(ctx *apicontext.Request[T])
-	GetPetByIdRequest(ctx *apicontext.Request[T])
+	UpdatePetWithForm(request UpdatePetWithFormClientRequest, ctx *apicontext.Request[T])
 
-	// UpdatePetWithFormRequest(ctx *apicontext.Request[T])
-	UpdatePetWithFormRequest(ctx *apicontext.Request[T])
+	UpdatePet(request UpdatePetClientRequest, ctx *apicontext.Request[T])
 
-	// UpdatePetRequest(requestBody Pet, requestParams UpdatePetRequestParams, ctx *apicontext.Request[T])
-	UpdatePetRequest(requestBody Pet, ctx *apicontext.Request[T])
+	UploadFile(request UploadFileClientRequest, ctx *apicontext.Request[T])
 
-	// UploadFileRequest(ctx *apicontext.Request[T])
-	UploadFileRequest(ctx *apicontext.Request[T])
+	GetInventory(ctx *apicontext.Request[T])
 
-	// GetInventoryRequest(ctx *apicontext.Request[T])
-	GetInventoryRequest(ctx *apicontext.Request[T])
+	PlaceOrder(request PlaceOrderClientRequest, ctx *apicontext.Request[T])
 
-	// PlaceOrderRequest(requestBody Order, requestParams PlaceOrderRequestParams, ctx *apicontext.Request[T])
-	PlaceOrderRequest(requestBody Order, ctx *apicontext.Request[T])
+	DeleteOrder(request DeleteOrderClientRequest, ctx *apicontext.Request[T])
 
-	// DeleteOrderRequest(ctx *apicontext.Request[T])
-	DeleteOrderRequest(ctx *apicontext.Request[T])
+	GetOrderById(request GetOrderByIdClientRequest, ctx *apicontext.Request[T])
 
-	// GetOrderByIdRequest(ctx *apicontext.Request[T])
-	GetOrderByIdRequest(ctx *apicontext.Request[T])
+	CreateUser(request CreateUserClientRequest, ctx *apicontext.Request[T])
 
-	// CreateUserRequest(requestBody User, requestParams CreateUserRequestParams, ctx *apicontext.Request[T])
-	CreateUserRequest(requestBody User, ctx *apicontext.Request[T])
+	CreateUsersWithListInput(request CreateUsersWithListInputClientRequest, ctx *apicontext.Request[T])
 
-	// CreateUsersWithListInputRequest(requestBody CreateUsersWithListInputJSONBody, requestParams CreateUsersWithListInputRequestParams, ctx *apicontext.Request[T])
-	CreateUsersWithListInputRequest(requestBody CreateUsersWithListInputJSONBody, ctx *apicontext.Request[T])
+	LogoutUser(request LogoutUserClientRequest, ctx *apicontext.Request[T])
 
-	// LogoutUserRequest(ctx *apicontext.Request[T])
-	LogoutUserRequest(ctx *apicontext.Request[T])
+	DeleteUser(request DeleteUserClientRequest, ctx *apicontext.Request[T])
 
-	// DeleteUserRequest(ctx *apicontext.Request[T])
-	DeleteUserRequest(ctx *apicontext.Request[T])
+	GetUserByName(request GetUserByNameClientRequest, ctx *apicontext.Request[T])
 
-	// GetUserByNameRequest(ctx *apicontext.Request[T])
-	GetUserByNameRequest(ctx *apicontext.Request[T])
-
-	// UpdateUserRequest(requestBody User, requestParams UpdateUserRequestParams, ctx *apicontext.Request[T])
-	UpdateUserRequest(requestBody User, ctx *apicontext.Request[T])
+	UpdateUser(request UpdateUserClientRequest, ctx *apicontext.Request[T])
 }
 
 type resourceHandlerImpl[T apicontext.Principal] struct {

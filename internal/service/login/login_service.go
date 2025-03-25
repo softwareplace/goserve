@@ -91,7 +91,8 @@ func (l *Service) OnGenerated(data jwt.Response,
 
 func (l *Service) Login(user login.User) (*apicontext.DefaultContext, error) {
 	result := &apicontext.DefaultContext{}
-	result.SetRoles("api:example:user", "api:example:admin", "read:pets", "write:pets", "api:key:generator")
+	//result.SetRoles("api:example:user", "api:example:admin", "read:pets", "write:pets", "api:key:generator")
+	result.SetRoles("api:example:user")
 	password := encryptor.NewEncrypt(user.Password).EncodedPassword()
 	result.SetEncryptedPassword(password)
 	return result, nil

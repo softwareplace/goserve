@@ -2,6 +2,7 @@ package context
 
 import (
 	"context"
+	"encoding/json"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
@@ -62,6 +63,7 @@ type Request[T Principal] struct {
 	PathValues          map[string]string      // A map of route variables extracted from the request URL. Useful for handling dynamic URL parameters in the API endpoints.
 	Headers             map[string][]string    // Headers contains a mapping of header keys to their respective values from the incoming HTTP request.
 	QueryValues         map[string][]string    // A map containing the query parameters from the request URL. Each key corresponds to a query parameter name, and the value is a slice of strings representing the values of that parameter. Useful for processing and validating query parameters in API endpoints.
+	Completed           bool                   // Completed indicates whether the task or process has been finished successfully or not.
 }
 
 // Of retrieves the Request object from the request's context if it already exists.
@@ -159,4 +161,19 @@ func (ctx *Request[T]) updateContext(r *http.Request) {
 // It ensures the current Request is preserved during the request processing.
 func (ctx *Request[T]) Next(next http.Handler) {
 	next.ServeHTTP(*ctx.Writer, ctx.Request)
+}
+
+func (ctx *Request[T]) Done() {
+	ctx.Completed = true
+}
+
+func (ctx *Request[T]) Write(body any, status int) {
+	if !ctx.Completed {
+		(*ctx.Writer).WriteHeader(status)
+		err := json.NewEncoder(*ctx.Writer).Encode(body)
+		if err != nil {
+			log.Printf("Error encoding response: %v", err)
+		}
+		ctx.Done()
+	}
 }

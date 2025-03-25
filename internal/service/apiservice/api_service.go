@@ -1,4 +1,4 @@
-package api
+package apiservice
 
 import (
 	log "github.com/sirupsen/logrus"
@@ -6,6 +6,7 @@ import (
 	"github.com/softwareplace/goserve/internal/gen"
 	"github.com/softwareplace/goserve/internal/service/file"
 	"github.com/softwareplace/goserve/internal/service/inventory"
+	"github.com/softwareplace/goserve/internal/service/order"
 	"github.com/softwareplace/goserve/internal/service/petstore"
 	"github.com/softwareplace/goserve/internal/service/user"
 	"github.com/softwareplace/goserve/logger"
@@ -28,16 +29,30 @@ type petStoreService struct {
 type userService struct {
 	user.Service
 }
+type orderService struct {
+	order.Service
+}
 
 type Service struct {
 	userService
 	petStoreService
 	fileService
 	inventoryService
+	orderService
+}
+
+func (s Service) UploadFileRequest(request gen.UploadFileClientRequest, ctx *apicontext.Request[*apicontext.DefaultContext]) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (s Service) GetInventoryRequest(ctx *apicontext.Request[*apicontext.DefaultContext]) {
+	//TODO implement me
+	panic("implement me")
 }
 
 var (
-	serviceInstance gen.ApiRequestService[*apicontext.DefaultContext]
+	serviceInstance *Service
 	serviceOnce     sync.Once
 )
 
@@ -47,14 +62,25 @@ func New() gen.ApiRequestService[*apicontext.DefaultContext] {
 			petStoreService: petStoreService{
 				Service: *petstore.New(),
 			},
+			userService: userService{
+				Service: *user.New(),
+			},
+			fileService: fileService{
+				Service: *file.New(),
+			},
+			inventoryService: inventoryService{
+				Service: *inventory.New(),
+			},
+			orderService: orderService{
+				Service: *order.New(),
+			},
 		}
 	})
 	return serviceInstance
 }
 
-func Handler(handler server.Api[*apicontext.DefaultContext]) {
-	handler.EmbeddedServer(gen.Api(New()))
-
+func HandlerRegister(server server.Api[*apicontext.DefaultContext]) {
+	server.EmbeddedServer(gen.Api[*apicontext.DefaultContext](New()))
 }
 
 func ReportCallerHandler(ctx *apicontext.Request[*apicontext.DefaultContext]) {

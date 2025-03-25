@@ -3,7 +3,7 @@ package main
 import (
 	log "github.com/sirupsen/logrus"
 	"github.com/softwareplace/goserve/internal/handler"
-	"github.com/softwareplace/goserve/internal/service/api"
+	"github.com/softwareplace/goserve/internal/service/apiservice"
 	"github.com/softwareplace/goserve/internal/service/login"
 	"github.com/softwareplace/goserve/internal/service/provider"
 	"github.com/softwareplace/goserve/logger"
@@ -45,9 +45,9 @@ func runSecretApi() {
 		SecretService(secretHandler).
 		SecurityService(securityService).
 		PrincipalService(userPrincipalService).
-		EmbeddedServer(api.Handler).
+		EmbeddedServer(apiservice.HandlerRegister).
+		Get(apiservice.ReportCallerHandler, "/report/caller").
 		SwaggerDocHandler("./internal/resource/pet-store.yaml").
-		Get(api.ReportCallerHandler, "/report/caller").
 		StartServer()
 }
 
@@ -69,8 +69,8 @@ func runPublicApi() {
 		SecurityService(securityService).
 		PrincipalService(userPrincipalService).
 		SwaggerDocHandler("./internal/resource/pet-store.yaml").
-		EmbeddedServer(api.Handler).
-		Get(api.ReportCallerHandler, "/report/caller").
+		EmbeddedServer(apiservice.HandlerRegister).
+		Get(apiservice.ReportCallerHandler, "/report/caller").
 		StartServer()
 }
 
