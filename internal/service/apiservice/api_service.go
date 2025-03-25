@@ -79,8 +79,8 @@ func New() gen.ApiRequestService[*apicontext.DefaultContext] {
 	return serviceInstance
 }
 
-func HandlerRegister(server server.Api[*apicontext.DefaultContext]) {
-	server.EmbeddedServer(gen.Api[*apicontext.DefaultContext](New()))
+func Register(server server.Api[*apicontext.DefaultContext]) {
+	gen.RequestServiceHandler[*apicontext.DefaultContext](server, New())
 }
 
 func ReportCallerHandler(ctx *apicontext.Request[*apicontext.DefaultContext]) {

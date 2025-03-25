@@ -57,6 +57,20 @@ type {{$entry.OperationId}}ClientRequest struct { {{ $processed := false -}}
 
 type ApiRequestService[T apicontext.Principal] interface {
 {{range .}}{{$entry := .}}
+    {{ $method := .Method }}
+    {{ $path := .Path | swaggerUriToGorillaUri }}
+    {{- $scopes := "" -}}
+    {{- range .SecurityDefinitions -}}
+        {{- range .Scopes -}}
+            {{- if $scopes -}}
+                {{- $scopes = printf "%s,\"%s\"" $scopes . -}}
+            {{- else -}}
+                {{- $scopes = printf "\"%s\"" . -}}
+            {{- end -}}
+        {{- end -}}
+    {{- end -}}
+
+    {{$hasScopes := gt (len $scopes) 0}}
     {{$hasParams := or .PathParams .QueryParams .HeaderParams}}
     {{$hasBody := gt (len .Bodies) 0}}
     {{$opid := $entry.OperationId}}
@@ -64,14 +78,17 @@ type ApiRequestService[T apicontext.Principal] interface {
     {{range .Bodies}}
     {{if and .IsSupported (not $processed) -}}
     {{$contentType := .ContentType -}}
+        // {{$opid}} -> {{ $method }}: {{ $path }} {{if $hasScopes}} required scopes [{{$scopes}}]{{end}}
         {{$opid}}(request {{$entry.OperationId}}ClientRequest, ctx *apicontext.Request[T])
         {{ $processed = true -}}
     {{end}}
     {{end}}
     {{if not $processed}}
     {{if or $hasParams }}
+    // {{$opid}} -> {{ $method }}: {{ $path }} {{if $hasScopes}} required scopes [{{$scopes}}]{{end}}
     {{$opid}}(request {{$entry.OperationId}}ClientRequest, ctx *apicontext.Request[T])
     {{ else }}
+     // {{$opid}} -> {{ $method }}: {{ $path }} {{if $hasScopes}} required scopes [{{$scopes}}]{{end}}
     {{$opid}}(ctx *apicontext.Request[T])
     {{end}}
     {{end}}

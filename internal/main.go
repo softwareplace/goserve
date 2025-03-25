@@ -45,7 +45,7 @@ func runSecretApi() {
 		SecretService(secretHandler).
 		SecurityService(securityService).
 		PrincipalService(userPrincipalService).
-		EmbeddedServer(apiservice.HandlerRegister).
+		EmbeddedServer(apiservice.Register).
 		Get(apiservice.ReportCallerHandler, "/report/caller").
 		SwaggerDocHandler("./internal/resource/pet-store.yaml").
 		StartServer()
@@ -69,7 +69,7 @@ func runPublicApi() {
 		SecurityService(securityService).
 		PrincipalService(userPrincipalService).
 		SwaggerDocHandler("./internal/resource/pet-store.yaml").
-		EmbeddedServer(apiservice.HandlerRegister).
+		EmbeddedServer(apiservice.Register).
 		Get(apiservice.ReportCallerHandler, "/report/caller").
 		StartServer()
 }

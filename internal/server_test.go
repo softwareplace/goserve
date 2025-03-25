@@ -3,7 +3,7 @@ package main
 import (
 	apicontext "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/internal/handler"
-	"github.com/softwareplace/goserve/internal/service/api"
+	"github.com/softwareplace/goserve/internal/service/apiservice"
 	"github.com/softwareplace/goserve/internal/service/login"
 	"github.com/softwareplace/goserve/internal/service/provider"
 	"github.com/softwareplace/goserve/logger"
@@ -196,7 +196,7 @@ func TestMockServer(t *testing.T) {
 
 		server.Default().
 			PrincipalService(userPrincipalService).
-			EmbeddedServer(api.Handler).
+			EmbeddedServer(apiservice.Register).
 			SwaggerDocHandler("./resource/pet-store.yaml").
 			ServeHTTP(rr, req)
 

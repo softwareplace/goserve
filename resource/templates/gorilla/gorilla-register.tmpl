@@ -1,19 +1,11 @@
-func apiResourceHandler[T apicontext.Principal](server server.Api[T], service ApiRequestService[T])  {
-handler := &resourceHandlerImpl[T]{
-		Service: service,
-	}
-    apiResourceRegister(server, handler)
-}
-
-func apiResourceRegister[T apicontext.Principal](server server.Api[T], handler resourceHandler[T]) {
-{{range .}}
-    {{- $scopes := "" -}} // Initialize an empty string for the merged scopes.
+func apiResourceRegister[T apicontext.Principal](server server.Api[T], handler resourceHandler[T]) {  {{range .}}
+    {{- $scopes := "" -}}
     {{- range .SecurityDefinitions -}}
         {{- range .Scopes -}}
             {{- if $scopes -}}
-                {{- $scopes = printf "%s,\"%s\"" $scopes . -}} // Append with a comma if $scopes is not empty.
+                {{- $scopes = printf "%s,\"%s\"" $scopes . -}}
             {{- else -}}
-                {{- $scopes = printf "\"%s\"" . -}} // Initialize $scopes if it's empty.
+                {{- $scopes = printf "\"%s\"" . -}}
             {{- end -}}
         {{- end -}}
     {{- end -}}
@@ -26,10 +18,12 @@ func apiResourceRegister[T apicontext.Principal](server server.Api[T], handler r
 {{end}}
 }
 
-
-
-func Api[T apicontext.Principal](service ApiRequestService[T]) func(handler server.Api[T]) {
-	return func(handler server.Api[T]) {
-		apiResourceHandler(handler, service)
-	}
+// RequestServiceHandler registers all generated API endpoints with their corresponding service implementation.
+// Generated resource: {{range .}}{{$entry := .}}
+//   - ApiRequestService.{{$entry.OperationId}}{{end}}
+func RequestServiceHandler[T apicontext.Principal](server server.Api[T], service ApiRequestService[T])  {
+    handler := &resourceHandlerImpl[T]{
+            Service: service,
+        }
+    apiResourceRegister(server, handler)
 }
