@@ -16,6 +16,7 @@ require (
 	github.com/antonfisher/nested-logrus-formatter v1.3.1
 	github.com/getkin/kin-openapi v0.131.0
 	github.com/golang-jwt/jwt/v5 v5.2.2
+	github.com/iris-contrib/schema v0.0.6
 	github.com/swaggo/http-swagger v1.3.4
 )
 
@@ -26,6 +27,7 @@ require (
 	github.com/go-openapi/spec v0.21.0 // indirect
 	github.com/go-openapi/swag v0.23.1 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
+	github.com/kataras/iris/v12 v12.2.11 // indirect
 	github.com/mailru/easyjson v0.9.0 // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	github.com/oasdiff/yaml v0.0.0-20250309154309-f31be36b4037 // indirect

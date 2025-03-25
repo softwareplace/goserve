@@ -67,7 +67,10 @@ type LoginRequest struct {
 }
 
 // LoginResponse defines model for LoginResponse.
-type LoginResponse = BaseResponse
+type LoginResponse struct {
+	Expires *int    `json:"expires,omitempty"`
+	Token   *string `json:"token,omitempty"`
+}
 
 // Order defines model for Order.
 type Order struct {
@@ -617,6 +620,199 @@ type resourceHandler[T apicontext.Principal] interface {
 	UpdateUser(ctx *apicontext.Request[T])
 }
 
+// PostLoginClientRequest combines all parameters for PostLogin
+type PostLoginClientRequest struct {
+
+	// X-Api-Key - Header parameter
+	XApiKey string `header:"X-Api-Key"`
+
+	Body LoginRequest
+}
+
+// FindAllPetsClientRequest combines all parameters for FindAllPets
+type FindAllPetsClientRequest struct {
+
+	// Authorization - Header parameter
+	Authorization Authorization `header:"Authorization" required:"true"`
+}
+
+// AddPetClientRequest combines all parameters for AddPet
+type AddPetClientRequest struct {
+
+	// Authorization - Header parameter
+	Authorization Authorization `header:"Authorization" required:"true"`
+
+	Body Pet
+}
+
+// FindPetsByStatusClientRequest combines all parameters for FindPetsByStatus
+type FindPetsByStatusClientRequest struct {
+
+	// status - Query parameter
+	Status FindPetsByStatusParamsStatus `query:"status"`
+
+	// Authorization - Header parameter
+	Authorization Authorization `header:"Authorization" required:"true"`
+}
+
+// FindPetsByTagsClientRequest combines all parameters for FindPetsByTags
+type FindPetsByTagsClientRequest struct {
+
+	// tags - Query parameter
+	Tags []string `query:"tags"`
+
+	// Authorization - Header parameter
+	Authorization Authorization `header:"Authorization" required:"true"`
+}
+
+// DeletePetClientRequest combines all parameters for DeletePet
+type DeletePetClientRequest struct {
+
+	// petId - Path parameter
+	PetId int64 `path:"petId" required:"true"`
+
+	// Authorization - Header parameter
+	Authorization Authorization `header:"Authorization" required:"true"`
+
+	// api_key - Header parameter
+	ApiKey string `header:"api_key"`
+}
+
+// GetPetByIdClientRequest combines all parameters for GetPetById
+type GetPetByIdClientRequest struct {
+
+	// petId - Path parameter
+	PetId int64 `path:"petId" required:"true"`
+
+	// Authorization - Header parameter
+	Authorization Authorization `header:"Authorization" required:"true"`
+}
+
+// UpdatePetWithFormClientRequest combines all parameters for UpdatePetWithForm
+type UpdatePetWithFormClientRequest struct {
+
+	// petId - Path parameter
+	PetId int64 `path:"petId" required:"true"`
+
+	// name - Query parameter
+	Name string `query:"name"`
+
+	// status - Query parameter
+	Status string `query:"status"`
+
+	// Authorization - Header parameter
+	Authorization Authorization `header:"Authorization" required:"true"`
+}
+
+// UpdatePetClientRequest combines all parameters for UpdatePet
+type UpdatePetClientRequest struct {
+
+	// petId - Path parameter
+	PetId int64 `path:"petId" required:"true"`
+
+	// Authorization - Header parameter
+	Authorization Authorization `header:"Authorization" required:"true"`
+
+	Body Pet
+}
+
+// UploadFileClientRequest combines all parameters for UploadFile
+type UploadFileClientRequest struct {
+
+	// petId - Path parameter
+	PetId int64 `path:"petId" required:"true"`
+
+	// additionalMetadata - Query parameter
+	AdditionalMetadata string `query:"additionalMetadata"`
+
+	// Authorization - Header parameter
+	Authorization Authorization `header:"Authorization" required:"true"`
+}
+
+type GetInventoryClientRequest struct {
+}
+
+// PlaceOrderClientRequest combines all parameters for PlaceOrder
+type PlaceOrderClientRequest struct {
+
+	// Authorization - Header parameter
+	Authorization Authorization `header:"Authorization" required:"true"`
+
+	Body Order
+}
+
+// DeleteOrderClientRequest combines all parameters for DeleteOrder
+type DeleteOrderClientRequest struct {
+
+	// orderId - Path parameter
+	OrderId int64 `path:"orderId" required:"true"`
+
+	// Authorization - Header parameter
+	Authorization Authorization `header:"Authorization" required:"true"`
+}
+
+// GetOrderByIdClientRequest combines all parameters for GetOrderById
+type GetOrderByIdClientRequest struct {
+
+	// orderId - Path parameter
+	OrderId int64 `path:"orderId" required:"true"`
+
+	// Authorization - Header parameter
+	Authorization Authorization `header:"Authorization" required:"true"`
+}
+
+type CreateUserClientRequest struct {
+	Body User
+}
+
+// CreateUsersWithListInputClientRequest combines all parameters for CreateUsersWithListInput
+type CreateUsersWithListInputClientRequest struct {
+
+	// Authorization - Header parameter
+	Authorization Authorization `header:"Authorization" required:"true"`
+
+	Body CreateUsersWithListInputJSONBody
+}
+
+// LogoutUserClientRequest combines all parameters for LogoutUser
+type LogoutUserClientRequest struct {
+
+	// Authorization - Header parameter
+	Authorization Authorization `header:"Authorization" required:"true"`
+}
+
+// DeleteUserClientRequest combines all parameters for DeleteUser
+type DeleteUserClientRequest struct {
+
+	// username - Path parameter
+	Username string `path:"username" required:"true"`
+
+	// Authorization - Header parameter
+	Authorization Authorization `header:"Authorization" required:"true"`
+}
+
+// GetUserByNameClientRequest combines all parameters for GetUserByName
+type GetUserByNameClientRequest struct {
+
+	// username - Path parameter
+	Username string `path:"username" required:"true"`
+
+	// Authorization - Header parameter
+	Authorization Authorization `header:"Authorization" required:"true"`
+}
+
+// UpdateUserClientRequest combines all parameters for UpdateUser
+type UpdateUserClientRequest struct {
+
+	// username - Path parameter
+	Username string `path:"username" required:"true"`
+
+	// Authorization - Header parameter
+	Authorization Authorization `header:"Authorization" required:"true"`
+
+	Body User
+}
+
 type ApiRequestService[T apicontext.Principal] interface {
 
 	// PostLoginRequest(requestBody LoginRequest, requestParams PostLoginRequestParams, ctx *apicontext.Request[T])
@@ -686,38 +882,6 @@ type resourceHandlerImpl[T apicontext.Principal] struct {
 
 // apiResourceHandler registers API endpoints from generated code.
 
-// - resourceHandler.PostLogin
-// - resourceHandler.FindAllPets
-// - resourceHandler.AddPet
-// - resourceHandler.FindPetsByStatus
-// - resourceHandler.FindPetsByTags
-// - resourceHandler.DeletePet
-// - resourceHandler.GetPetById
-// - resourceHandler.UpdatePetWithForm
-// - resourceHandler.UpdatePet
-// - resourceHandler.UploadFile
-// - resourceHandler.GetInventory
-// - resourceHandler.PlaceOrder
-// - resourceHandler.DeleteOrder
-// - resourceHandler.GetOrderById
-// - resourceHandler.CreateUser
-// - resourceHandler.CreateUsersWithListInput
-// - resourceHandler.LogoutUser
-// - resourceHandler.DeleteUser
-// - resourceHandler.GetUserByName
-// - resourceHandler.UpdateUser
-// Parameters:
-//   - server: The API router handler used for setting up routes and middleware.
-//   - server: The server interface implementation containing the endpoint handlers.
-//
-// Generics:
-//   - T: A type that satisfies the apicontext.Principal interface, representing the principal/context
-//     involved in the API operations.
-//
-// This function will use the Handler implementation
-// that has already been generated to bind specific API routes
-// dynamically at runtime, based on the provided security definitions
-// and endpoint configurations.
 func apiResourceHandler[T apicontext.Principal](server server.Api[T], service ApiRequestService[T]) {
 	handler := &resourceHandlerImpl[T]{
 		Service: service,
@@ -725,17 +889,6 @@ func apiResourceHandler[T apicontext.Principal](server server.Api[T], service Ap
 	apiResourceRegister(server, handler)
 }
 
-// apiResourceRegister is a customizable resource handler that registers API endpoints from generated code.
-// This method binds the custom `Handler` implementation to specific API routes,
-// allowing dynamic configuration of handlers.
-//
-// Parameters:
-//   - server: The API router handler used for setting up routes and middleware.
-//   - handler: The `Handler` interface implementation containing the actual endpoint handlers.
-//
-// Generics:
-//   - T: A type that satisfies the apicontext.Principal interface, representing the principal/context
-//     involved in the API operations.
 func apiResourceRegister[T apicontext.Principal](server server.Api[T], handler resourceHandler[T]) {
 	// Initialize an empty string for the merged scopes.
 	server.PublicRouter(handler.PostLogin, "/login", "POST")

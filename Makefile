@@ -11,5 +11,5 @@ codegen:
 	 @oapi-codegen --config ./internal/resource/config.yaml ./internal/resource/pet-store.yaml
 
 pet-store:
-	 @oapi-codegen --config ./test/resource/local-config.yaml ./test/resource/pet-store.yaml  2>&1 | pbcopy
+	 @oapi-codegen --config ./internal/resource/config.yaml ./internal/resource/pet-store.yaml  2>&1 | xclip -selection clipboard
 

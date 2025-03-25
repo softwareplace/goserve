@@ -6,6 +6,55 @@ type resourceHandler[T apicontext.Principal] interface {
 {{end}}
 }
 
+
+{{range .}}{{$entry := .}}
+{{$opid := $entry.OperationId}}
+{{/* Generate ClientRequest struct ONCE per operation */}}
+{{if .TypeDefinitions}}
+// {{$opid}}ClientRequest combines all parameters for {{$opid}}
+type {{$opid}}ClientRequest struct {
+   {{/* Path Parameters */}}
+    {{range .PathParams}}
+    // {{.ParamName}} - Path parameter
+    {{.GoName}} {{.TypeDef}} `path:"{{.ParamName}}"{{if .Required}} required:"true"{{end}}`
+    {{end}}
+
+    {{/* Query Parameters */}}
+    {{range .QueryParams}}
+    // {{.ParamName}} - Query parameter
+    {{.GoName}} {{.TypeDef}} `query:"{{.ParamName}}"{{if .Required}} required:"true"{{end}}`
+    {{end}}
+
+    {{/* Header Parameters */}}
+    {{range .HeaderParams}}
+    // {{.ParamName}} - Header parameter
+    {{.GoName}} {{.TypeDef}} `header:"{{.ParamName}}"{{if .Required}} required:"true"{{end}}`
+    {{end}}
+    {{/* Take the first TypeDefinition (assuming one per operation) */}}
+    {{ $processed := false -}}
+    {{range .Bodies}}
+    {{if and (not $processed) .IsSupported -}}
+    {{$contentType := .ContentType -}}
+    Body {{.Schema.TypeDecl}}
+    {{ $processed = true -}}
+    {{end}}
+    {{end}}
+}
+{{end}}
+
+{{if not .TypeDefinitions}}
+type {{$entry.OperationId}}ClientRequest struct { {{ $processed := false -}}
+    {{range .Bodies}}
+    {{if and (not $processed) .IsSupported -}}
+    {{$contentType := .ContentType -}}
+     Body {{.Schema.TypeDecl}}
+    {{ $processed = true -}}
+    {{end}}
+    {{end}}
+}
+{{end}}
+{{end}}
+
 type ApiRequestService[T apicontext.Principal] interface {
 {{range .}}{{$entry := .}}
     {{$opid := $entry.OperationId}}

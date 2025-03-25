@@ -1,16 +1,3 @@
-{{range .}}// - resourceHandler.{{.OperationId}}
-{{end}}// Parameters:
-//   - server: The API router handler used for setting up routes and middleware.
-//   - server: The server interface implementation containing the endpoint handlers.
-//
-// Generics:
-//   - T: A type that satisfies the apicontext.Principal interface, representing the principal/context
-//		involved in the API operations.
-// 
-// This function will use the Handler implementation
-// that has already been generated to bind specific API routes 
-// dynamically at runtime, based on the provided security definitions 
-// and endpoint configurations.
 func apiResourceHandler[T apicontext.Principal](server server.Api[T], service ApiRequestService[T])  {
 handler := &resourceHandlerImpl[T]{
 		Service: service,
@@ -18,17 +5,6 @@ handler := &resourceHandlerImpl[T]{
     apiResourceRegister(server, handler)
 }
 
-// apiResourceRegister is a customizable resource handler that registers API endpoints from generated code.
-// This method binds the custom `Handler` implementation to specific API routes,
-// allowing dynamic configuration of handlers.
-//
-// Parameters:
-//   - server: The API router handler used for setting up routes and middleware.
-//   - handler: The `Handler` interface implementation containing the actual endpoint handlers.
-//
-// Generics:
-//   - T: A type that satisfies the apicontext.Principal interface, representing the principal/context
-//	 involved in the API operations.
 func apiResourceRegister[T apicontext.Principal](server server.Api[T], handler resourceHandler[T]) {
 {{range .}}
     {{- $scopes := "" -}} // Initialize an empty string for the merged scopes.
