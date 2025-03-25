@@ -265,7 +265,7 @@ func (rh *resourceHandlerImpl[T]) PostLogin(ctx *apicontext.Request[T]) {
 			err := ctx.BindRequestParams(&clientRequest)
 			if err != nil {
 				log.Errorf("Failed to bind PostLoginClientRequest request params: %+v", err)
-				ctx.InternalServerError(err.Error())
+				ctx.Error(err.Error(), err.Code)
 				return
 			}
 
@@ -288,7 +288,7 @@ func (rh *resourceHandlerImpl[T]) FindAllPets(ctx *apicontext.Request[T]) {
 		err := ctx.BindRequestParams(&clientRequest)
 		if err != nil {
 			log.Errorf("Failed to bind FindAllPetsClientRequest request params: %+v", err)
-			ctx.InternalServerError(err.Error())
+			ctx.Error(err.Error(), err.Code)
 			return
 		}
 		rh.Service.FindAllPets(clientRequest, ctx)
@@ -311,7 +311,7 @@ func (rh *resourceHandlerImpl[T]) AddPet(ctx *apicontext.Request[T]) {
 			err := ctx.BindRequestParams(&clientRequest)
 			if err != nil {
 				log.Errorf("Failed to bind AddPetClientRequest request params: %+v", err)
-				ctx.InternalServerError(err.Error())
+				ctx.Error(err.Error(), err.Code)
 				return
 			}
 
@@ -334,7 +334,7 @@ func (rh *resourceHandlerImpl[T]) FindPetsByStatus(ctx *apicontext.Request[T]) {
 		err := ctx.BindRequestParams(&clientRequest)
 		if err != nil {
 			log.Errorf("Failed to bind FindPetsByStatusClientRequest request params: %+v", err)
-			ctx.InternalServerError(err.Error())
+			ctx.Error(err.Error(), err.Code)
 			return
 		}
 		rh.Service.FindPetsByStatus(clientRequest, ctx)
@@ -354,7 +354,7 @@ func (rh *resourceHandlerImpl[T]) FindPetsByTags(ctx *apicontext.Request[T]) {
 		err := ctx.BindRequestParams(&clientRequest)
 		if err != nil {
 			log.Errorf("Failed to bind FindPetsByTagsClientRequest request params: %+v", err)
-			ctx.InternalServerError(err.Error())
+			ctx.Error(err.Error(), err.Code)
 			return
 		}
 		rh.Service.FindPetsByTags(clientRequest, ctx)
@@ -374,7 +374,7 @@ func (rh *resourceHandlerImpl[T]) DeletePet(ctx *apicontext.Request[T]) {
 		err := ctx.BindRequestParams(&clientRequest)
 		if err != nil {
 			log.Errorf("Failed to bind DeletePetClientRequest request params: %+v", err)
-			ctx.InternalServerError(err.Error())
+			ctx.Error(err.Error(), err.Code)
 			return
 		}
 		rh.Service.DeletePet(clientRequest, ctx)
@@ -394,7 +394,7 @@ func (rh *resourceHandlerImpl[T]) GetPetById(ctx *apicontext.Request[T]) {
 		err := ctx.BindRequestParams(&clientRequest)
 		if err != nil {
 			log.Errorf("Failed to bind GetPetByIdClientRequest request params: %+v", err)
-			ctx.InternalServerError(err.Error())
+			ctx.Error(err.Error(), err.Code)
 			return
 		}
 		rh.Service.GetPetById(clientRequest, ctx)
@@ -414,7 +414,7 @@ func (rh *resourceHandlerImpl[T]) UpdatePetWithForm(ctx *apicontext.Request[T]) 
 		err := ctx.BindRequestParams(&clientRequest)
 		if err != nil {
 			log.Errorf("Failed to bind UpdatePetWithFormClientRequest request params: %+v", err)
-			ctx.InternalServerError(err.Error())
+			ctx.Error(err.Error(), err.Code)
 			return
 		}
 		rh.Service.UpdatePetWithForm(clientRequest, ctx)
@@ -437,7 +437,7 @@ func (rh *resourceHandlerImpl[T]) UpdatePet(ctx *apicontext.Request[T]) {
 			err := ctx.BindRequestParams(&clientRequest)
 			if err != nil {
 				log.Errorf("Failed to bind UpdatePetClientRequest request params: %+v", err)
-				ctx.InternalServerError(err.Error())
+				ctx.Error(err.Error(), err.Code)
 				return
 			}
 
@@ -460,7 +460,7 @@ func (rh *resourceHandlerImpl[T]) UploadFile(ctx *apicontext.Request[T]) {
 		err := ctx.BindRequestParams(&clientRequest)
 		if err != nil {
 			log.Errorf("Failed to bind UploadFileClientRequest request params: %+v", err)
-			ctx.InternalServerError(err.Error())
+			ctx.Error(err.Error(), err.Code)
 			return
 		}
 		rh.Service.UploadFile(clientRequest, ctx)
@@ -496,7 +496,7 @@ func (rh *resourceHandlerImpl[T]) PlaceOrder(ctx *apicontext.Request[T]) {
 			err := ctx.BindRequestParams(&clientRequest)
 			if err != nil {
 				log.Errorf("Failed to bind PlaceOrderClientRequest request params: %+v", err)
-				ctx.InternalServerError(err.Error())
+				ctx.Error(err.Error(), err.Code)
 				return
 			}
 
@@ -519,7 +519,7 @@ func (rh *resourceHandlerImpl[T]) DeleteOrder(ctx *apicontext.Request[T]) {
 		err := ctx.BindRequestParams(&clientRequest)
 		if err != nil {
 			log.Errorf("Failed to bind DeleteOrderClientRequest request params: %+v", err)
-			ctx.InternalServerError(err.Error())
+			ctx.Error(err.Error(), err.Code)
 			return
 		}
 		rh.Service.DeleteOrder(clientRequest, ctx)
@@ -539,7 +539,7 @@ func (rh *resourceHandlerImpl[T]) GetOrderById(ctx *apicontext.Request[T]) {
 		err := ctx.BindRequestParams(&clientRequest)
 		if err != nil {
 			log.Errorf("Failed to bind GetOrderByIdClientRequest request params: %+v", err)
-			ctx.InternalServerError(err.Error())
+			ctx.Error(err.Error(), err.Code)
 			return
 		}
 		rh.Service.GetOrderById(clientRequest, ctx)
@@ -582,7 +582,7 @@ func (rh *resourceHandlerImpl[T]) CreateUsersWithListInput(ctx *apicontext.Reque
 			err := ctx.BindRequestParams(&clientRequest)
 			if err != nil {
 				log.Errorf("Failed to bind CreateUsersWithListInputClientRequest request params: %+v", err)
-				ctx.InternalServerError(err.Error())
+				ctx.Error(err.Error(), err.Code)
 				return
 			}
 
@@ -605,7 +605,7 @@ func (rh *resourceHandlerImpl[T]) LogoutUser(ctx *apicontext.Request[T]) {
 		err := ctx.BindRequestParams(&clientRequest)
 		if err != nil {
 			log.Errorf("Failed to bind LogoutUserClientRequest request params: %+v", err)
-			ctx.InternalServerError(err.Error())
+			ctx.Error(err.Error(), err.Code)
 			return
 		}
 		rh.Service.LogoutUser(clientRequest, ctx)
@@ -625,7 +625,7 @@ func (rh *resourceHandlerImpl[T]) DeleteUser(ctx *apicontext.Request[T]) {
 		err := ctx.BindRequestParams(&clientRequest)
 		if err != nil {
 			log.Errorf("Failed to bind DeleteUserClientRequest request params: %+v", err)
-			ctx.InternalServerError(err.Error())
+			ctx.Error(err.Error(), err.Code)
 			return
 		}
 		rh.Service.DeleteUser(clientRequest, ctx)
@@ -645,7 +645,7 @@ func (rh *resourceHandlerImpl[T]) GetUserByName(ctx *apicontext.Request[T]) {
 		err := ctx.BindRequestParams(&clientRequest)
 		if err != nil {
 			log.Errorf("Failed to bind GetUserByNameClientRequest request params: %+v", err)
-			ctx.InternalServerError(err.Error())
+			ctx.Error(err.Error(), err.Code)
 			return
 		}
 		rh.Service.GetUserByName(clientRequest, ctx)
@@ -668,7 +668,7 @@ func (rh *resourceHandlerImpl[T]) UpdateUser(ctx *apicontext.Request[T]) {
 			err := ctx.BindRequestParams(&clientRequest)
 			if err != nil {
 				log.Errorf("Failed to bind UpdateUserClientRequest request params: %+v", err)
-				ctx.InternalServerError(err.Error())
+				ctx.Error(err.Error(), err.Code)
 				return
 			}
 

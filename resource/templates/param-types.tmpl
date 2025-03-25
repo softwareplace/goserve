@@ -24,7 +24,7 @@ func (rh *resourceHandlerImpl[T]){{$opid}}(ctx *apicontext.Request[T]) {
             {{if or $hasParams }}err := ctx.BindRequestParams(&clientRequest)
                 if err != nil {
                     log.Errorf("Failed to bind {{$entry.OperationId}}ClientRequest request params: %+v", err)
-                    ctx.InternalServerError(err.Error())
+                    ctx.Error(err.Error(), err.Code)
                     return
                 }
             {{ end }}
@@ -47,7 +47,7 @@ func (rh *resourceHandlerImpl[T]){{$opid}}(ctx *apicontext.Request[T]) {
             err := ctx.BindRequestParams(&clientRequest)
                 if err != nil {
                     log.Errorf("Failed to bind {{$entry.OperationId}}ClientRequest request params: %+v", err)
-                    ctx.InternalServerError(err.Error())
+                    ctx.Error(err.Error(), err.Code)
                     return
                 }
                 rh.Service.{{$entry.OperationId}}(clientRequest, ctx)
