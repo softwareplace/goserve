@@ -23,6 +23,7 @@ func (rh *resourceHandlerImpl[T]){{$opid}}(ctx *goservecontext.Request[T]) {
                                 }
             {{if or $hasParams }}err := ctx.BindRequestParams(&clientRequest)
                 contentType := ctx.Request.Header.Get(goservecontext.ContentType)
+                // Try to load form param to the body struct. File form will be ignored.
                 if err == nil && strings.Contains(contentType, goservecontext.MultipartFormData) {
                     _ = goservereflect.ParamsExtract(&clientRequest.Body,
                         goservereflect.ParamsExtractorSource{
