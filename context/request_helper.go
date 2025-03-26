@@ -1,7 +1,6 @@
 package context
 
 import (
-	"fmt"
 	"mime/multipart"
 )
 
@@ -163,18 +162,13 @@ func (ctx *Request[T]) FormValue(name string) any {
 //   - multipart.File: The file object, or nil if an error occurs.
 //   - *multipart.FileHeader: The file header, or nil if an error occurs.
 //   - error: An error, if one occurs while retrieving the file.
+//
+// Make sure to close the file when no need it anymore.
 func (ctx *Request[T]) FormFile(name string) (multipart.File, *multipart.FileHeader, error) {
 	file, fileHeader, err := ctx.Request.FormFile("resource")
 	if err != nil {
 		return nil, nil, err
 	}
-	defer func(file multipart.File) {
-		err := file.Close()
-		if err != nil {
-			fmt.Printf("Failed to close file: %v", err)
-		}
-	}(file)
-
 	return file, fileHeader, nil
 }
 
