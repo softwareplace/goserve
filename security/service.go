@@ -90,7 +90,7 @@ func New[T apicontext.Principal](
 func Create[T apicontext.Principal](
 	apiSecretAuthorization string,
 	service principal.Service[T],
-	handler errorhandler.ApiHandler[T],
+	handler apicontext.ApiHandler[T],
 	resourceValidation ResourceAccessValidation[T],
 ) Service[T] {
 	return &impl[T]{
