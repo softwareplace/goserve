@@ -2,23 +2,23 @@ package server
 
 import (
 	log "github.com/sirupsen/logrus"
-	apicontext "github.com/softwareplace/goserve/context"
-	errorhandler "github.com/softwareplace/goserve/error"
+	goservecontext "github.com/softwareplace/goserve/context"
+	goserveerrohandler "github.com/softwareplace/goserve/error"
 	"github.com/softwareplace/goserve/request"
 	"github.com/softwareplace/goserve/security/login"
 )
 
-func (a *baseServer[T]) Login(ctx *apicontext.Request[T]) {
+func (a *baseServer[T]) Login(ctx *goservecontext.Request[T]) {
 	request.GetRequestBody(ctx, login.User{}, a.loginDataHandler, request.FailedToLoadBody[T])
 }
 
-func (a *baseServer[T]) ApiKeyGenerator(ctx *apicontext.Request[T]) {
+func (a *baseServer[T]) ApiKeyGenerator(ctx *goservecontext.Request[T]) {
 	request.GetRequestBody(ctx, ApiKeyEntryData{}, a.apiKeyGeneratorDataHandler, request.FailedToLoadBody[T])
 }
 
-func (a *baseServer[T]) loginDataHandler(ctx *apicontext.Request[T], user login.User) {
+func (a *baseServer[T]) loginDataHandler(ctx *goservecontext.Request[T], user login.User) {
 
-	errorhandler.Handler(func() {
+	goserveerrohandler.Handler(func() {
 		decrypt, err := a.securityService.Decrypt(user.Password)
 		if err != nil {
 			log.Printf("LOGIN/DECRYPT: Failed to decrypt encryptor: %v", err)

@@ -2,7 +2,7 @@ package apiservice
 
 import (
 	log "github.com/sirupsen/logrus"
-	apicontext "github.com/softwareplace/goserve/context"
+	goservecontext "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/internal/gen"
 	"github.com/softwareplace/goserve/internal/service/file"
 	"github.com/softwareplace/goserve/internal/service/inventory"
@@ -41,12 +41,12 @@ type Service struct {
 	orderService
 }
 
-func (s Service) UploadFileRequest(request gen.UploadFileClientRequest, ctx *apicontext.Request[*apicontext.DefaultContext]) {
+func (s Service) UploadFileRequest(request gen.UploadFileClientRequest, ctx *goservecontext.Request[*goservecontext.DefaultContext]) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s Service) GetInventoryRequest(ctx *apicontext.Request[*apicontext.DefaultContext]) {
+func (s Service) GetInventoryRequest(ctx *goservecontext.Request[*goservecontext.DefaultContext]) {
 	//TODO implement me
 	panic("implement me")
 }
@@ -56,7 +56,7 @@ var (
 	serviceOnce     sync.Once
 )
 
-func New() gen.ApiRequestService[*apicontext.DefaultContext] {
+func New() gen.ApiRequestService[*goservecontext.DefaultContext] {
 	serviceOnce.Do(func() {
 		serviceInstance = &Service{
 			petStoreService: petStoreService{
@@ -79,11 +79,11 @@ func New() gen.ApiRequestService[*apicontext.DefaultContext] {
 	return serviceInstance
 }
 
-func Register(server server.Api[*apicontext.DefaultContext]) {
-	gen.RequestServiceHandler[*apicontext.DefaultContext](server, New())
+func Register(server server.Api[*goservecontext.DefaultContext]) {
+	gen.RequestServiceHandler[*goservecontext.DefaultContext](server, New())
 }
 
-func ReportCallerHandler(ctx *apicontext.Request[*apicontext.DefaultContext]) {
+func ReportCallerHandler(ctx *goservecontext.Request[*goservecontext.DefaultContext]) {
 	enable := ctx.QueryOf("enable")
 	if enable == "true" {
 		logger.LogReportCaller = true

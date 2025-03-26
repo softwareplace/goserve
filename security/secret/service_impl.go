@@ -6,7 +6,7 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	log "github.com/sirupsen/logrus"
-	apicontext "github.com/softwareplace/goserve/context"
+	goservecontext "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/security"
 	"github.com/softwareplace/goserve/security/principal"
 	"net/http"
@@ -30,7 +30,7 @@ import (
 //
 // This struct provides methods to initialize the secret key, validate the public key against the private key,
 // and enforce access security middleware, ensuring requests are authorized with proper credentials.
-func New[T apicontext.Principal](
+func New[T goservecontext.Principal](
 	secretKey string,
 	provider Provider[T],
 	service security.Service[T],
@@ -54,7 +54,7 @@ func (a *apiSecretHandlerImpl[T]) DisableForPublicPath(ignore bool) Service[T] {
 	return a
 }
 
-func (a *apiSecretHandlerImpl[T]) HandlerSecretAccess(ctx *apicontext.Request[T]) bool {
+func (a *apiSecretHandlerImpl[T]) HandlerSecretAccess(ctx *goservecontext.Request[T]) bool {
 	if a.ignoreValidationForPublicPaths && principal.IsPublicPath[T](*ctx) {
 		return true
 	}
@@ -132,7 +132,7 @@ func (a *apiSecretHandlerImpl[T]) initAPISecretKey() {
 //	  bool:
 //		 - `true` if the public key is valid and corresponds to the private key.
 //		 - `false` if the public key is invalid or the validation fails.
-func (a *apiSecretHandlerImpl[T]) apiSecretKeyValidation(ctx *apicontext.Request[T]) bool {
+func (a *apiSecretHandlerImpl[T]) apiSecretKeyValidation(ctx *goservecontext.Request[T]) bool {
 	// Decode the Base64-encoded public key
 	claims, err := a.service.JWTClaims(ctx)
 

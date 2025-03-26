@@ -1,7 +1,7 @@
 package jwt
 
 import (
-	apicontext "github.com/softwareplace/goserve/context"
+	goservecontext "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/security/encryptor"
 	"github.com/softwareplace/goserve/security/principal"
 	"time"
@@ -20,7 +20,7 @@ type Response struct {
 	Expires int    `json:"expires"`
 }
 
-type Service[T apicontext.Principal] interface {
+type Service[T goservecontext.Principal] interface {
 	encryptor.Service
 	// GenerateApiSecretJWT generates a JWT token with the provided Entry.
 	// It encrypts the apiKey provided in jwtInfo, then creates a JWT token with
@@ -56,7 +56,7 @@ type Service[T apicontext.Principal] interface {
 	// Notes:
 	// - This method relies on the `jwt-go` library for parsing and managing JWT tokens.
 	// - Decrypt and cryptographic methods used must ensure secure implementation.
-	ExtractJWTClaims(requestContext *apicontext.Request[T]) bool
+	ExtractJWTClaims(requestContext *goservecontext.Request[T]) bool
 
 	// JWTClaims extracts and parses the claims from the provided JWT token in the Request.
 	// It uses the context's ApiKey field as the JWT token for processing. The token is validated
@@ -78,7 +78,7 @@ type Service[T apicontext.Principal] interface {
 	//	   log.Fatalf("failed to extract claims: %v", err)
 	//   }
 	//   fmt.Printf("Extracted JWT claims: %v", claims)
-	JWTClaims(ctx *apicontext.Request[T]) (map[string]interface{}, error)
+	JWTClaims(ctx *goservecontext.Request[T]) (map[string]interface{}, error)
 
 	// GenerateJWT
 	// apiSecurityServiceImpl provides methods to handle JWT operations such as
@@ -122,23 +122,23 @@ type Service[T apicontext.Principal] interface {
 	GenerateJWT(user T, duration time.Duration) (*Response, error)
 
 	HandlerErrorOrElse(
-		ctx *apicontext.Request[T],
+		ctx *goservecontext.Request[T],
 		error error,
 		executionContext string,
 		handlerNotFound func(),
 	)
 }
 
-type serviceImpl[T apicontext.Principal] struct {
+type serviceImpl[T goservecontext.Principal] struct {
 	encryptor.Service
 	PService     principal.Service[T]
-	ErrorHandler apicontext.ApiHandler[T]
+	ErrorHandler goservecontext.ApiHandler[T]
 }
 
-func New[T apicontext.Principal](
+func New[T goservecontext.Principal](
 	pService principal.Service[T],
 	apiSecretAuthorization string,
-	errorHandler apicontext.ApiHandler[T],
+	errorHandler goservecontext.ApiHandler[T],
 ) Service[T] {
 	return &serviceImpl[T]{
 		Service:      encryptor.New([]byte(apiSecretAuthorization)),

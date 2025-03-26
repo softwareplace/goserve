@@ -3,7 +3,7 @@ package context
 import (
 	"fmt"
 	"github.com/gorilla/mux"
-	apireflect "github.com/softwareplace/goserve/reflect"
+	goservereflect "github.com/softwareplace/goserve/reflect"
 	"net/http"
 	"net/url"
 	"reflect"
@@ -50,20 +50,20 @@ func (ctx *Request[T]) BindRequestParams(target interface{}) *RequestError {
 
 	if strings.Contains(contentType, MultipartFormData) {
 		targetType := reflect.TypeOf(target)
-		if body, ok := apireflect.FindField(targetType, "body"); ok {
-			_ = apireflect.ParamsExtract(body,
-				apireflect.ParamsExtractorSource{
+		if body, ok := goservereflect.FindField(targetType, "body"); ok {
+			_ = goservereflect.ParamsExtract(body,
+				goservereflect.ParamsExtractorSource{
 					Tree: ctx.FormValues(),
 				},
 			)
 		}
 	}
-	_ = apireflect.ParamsExtract(target,
-		apireflect.ParamsExtractorSource{
+	_ = goservereflect.ParamsExtract(target,
+		goservereflect.ParamsExtractorSource{
 			Tree: r.URL.Query(),
-		}, apireflect.ParamsExtractorSource{
+		}, goservereflect.ParamsExtractorSource{
 			Tree: r.Header,
-		}, apireflect.ParamsExtractorSource{
+		}, goservereflect.ParamsExtractorSource{
 			Source: mux.Vars(r),
 		},
 	)

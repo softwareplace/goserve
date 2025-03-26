@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	log "github.com/sirupsen/logrus"
-	apicontext "github.com/softwareplace/goserve/context"
+	goservecontext "github.com/softwareplace/goserve/context"
 	"net/http"
 	"time"
 )
@@ -15,7 +15,7 @@ const (
 )
 
 func (a *serviceImpl[T]) Principal(
-	ctx *apicontext.Request[T],
+	ctx *goservecontext.Request[T],
 ) bool {
 	success := a.PService.LoadPrincipal(ctx)
 
@@ -30,7 +30,7 @@ func (a *serviceImpl[T]) Principal(
 	return success
 }
 
-func (a *serviceImpl[T]) ExtractJWTClaims(ctx *apicontext.Request[T]) bool {
+func (a *serviceImpl[T]) ExtractJWTClaims(ctx *goservecontext.Request[T]) bool {
 
 	token, err := jwt.Parse(ctx.Authorization, func(token *jwt.Token) (interface{}, error) {
 		return a.Secret(), nil
@@ -68,7 +68,7 @@ func (a *serviceImpl[T]) ExtractJWTClaims(ctx *apicontext.Request[T]) bool {
 	return false
 }
 
-func (a *serviceImpl[T]) JWTClaims(ctx *apicontext.Request[T]) (map[string]interface{}, error) {
+func (a *serviceImpl[T]) JWTClaims(ctx *goservecontext.Request[T]) (map[string]interface{}, error) {
 	token, err := jwt.Parse(ctx.ApiKey, func(token *jwt.Token) (interface{}, error) {
 		return a.Secret(), nil
 	})

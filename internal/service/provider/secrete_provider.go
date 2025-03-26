@@ -1,7 +1,7 @@
 package provider
 
 import (
-	apicontext "github.com/softwareplace/goserve/context"
+	goservecontext "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/security/secret"
 	"sync"
 )
@@ -13,14 +13,14 @@ var MockStore = map[string]string{
 	/// X-Api-Key for test only eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlLZXkiOiJTL2VTYzVDQ3Jub1laaDAyU2pLdFVsSzFXdmRaaVA1OXpFUU9jNE54K0pjL1c1dkhMa0tndE1ueExHN3dKTUwvIiwiY2xpZW50IjoiU29mdHdhcmUgUGxhY2UiLCJleHAiOjMwMzM5MzczNTcsInNjb3BlIjpbIkhFMSs0cEVwM3YzZFBzWXNLa3FLMGkzdiswSjMvYjFVN01YQkx3ZzhxQ0E9IiwiR2lQWUVNU1IvK1BjNUdaTm9OcUpqZDRkS1FZbjZ6QzBMbmdYTHVxdFc4VzkiLCJjY294TWNaT0tEZ0srTUZuend0YWFEWXgxaEtPSVlKNDl3PT0iLCJxOWRHb3V5bTBxZWxvV1V4bElKZ2Y1U3l6UnIrU3YwWWwvVT0iLCJNOHdrRkN3cmZpeVBKc2hjb3NrQU5GS0RZZ2ZxRnJOWXkwVmljOEdlM3dPSyJdfQ.n5_8kp3nNqXOAZVB73GCIXcv61gNyyihqz6xDIjIA0k
 }
 
-func (s *secretProviderImpl) Get(ctx *apicontext.Request[*apicontext.DefaultContext]) (string, error) {
+func (s *secretProviderImpl) Get(ctx *goservecontext.Request[*goservecontext.DefaultContext]) (string, error) {
 	return MockStore[ctx.ApiKeyId], nil
 }
 
 var secreteProvideOnce sync.Once
-var secretProvider secret.Provider[*apicontext.DefaultContext]
+var secretProvider secret.Provider[*goservecontext.DefaultContext]
 
-func NewSecretProvider() secret.Provider[*apicontext.DefaultContext] {
+func NewSecretProvider() secret.Provider[*goservecontext.DefaultContext] {
 	secreteProvideOnce.Do(func() {
 		secretProvider = &secretProviderImpl{}
 	})

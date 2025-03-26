@@ -2,7 +2,7 @@ package server
 
 import (
 	log "github.com/sirupsen/logrus"
-	apicontext "github.com/softwareplace/goserve/context"
+	goservecontext "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/security/principal"
 	"net/http"
 	"strings"
@@ -14,7 +14,7 @@ const (
 
 func (a *baseServer[T]) hasResourceAccess(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := apicontext.Of[T](w, r, SecurityValidatorResourceAccess)
+		ctx := goservecontext.Of[T](w, r, SecurityValidatorResourceAccess)
 
 		if principal.IsPublicPath[T](*ctx) {
 			ctx.Next(next)
@@ -46,7 +46,7 @@ func (a *baseServer[T]) hasResourceAccess(next http.Handler) http.Handler {
 // Returns:
 //
 //	bool - True if the user has the required roles or if the path does not require roles, false otherwise.
-func (a *baseServer[T]) hasResourceAccessRight(ctx apicontext.Request[T]) bool {
+func (a *baseServer[T]) hasResourceAccessRight(ctx goservecontext.Request[T]) bool {
 	requiredRoles, isRoleRequired := principal.GetRolesForPath(ctx)
 	userRoles := (*ctx.Principal).GetRoles()
 

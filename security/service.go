@@ -1,7 +1,7 @@
 package security
 
 import (
-	apicontext "github.com/softwareplace/goserve/context"
+	goservecontext "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/security/jwt"
 	"github.com/softwareplace/goserve/security/principal"
 )
@@ -15,7 +15,7 @@ type JwtResponse struct {
 	Expires int    `json:"expires"`
 }
 
-type Service[T apicontext.Principal] interface {
+type Service[T goservecontext.Principal] interface {
 	jwt.Service[T]
 
 	// AuthorizationHandler
@@ -38,18 +38,18 @@ type Service[T apicontext.Principal] interface {
 	// - This function leverages methods like Validation and IsPublicPath to make security decisions.
 	// - Ensure that all sensitive operations and data are securely processed.
 	// - Public paths bypass validation by default, so it's critical to properly define such paths to avoid security issues.
-	AuthorizationHandler(ctx *apicontext.Request[T]) (doNext bool)
+	AuthorizationHandler(ctx *goservecontext.Request[T]) (doNext bool)
 }
 
-type impl[T apicontext.Principal] struct {
+type impl[T goservecontext.Principal] struct {
 	jwt.Service[T]
 	PService principal.Service[T]
 }
 
-func New[T apicontext.Principal](
+func New[T goservecontext.Principal](
 	apiSecretAuthorization string,
 	service principal.Service[T],
-	errorHandler apicontext.ApiHandler[T],
+	errorHandler goservecontext.ApiHandler[T],
 ) Service[T] {
 	return &impl[T]{
 		jwt.New(service, apiSecretAuthorization, errorHandler),
@@ -57,7 +57,7 @@ func New[T apicontext.Principal](
 	}
 }
 
-func (a *impl[T]) AuthorizationHandler(ctx *apicontext.Request[T]) (doNext bool) {
+func (a *impl[T]) AuthorizationHandler(ctx *goservecontext.Request[T]) (doNext bool) {
 	if principal.IsPublicPath[T](*ctx) {
 		return true
 	}

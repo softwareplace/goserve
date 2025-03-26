@@ -1,7 +1,7 @@
 package file
 
 import (
-	apicontext "github.com/softwareplace/goserve/context"
+	goservecontext "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/internal/gen"
 	"sync"
 )
@@ -21,6 +21,6 @@ func New() *Service {
 	return serviceInstance
 }
 
-func (s Service) UploadFile(request gen.UploadFileClientRequest, ctx *apicontext.Request[*apicontext.DefaultContext]) {
+func (s Service) UploadFile(request gen.UploadFileClientRequest, ctx *goservecontext.Request[*goservecontext.DefaultContext]) {
 	ctx.BadRequest("Failed to upload file")
 }

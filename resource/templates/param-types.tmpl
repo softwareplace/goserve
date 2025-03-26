@@ -7,7 +7,7 @@ type {{.TypeName}} {{if .IsAlias}}={{end}} {{.Schema.TypeDecl}}
 
 {{range .}}{{$entry := .}}
 {{$opid := $entry.OperationId}}
-func (rh *resourceHandlerImpl[T]){{$opid}}(ctx *apicontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]){{$opid}}(ctx *goservecontext.Request[T]) {
     {{$opid := .OperationId}}
     {{ $processed := false -}}
     {{$hasParams := or .PathParams .QueryParams .HeaderParams}}
@@ -15,17 +15,17 @@ func (rh *resourceHandlerImpl[T]){{$opid}}(ctx *apicontext.Request[T]) {
     {{range .Bodies}}
     {{if and (not $processed) .IsSupported -}}
     {{$contentType := .ContentType -}}
-        errorhandler.Handler(func() {
+        goserveerrohandler.Handler(func() {
             requestBody := {{.Schema.TypeDecl}}{}
-            request.GetRequestBody(ctx, requestBody, func(ctx *apicontext.Request[T], body {{.Schema.TypeDecl}}) {
+            request.GetRequestBody(ctx, requestBody, func(ctx *goservecontext.Request[T], body {{.Schema.TypeDecl}}) {
             clientRequest := {{$entry.OperationId}}ClientRequest{
                                     Body: body,
                                 }
             {{if or $hasParams }}err := ctx.BindRequestParams(&clientRequest)
-                contentType := ctx.Request.Header.Get(apicontext.ContentType)
-                if err == nil && strings.Contains(contentType, apicontext.MultipartFormData) {
-                    _ = apireflect.ParamsExtract(&body,
-                        apireflect.ParamsExtractorSource{
+                contentType := ctx.Request.Header.Get(goservecontext.ContentType)
+                if err == nil && strings.Contains(contentType, goservecontext.MultipartFormData) {
+                    _ = goservereflect.ParamsExtract(&body,
+                        goservereflect.ParamsExtractorSource{
                             Tree: ctx.FormValues(),
                         },
                     )
@@ -37,7 +37,7 @@ func (rh *resourceHandlerImpl[T]){{$opid}}(ctx *apicontext.Request[T]) {
                 }
             {{ end }}
             rh.Service.{{$entry.OperationId}}(clientRequest, ctx)
-            }, func(ctx *apicontext.Request[T], err error) {
+            }, func(ctx *goservecontext.Request[T], err error) {
             ctx.InternalServerError("Internal server error")
             })
         }, func(err error) {
@@ -48,7 +48,7 @@ func (rh *resourceHandlerImpl[T]){{$opid}}(ctx *apicontext.Request[T]) {
         {{end}}
         {{end}}
         {{if not $processed -}}
-        errorhandler.Handler(func() {
+        goserveerrohandler.Handler(func() {
             {{if or $hasParams }}
             clientRequest := {{$entry.OperationId}}ClientRequest{
             }

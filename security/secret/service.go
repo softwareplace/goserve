@@ -1,7 +1,7 @@
 package secret
 
 import (
-	apicontext "github.com/softwareplace/goserve/context"
+	goservecontext "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/security"
 	"github.com/softwareplace/goserve/security/principal"
 )
@@ -11,7 +11,7 @@ const (
 	AccessHandlerName  = "API_SECRET_MIDDLEWARE"
 )
 
-type Service[T apicontext.Principal] interface {
+type Service[T goservecontext.Principal] interface {
 
 	// HandlerSecretAccess is the core function of the Service interface that is responsible for
 	// validating API secret keys to ensure secure access to API resources.
@@ -33,7 +33,7 @@ type Service[T apicontext.Principal] interface {
 	//
 	// Returns:
 	//   - bool: `true` if the API key is valid and access is granted; `false` otherwise.
-	HandlerSecretAccess(ctx *apicontext.Request[T]) bool
+	HandlerSecretAccess(ctx *goservecontext.Request[T]) bool
 
 	// DisableForPublicPath sets whether validation should be skipped for public API paths.
 	//
@@ -58,7 +58,7 @@ type Service[T apicontext.Principal] interface {
 	SecretKey() string
 }
 
-type apiSecretHandlerImpl[T apicontext.Principal] struct {
+type apiSecretHandlerImpl[T goservecontext.Principal] struct {
 	service                        security.Service[T]
 	provider                       Provider[T]
 	principalService               principal.Service[T]

@@ -2,7 +2,7 @@ package server
 
 import (
 	"github.com/gorilla/mux"
-	apicontext "github.com/softwareplace/goserve/context"
+	goservecontext "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/security"
 	"github.com/softwareplace/goserve/security/login"
 	"github.com/softwareplace/goserve/security/principal"
@@ -11,10 +11,10 @@ import (
 	"sync"
 )
 
-type baseServer[T apicontext.Principal] struct {
+type baseServer[T goservecontext.Principal] struct {
 	router                              *mux.Router
 	principalService                    principal.Service[T]
-	errorHandler                        apicontext.ApiHandler[T]
+	errorHandler                        goservecontext.ApiHandler[T]
 	loginService                        login.Service[T]
 	securityService                     security.Service[T]
 	secretService                       secret.Service[T]
@@ -29,12 +29,12 @@ type baseServer[T apicontext.Principal] struct {
 }
 
 func Default(
-	topMiddlewares ...ApiMiddleware[*apicontext.DefaultContext],
-) Api[*apicontext.DefaultContext] {
-	return CreateApiRouter[*apicontext.DefaultContext](topMiddlewares...)
+	topMiddlewares ...ApiMiddleware[*goservecontext.DefaultContext],
+) Api[*goservecontext.DefaultContext] {
+	return CreateApiRouter[*goservecontext.DefaultContext](topMiddlewares...)
 }
 
-func CreateApiRouter[T apicontext.Principal](topMiddlewares ...ApiMiddleware[T]) Api[T] {
+func CreateApiRouter[T goservecontext.Principal](topMiddlewares ...ApiMiddleware[T]) Api[T] {
 	router := mux.NewRouter()
 	router.Use(rootAppMiddleware[T])
 
@@ -54,7 +54,7 @@ func CreateApiRouter[T apicontext.Principal](topMiddlewares ...ApiMiddleware[T])
 	return api.NotFoundHandler()
 }
 
-func CreateApiRouterWith[T apicontext.Principal](router mux.Router) Api[T] {
+func CreateApiRouterWith[T goservecontext.Principal](router mux.Router) Api[T] {
 	router.Use(rootAppMiddleware[T])
 	api := &baseServer[T]{
 		router:                              &router,

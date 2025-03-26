@@ -1,7 +1,7 @@
 package user
 
 import (
-	apicontext "github.com/softwareplace/goserve/context"
+	goservecontext "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/internal/gen"
 	"sync"
 )
@@ -21,36 +21,36 @@ func New() *Service {
 	return serviceInstance
 }
 
-func (s Service) PostLogin(request gen.PostLoginClientRequest, ctx *apicontext.Request[*apicontext.DefaultContext]) {
+func (s Service) PostLogin(request gen.PostLoginClientRequest, ctx *goservecontext.Request[*goservecontext.DefaultContext]) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s Service) CreateUser(request gen.CreateUserClientRequest, ctx *apicontext.Request[*apicontext.DefaultContext]) {
+func (s Service) CreateUser(request gen.CreateUserClientRequest, ctx *goservecontext.Request[*goservecontext.DefaultContext]) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s Service) CreateUsersWithListInput(request gen.CreateUsersWithListInputClientRequest, ctx *apicontext.Request[*apicontext.DefaultContext]) {
+func (s Service) CreateUsersWithListInput(request gen.CreateUsersWithListInputClientRequest, ctx *goservecontext.Request[*goservecontext.DefaultContext]) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s Service) LogoutUser(request gen.LogoutUserClientRequest, ctx *apicontext.Request[*apicontext.DefaultContext]) {
+func (s Service) LogoutUser(request gen.LogoutUserClientRequest, ctx *goservecontext.Request[*goservecontext.DefaultContext]) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s Service) DeleteUser(request gen.DeleteUserClientRequest, ctx *apicontext.Request[*apicontext.DefaultContext]) {
+func (s Service) DeleteUser(request gen.DeleteUserClientRequest, ctx *goservecontext.Request[*goservecontext.DefaultContext]) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s Service) GetUserByName(request gen.GetUserByNameClientRequest, ctx *apicontext.Request[*apicontext.DefaultContext]) {
+func (s Service) GetUserByName(request gen.GetUserByNameClientRequest, ctx *goservecontext.Request[*goservecontext.DefaultContext]) {
 	ctx.Ok(request)
 }
 
-func (s Service) UpdateUser(request gen.UpdateUserClientRequest, ctx *apicontext.Request[*apicontext.DefaultContext]) {
+func (s Service) UpdateUser(request gen.UpdateUserClientRequest, ctx *goservecontext.Request[*goservecontext.DefaultContext]) {
 	//TODO implement me
 	panic("implement me")
 }

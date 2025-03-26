@@ -1,7 +1,7 @@
 package order
 
 import (
-	apicontext "github.com/softwareplace/goserve/context"
+	goservecontext "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/internal/gen"
 	"sync"
 )
@@ -21,17 +21,17 @@ func New() *Service {
 	return serviceInstance
 }
 
-func (s Service) PlaceOrder(request gen.PlaceOrderClientRequest, ctx *apicontext.Request[*apicontext.DefaultContext]) {
+func (s Service) PlaceOrder(request gen.PlaceOrderClientRequest, ctx *goservecontext.Request[*goservecontext.DefaultContext]) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s Service) DeleteOrder(request gen.DeleteOrderClientRequest, ctx *apicontext.Request[*apicontext.DefaultContext]) {
+func (s Service) DeleteOrder(request gen.DeleteOrderClientRequest, ctx *goservecontext.Request[*goservecontext.DefaultContext]) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s Service) GetOrderById(request gen.GetOrderByIdClientRequest, ctx *apicontext.Request[*apicontext.DefaultContext]) {
+func (s Service) GetOrderById(request gen.GetOrderByIdClientRequest, ctx *goservecontext.Request[*goservecontext.DefaultContext]) {
 	//TODO implement me
 	panic("implement me")
 }

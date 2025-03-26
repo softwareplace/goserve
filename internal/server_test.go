@@ -1,7 +1,7 @@
 package main
 
 import (
-	apicontext "github.com/softwareplace/goserve/context"
+	goservecontext "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/internal/handler"
 	"github.com/softwareplace/goserve/internal/service/apiservice"
 	"github.com/softwareplace/goserve/internal/service/login"
@@ -109,7 +109,7 @@ func TestMockServer(t *testing.T) {
 			t.Fatalf("Failed to create request: %v", err)
 		}
 
-		req.Header.Set(apicontext.XApiKey, apiSecret)
+		req.Header.Set(goservecontext.XApiKey, apiSecret)
 
 		rr := httptest.NewRecorder()
 
