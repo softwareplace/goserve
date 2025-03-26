@@ -772,109 +772,114 @@ type resourceHandler[T apicontext.Principal] interface {
 type PostLoginClientRequest struct {
 
 	// X-Api-Key - Header parameter
-	XApiKey string `header:"X-Api-Key"`
+	XApiKey string `name:"X-Api-Key"  error_message:"required header param [X-Api-Key] " header:"X-Api-Key" json:"X-Api-Key"`
 
-	Body LoginRequest
+	Body LoginRequest `name:"body" json:"body" required:"true" validate:"required"`
 }
 
 // FindAllPetsClientRequest combines all parameters for FindAllPets
 type FindAllPetsClientRequest struct {
 
 	// Authorization - Header parameter
-	Authorization Authorization `header:"Authorization" required:"true"`
+	Authorization Authorization `name:"Authorization"  error_message:"required header param [Authorization] " header:"Authorization" required:"true" validate:"required" json:"Authorization"`
 }
 
 // AddPetClientRequest combines all parameters for AddPet
 type AddPetClientRequest struct {
 
 	// Authorization - Header parameter
-	Authorization Authorization `header:"Authorization" required:"true"`
+	Authorization Authorization `name:"Authorization"  error_message:"required header param [Authorization] " header:"Authorization" required:"true" validate:"required" json:"Authorization"`
 
-	Body Pet
+	Body Pet `name:"body" json:"body" required:"true" validate:"required"`
 }
 
 // FindPetsByStatusClientRequest combines all parameters for FindPetsByStatus
 type FindPetsByStatusClientRequest struct {
 
 	// status - Query parameter
-	Status []FindPetsByStatusParamsStatus `query:"status" required:"true"`
+	Status []FindPetsByStatusParamsStatus `name:"status" error_message:"required query param [status]" query:"status" required:"true" validate:"required" json:"status"`
 
 	// Authorization - Header parameter
-	Authorization Authorization `header:"Authorization" required:"true"`
+	Authorization Authorization `name:"Authorization"  error_message:"required header param [Authorization] " header:"Authorization" required:"true" validate:"required" json:"Authorization"`
 }
 
 // FindPetsByTagsClientRequest combines all parameters for FindPetsByTags
 type FindPetsByTagsClientRequest struct {
 
 	// tags - Query parameter
-	Tags []string `query:"tags"`
+	Tags []string `name:"tags" error_message:"required query param [tags]" query:"tags" json:"tags"`
 
 	// Authorization - Header parameter
-	Authorization Authorization `header:"Authorization" required:"true"`
+	Authorization Authorization `name:"Authorization"  error_message:"required header param [Authorization] " header:"Authorization" required:"true" validate:"required" json:"Authorization"`
 }
 
 // DeletePetClientRequest combines all parameters for DeletePet
 type DeletePetClientRequest struct {
 
 	// petId - Path parameter
-	PetId int64 `path:"petId" required:"true"`
+
+	PetId int64 `name:"petId" error_message:"required path param [petId]" path:"petId" required:"true" validate:"required" json:"petId"`
 
 	// Authorization - Header parameter
-	Authorization Authorization `header:"Authorization" required:"true"`
+	Authorization Authorization `name:"Authorization"  error_message:"required header param [Authorization] " header:"Authorization" required:"true" validate:"required" json:"Authorization"`
 
 	// api_key - Header parameter
-	ApiKey string `header:"api_key"`
+	ApiKey string `name:"api_key"  error_message:"required header param [api_key] " header:"api_key" json:"api_key"`
 }
 
 // GetPetByIdClientRequest combines all parameters for GetPetById
 type GetPetByIdClientRequest struct {
 
 	// petId - Path parameter
-	PetId int64 `path:"petId" required:"true"`
+
+	PetId int64 `name:"petId" error_message:"required path param [petId]" path:"petId" required:"true" validate:"required" json:"petId"`
 
 	// Authorization - Header parameter
-	Authorization Authorization `header:"Authorization" required:"true"`
+	Authorization Authorization `name:"Authorization"  error_message:"required header param [Authorization] " header:"Authorization" required:"true" validate:"required" json:"Authorization"`
 }
 
 // UpdatePetWithFormClientRequest combines all parameters for UpdatePetWithForm
 type UpdatePetWithFormClientRequest struct {
 
 	// petId - Path parameter
-	PetId int64 `path:"petId" required:"true"`
+
+	PetId int64 `name:"petId" error_message:"required path param [petId]" path:"petId" required:"true" validate:"required" json:"petId"`
 
 	// name - Query parameter
-	Name string `query:"name"`
+	Name string `name:"name" error_message:"required query param [name]" query:"name" json:"name"`
 
 	// status - Query parameter
-	Status string `query:"status"`
+	Status string `name:"status" error_message:"required query param [status]" query:"status" json:"status"`
 
 	// Authorization - Header parameter
-	Authorization Authorization `header:"Authorization" required:"true"`
+	Authorization Authorization `name:"Authorization"  error_message:"required header param [Authorization] " header:"Authorization" required:"true" validate:"required" json:"Authorization"`
 }
 
 // UpdatePetClientRequest combines all parameters for UpdatePet
 type UpdatePetClientRequest struct {
 
 	// petId - Path parameter
-	PetId int64 `path:"petId" required:"true"`
+
+	PetId int64 `name:"petId" error_message:"required path param [petId]" path:"petId" required:"true" validate:"required" json:"petId"`
 
 	// Authorization - Header parameter
-	Authorization Authorization `header:"Authorization" required:"true"`
+	Authorization Authorization `name:"Authorization"  error_message:"required header param [Authorization] " header:"Authorization" required:"true" validate:"required" json:"Authorization"`
 
-	Body Pet
+	Body Pet `name:"body" json:"body" required:"true" validate:"required"`
 }
 
 // UploadFileClientRequest combines all parameters for UploadFile
 type UploadFileClientRequest struct {
 
 	// petId - Path parameter
-	PetId int64 `path:"petId" required:"true"`
+
+	PetId int64 `name:"petId" error_message:"required path param [petId]" path:"petId" required:"true" validate:"required" json:"petId"`
 
 	// additionalMetadata - Query parameter
-	AdditionalMetadata string `query:"additionalMetadata"`
+	AdditionalMetadata string `name:"additionalMetadata" error_message:"required query param [additionalMetadata]" query:"additionalMetadata" json:"additionalMetadata"`
 
 	// Authorization - Header parameter
-	Authorization Authorization `header:"Authorization" required:"true"`
+	Authorization Authorization `name:"Authorization"  error_message:"required header param [Authorization] " header:"Authorization" required:"true" validate:"required" json:"Authorization"`
 }
 
 type GetInventoryClientRequest struct {
@@ -884,81 +889,86 @@ type GetInventoryClientRequest struct {
 type PlaceOrderClientRequest struct {
 
 	// Authorization - Header parameter
-	Authorization Authorization `header:"Authorization" required:"true"`
+	Authorization Authorization `name:"Authorization"  error_message:"required header param [Authorization] " header:"Authorization" required:"true" validate:"required" json:"Authorization"`
 
-	Body Order
+	Body Order `name:"body" json:"body"`
 }
 
 // DeleteOrderClientRequest combines all parameters for DeleteOrder
 type DeleteOrderClientRequest struct {
 
 	// orderId - Path parameter
-	OrderId int64 `path:"orderId" required:"true"`
+
+	OrderId int64 `name:"orderId" error_message:"required path param [orderId]" path:"orderId" required:"true" validate:"required" json:"orderId"`
 
 	// Authorization - Header parameter
-	Authorization Authorization `header:"Authorization" required:"true"`
+	Authorization Authorization `name:"Authorization"  error_message:"required header param [Authorization] " header:"Authorization" required:"true" validate:"required" json:"Authorization"`
 }
 
 // GetOrderByIdClientRequest combines all parameters for GetOrderById
 type GetOrderByIdClientRequest struct {
 
 	// orderId - Path parameter
-	OrderId int64 `path:"orderId" required:"true"`
+
+	OrderId int64 `name:"orderId" error_message:"required path param [orderId]" path:"orderId" required:"true" validate:"required" json:"orderId"`
 
 	// Authorization - Header parameter
-	Authorization Authorization `header:"Authorization" required:"true"`
+	Authorization Authorization `name:"Authorization"  error_message:"required header param [Authorization] " header:"Authorization" required:"true" validate:"required" json:"Authorization"`
 }
 
 type CreateUserClientRequest struct {
-	Body User
+	Body User `name:"body" json:"body"`
 }
 
 // CreateUsersWithListInputClientRequest combines all parameters for CreateUsersWithListInput
 type CreateUsersWithListInputClientRequest struct {
 
 	// Authorization - Header parameter
-	Authorization Authorization `header:"Authorization" required:"true"`
+	Authorization Authorization `name:"Authorization"  error_message:"required header param [Authorization] " header:"Authorization" required:"true" validate:"required" json:"Authorization"`
 
-	Body CreateUsersWithListInputJSONBody
+	Body CreateUsersWithListInputJSONBody `name:"body" json:"body"`
 }
 
 // LogoutUserClientRequest combines all parameters for LogoutUser
 type LogoutUserClientRequest struct {
 
 	// Authorization - Header parameter
-	Authorization Authorization `header:"Authorization" required:"true"`
+	Authorization Authorization `name:"Authorization"  error_message:"required header param [Authorization] " header:"Authorization" required:"true" validate:"required" json:"Authorization"`
 }
 
 // DeleteUserClientRequest combines all parameters for DeleteUser
 type DeleteUserClientRequest struct {
 
 	// username - Path parameter
-	Username string `path:"username" required:"true"`
+
+	Username string `name:"username" error_message:"required path param [username]" path:"username" required:"true" validate:"required" json:"username"`
 
 	// Authorization - Header parameter
-	Authorization Authorization `header:"Authorization" required:"true"`
+	Authorization Authorization `name:"Authorization"  error_message:"required header param [Authorization] " header:"Authorization" required:"true" validate:"required" json:"Authorization"`
 }
 
 // GetUserByNameClientRequest combines all parameters for GetUserByName
 type GetUserByNameClientRequest struct {
 
 	// username - Path parameter
-	Username string `path:"username" required:"true"`
+
+	Username string `name:"username" error_message:"required path param [username]" path:"username" required:"true" validate:"required" json:"username"`
 
 	// Authorization - Header parameter
-	Authorization Authorization `header:"Authorization" required:"true"`
+	Authorization Authorization `name:"Authorization"  error_message:"required header param [Authorization] " header:"Authorization" required:"true" validate:"required" json:"Authorization"`
 }
 
 // UpdateUserClientRequest combines all parameters for UpdateUser
 type UpdateUserClientRequest struct {
 
 	// username - Path parameter
-	Username string `path:"username" required:"true"`
+
+	Username string `name:"username" error_message:"required path param [username]" path:"username" required:"true" validate:"required" json:"username"`
 
 	// Authorization - Header parameter
-	Authorization Authorization `header:"Authorization" required:"true"`
+	Authorization Authorization `name:"Authorization"  error_message:"required header param [Authorization] " header:"Authorization" required:"true" validate:"required" json:"Authorization"`
 
-	Body User
+	Body User `name:"body" json:"body"`
 }
 
 type ApiRequestService[T apicontext.Principal] interface {

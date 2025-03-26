@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/iris-contrib/schema"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 	"net/textproto"
 	"net/url"
@@ -24,10 +25,10 @@ const (
 
 // RequestError represents a validation error with contextual information
 type RequestError struct {
-	Field   string      `json:"field"`   // The original field name from request
-	Source  FieldSource `json:"source"`  // Where the field came from
-	Message string      `json:"message"` // Human-readable error message
-	Code    int         `json:"-"`       // HTTP status code
+	Field   string      `json:"field"`      // The original field name from request
+	Source  FieldSource `json:"source"`     // Where the field came from
+	Message string      `json:"message"`    // Human-readable error message
+	Code    int         `json:"statusCode"` // HTTP status code
 }
 
 // Error implements the error interface
@@ -38,8 +39,21 @@ func (e *RequestError) Error() string {
 // BindRequestParams extracts and binds all parameters from the request to the target struct
 func (ctx *Request[T]) BindRequestParams(target interface{}) *RequestError {
 	r := ctx.Request
+	err := extractAllParams(r, target)
 
-	// First bind all parameters
+	if err != nil {
+		log.Errorf("Failed to marshal params: %v", err)
+	}
+
+	err = ctx.StructValidation(target)
+
+	if err != nil {
+		return &RequestError{
+			Message: err.Error(),
+			Code:    http.StatusBadRequest,
+		}
+	}
+
 	if err := ctx.bindAllParams(r, target); err != nil {
 		return &RequestError{
 			Message: err.Error(),

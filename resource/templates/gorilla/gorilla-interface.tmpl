@@ -16,26 +16,27 @@ type {{$opid}}ClientRequest struct {
    {{/* Path Parameters */}}
     {{range .PathParams}}
     // {{.ParamName}} - Path parameter
-    {{.GoName}} {{.TypeDef}} `path:"{{.ParamName}}"{{if .Required}} required:"true"{{end}}`
+    {{$def := .}}
+    {{.GoName}} {{$def.TypeDef}} `name:"{{.ParamName}}" error_message:"required path param [{{.ParamName}}]" path:"{{$def.ParamName}}"{{if $def.Required}} required:"true" validate:"required"{{end}} json:"{{.ParamName}}"`
     {{end}}
 
     {{/* Query Parameters */}}
     {{range .QueryParams}}
     // {{.ParamName}} - Query parameter
-    {{.GoName}} {{.TypeDef}} `query:"{{.ParamName}}"{{if .Required}} required:"true"{{end}}`
+    {{.GoName}} {{.TypeDef}} `name:"{{.ParamName}}" error_message:"required query param [{{.ParamName}}]" query:"{{.ParamName}}"{{if .Required}} required:"true" validate:"required"{{end}} json:"{{.ParamName}}"`
     {{end}}
 
     {{/* Header Parameters */}}
     {{range .HeaderParams}}
     // {{.ParamName}} - Header parameter
-    {{.GoName}} {{.TypeDef}} `header:"{{.ParamName}}"{{if .Required}} required:"true"{{end}}`
+    {{.GoName}} {{.TypeDef}} `name:"{{.ParamName}}"  error_message:"required header param [{{.ParamName}}] " header:"{{.ParamName}}"{{if .Required}} required:"true" validate:"required"{{end}} json:"{{.ParamName}}"`
     {{end}}
     {{/* Take the first TypeDefinition (assuming one per operation) */}}
     {{ $processed := false -}}
     {{range .Bodies}}
     {{if and (not $processed) .IsSupported -}}
     {{$contentType := .ContentType -}}
-    Body {{.Schema.TypeDecl}}
+    Body {{.Schema.TypeDecl}} `name:"body" json:"body"{{if .Required }} required:"true" validate:"required"{{end}}`
     {{ $processed = true -}}
     {{end}}
     {{end}}
@@ -47,7 +48,7 @@ type {{$entry.OperationId}}ClientRequest struct { {{ $processed := false -}}
     {{range .Bodies}}
     {{if and (not $processed) .IsSupported -}}
     {{$contentType := .ContentType -}}
-     Body {{.Schema.TypeDecl}}
+     Body {{.Schema.TypeDecl}} `name:"body" json:"body"{{if .Required }} required:"true" validate:"required"{{end}}`
     {{ $processed = true -}}
     {{end}}
     {{end}}
