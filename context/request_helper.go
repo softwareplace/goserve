@@ -4,6 +4,16 @@ import (
 	"mime/multipart"
 )
 
+const (
+	ContentType               = "Content-Type"
+	ApplicationJson           = "application/json"
+	TextPlain                 = "text/plain"
+	TextHtml                  = "text/html"
+	TextXml                   = "text/xml"
+	MultipartFormData         = "multipart/form-data"
+	ApplicationFormUrlEncoded = "application/x-www-form-urlencoded"
+)
+
 // GetSessionId retrieves the unique identifier for the current API session.
 // This session ID is used for tracking the lifecycle of requests in a session.
 func (ctx *Request[T]) GetSessionId() string {

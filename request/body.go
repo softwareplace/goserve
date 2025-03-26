@@ -7,16 +7,6 @@ import (
 	"strings"
 )
 
-const (
-	ContentType               = "Content-Type"
-	ApplicationJson           = "application/json"
-	TextPlain                 = "text/plain"
-	TextHtml                  = "text/html"
-	TextXml                   = "text/xml"
-	MultipartFormData         = "multipart/form-data"
-	ApplicationFormUrlEncoded = "application/x-www-form-urlencoded"
-)
-
 type OnSuccess[B any, T apicontext.Principal] func(ctx *apicontext.Request[T], body B)
 type OnError[T apicontext.Principal] func(ctx *apicontext.Request[T], err error)
 
@@ -36,9 +26,9 @@ func GetRequestBody[B any, T apicontext.Principal](
 	onError OnError[T],
 ) {
 	// Check if the Content-Type is application/json
-	contentType := ctx.Request.Header.Get(ContentType)
+	contentType := ctx.Request.Header.Get(apicontext.ContentType)
 
-	if strings.Contains(contentType, ApplicationJson) || contentType == "" {
+	if strings.Contains(contentType, apicontext.ApplicationJson) || contentType == "" {
 		// Decode the JSON body
 		if err := json.NewDecoder(ctx.Request.Body).Decode(&target); err != nil {
 			onError(ctx, err)

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	apireflect "github.com/softwareplace/goserve/reflect"
-	"github.com/softwareplace/goserve/request"
 	"net/http"
 	"net/url"
 	"strings"
@@ -33,7 +32,10 @@ func (e *RequestError) Error() string {
 func (ctx *Request[T]) FormValues() url.Values {
 	r := ctx.Request
 	if r.Form == nil {
-		r.ParseMultipartForm(defaultMaxMemory)
+		err := r.ParseMultipartForm(defaultMaxMemory)
+		if err != nil {
+			return nil
+		}
 	}
 	return r.Form
 }
@@ -43,9 +45,9 @@ func (ctx *Request[T]) FormValues() url.Values {
 func (ctx *Request[T]) BindRequestParams(target interface{}) *RequestError {
 	r := ctx.Request
 
-	contentType := ctx.Request.Header.Get(request.ContentType)
+	contentType := ctx.Request.Header.Get(ContentType)
 
-	if strings.Contains(contentType, request.MultipartFormData) {
+	if strings.Contains(contentType, MultipartFormData) {
 		_ = apireflect.ParamsExtract(target,
 			apireflect.ParamsExtractorSource{
 				Tree: ctx.FormValues(),
