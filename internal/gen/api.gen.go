@@ -4,6 +4,8 @@
 package gen
 
 import (
+	apireflect "github.com/softwareplace/goserve/reflect"
+	"strings"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -263,6 +265,14 @@ func (rh *resourceHandlerImpl[T]) PostLogin(ctx *apicontext.Request[T]) {
 				Body: body,
 			}
 			err := ctx.BindRequestParams(&clientRequest)
+			contentType := ctx.Request.Header.Get(apicontext.ContentType)
+			if err == nil && strings.Contains(contentType, apicontext.MultipartFormData) {
+				_ = apireflect.ParamsExtract(&body,
+					apireflect.ParamsExtractorSource{
+						Tree: ctx.FormValues(),
+					},
+				)
+			}
 			if err != nil {
 				log.Errorf("Failed to bind PostLoginClientRequest request params: %+v", err)
 				ctx.Error(err.Error(), err.Code)
@@ -309,6 +319,14 @@ func (rh *resourceHandlerImpl[T]) AddPet(ctx *apicontext.Request[T]) {
 				Body: body,
 			}
 			err := ctx.BindRequestParams(&clientRequest)
+			contentType := ctx.Request.Header.Get(apicontext.ContentType)
+			if err == nil && strings.Contains(contentType, apicontext.MultipartFormData) {
+				_ = apireflect.ParamsExtract(&body,
+					apireflect.ParamsExtractorSource{
+						Tree: ctx.FormValues(),
+					},
+				)
+			}
 			if err != nil {
 				log.Errorf("Failed to bind AddPetClientRequest request params: %+v", err)
 				ctx.Error(err.Error(), err.Code)
@@ -435,6 +453,14 @@ func (rh *resourceHandlerImpl[T]) UpdatePet(ctx *apicontext.Request[T]) {
 				Body: body,
 			}
 			err := ctx.BindRequestParams(&clientRequest)
+			contentType := ctx.Request.Header.Get(apicontext.ContentType)
+			if err == nil && strings.Contains(contentType, apicontext.MultipartFormData) {
+				_ = apireflect.ParamsExtract(&body,
+					apireflect.ParamsExtractorSource{
+						Tree: ctx.FormValues(),
+					},
+				)
+			}
 			if err != nil {
 				log.Errorf("Failed to bind UpdatePetClientRequest request params: %+v", err)
 				ctx.Error(err.Error(), err.Code)
@@ -494,6 +520,14 @@ func (rh *resourceHandlerImpl[T]) PlaceOrder(ctx *apicontext.Request[T]) {
 				Body: body,
 			}
 			err := ctx.BindRequestParams(&clientRequest)
+			contentType := ctx.Request.Header.Get(apicontext.ContentType)
+			if err == nil && strings.Contains(contentType, apicontext.MultipartFormData) {
+				_ = apireflect.ParamsExtract(&body,
+					apireflect.ParamsExtractorSource{
+						Tree: ctx.FormValues(),
+					},
+				)
+			}
 			if err != nil {
 				log.Errorf("Failed to bind PlaceOrderClientRequest request params: %+v", err)
 				ctx.Error(err.Error(), err.Code)
@@ -580,6 +614,14 @@ func (rh *resourceHandlerImpl[T]) CreateUsersWithListInput(ctx *apicontext.Reque
 				Body: body,
 			}
 			err := ctx.BindRequestParams(&clientRequest)
+			contentType := ctx.Request.Header.Get(apicontext.ContentType)
+			if err == nil && strings.Contains(contentType, apicontext.MultipartFormData) {
+				_ = apireflect.ParamsExtract(&body,
+					apireflect.ParamsExtractorSource{
+						Tree: ctx.FormValues(),
+					},
+				)
+			}
 			if err != nil {
 				log.Errorf("Failed to bind CreateUsersWithListInputClientRequest request params: %+v", err)
 				ctx.Error(err.Error(), err.Code)
@@ -666,6 +708,14 @@ func (rh *resourceHandlerImpl[T]) UpdateUser(ctx *apicontext.Request[T]) {
 				Body: body,
 			}
 			err := ctx.BindRequestParams(&clientRequest)
+			contentType := ctx.Request.Header.Get(apicontext.ContentType)
+			if err == nil && strings.Contains(contentType, apicontext.MultipartFormData) {
+				_ = apireflect.ParamsExtract(&body,
+					apireflect.ParamsExtractorSource{
+						Tree: ctx.FormValues(),
+					},
+				)
+			}
 			if err != nil {
 				log.Errorf("Failed to bind UpdateUserClientRequest request params: %+v", err)
 				ctx.Error(err.Error(), err.Code)

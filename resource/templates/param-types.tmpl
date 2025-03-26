@@ -22,6 +22,14 @@ func (rh *resourceHandlerImpl[T]){{$opid}}(ctx *apicontext.Request[T]) {
                                     Body: body,
                                 }
             {{if or $hasParams }}err := ctx.BindRequestParams(&clientRequest)
+                contentType := ctx.Request.Header.Get(apicontext.ContentType)
+                if err == nil && strings.Contains(contentType, apicontext.MultipartFormData) {
+                    _ = apireflect.ParamsExtract(&body,
+                        apireflect.ParamsExtractorSource{
+                            Tree: ctx.FormValues(),
+                        },
+                    )
+                }
                 if err != nil {
                     log.Errorf("Failed to bind {{$entry.OperationId}}ClientRequest request params: %+v", err)
                     ctx.Error(err.Error(), err.Code)
