@@ -155,16 +155,13 @@ func (ctx *Request[T]) FormValue(name string) any {
 // FormFile retrieves a file and its header from a multipart form with the given field name.
 // The file is immediately closed after being read to avoid resource leaks.
 //
-// Parameters:
-//   - name: The name of the form field containing the file to retrieve.
-//
 // Returns:
 //   - multipart.File: The file object, or nil if an error occurs.
 //   - *multipart.FileHeader: The file header, or nil if an error occurs.
 //   - error: An error, if one occurs while retrieving the file.
 //
 // Make sure to close the file when no need it anymore.
-func (ctx *Request[T]) FormFile(name string) (multipart.File, *multipart.FileHeader, error) {
+func (ctx *Request[T]) FormFile() (multipart.File, *multipart.FileHeader, error) {
 	file, fileHeader, err := ctx.Request.FormFile("resource")
 	if err != nil {
 		return nil, nil, err
