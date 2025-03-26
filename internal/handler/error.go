@@ -3,7 +3,6 @@ package handler
 import (
 	log "github.com/sirupsen/logrus"
 	apicontext "github.com/softwareplace/goserve/context"
-	errorhandler "github.com/softwareplace/goserve/error"
 	"github.com/softwareplace/goserve/server"
 	"sync"
 )
@@ -12,11 +11,11 @@ type errorHandlerImpl struct {
 }
 
 var (
-	errorHandlerInstance errorhandler.ApiHandler[*apicontext.DefaultContext]
+	errorHandlerInstance apicontext.ApiHandler[*apicontext.DefaultContext]
 	errorHandlerOnce     sync.Once
 )
 
-func New() errorhandler.ApiHandler[*apicontext.DefaultContext] {
+func New() apicontext.ApiHandler[*apicontext.DefaultContext] {
 	errorHandlerOnce.Do(func() {
 		errorHandlerInstance = &errorHandlerImpl{}
 	})

@@ -4,7 +4,6 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/gorilla/mux"
 	apicontext "github.com/softwareplace/goserve/context"
-	errorhandler "github.com/softwareplace/goserve/error"
 	"github.com/softwareplace/goserve/security"
 	"github.com/softwareplace/goserve/security/login"
 	"github.com/softwareplace/goserve/security/principal"
@@ -238,7 +237,7 @@ type Api[T apicontext.Principal] interface {
 	//
 	// Returns:
 	//   - Api[T]: The router handler for chaining further route configurations.
-	ErrorHandler(handler errorhandler.ApiHandler[T]) Api[T]
+	ErrorHandler(handler apicontext.ApiHandler[T]) Api[T]
 
 	// LoginService sets the login service for the API router and registers a public
 	// route for the login functionality. This route is accessible without requiring any

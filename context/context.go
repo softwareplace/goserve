@@ -21,6 +21,10 @@ type Principal interface {
 	EncryptedPassword() string
 }
 
+type ApiHandler[T Principal] interface {
+	Handler(ctx *Request[T], err error, source string)
+}
+
 type SampleContext[T Principal] struct {
 	ApiKey              string                 // The API key extracted from the HTTP request header. This is used to identify and authenticate the client making the API request.
 	ApiKeyId            string                 // The unique identifier associated with the API key used in the request. Helps in tracking and logging API key usage.

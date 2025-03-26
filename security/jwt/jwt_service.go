@@ -2,7 +2,6 @@ package jwt
 
 import (
 	apicontext "github.com/softwareplace/goserve/context"
-	errorhandler "github.com/softwareplace/goserve/error"
 	"github.com/softwareplace/goserve/security/encryptor"
 	"github.com/softwareplace/goserve/security/principal"
 	"time"
@@ -133,13 +132,13 @@ type Service[T apicontext.Principal] interface {
 type serviceImpl[T apicontext.Principal] struct {
 	encryptor.Service
 	PService     principal.Service[T]
-	ErrorHandler errorhandler.ApiHandler[T]
+	ErrorHandler apicontext.ApiHandler[T]
 }
 
 func New[T apicontext.Principal](
 	pService principal.Service[T],
 	apiSecretAuthorization string,
-	errorHandler errorhandler.ApiHandler[T],
+	errorHandler apicontext.ApiHandler[T],
 ) Service[T] {
 	return &serviceImpl[T]{
 		Service:      encryptor.New([]byte(apiSecretAuthorization)),

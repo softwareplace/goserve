@@ -2,7 +2,7 @@ package server
 
 import (
 	"github.com/gorilla/mux"
-	errorhandler "github.com/softwareplace/goserve/error"
+	apicontext "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/security/login"
 	"github.com/softwareplace/goserve/security/principal"
 	"net/http"
@@ -14,7 +14,7 @@ func (a *baseServer[T]) RegisterCustomMiddleware(middleware func(next http.Handl
 	return a
 }
 
-func (a *baseServer[T]) ErrorHandler(handler errorhandler.ApiHandler[T]) Api[T] {
+func (a *baseServer[T]) ErrorHandler(handler apicontext.ApiHandler[T]) Api[T] {
 	a.errorHandler = handler
 	return a
 }

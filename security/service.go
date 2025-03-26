@@ -2,7 +2,6 @@ package security
 
 import (
 	apicontext "github.com/softwareplace/goserve/context"
-	errorhandler "github.com/softwareplace/goserve/error"
 	"github.com/softwareplace/goserve/security/jwt"
 	"github.com/softwareplace/goserve/security/principal"
 )
@@ -50,7 +49,7 @@ type impl[T apicontext.Principal] struct {
 func New[T apicontext.Principal](
 	apiSecretAuthorization string,
 	service principal.Service[T],
-	errorHandler errorhandler.ApiHandler[T],
+	errorHandler apicontext.ApiHandler[T],
 ) Service[T] {
 	return &impl[T]{
 		jwt.New(service, apiSecretAuthorization, errorHandler),

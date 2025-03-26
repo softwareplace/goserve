@@ -3,7 +3,6 @@ package server
 import (
 	"github.com/gorilla/mux"
 	apicontext "github.com/softwareplace/goserve/context"
-	errorhandler "github.com/softwareplace/goserve/error"
 	"github.com/softwareplace/goserve/security"
 	"github.com/softwareplace/goserve/security/login"
 	"github.com/softwareplace/goserve/security/principal"
@@ -15,7 +14,7 @@ import (
 type baseServer[T apicontext.Principal] struct {
 	router                              *mux.Router
 	principalService                    principal.Service[T]
-	errorHandler                        errorhandler.ApiHandler[T]
+	errorHandler                        apicontext.ApiHandler[T]
 	loginService                        login.Service[T]
 	securityService                     security.Service[T]
 	secretService                       secret.Service[T]
