@@ -3,20 +3,20 @@ package server
 import (
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/gorilla/mux"
-	apicontext "github.com/softwareplace/goserve/context"
+	goservecontext "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/security"
 	"github.com/softwareplace/goserve/security/login"
 	"github.com/softwareplace/goserve/security/secret"
 	"net/http"
 )
 
-type ApiContextHandler[T apicontext.Principal] func(ctx *apicontext.Request[T])
+type ApiContextHandler[T goservecontext.Principal] func(ctx *goservecontext.Request[T])
 
-type ApiMiddleware[T apicontext.Principal] func(*apicontext.Request[T]) (doNext bool)
+type ApiMiddleware[T goservecontext.Principal] func(*goservecontext.Request[T]) (doNext bool)
 
 type RouterHandler func(*mux.Router)
 
-type Api[T apicontext.Principal] interface {
+type Api[T goservecontext.Principal] interface {
 	// Port sets the port for the API router's server.
 	// This method allows specifying a custom port where the server will listen for incoming requests.
 	//
@@ -241,7 +241,7 @@ type Api[T apicontext.Principal] interface {
 	//
 	// Returns:
 	//   - Api[T]: The router handler for chaining further route configurations.
-	ErrorHandler(handler apicontext.ApiHandler[T]) Api[T]
+	ErrorHandler(handler goservecontext.ApiHandler[T]) Api[T]
 
 	// LoginService sets the login service for the API router and registers a public
 	// route for the login functionality. This route is accessible without requiring any
