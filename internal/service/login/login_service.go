@@ -9,7 +9,7 @@ import (
 	"github.com/softwareplace/goserve/security/jwt"
 	"github.com/softwareplace/goserve/security/login"
 	"github.com/softwareplace/goserve/security/principal"
-	"github.com/softwareplace/goserve/server"
+	"github.com/softwareplace/goserve/security/secret"
 	"sync"
 	"time"
 )
@@ -60,17 +60,17 @@ func (d *PrincipalServiceImpl) LoadPrincipal(ctx *goservecontext.Request[*goserv
 func (l *Service) RequiredScopes() []string {
 	return []string{
 		"api:key:generator",
+		"api:key:generator-v2",
 	}
 }
 
-func (l *Service) GetApiJWTInfo(apiKeyEntryData server.ApiKeyEntryData,
+func (l *Service) GetApiJWTInfo(apiKeyEntryData secret.ApiKeyEntryData,
 	_ *goservecontext.Request[*goservecontext.DefaultContext],
-) (jwt.Entry, error) {
-	return jwt.Entry{
-		Client:     apiKeyEntryData.ClientName,
+) (secret.Entry, error) {
+	return secret.Entry{
 		Key:        apiKeyEntryData.ClientId,
 		Expiration: apiKeyEntryData.Expiration,
-		Scopes: []string{
+		Roles: []string{
 			"api:example:user",
 			"api:example:admin",
 			"read:pets",
@@ -81,11 +81,11 @@ func (l *Service) GetApiJWTInfo(apiKeyEntryData server.ApiKeyEntryData,
 }
 
 func (l *Service) OnGenerated(data jwt.Response,
-	jwtEntry jwt.Entry,
+	jwtEntry secret.Entry,
 	ctx goservecontext.SampleContext[*goservecontext.DefaultContext],
 ) {
 	provider.MockStore[jwtEntry.Key] = *jwtEntry.PublicKey
-	log.Printf("%s - %s", jwtEntry.Key, data.Token)
+	log.Printf("%s - %s", jwtEntry.Key, data.JWT)
 	log.Printf("API KEY GENERATED: from %s - %v", ctx.AccessId, data)
 }
 

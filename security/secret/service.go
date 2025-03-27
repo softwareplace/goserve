@@ -1,7 +1,7 @@
 package secret
 
 import (
-	goservecontext "github.com/softwareplace/goserve/context"
+	apicontext "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/security"
 	"github.com/softwareplace/goserve/security/principal"
 )
@@ -11,7 +11,9 @@ const (
 	AccessHandlerName  = "API_SECRET_MIDDLEWARE"
 )
 
-type Service[T goservecontext.Principal] interface {
+type Service[T apicontext.Principal] interface {
+	security.Service[T]
+	Provider[T]
 
 	// HandlerSecretAccess is the core function of the Service interface that is responsible for
 	// validating API secret keys to ensure secure access to API resources.
@@ -33,7 +35,7 @@ type Service[T goservecontext.Principal] interface {
 	//
 	// Returns:
 	//   - bool: `true` if the API key is valid and access is granted; `false` otherwise.
-	HandlerSecretAccess(ctx *goservecontext.Request[T]) bool
+	HandlerSecretAccess(ctx *apicontext.Request[T]) bool
 
 	// DisableForPublicPath sets whether validation should be skipped for public API paths.
 	//
@@ -46,22 +48,13 @@ type Service[T goservecontext.Principal] interface {
 	//	 Set to `true` to skip validation; set to `false` to enforce validation.
 	DisableForPublicPath(ignore bool) Service[T]
 
-	//
-	// SecretKey provides a secure mechanism to fetch and return the current secret key used for
-	// API validations or other security-related operations.
-	//
-	// This method is essential in ensuring that security-critical processes access the correct
-	// API secret key stored or configured in the implementation of the `securityService` interface.
-	//
-	// Returns:
-	//   - string: The current secret key being utilized for authentication or validation purposes.
-	SecretKey() string
+	Handler(ctx *apicontext.Request[T], body ApiKeyEntryData)
 }
 
-type apiSecretHandlerImpl[T goservecontext.Principal] struct {
-	service                        security.Service[T]
-	provider                       Provider[T]
-	principalService               principal.Service[T]
+type apiSecretHandlerImpl[T apicontext.Principal] struct {
+	security.Service[T]
+	Provider[T]
+	pService                       principal.Service[T]
 	secretKey                      string
 	apiSecret                      any
 	ignoreValidationForPublicPaths bool

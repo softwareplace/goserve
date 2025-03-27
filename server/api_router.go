@@ -6,7 +6,6 @@ import (
 	goservecontext "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/security"
 	"github.com/softwareplace/goserve/security/login"
-	"github.com/softwareplace/goserve/security/principal"
 	"github.com/softwareplace/goserve/security/secret"
 	"net/http"
 )
@@ -154,29 +153,17 @@ type Api[T goservecontext.Principal] interface {
 	//   - Api[T]: The router handler for chaining further route configurations.
 	RegisterMiddleware(middleware ApiMiddleware[T], name string) Api[T]
 
-	// SecretService assigns an API secret access handler to the router.
-	// This middleware provides an additional layer of security by validating API secret keys
-	// on incoming requests before they are processed by specific route handlers.
-	//
-	// ApiKey generator resource:
-	//   - By registering the secret.Service, also add a login resource ContextPath+api-key/generate
-	//     that handle the apiKey generator request by invoking Service. You can also disable it by
-	//     calling SecretKeyGeneratorResourceEnabled before call Service.
-	//
-	//  - The ApiKey generator resource expects the input of ApiKeyEntryData.
-	//
-	// Parameters:
-	//   - service: An implementation of security.Service[T] responsible for the logic
-	//				 to validate and handle API secret access.
-	//
-	// Returns:
-	//   - Api[T]: The router handler for chaining further route configurations.
-	SecretService(service secret.Service[T]) Api[T]
-
 	// SecurityService assigns a security service to the API router.
 	// This service is responsible for handling various security aspects such as authentication,
 	// authorization, and token validation for incoming requests. By assigning a security service,
 	// the API router ensures that all operations comply with the defined security policies.
+	//
+	// Make sure to call SecurityService at top of api definition struct to ensure that
+	// the all router can't be accessible without authorization check.
+	//
+	// Example:
+	// 	 - server.New[...]().
+	//	 		SecurityService(mySecurityServiceImpl)
 	//
 	// Login resource:
 	//   - By registering the security.Service, also add a login resource ContextPath+login
@@ -219,16 +206,6 @@ type Api[T goservecontext.Principal] interface {
 	//   - Api[T]: The router handler for chaining further route configurations.
 	RegisterCustomMiddleware(func(next http.Handler) http.Handler) Api[T]
 
-	// PrincipalService assigns a principal service to the router.
-	// This service provides role-based access control and other principal-related features.
-	//
-	// Parameters:
-	//   - service: The principal service instance.
-	//
-	// Returns:
-	//   - Api[T]: The router handler for chaining further route configurations.
-	PrincipalService(service principal.Service[T]) Api[T]
-
 	// ErrorHandler assigns a custom error handler to the router.
 	// This handler is used to process API errors and provide appropriate responses.
 	//
@@ -254,16 +231,25 @@ type Api[T goservecontext.Principal] interface {
 	//  - Api[T]: This allows chaining additional configuration or service registrations.
 	LoginService(service login.Service[T]) Api[T]
 
-	// ApiKeyGeneratorResource configures the Api with a provided ApiKeyGeneratorService.
+	// SecretService configures the Api with a provided ApiKeyGeneratorService.
 	// It registers a POST endpoint for generating API keys at the route path "/api-keys/generate".
 	// This method ensures that the endpoint follows consistent naming conventions and best practices.
 	//
+	// By registering the secret.Service, also add a resource ContextPath/api-key/generate that make
+	// possible to generate a new X-Api-Key, handle the apiKey generator request by
+	// invoking secret.Service.GetJwtEntry. You can also disable it by calling
+	// SecretKeyGeneratorResourceEnabled before call SecretService method.
+	//
+	// Once the ApiKey management service is registered, all requests in the application will validate whether
+	// the `x-Api-Key` header was sent in the request and whether the requester has access to the requested resource.
+	// To keep public routers
+	//
 	// Parameters:
-	//   - apiKeyGeneratorService: The implementation of ApiKeyGeneratorService[T] responsible for generating API keys.
+	//   - service: The implementation of secret.Service[T] responsible for generating API keys.
 	//
 	// Returns:
 	//   - Api[T]: The current Api instance to allow method chaining.
-	ApiKeyGeneratorResource(apiKeyGeneratorService ApiKeyGeneratorService[T]) Api[T]
+	SecretService(service secret.Service[T]) Api[T]
 
 	// SecretKeyGeneratorResourceEnabled disables the API Secret Key Generator feature in the API router.
 	// This method removes or disables the associated endpoint/resource responsible for generating API secret keys.

@@ -62,17 +62,15 @@ func init() {
 
 var (
 	userPrincipalService = login.NewPrincipalService()
-	errorHandler         = handler.New()
-	securityService      = security.New(
+	securityService = security.New(
 		"ue1pUOtCGaYS7Z1DLJ80nFtZ",
 		userPrincipalService,
-		errorHandler,
 	)
 
-	loginService   = login.NewLoginService(securityService)
+	loginService = login.NewLoginService(securityService)
 	secretProvider = provider.NewSecretProvider()
 
-	secretHandler = secret.New(
+	secretService = secret.New(
 		"./internal/secret/private.key",
 		secretProvider,
 		securityService,
@@ -83,11 +81,9 @@ func main() {
 	server.Default().
 		LoginResourceEnabled(true).
 		SecretKeyGeneratorResourceEnabled(true).
-		ApiKeyGeneratorResource(loginService).
 		LoginService(loginService).
-		SecretService(secretHandler).
+		SecretService(secretService).
 		SecurityService(securityService).
-		PrincipalService(userPrincipalService).
 		EmbeddedServer(apiservice.Register).
 		Get(apiservice.ReportCallerHandler, "/report/caller").
 		SwaggerDocHandler("./internal/resource/pet-store.yaml").
@@ -103,15 +99,16 @@ func main() {
 By default, the server runs at `http://localhost:8080/`. You can change the port and context path using the
 following environment variables:
 
-| Name                      | Required | Default    | Description                                                                                      |
-|---------------------------|----------|------------|--------------------------------------------------------------------------------------------------|
-| CONTEXT_PATH              | No       | /          | The base path for the application API.                                                           |
-| PORT                      | No       | 8080       | The port on which the application runs.                                                          |
-| B_CRYPT_COST              | No       | 10         | The cost factor for bcrypt hashing.                                                              |
-| LOG_DIR                   | No       | ./.log     | The directory path where log files will be stored.                                               |
-| LOG_APP_NAME              | No       |            | The application name tha used to define the log file name.                                       |
-| LOG_REPORT_CALLER         | No       | false      | [Logging Method Name](https://github.com/sirupsen/logrus?tab=readme-ov-file#logging-method-name) |
-| LOG_FILE_NAME_DATE_FORMAT | No       | 2006-01-02 | Defines the date format (YYYY-MM-DD) used for naming log files and tracking the current date     |
+| Name                      | Required | Default    | Description                                                                                        |
+|---------------------------|----------|------------|----------------------------------------------------------------------------------------------------|
+| CONTEXT_PATH              | No       | /          | The base path for the application API.                                                             |
+| PORT                      | No       | 8080       | The port on which the application runs.                                                            |
+| B_CRYPT_COST              | No       | 10         | The cost factor for bcrypt hashing.                                                                |
+| LOG_DIR                   | No       | ./.log     | The directory path where log files will be stored.                                                 |
+| LOG_APP_NAME              | No       |            | The application name tha used to define the log file name.                                         |
+| LOG_REPORT_CALLER         | No       | false      | [Logging Method Name](https://github.com/sirupsen/logrus?tab=readme-ov-file#logging-method-name)   |
+| LOG_FILE_NAME_DATE_FORMAT | No       | 2006-01-02 | Defines the date format (YYYY-MM-DD) used for naming log files and tracking the current date       |
+| JWT_ISSUER                | No       |            | Issuer returns the identifier of the entity responsible for issuing the JWT tokens in the service. |
 
 ### Advanced Configuration with Code Generation
 

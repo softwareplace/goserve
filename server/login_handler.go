@@ -2,23 +2,27 @@ package server
 
 import (
 	log "github.com/sirupsen/logrus"
-	goservecontext "github.com/softwareplace/goserve/context"
-	goserveerrohandler "github.com/softwareplace/goserve/error"
+	apicontext "github.com/softwareplace/goserve/context"
+	errorhandler "github.com/softwareplace/goserve/error"
 	"github.com/softwareplace/goserve/request"
 	"github.com/softwareplace/goserve/security/login"
+	"github.com/softwareplace/goserve/security/secret"
 )
 
-func (a *baseServer[T]) Login(ctx *goservecontext.Request[T]) {
+func (a *baseServer[T]) Login(ctx *apicontext.Request[T]) {
 	request.GetRequestBody(ctx, login.User{}, a.loginDataHandler, request.FailedToLoadBody[T])
 }
 
-func (a *baseServer[T]) ApiKeyGenerator(ctx *goservecontext.Request[T]) {
-	request.GetRequestBody(ctx, ApiKeyEntryData{}, a.apiKeyGeneratorDataHandler, request.FailedToLoadBody[T])
+// ApiKeyGenerator handles the generation of API keys by processing the request body
+// and delegating to the secret service handler. It ensures proper error handling
+// for cases where the request body cannot be loaded.
+func (a *baseServer[T]) ApiKeyGenerator(ctx *apicontext.Request[T]) {
+	request.GetRequestBody(ctx, secret.ApiKeyEntryData{}, a.secretService.Handler, request.FailedToLoadBody[T])
 }
 
-func (a *baseServer[T]) loginDataHandler(ctx *goservecontext.Request[T], user login.User) {
+func (a *baseServer[T]) loginDataHandler(ctx *apicontext.Request[T], user login.User) {
 
-	goserveerrohandler.Handler(func() {
+	errorhandler.Handler(func() {
 		decrypt, err := a.securityService.Decrypt(user.Password)
 		if err != nil {
 			log.Printf("LOGIN/DECRYPT: Failed to decrypt encryptor: %v", err)
@@ -42,7 +46,7 @@ func (a *baseServer[T]) loginDataHandler(ctx *goservecontext.Request[T], user lo
 			return
 		}
 
-		jwt, err := a.securityService.GenerateJWT(principal, a.loginService.TokenDuration())
+		jwt, err := a.securityService.Generate(principal, a.loginService.TokenDuration())
 
 		if err != nil {
 			log.Printf("LOGIN/JWT: Failed to generate JWT: %v", err)

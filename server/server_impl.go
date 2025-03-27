@@ -4,9 +4,7 @@ import (
 	"github.com/gorilla/mux"
 	goservecontext "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/security/login"
-	"github.com/softwareplace/goserve/security/principal"
 	"net/http"
-	"strings"
 )
 
 func (a *baseServer[T]) RegisterCustomMiddleware(middleware func(next http.Handler) http.Handler) Api[T] {
@@ -27,14 +25,6 @@ func (a *baseServer[T]) LoginService(service login.Service[T]) Api[T] {
 	return a
 }
 
-func (a *baseServer[T]) ApiKeyGeneratorResource(service ApiKeyGeneratorService[T]) Api[T] {
-	a.apiKeyGeneratorService = service
-	if a.apiSecretKeyGeneratorResourceEnable {
-		a.Post(a.ApiKeyGenerator, "api-key/generate", "POST", strings.Join(service.RequiredScopes(), " "))
-	}
-	return a
-}
-
 func (a *baseServer[T]) SecretKeyGeneratorResourceEnabled(enable bool) Api[T] {
 	a.apiSecretKeyGeneratorResourceEnable = enable
 	return a
@@ -42,14 +32,6 @@ func (a *baseServer[T]) SecretKeyGeneratorResourceEnabled(enable bool) Api[T] {
 
 func (a *baseServer[T]) LoginResourceEnabled(enable bool) Api[T] {
 	a.loginResourceEnable = enable
-	return a
-}
-
-func (a *baseServer[T]) PrincipalService(service principal.Service[T]) Api[T] {
-	a.principalService = service
-	if a.principalService != nil {
-		a.router.Use(a.hasResourceAccess)
-	}
 	return a
 }
 
