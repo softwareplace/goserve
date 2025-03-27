@@ -55,13 +55,13 @@ type impl[T apicontext.Principal] struct {
 // and principal service. It also sets up a default resource access handler and error handler.
 //
 // Parameters:
-// - apiSecretAuthorization: The secret key used for API authorization and JWT management.
+// - apiSecretKey: The secret key used for API authorization and JWT management, encrypt and decrypt values.
 // - service: The principal service responsible for managing and loading user principals.
 //
 // Returns:
 // - Service[T]: A new instance of the security Service.
 func New[T apicontext.Principal](
-	apiSecretAuthorization string,
+	apiSecretKey string,
 	service principal.Service[T],
 ) Service[T] {
 	defaultErrorHandler := errorhandler.Default[T]()
@@ -69,7 +69,7 @@ func New[T apicontext.Principal](
 		ResourceAccessValidation: &defaultResourceAccessHandler[T]{
 			&defaultErrorHandler,
 		},
-		Service:  jwt.New(service, apiSecretAuthorization, defaultErrorHandler),
+		Service:  jwt.New(service, apiSecretKey, defaultErrorHandler),
 		PService: service,
 	}
 }
@@ -80,7 +80,7 @@ func New[T apicontext.Principal](
 // handler and resource access validation logic.
 //
 // Parameters:
-//   - apiSecretAuthorization: The secret key used for API authorization and JWT management.
+//   - apiSecretKey: The secret key used for API authorization and JWT management, encrypt and decrypt values.
 //   - service: The principal service responsible for managing and loading user principals.
 //   - handler: A pointer to a custom API error handler that processes authorization errors.
 //   - resourceValidation: A custom resource access validation implementation.
@@ -88,14 +88,14 @@ func New[T apicontext.Principal](
 // Returns:
 // - Service[T]: A new instance of the security Service with the provided configurations.
 func Create[T apicontext.Principal](
-	apiSecretAuthorization string,
+	apiSecretKey string,
 	service principal.Service[T],
 	handler apicontext.ApiHandler[T],
 	resourceValidation ResourceAccessValidation[T],
 ) Service[T] {
 	return &impl[T]{
 		ResourceAccessValidation: resourceValidation,
-		Service:                  jwt.New(service, apiSecretAuthorization, handler),
+		Service:                  jwt.New(service, apiSecretKey, handler),
 		PService:                 service,
 	}
 }

@@ -28,7 +28,7 @@ func runSecretApi() {
 	loginService := login.NewLoginService(securityService)
 	secretProvider := provider.NewSecretProvider()
 
-	secretHandler := secret.New(
+	secretService := secret.New(
 		"./internal/secret/private.key",
 		secretProvider,
 		securityService,
@@ -37,9 +37,8 @@ func runSecretApi() {
 	server.Default().
 		LoginResourceEnabled(true).
 		SecretKeyGeneratorResourceEnabled(true).
-		ApiKeyGeneratorResource(loginService).
 		LoginService(loginService).
-		SecretService(secretHandler).
+		SecretService(secretService).
 		SecurityService(securityService).
 		EmbeddedServer(apiservice.Register).
 		Get(apiservice.ReportCallerHandler, "/report/caller").
@@ -57,7 +56,6 @@ func runPublicApi() {
 	loginService := login.NewLoginService(securityService)
 
 	server.Default().
-		LoginResourceEnabled(true).
 		LoginService(loginService).
 		SecurityService(securityService).
 		SwaggerDocHandler("./internal/resource/pet-store.yaml").

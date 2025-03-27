@@ -17,14 +17,6 @@ const (
 	ExtractClaimsError = "JWT/EXTRACT_CLAIMS_ERROR"
 )
 
-type Entry struct {
-	Client     string
-	Key        string
-	Expiration time.Duration
-	Scopes     []string
-	PublicKey  *string
-}
-
 type Response struct {
 	JWT      string `json:"jwt"`
 	Expires  int    `json:"expires"`
@@ -33,21 +25,6 @@ type Response struct {
 
 type Service[T apicontext.Principal] interface {
 	encryptor.Service
-	// GenerateApiSecretJWT generates a JWT token with the provided Entry.
-	// It encrypts the apiKey provided in jwtInfo, then creates a JWT token with
-	// the claims containing the client identifier, encrypted apiKey, and expiration time.
-	//
-	// See JWT documentation in https://datatracker.ietf.org/doc/html/rfc7519#section-4.1
-	//
-	// Parameters:
-	// - entry: an instance of Entry containing the client identifier, apiKey, and expiration duration.
-	//
-	// Returns:
-	// - string: the signed JWT token on success.
-	// - error: an error if token generation fails.
-	//
-	// Note: This method uses the HS256 signing method and requires a secret key.
-	GenerateApiSecretJWT(entry Entry) (*Response, error)
 
 	// ExtractJWTClaims validates and extracts the JWT claims from the API request context.
 	//
@@ -71,70 +48,12 @@ type Service[T apicontext.Principal] interface {
 	// - Decrypt and cryptographic methods used must ensure secure implementation.
 	ExtractJWTClaims(requestContext *apicontext.Request[T]) bool
 
-	// JWTClaims extracts and parses the claims from the provided JWT token in the Request.
-	// It uses the context's ApiKey field as the JWT token for processing. The token is validated
-	// and then its claims are extracted into a map of string to interface{}.
-	//
-	// This function relies on the jwt-go library for processing the token. It uses the Secret()
-	// method of the PService to provide the secret necessary for verifying the JWT signature.
-	//
-	// Parameters:
-	// - ctx: The Request containing the API key (JWT token to be parsed).
-	//
-	// Returns:
-	// - A map of string to interface{} representing the JWT claims if parsing is successful.
-	// - An error if the token parsing fails, the token is invalid, or claims extraction is unsuccessful.
-	//
-	// Example:
-	//   claims, err := securityService.JWTClaims(apiContext)
-	//   if err != nil {
-	//	   log.Fatalf("failed to extract claims: %v", err)
-	//   }
-	//   fmt.Printf("Extracted JWT claims: %v", claims)
-	JWTClaims(ctx *apicontext.Request[T]) (map[string]interface{}, error)
+	// Generate creates a new JWT Response based on the provided user and duration.
+	// It returns the generated Response or an error if the process fails.
+	Generate(user T, duration time.Duration) (*Response, error)
 
-	// GenerateJWT
-	// apiSecurityServiceImpl provides methods to handle JWT operations such as
-	// generation, validation, and extraction of claims. It also deals with secure
-	// management of the application's authorization mechanism.
-	//
-	// See JWT documentation in https://datatracker.ietf.org/doc/html/rfc7519#section-4.1
-	//
-	// Validation is performed using the provided JWT token, ensuring that the
-	// claims and tokens are properly extracted, decrypted, and stored within the
-	// API context. The PService also handles error cases and ensures secure access
-	// control across APIs.
-	//
-	// The jwt-go library is utilized for parsing, validating, and generating JWT tokens.
-	//
-	// All cryptographic and encoding operations are expected to be implemented
-	// within the `Encrypt` and `Decrypt` methods of this PService implementation.
-	//
-	// Usage example for GenerateJWT:
-	//
-	//	data := YourDataObject{
-	//		GetId:  "your_salt",
-	//		GetRoles: []string{"role1", "role2"},
-	//	}
-	//	securityService := &apiSecurityServiceImpl{} // Properly initialize implementation
-	//	tokenDetails, err := securityService.GenerateJWT(data, time.Hour*24)
-	//	if err != nil {
-	//		log.Fatalf("failed to generate token: %v", err)
-	//	}
-	//	fmt.Printf("Generated JWT: %v", tokenDetails)
-	//
-	// The `GenerateJWT` method securely encrypts the `GetId` and `GetRoles` from the
-	// provided data, embeds this information as claims in the token, and generates
-	// the JWT that is configured with an expiration time.
-	//
-	// This PService ensures that errors during the JWT process are logged and result
-	// in appropriate HTTP error responses.
-	//
-	// Special Notes:
-	// - All cryptographic operations must use secure mechanisms.
-	// - Ensure better logging practices during debugging sensitive context data.
-	// - It is recommended to configure proper secret rotation policies.
-	GenerateJWT(user T, duration time.Duration) (*Response, error)
+	// From generates a Response containing a JWT for the given subject, roles, and duration or returns an error if it fails.
+	From(sub string, roles []string, duration time.Duration) (*Response, error)
 
 	// Issuer returns the identifier of the entity responsible for issuing the JWT tokens in the service.
 	Issuer() string
@@ -147,7 +66,7 @@ type Service[T apicontext.Principal] interface {
 	)
 }
 
-type serviceImpl[T apicontext.Principal] struct {
+type BaseService[T apicontext.Principal] struct {
 	encryptor.Service
 	PService     principal.Service[T]
 	ErrorHandler apicontext.ApiHandler[T]
@@ -155,11 +74,11 @@ type serviceImpl[T apicontext.Principal] struct {
 
 func New[T apicontext.Principal](
 	pService principal.Service[T],
-	apiSecretAuthorization string,
+	apiSecretKey string,
 	handler apicontext.ApiHandler[T],
 ) Service[T] {
-	return &serviceImpl[T]{
-		Service:      encryptor.New([]byte(apiSecretAuthorization)),
+	return &BaseService[T]{
+		Service:      encryptor.New([]byte(apiSecretKey)),
 		PService:     pService,
 		ErrorHandler: handler,
 	}

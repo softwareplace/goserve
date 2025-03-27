@@ -3,7 +3,7 @@ package encryptor
 type Service interface {
 
 	// Secret retrieves the secret key used to sign and validate JWT tokens.
-	// This function ensures consistent access to the secret key across the PService.
+	// This function ensures consistent access to the secret key across the pService.
 	//
 	// Returns:
 	//   - A byte slice containing the secret key.

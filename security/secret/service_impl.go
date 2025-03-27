@@ -5,13 +5,17 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
+	"fmt"
+	"github.com/golang-jwt/jwt/v5"
 	log "github.com/sirupsen/logrus"
-	goservecontext "github.com/softwareplace/goserve/context"
+	apicontext "github.com/softwareplace/goserve/context"
+	errorhandler "github.com/softwareplace/goserve/error"
 	"github.com/softwareplace/goserve/security"
-	"github.com/softwareplace/goserve/security/jwt"
+	goservejwt "github.com/softwareplace/goserve/security/jwt"
 	"github.com/softwareplace/goserve/security/principal"
 	"net/http"
 	"os"
+	"time"
 )
 
 // New apiSecretHandlerImpl is an implementation of the Service interface which manages
@@ -24,26 +28,29 @@ import (
 //
 // Fields:
 //   - secretKey: The file path to the secret key used for cryptographic operations.
-//   - service: An instance of Service responsible for cryptographic and security services.
+//   - securityService: An instance of Service responsible for cryptographic and security services.
 //   - apiSecret: Holder of the parsed private key, supporting either ECDSA or RSA key types.
-//   - provider: A provider responsible for loading the API secret key for access validation.
-//   - principalService: A service managing API principal claims and IDs to ensure request security.
+//   - secretProvider: A secretProvider responsible for loading the API secret key for access validation.
+//   - pService: A securityService managing API principal claims and IDs to ensure request security.
 //
 // This struct provides methods to initialize the secret key, validate the public key against the private key,
 // and enforce access security middleware, ensuring requests are authorized with proper credentials.
-func New[T goservecontext.Principal](
+func New[T apicontext.Principal](
 	secretKey string,
 	provider Provider[T],
 	service security.Service[T],
 ) Service[T] {
-
 	handler := apiSecretHandlerImpl[T]{
 		secretKey: secretKey,
-		service:   service,
-		provider:  provider,
+		Service:   service,
+		Provider:  provider,
 	}
 	handler.initAPISecretKey()
 	return &handler
+}
+
+func (a *apiSecretHandlerImpl[T]) Handler(ctx *apicontext.Request[T], body ApiKeyEntryData) {
+
 }
 
 func (a *apiSecretHandlerImpl[T]) SecretKey() string {
@@ -55,13 +62,13 @@ func (a *apiSecretHandlerImpl[T]) DisableForPublicPath(ignore bool) Service[T] {
 	return a
 }
 
-func (a *apiSecretHandlerImpl[T]) HandlerSecretAccess(ctx *goservecontext.Request[T]) bool {
+func (a *apiSecretHandlerImpl[T]) HandlerSecretAccess(ctx *apicontext.Request[T]) bool {
 	if a.ignoreValidationForPublicPaths && principal.IsPublicPath[T](*ctx) {
 		return true
 	}
 
 	if !a.apiSecretKeyValidation(ctx) {
-		a.service.HandlerErrorOrElse(ctx, nil, AccessHandlerError, func() {
+		a.HandlerErrorOrElse(ctx, nil, AccessHandlerError, func() {
 			// ignore
 		})
 		ctx.Error("You are not allowed to access this resource", http.StatusUnauthorized)
@@ -133,9 +140,9 @@ func (a *apiSecretHandlerImpl[T]) initAPISecretKey() {
 //	  bool:
 //		 - `true` if the public key is valid and corresponds to the private key.
 //		 - `false` if the public key is invalid or the validation fails.
-func (a *apiSecretHandlerImpl[T]) apiSecretKeyValidation(ctx *goservecontext.Request[T]) bool {
+func (a *apiSecretHandlerImpl[T]) apiSecretKeyValidation(ctx *apicontext.Request[T]) bool {
 	// Decode the Base64-encoded public key
-	claims, err := a.service.JWTClaims(ctx)
+	claims, err := a.JWTClaims(ctx)
 
 	if err != nil {
 		log.Errorf("JWT/CLAIMS_EXTRACT: AuthorizationHandler failed: %+v", err)
@@ -144,7 +151,7 @@ func (a *apiSecretHandlerImpl[T]) apiSecretKeyValidation(ctx *goservecontext.Req
 
 	ctx.ApiKeyClaims = claims
 
-	apiKey, err := a.service.Decrypt(claims[jwt.SUB].(string))
+	apiKey, err := a.Decrypt(claims[goservejwt.SUB].(string))
 
 	if err != nil {
 		log.Errorf("JWT/CLAIMS_EXTRACT: AuthorizationHandler failed: %v", err)
@@ -153,14 +160,14 @@ func (a *apiSecretHandlerImpl[T]) apiSecretKeyValidation(ctx *goservecontext.Req
 
 	ctx.ApiKeyId = apiKey
 
-	apiAccessKey, err := a.provider.Get(ctx)
+	apiAccessKey, err := a.Get(ctx)
 	if err != nil {
 		log.Errorf("API_SECRET_LOADER: AuthorizationHandler failed: %v", err)
 		return false
 	}
 
 	// Decode the PEM-encoded public key
-	decryptKey, err := a.service.Decrypt(apiAccessKey)
+	decryptKey, err := a.Decrypt(apiAccessKey)
 	if err != nil {
 		log.Errorf("API_SECRET_DECRYPT: AuthorizationHandler failed: %v", err)
 		return false
@@ -223,7 +230,7 @@ func (a *apiSecretHandlerImpl[T]) apiSecretKeyValidation(ctx *goservecontext.Req
 // - Parses the private key using the PKCS8 format.
 // - Determines the type of the private key (ECDSA or RSA).
 // - Marshals the corresponding public key into PEM format.
-// - Encrypts the generated PEM-encoded public key using the service's encryption logic.
+// - Encrypts the generated PEM-encoded public key using the securityService's encryption logic.
 //
 // Arguments:
 //   - secretKey (string): The file path to the private key.
@@ -284,11 +291,69 @@ func (a *apiSecretHandlerImpl[T]) GeneratePubKey(secretKey string) (string, erro
 		Bytes: publicKeyBytes,
 	})
 
-	encryptedKey, err := a.service.Encrypt(string(publicKeyPEM))
+	encryptedKey, err := a.Encrypt(string(publicKeyPEM))
 
 	if err != nil {
 		log.Fatalf("Failed to encryptor public key: %+v", err)
 		return "", nil
 	}
 	return encryptedKey, err
+}
+
+func (a *apiSecretHandlerImpl[T]) JWTClaims(ctx *apicontext.Request[T]) (map[string]interface{}, error) {
+	token, err := jwt.Parse(ctx.ApiKey, func(token *jwt.Token) (interface{}, error) {
+		return a.Secret(), nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		return claims, nil
+	}
+
+	return nil, fmt.Errorf("failed to extract jwt claims")
+}
+
+func (a *apiSecretHandlerImpl[T]) apiKeyGeneratorDataHandler(ctx *apicontext.Request[T], apiKeyEntryData ApiKeyEntryData) {
+	errorhandler.Handler(func() {
+		log.Infof("API/KEY/GENERATOR: requested by: %s", ctx.AccessId)
+
+		info, err := a.GetJwtEntry(apiKeyEntryData, ctx)
+
+		if err != nil {
+			log.Errorf("API/KEY/GENERATOR: Failed to generate JWT: %v", err)
+			ctx.InternalServerError("Failed to generate JWT. Please try again later.")
+			return
+		}
+
+		if info.PublicKey == nil || *info.PublicKey == "" {
+			key, err := a.GeneratePubKey(a.SecretKey())
+			if err != nil {
+				log.Errorf("API/KEY/GENERATOR: Failed to generate public key: %v", err)
+				ctx.InternalServerError("Failed to generate JWT. Please try again later.")
+				return
+			}
+
+			info.PublicKey = &key
+		}
+
+		info.Expiration = time.Hour * info.Expiration
+
+		response, err := a.From(info.Key, info.Roles, info.Expiration)
+
+		if err != nil {
+			log.Errorf("API/KEY/GENERATOR: Failed to generate JWT: %v", err)
+			ctx.InternalServerError("Failed to generate JWT. Please try again later.")
+			return
+		}
+
+		ctx.Ok(response)
+
+		a.OnGenerated(*response, info, ctx.GetSample())
+	}, func(err error) {
+		log.Errorf("API/KEY/GENERATOR/HANDLER: Failed to handle request: %v", err)
+		ctx.InternalServerError("Failed to generate JWT. Please try again later.")
+	})
 }

@@ -17,7 +17,6 @@ type baseServer[T apicontext.Principal] struct {
 	loginService                        login.Service[T]
 	securityService                     security.Service[T]
 	secretService                       secret.Service[T]
-	apiKeyGeneratorService              ApiKeyGeneratorService[T]
 	server                              *http.Server // Add a server instance
 	mu                                  sync.Mutex   // Add a mutex for thread safety
 	swaggerIsEnabled                    bool

@@ -1,8 +1,7 @@
 package main
 
 import (
-	goservecontext "github.com/softwareplace/goserve/context"
-	"github.com/softwareplace/goserve/internal/handler"
+	apicontext "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/internal/service/apiservice"
 	"github.com/softwareplace/goserve/internal/service/login"
 	"github.com/softwareplace/goserve/internal/service/provider"
@@ -23,11 +22,9 @@ func init() {
 
 var (
 	userPrincipalService = login.NewPrincipalService()
-	errorHandler         = handler.New()
 	securityService      = security.New(
 		"ue1pUOtCGaYS7Z1DLJ80nFtZ",
 		userPrincipalService,
-		errorHandler,
 	)
 
 	loginService   = login.NewLoginService(securityService)
@@ -39,7 +36,7 @@ var (
 		securityService,
 	)
 
-	apiSecret = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlLZXkiOiJTL2VTYzVDQ3Jub1laaDAyU2pLdFVsSzFXdmRaaVA1OXpFUU9jNE54K0pjL1c1dkhMa0tndE1ueExHN3dKTUwvIiwiY2xpZW50IjoiU29mdHdhcmUgUGxhY2UiLCJleHAiOjMwMzM5MzczNTcsInNjb3BlIjpbIkhFMSs0cEVwM3YzZFBzWXNLa3FLMGkzdiswSjMvYjFVN01YQkx3ZzhxQ0E9IiwiR2lQWUVNU1IvK1BjNUdaTm9OcUpqZDRkS1FZbjZ6QzBMbmdYTHVxdFc4VzkiLCJjY294TWNaT0tEZ0srTUZuend0YWFEWXgxaEtPSVlKNDl3PT0iLCJxOWRHb3V5bTBxZWxvV1V4bElKZ2Y1U3l6UnIrU3YwWWwvVT0iLCJNOHdrRkN3cmZpeVBKc2hjb3NrQU5GS0RZZ2ZxRnJOWXkwVmljOEdlM3dPSyJdfQ.n5_8kp3nNqXOAZVB73GCIXcv61gNyyihqz6xDIjIA0k"
+	apiSecret = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsiRWZUZElvbm8vd3o2ZUxOWG5PajZOQ2lOUnpqTWNMSklYdWlEeUt5d1ZEST0iLCI1elA0cWs1a2Q2aUtCekZ2Y2NiTUI3OW5EbUEwczgrY0dsMHVZT2s4MUE5cCIsIjdMVnZDVTlXbVl2SVY2OU1sTHdIZHpXb0hlV0VSSlBpQ1E9PSIsInNNem8vYjlUTGVHMVBwUjFkYkV5MGhmRC9vbHZkalZpeVIwPSIsIngzODhLdTkxdUJHTncwckp1MHcyRVhIR0JZajVKVUVaZFBuV2g0b1JyMk1rIl0sImV4cCI6NTE5OTA5ODAxMywiaWF0IjoxNzQzMDk4MDEzLCJpc3MiOiJnb3NlcnZlci1leGFtcGxlIiwic3ViIjoibFdQKzdHTjNzZjhoNVZXcVRyaTBUM0RaSHNaYmEvWWcwenV4TWhKK0o4Mkw2R0FHelRkUFl6N2hGV0doWkhBYiJ9.6-Z4W5np8uXLuQJttd9BOvuG7iG9EFC8RsTL2fB0OqU"
 )
 
 func TestMockServer(t *testing.T) {
@@ -58,7 +55,6 @@ func TestMockServer(t *testing.T) {
 		server.Default().
 			LoginService(loginService).
 			SecurityService(securityService).
-			PrincipalService(userPrincipalService).
 			NotFoundHandler().
 			ServeHTTP(rr, req)
 
@@ -90,7 +86,6 @@ func TestMockServer(t *testing.T) {
 			LoginService(loginService).
 			SecretService(secretHandler).
 			SecurityService(securityService).
-			PrincipalService(userPrincipalService).
 			NotFoundHandler().
 			ServeHTTP(rr, req)
 
@@ -109,7 +104,7 @@ func TestMockServer(t *testing.T) {
 			t.Fatalf("Failed to create request: %v", err)
 		}
 
-		req.Header.Set(goservecontext.XApiKey, apiSecret)
+		req.Header.Set(apicontext.XApiKey, apiSecret)
 
 		rr := httptest.NewRecorder()
 
@@ -117,7 +112,6 @@ func TestMockServer(t *testing.T) {
 			LoginService(loginService).
 			SecretService(secretHandler).
 			SecurityService(securityService).
-			PrincipalService(userPrincipalService).
 			NotFoundHandler().
 			ServeHTTP(rr, req)
 
@@ -138,7 +132,6 @@ func TestMockServer(t *testing.T) {
 		rr := httptest.NewRecorder()
 
 		server.Default().
-			PrincipalService(userPrincipalService).
 			ServeHTTP(rr, req)
 
 		if status := rr.Code; status != http.StatusNotFound {
@@ -165,7 +158,6 @@ func TestMockServer(t *testing.T) {
 		rr := httptest.NewRecorder()
 
 		server.Default().
-			PrincipalService(userPrincipalService).
 			CustomNotFoundHandler(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusNotFound)
 				_, _ = w.Write([]byte("Custom 404 Page"))
@@ -195,7 +187,6 @@ func TestMockServer(t *testing.T) {
 		rr := httptest.NewRecorder()
 
 		server.Default().
-			PrincipalService(userPrincipalService).
 			EmbeddedServer(apiservice.Register).
 			SwaggerDocHandler("./resource/pet-store.yaml").
 			ServeHTTP(rr, req)

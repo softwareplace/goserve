@@ -2,7 +2,7 @@ package jwt
 
 import goservecontext "github.com/softwareplace/goserve/context"
 
-func (a *serviceImpl[T]) HandlerErrorOrElse(
+func (a *BaseService[T]) HandlerErrorOrElse(
 	ctx *goservecontext.Request[T],
 	error error,
 	executionContext string,
