@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/getkin/kin-openapi/openapi3"
 	log "github.com/sirupsen/logrus"
-	goservecontext "github.com/softwareplace/goserve/context"
+	goservectx "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/security/principal"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"os"
@@ -83,8 +83,8 @@ func (a *baseServer[T]) SwaggerDocHandler(swaggerFile string) Api[T] {
 	})
 }
 
-func (a *baseServer[T]) handleSwaggerJSON(swagger *openapi3.T) func(ctx *goservecontext.Request[T]) {
-	return func(ctx *goservecontext.Request[T]) {
+func (a *baseServer[T]) handleSwaggerJSON(swagger *openapi3.T) func(ctx *goservectx.Request[T]) {
+	return func(ctx *goservectx.Request[T]) {
 		ctx.Response(swagger, 200)
 	}
 }

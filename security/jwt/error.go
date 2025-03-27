@@ -1,9 +1,9 @@
 package jwt
 
-import goservecontext "github.com/softwareplace/goserve/context"
+import goservectx "github.com/softwareplace/goserve/context"
 
 func (a *BaseService[T]) HandlerErrorOrElse(
-	ctx *goservecontext.Request[T],
+	ctx *goservectx.Request[T],
 	error error,
 	executionContext string,
 	handlerNotFound func(),

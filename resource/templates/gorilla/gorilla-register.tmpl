@@ -1,4 +1,4 @@
-func apiResourceRegister[T goservecontext.Principal](server server.Api[T], handler resourceHandler[T]) {  {{range .}}
+func apiResourceRegister[T goservectx.Principal](server server.Api[T], handler resourceHandler[T]) {  {{range .}}
     {{- $scopes := "" -}}
     {{- range .SecurityDefinitions -}}
         {{- range .Scopes -}}
@@ -21,7 +21,7 @@ func apiResourceRegister[T goservecontext.Principal](server server.Api[T], handl
 // RequestServiceHandler registers all generated API endpoints with their corresponding service implementation.
 // Generated resource: {{range .}}{{$entry := .}}
 //   - ApiRequestService.{{$entry.OperationId}}{{end}}
-func RequestServiceHandler[T goservecontext.Principal](server server.Api[T], service ApiRequestService[T])  {
+func RequestServiceHandler[T goservectx.Principal](server server.Api[T], service ApiRequestService[T])  {
     handler := &resourceHandlerImpl[T]{
             Service: service,
         }

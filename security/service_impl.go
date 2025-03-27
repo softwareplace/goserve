@@ -1,11 +1,11 @@
 package security
 
 import (
-	apicontext "github.com/softwareplace/goserve/context"
+	goservectx "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/security/principal"
 )
 
-func (a *impl[T]) AuthorizationHandler(ctx *apicontext.Request[T]) (doNext bool) {
+func (a *impl[T]) AuthorizationHandler(ctx *goservectx.Request[T]) (doNext bool) {
 	if principal.IsPublicPath[T](*ctx) {
 		return true
 	}

@@ -3,14 +3,14 @@ package jwt
 import (
 	"github.com/golang-jwt/jwt/v5"
 	log "github.com/sirupsen/logrus"
-	apicontext "github.com/softwareplace/goserve/context"
+	goservectx "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/utils"
 	"net/http"
 	"time"
 )
 
 func (a *BaseService[T]) Principal(
-	ctx *apicontext.Request[T],
+	ctx *goservectx.Request[T],
 ) bool {
 	success := a.PService.LoadPrincipal(ctx)
 
@@ -25,7 +25,7 @@ func (a *BaseService[T]) Principal(
 	return success
 }
 
-func (a *BaseService[T]) ExtractJWTClaims(ctx *apicontext.Request[T]) bool {
+func (a *BaseService[T]) ExtractJWTClaims(ctx *goservectx.Request[T]) bool {
 
 	token, err := jwt.Parse(ctx.Authorization, func(token *jwt.Token) (interface{}, error) {
 		return a.Secret(), nil

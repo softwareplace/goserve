@@ -1,7 +1,7 @@
 package jwt
 
 import (
-	apicontext "github.com/softwareplace/goserve/context"
+	goservectx "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/security/encryptor"
 	"github.com/softwareplace/goserve/security/principal"
 	"time"
@@ -23,7 +23,7 @@ type Response struct {
 	IssuedAt int    `json:"issuedAt"`
 }
 
-type Service[T apicontext.Principal] interface {
+type Service[T goservectx.Principal] interface {
 	encryptor.Service
 
 	// ExtractJWTClaims validates and extracts the JWT claims from the API request context.
@@ -46,7 +46,7 @@ type Service[T apicontext.Principal] interface {
 	// Notes:
 	// - This method relies on the `jwt-go` library for parsing and managing JWT tokens.
 	// - Decrypt and cryptographic methods used must ensure secure implementation.
-	ExtractJWTClaims(requestContext *apicontext.Request[T]) bool
+	ExtractJWTClaims(requestContext *goservectx.Request[T]) bool
 
 	// Generate creates a new JWT Response based on the provided user and duration.
 	// It returns the generated Response or an error if the process fails.
@@ -59,23 +59,23 @@ type Service[T apicontext.Principal] interface {
 	Issuer() string
 
 	HandlerErrorOrElse(
-		ctx *apicontext.Request[T],
+		ctx *goservectx.Request[T],
 		error error,
 		executionContext string,
 		handlerNotFound func(),
 	)
 }
 
-type BaseService[T apicontext.Principal] struct {
+type BaseService[T goservectx.Principal] struct {
 	encryptor.Service
 	PService     principal.Service[T]
-	ErrorHandler apicontext.ApiHandler[T]
+	ErrorHandler goservectx.ApiHandler[T]
 }
 
-func New[T apicontext.Principal](
+func New[T goservectx.Principal](
 	pService principal.Service[T],
 	apiSecretKey string,
-	handler apicontext.ApiHandler[T],
+	handler goservectx.ApiHandler[T],
 ) Service[T] {
 	return &BaseService[T]{
 		Service:      encryptor.New([]byte(apiSecretKey)),

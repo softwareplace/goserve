@@ -2,7 +2,7 @@ package provider
 
 import (
 	log "github.com/sirupsen/logrus"
-	apicontext "github.com/softwareplace/goserve/context"
+	goservectx "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/security/jwt"
 	"github.com/softwareplace/goserve/security/secret"
 	"sync"
@@ -15,14 +15,14 @@ var MockStore = map[string]string{
 	/// X-Api-Key for test only eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsiRWZUZElvbm8vd3o2ZUxOWG5PajZOQ2lOUnpqTWNMSklYdWlEeUt5d1ZEST0iLCI1elA0cWs1a2Q2aUtCekZ2Y2NiTUI3OW5EbUEwczgrY0dsMHVZT2s4MUE5cCIsIjdMVnZDVTlXbVl2SVY2OU1sTHdIZHpXb0hlV0VSSlBpQ1E9PSIsInNNem8vYjlUTGVHMVBwUjFkYkV5MGhmRC9vbHZkalZpeVIwPSIsIngzODhLdTkxdUJHTncwckp1MHcyRVhIR0JZajVKVUVaZFBuV2g0b1JyMk1rIl0sImV4cCI6NTE5OTA5ODAxMywiaWF0IjoxNzQzMDk4MDEzLCJpc3MiOiJnb3NlcnZlci1leGFtcGxlIiwic3ViIjoibFdQKzdHTjNzZjhoNVZXcVRyaTBUM0RaSHNaYmEvWWcwenV4TWhKK0o4Mkw2R0FHelRkUFl6N2hGV0doWkhBYiJ9.6-Z4W5np8uXLuQJttd9BOvuG7iG9EFC8RsTL2fB0OqU
 }
 
-func (s *secretProviderImpl) Get(ctx *apicontext.Request[*apicontext.DefaultContext]) (string, error) {
+func (s *secretProviderImpl) Get(ctx *goservectx.Request[*goservectx.DefaultContext]) (string, error) {
 	return MockStore[ctx.ApiKeyId], nil
 }
 
 var secreteProvideOnce sync.Once
-var secretProvider secret.Provider[*apicontext.DefaultContext]
+var secretProvider secret.Provider[*goservectx.DefaultContext]
 
-func NewSecretProvider() secret.Provider[*apicontext.DefaultContext] {
+func NewSecretProvider() secret.Provider[*goservectx.DefaultContext] {
 	secreteProvideOnce.Do(func() {
 		secretProvider = &secretProviderImpl{}
 	})
@@ -30,7 +30,7 @@ func NewSecretProvider() secret.Provider[*apicontext.DefaultContext] {
 }
 
 func (s *secretProviderImpl) GetJwtEntry(apiKeyEntryData secret.ApiKeyEntryData,
-	_ *apicontext.Request[*apicontext.DefaultContext],
+	_ *goservectx.Request[*goservectx.DefaultContext],
 ) (secret.Entry, error) {
 	return secret.Entry{
 		Key:        apiKeyEntryData.ClientId,
@@ -47,7 +47,7 @@ func (s *secretProviderImpl) GetJwtEntry(apiKeyEntryData secret.ApiKeyEntryData,
 
 func (s *secretProviderImpl) OnGenerated(data jwt.Response,
 	jwtEntry secret.Entry,
-	ctx apicontext.SampleContext[*apicontext.DefaultContext],
+	ctx goservectx.SampleContext[*goservectx.DefaultContext],
 ) {
 	MockStore[jwtEntry.Key] = *jwtEntry.PublicKey
 	log.Printf("%s - %s", jwtEntry.Key, data.JWT)

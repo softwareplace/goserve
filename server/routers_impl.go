@@ -1,7 +1,7 @@
 package server
 
 import (
-	goservecontext "github.com/softwareplace/goserve/context"
+	goservectx "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/security/principal"
 	"net/http"
 	"strings"
@@ -19,7 +19,7 @@ func (a *baseServer[T]) Add(handler ApiContextHandler[T], path string, method st
 	handlerPath := strings.TrimSuffix(a.contextPath, "/") + "/" + strings.TrimPrefix(path, "/")
 
 	a.router.HandleFunc(handlerPath, func(writer http.ResponseWriter, req *http.Request) {
-		ctx := goservecontext.Of[T](writer, req, "ROUTER/HANDLER")
+		ctx := goservectx.Of[T](writer, req, "ROUTER/HANDLER")
 		handler(ctx)
 	}).Methods(method)
 

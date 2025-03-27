@@ -3,7 +3,7 @@ package error
 import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
-	apicontext "github.com/softwareplace/goserve/context"
+	goservectx "github.com/softwareplace/goserve/context"
 	"runtime"
 )
 
@@ -39,18 +39,18 @@ func Wrapper(err error, message string) error {
 	return fmt.Errorf("%s (%s:%d): %w", message, file, line, err)
 }
 
-type ApiHandler[T apicontext.Principal] interface {
-	Handler(ctx *apicontext.Request[T], err error, source string)
+type ApiHandler[T goservectx.Principal] interface {
+	Handler(ctx *goservectx.Request[T], err error, source string)
 }
 
-type defaultHandlerImpl[T apicontext.Principal] struct {
+type defaultHandlerImpl[T goservectx.Principal] struct {
 }
 
-func Default[T apicontext.Principal]() ApiHandler[T] {
+func Default[T goservectx.Principal]() ApiHandler[T] {
 	return &defaultHandlerImpl[T]{}
 }
 
-func (p *defaultHandlerImpl[T]) Handler(ctx *apicontext.Request[T], err error, source string) {
+func (p *defaultHandlerImpl[T]) Handler(ctx *goservectx.Request[T], err error, source string) {
 	log.Errorf("%s failed with error: %+v", source, err)
 	if source == HandlerWrapper {
 		ctx.InternalServerError("Internal server error")

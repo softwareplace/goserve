@@ -1,7 +1,7 @@
 package login
 
 import (
-	goservecontext "github.com/softwareplace/goserve/context"
+	goservectx "github.com/softwareplace/goserve/context"
 	"time"
 )
 
@@ -11,7 +11,7 @@ type User struct {
 	Email    string `json:"email"`
 }
 
-type Service[T goservecontext.Principal] interface {
+type Service[T goservectx.Principal] interface {
 
 	// Login processes the login request for the specified user by validating their credentials.
 	// It authenticates the user based on the provided login data and returns an authenticated principal context or an error.

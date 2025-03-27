@@ -2,20 +2,20 @@ package security
 
 import (
 	log "github.com/sirupsen/logrus"
-	apicontext "github.com/softwareplace/goserve/context"
-	errorhandler "github.com/softwareplace/goserve/error"
+	goservectx "github.com/softwareplace/goserve/context"
+	goserveerror "github.com/softwareplace/goserve/error"
 	"github.com/softwareplace/goserve/security/principal"
 	"net/http"
 	"strings"
 )
 
-type defaultResourceAccessHandler[T apicontext.Principal] struct {
-	handler *errorhandler.ApiHandler[T]
+type defaultResourceAccessHandler[T goservectx.Principal] struct {
+	handler *goserveerror.ApiHandler[T]
 }
 
 func (a *defaultResourceAccessHandler[T]) HasResourceAccess(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := apicontext.Of[T](w, r, errorhandler.SecurityValidatorResourceAccess)
+		ctx := goservectx.Of[T](w, r, goserveerror.SecurityValidatorResourceAccess)
 
 		if principal.IsPublicPath[T](*ctx) {
 			ctx.Next(next)
@@ -28,7 +28,7 @@ func (a *defaultResourceAccessHandler[T]) HasResourceAccess(next http.Handler) h
 		}
 
 		if a.handler != nil {
-			(*a.handler).Handler(ctx, nil, errorhandler.SecurityValidatorResourceAccess)
+			(*a.handler).Handler(ctx, nil, goserveerror.SecurityValidatorResourceAccess)
 			return
 		}
 
@@ -36,7 +36,7 @@ func (a *defaultResourceAccessHandler[T]) HasResourceAccess(next http.Handler) h
 	})
 }
 
-func (a *defaultResourceAccessHandler[T]) HasResourceAccessRight(ctx apicontext.Request[T]) bool {
+func (a *defaultResourceAccessHandler[T]) HasResourceAccessRight(ctx goservectx.Request[T]) bool {
 	requiredRoles, isRoleRequired := principal.GetRolesForPath(ctx)
 	userRoles := (*ctx.Principal).GetRoles()
 

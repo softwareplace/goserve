@@ -8,7 +8,7 @@ import (
 	"time"
 
 	log "github.com/sirupsen/logrus"
-	goservecontext "github.com/softwareplace/goserve/context"
+	goservectx "github.com/softwareplace/goserve/context"
 	goserveerrohandler "github.com/softwareplace/goserve/error"
 	goservereflect "github.com/softwareplace/goserve/reflect"
 	"github.com/softwareplace/goserve/request"
@@ -256,18 +256,18 @@ type UpdateUserParams struct {
 	Authorization Authorization `json:"Authorization"`
 }
 
-func (rh *resourceHandlerImpl[T]) PostLogin(ctx *goservecontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]) PostLogin(ctx *goservectx.Request[T]) {
 
 	goserveerrohandler.Handler(func() {
 		requestBody := LoginRequest{}
-		request.GetRequestBody(ctx, requestBody, func(ctx *goservecontext.Request[T], body LoginRequest) {
+		request.GetRequestBody(ctx, requestBody, func(ctx *goservectx.Request[T], body LoginRequest) {
 			clientRequest := PostLoginClientRequest{
 				Body: body,
 			}
 			err := ctx.BindRequestParams(&clientRequest)
-			contentType := ctx.Request.Header.Get(goservecontext.ContentType)
+			contentType := ctx.Request.Header.Get(goservectx.ContentType)
 			// Try to load form param to the body struct. File form will be ignored.
-			if err == nil && strings.Contains(contentType, goservecontext.MultipartFormData) {
+			if err == nil && strings.Contains(contentType, goservectx.MultipartFormData) {
 				_ = goservereflect.ParamsExtract(&clientRequest.Body,
 					goservereflect.ParamsExtractorSource{
 						Tree: ctx.FormValues(),
@@ -281,7 +281,7 @@ func (rh *resourceHandlerImpl[T]) PostLogin(ctx *goservecontext.Request[T]) {
 			}
 
 			rh.Service.PostLogin(clientRequest, ctx)
-		}, func(ctx *goservecontext.Request[T], err error) {
+		}, func(ctx *goservectx.Request[T], err error) {
 			ctx.InternalServerError("Internal server error")
 		})
 	}, func(err error) {
@@ -291,7 +291,7 @@ func (rh *resourceHandlerImpl[T]) PostLogin(ctx *goservecontext.Request[T]) {
 
 }
 
-func (rh *resourceHandlerImpl[T]) FindAllPets(ctx *goservecontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]) FindAllPets(ctx *goservectx.Request[T]) {
 
 	goserveerrohandler.Handler(func() {
 
@@ -311,18 +311,18 @@ func (rh *resourceHandlerImpl[T]) FindAllPets(ctx *goservecontext.Request[T]) {
 
 }
 
-func (rh *resourceHandlerImpl[T]) AddPet(ctx *goservecontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]) AddPet(ctx *goservectx.Request[T]) {
 
 	goserveerrohandler.Handler(func() {
 		requestBody := Pet{}
-		request.GetRequestBody(ctx, requestBody, func(ctx *goservecontext.Request[T], body Pet) {
+		request.GetRequestBody(ctx, requestBody, func(ctx *goservectx.Request[T], body Pet) {
 			clientRequest := AddPetClientRequest{
 				Body: body,
 			}
 			err := ctx.BindRequestParams(&clientRequest)
-			contentType := ctx.Request.Header.Get(goservecontext.ContentType)
+			contentType := ctx.Request.Header.Get(goservectx.ContentType)
 			// Try to load form param to the body struct. File form will be ignored.
-			if err == nil && strings.Contains(contentType, goservecontext.MultipartFormData) {
+			if err == nil && strings.Contains(contentType, goservectx.MultipartFormData) {
 				_ = goservereflect.ParamsExtract(&clientRequest.Body,
 					goservereflect.ParamsExtractorSource{
 						Tree: ctx.FormValues(),
@@ -336,7 +336,7 @@ func (rh *resourceHandlerImpl[T]) AddPet(ctx *goservecontext.Request[T]) {
 			}
 
 			rh.Service.AddPet(clientRequest, ctx)
-		}, func(ctx *goservecontext.Request[T], err error) {
+		}, func(ctx *goservectx.Request[T], err error) {
 			ctx.InternalServerError("Internal server error")
 		})
 	}, func(err error) {
@@ -346,7 +346,7 @@ func (rh *resourceHandlerImpl[T]) AddPet(ctx *goservecontext.Request[T]) {
 
 }
 
-func (rh *resourceHandlerImpl[T]) FindPetsByStatus(ctx *goservecontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]) FindPetsByStatus(ctx *goservectx.Request[T]) {
 
 	goserveerrohandler.Handler(func() {
 
@@ -366,7 +366,7 @@ func (rh *resourceHandlerImpl[T]) FindPetsByStatus(ctx *goservecontext.Request[T
 
 }
 
-func (rh *resourceHandlerImpl[T]) FindPetsByTags(ctx *goservecontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]) FindPetsByTags(ctx *goservectx.Request[T]) {
 
 	goserveerrohandler.Handler(func() {
 
@@ -386,7 +386,7 @@ func (rh *resourceHandlerImpl[T]) FindPetsByTags(ctx *goservecontext.Request[T])
 
 }
 
-func (rh *resourceHandlerImpl[T]) DeletePet(ctx *goservecontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]) DeletePet(ctx *goservectx.Request[T]) {
 
 	goserveerrohandler.Handler(func() {
 
@@ -406,7 +406,7 @@ func (rh *resourceHandlerImpl[T]) DeletePet(ctx *goservecontext.Request[T]) {
 
 }
 
-func (rh *resourceHandlerImpl[T]) GetPetById(ctx *goservecontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]) GetPetById(ctx *goservectx.Request[T]) {
 
 	goserveerrohandler.Handler(func() {
 
@@ -426,7 +426,7 @@ func (rh *resourceHandlerImpl[T]) GetPetById(ctx *goservecontext.Request[T]) {
 
 }
 
-func (rh *resourceHandlerImpl[T]) UpdatePetWithForm(ctx *goservecontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]) UpdatePetWithForm(ctx *goservectx.Request[T]) {
 
 	goserveerrohandler.Handler(func() {
 
@@ -446,18 +446,18 @@ func (rh *resourceHandlerImpl[T]) UpdatePetWithForm(ctx *goservecontext.Request[
 
 }
 
-func (rh *resourceHandlerImpl[T]) UpdatePet(ctx *goservecontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]) UpdatePet(ctx *goservectx.Request[T]) {
 
 	goserveerrohandler.Handler(func() {
 		requestBody := Pet{}
-		request.GetRequestBody(ctx, requestBody, func(ctx *goservecontext.Request[T], body Pet) {
+		request.GetRequestBody(ctx, requestBody, func(ctx *goservectx.Request[T], body Pet) {
 			clientRequest := UpdatePetClientRequest{
 				Body: body,
 			}
 			err := ctx.BindRequestParams(&clientRequest)
-			contentType := ctx.Request.Header.Get(goservecontext.ContentType)
+			contentType := ctx.Request.Header.Get(goservectx.ContentType)
 			// Try to load form param to the body struct. File form will be ignored.
-			if err == nil && strings.Contains(contentType, goservecontext.MultipartFormData) {
+			if err == nil && strings.Contains(contentType, goservectx.MultipartFormData) {
 				_ = goservereflect.ParamsExtract(&clientRequest.Body,
 					goservereflect.ParamsExtractorSource{
 						Tree: ctx.FormValues(),
@@ -471,7 +471,7 @@ func (rh *resourceHandlerImpl[T]) UpdatePet(ctx *goservecontext.Request[T]) {
 			}
 
 			rh.Service.UpdatePet(clientRequest, ctx)
-		}, func(ctx *goservecontext.Request[T], err error) {
+		}, func(ctx *goservectx.Request[T], err error) {
 			ctx.InternalServerError("Internal server error")
 		})
 	}, func(err error) {
@@ -481,7 +481,7 @@ func (rh *resourceHandlerImpl[T]) UpdatePet(ctx *goservecontext.Request[T]) {
 
 }
 
-func (rh *resourceHandlerImpl[T]) UploadFile(ctx *goservecontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]) UploadFile(ctx *goservectx.Request[T]) {
 
 	goserveerrohandler.Handler(func() {
 
@@ -501,7 +501,7 @@ func (rh *resourceHandlerImpl[T]) UploadFile(ctx *goservecontext.Request[T]) {
 
 }
 
-func (rh *resourceHandlerImpl[T]) GetInventory(ctx *goservecontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]) GetInventory(ctx *goservectx.Request[T]) {
 
 	goserveerrohandler.Handler(func() {
 
@@ -514,18 +514,18 @@ func (rh *resourceHandlerImpl[T]) GetInventory(ctx *goservecontext.Request[T]) {
 
 }
 
-func (rh *resourceHandlerImpl[T]) PlaceOrder(ctx *goservecontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]) PlaceOrder(ctx *goservectx.Request[T]) {
 
 	goserveerrohandler.Handler(func() {
 		requestBody := Order{}
-		request.GetRequestBody(ctx, requestBody, func(ctx *goservecontext.Request[T], body Order) {
+		request.GetRequestBody(ctx, requestBody, func(ctx *goservectx.Request[T], body Order) {
 			clientRequest := PlaceOrderClientRequest{
 				Body: body,
 			}
 			err := ctx.BindRequestParams(&clientRequest)
-			contentType := ctx.Request.Header.Get(goservecontext.ContentType)
+			contentType := ctx.Request.Header.Get(goservectx.ContentType)
 			// Try to load form param to the body struct. File form will be ignored.
-			if err == nil && strings.Contains(contentType, goservecontext.MultipartFormData) {
+			if err == nil && strings.Contains(contentType, goservectx.MultipartFormData) {
 				_ = goservereflect.ParamsExtract(&clientRequest.Body,
 					goservereflect.ParamsExtractorSource{
 						Tree: ctx.FormValues(),
@@ -539,7 +539,7 @@ func (rh *resourceHandlerImpl[T]) PlaceOrder(ctx *goservecontext.Request[T]) {
 			}
 
 			rh.Service.PlaceOrder(clientRequest, ctx)
-		}, func(ctx *goservecontext.Request[T], err error) {
+		}, func(ctx *goservectx.Request[T], err error) {
 			ctx.InternalServerError("Internal server error")
 		})
 	}, func(err error) {
@@ -549,7 +549,7 @@ func (rh *resourceHandlerImpl[T]) PlaceOrder(ctx *goservecontext.Request[T]) {
 
 }
 
-func (rh *resourceHandlerImpl[T]) DeleteOrder(ctx *goservecontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]) DeleteOrder(ctx *goservectx.Request[T]) {
 
 	goserveerrohandler.Handler(func() {
 
@@ -569,7 +569,7 @@ func (rh *resourceHandlerImpl[T]) DeleteOrder(ctx *goservecontext.Request[T]) {
 
 }
 
-func (rh *resourceHandlerImpl[T]) GetOrderById(ctx *goservecontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]) GetOrderById(ctx *goservectx.Request[T]) {
 
 	goserveerrohandler.Handler(func() {
 
@@ -589,17 +589,17 @@ func (rh *resourceHandlerImpl[T]) GetOrderById(ctx *goservecontext.Request[T]) {
 
 }
 
-func (rh *resourceHandlerImpl[T]) CreateUser(ctx *goservecontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]) CreateUser(ctx *goservectx.Request[T]) {
 
 	goserveerrohandler.Handler(func() {
 		requestBody := User{}
-		request.GetRequestBody(ctx, requestBody, func(ctx *goservecontext.Request[T], body User) {
+		request.GetRequestBody(ctx, requestBody, func(ctx *goservectx.Request[T], body User) {
 			clientRequest := CreateUserClientRequest{
 				Body: body,
 			}
 
 			rh.Service.CreateUser(clientRequest, ctx)
-		}, func(ctx *goservecontext.Request[T], err error) {
+		}, func(ctx *goservectx.Request[T], err error) {
 			ctx.InternalServerError("Internal server error")
 		})
 	}, func(err error) {
@@ -609,18 +609,18 @@ func (rh *resourceHandlerImpl[T]) CreateUser(ctx *goservecontext.Request[T]) {
 
 }
 
-func (rh *resourceHandlerImpl[T]) CreateUsersWithListInput(ctx *goservecontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]) CreateUsersWithListInput(ctx *goservectx.Request[T]) {
 
 	goserveerrohandler.Handler(func() {
 		requestBody := CreateUsersWithListInputJSONBody{}
-		request.GetRequestBody(ctx, requestBody, func(ctx *goservecontext.Request[T], body CreateUsersWithListInputJSONBody) {
+		request.GetRequestBody(ctx, requestBody, func(ctx *goservectx.Request[T], body CreateUsersWithListInputJSONBody) {
 			clientRequest := CreateUsersWithListInputClientRequest{
 				Body: body,
 			}
 			err := ctx.BindRequestParams(&clientRequest)
-			contentType := ctx.Request.Header.Get(goservecontext.ContentType)
+			contentType := ctx.Request.Header.Get(goservectx.ContentType)
 			// Try to load form param to the body struct. File form will be ignored.
-			if err == nil && strings.Contains(contentType, goservecontext.MultipartFormData) {
+			if err == nil && strings.Contains(contentType, goservectx.MultipartFormData) {
 				_ = goservereflect.ParamsExtract(&clientRequest.Body,
 					goservereflect.ParamsExtractorSource{
 						Tree: ctx.FormValues(),
@@ -634,7 +634,7 @@ func (rh *resourceHandlerImpl[T]) CreateUsersWithListInput(ctx *goservecontext.R
 			}
 
 			rh.Service.CreateUsersWithListInput(clientRequest, ctx)
-		}, func(ctx *goservecontext.Request[T], err error) {
+		}, func(ctx *goservectx.Request[T], err error) {
 			ctx.InternalServerError("Internal server error")
 		})
 	}, func(err error) {
@@ -644,7 +644,7 @@ func (rh *resourceHandlerImpl[T]) CreateUsersWithListInput(ctx *goservecontext.R
 
 }
 
-func (rh *resourceHandlerImpl[T]) LogoutUser(ctx *goservecontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]) LogoutUser(ctx *goservectx.Request[T]) {
 
 	goserveerrohandler.Handler(func() {
 
@@ -664,7 +664,7 @@ func (rh *resourceHandlerImpl[T]) LogoutUser(ctx *goservecontext.Request[T]) {
 
 }
 
-func (rh *resourceHandlerImpl[T]) DeleteUser(ctx *goservecontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]) DeleteUser(ctx *goservectx.Request[T]) {
 
 	goserveerrohandler.Handler(func() {
 
@@ -684,7 +684,7 @@ func (rh *resourceHandlerImpl[T]) DeleteUser(ctx *goservecontext.Request[T]) {
 
 }
 
-func (rh *resourceHandlerImpl[T]) GetUserByName(ctx *goservecontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]) GetUserByName(ctx *goservectx.Request[T]) {
 
 	goserveerrohandler.Handler(func() {
 
@@ -704,18 +704,18 @@ func (rh *resourceHandlerImpl[T]) GetUserByName(ctx *goservecontext.Request[T]) 
 
 }
 
-func (rh *resourceHandlerImpl[T]) UpdateUser(ctx *goservecontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]) UpdateUser(ctx *goservectx.Request[T]) {
 
 	goserveerrohandler.Handler(func() {
 		requestBody := User{}
-		request.GetRequestBody(ctx, requestBody, func(ctx *goservecontext.Request[T], body User) {
+		request.GetRequestBody(ctx, requestBody, func(ctx *goservectx.Request[T], body User) {
 			clientRequest := UpdateUserClientRequest{
 				Body: body,
 			}
 			err := ctx.BindRequestParams(&clientRequest)
-			contentType := ctx.Request.Header.Get(goservecontext.ContentType)
+			contentType := ctx.Request.Header.Get(goservectx.ContentType)
 			// Try to load form param to the body struct. File form will be ignored.
-			if err == nil && strings.Contains(contentType, goservecontext.MultipartFormData) {
+			if err == nil && strings.Contains(contentType, goservectx.MultipartFormData) {
 				_ = goservereflect.ParamsExtract(&clientRequest.Body,
 					goservereflect.ParamsExtractorSource{
 						Tree: ctx.FormValues(),
@@ -729,7 +729,7 @@ func (rh *resourceHandlerImpl[T]) UpdateUser(ctx *goservecontext.Request[T]) {
 			}
 
 			rh.Service.UpdateUser(clientRequest, ctx)
-		}, func(ctx *goservecontext.Request[T], err error) {
+		}, func(ctx *goservectx.Request[T], err error) {
 			ctx.InternalServerError("Internal server error")
 		})
 	}, func(err error) {
@@ -761,67 +761,67 @@ type CreateUsersWithListInputRequest = CreateUsersWithListInputJSONBody
 type UpdateUserRequest = User
 
 // resourceHandler represents all server handlers.
-type resourceHandler[T goservecontext.Principal] interface {
+type resourceHandler[T goservectx.Principal] interface {
 	// Authentication endpoint
 	// (POST /login)
-	PostLogin(ctx *goservecontext.Request[T])
+	PostLogin(ctx *goservectx.Request[T])
 	// Finds Pets by status
 	// (GET /pet)
-	FindAllPets(ctx *goservecontext.Request[T])
+	FindAllPets(ctx *goservectx.Request[T])
 	// Add a new pet to the store
 	// (POST /pet)
-	AddPet(ctx *goservecontext.Request[T])
+	AddPet(ctx *goservectx.Request[T])
 	// Finds Pets by status
 	// (GET /pet/findByStatus)
-	FindPetsByStatus(ctx *goservecontext.Request[T])
+	FindPetsByStatus(ctx *goservectx.Request[T])
 	// Finds Pets by tags
 	// (GET /pet/findByTags)
-	FindPetsByTags(ctx *goservecontext.Request[T])
+	FindPetsByTags(ctx *goservectx.Request[T])
 	// Deletes a pet
 	// (DELETE /pet/{petId})
-	DeletePet(ctx *goservecontext.Request[T])
+	DeletePet(ctx *goservectx.Request[T])
 	// Find pet by ID
 	// (GET /pet/{petId})
-	GetPetById(ctx *goservecontext.Request[T])
+	GetPetById(ctx *goservectx.Request[T])
 	// Updates a pet in the store with form data
 	// (POST /pet/{petId})
-	UpdatePetWithForm(ctx *goservecontext.Request[T])
+	UpdatePetWithForm(ctx *goservectx.Request[T])
 	// Update an existing pet
 	// (PUT /pet/{petId})
-	UpdatePet(ctx *goservecontext.Request[T])
+	UpdatePet(ctx *goservectx.Request[T])
 	// uploads an image
 	// (POST /pet/{petId}/uploadImage)
-	UploadFile(ctx *goservecontext.Request[T])
+	UploadFile(ctx *goservectx.Request[T])
 	// Returns pet inventories by status
 	// (GET /store/inventory)
-	GetInventory(ctx *goservecontext.Request[T])
+	GetInventory(ctx *goservectx.Request[T])
 	// Place an order for a pet
 	// (POST /store/order)
-	PlaceOrder(ctx *goservecontext.Request[T])
+	PlaceOrder(ctx *goservectx.Request[T])
 	// Delete purchase order by ID
 	// (DELETE /store/order/{orderId})
-	DeleteOrder(ctx *goservecontext.Request[T])
+	DeleteOrder(ctx *goservectx.Request[T])
 	// Find purchase order by ID
 	// (GET /store/order/{orderId})
-	GetOrderById(ctx *goservecontext.Request[T])
+	GetOrderById(ctx *goservectx.Request[T])
 	// Create user
 	// (POST /user)
-	CreateUser(ctx *goservecontext.Request[T])
+	CreateUser(ctx *goservectx.Request[T])
 	// Creates list of users with given input array
 	// (POST /user/createWithList)
-	CreateUsersWithListInput(ctx *goservecontext.Request[T])
+	CreateUsersWithListInput(ctx *goservectx.Request[T])
 	// Logs out current logged in user session
 	// (GET /user/logout)
-	LogoutUser(ctx *goservecontext.Request[T])
+	LogoutUser(ctx *goservectx.Request[T])
 	// Delete user
 	// (DELETE /user/{username})
-	DeleteUser(ctx *goservecontext.Request[T])
+	DeleteUser(ctx *goservectx.Request[T])
 	// Get user by user name
 	// (GET /user/{username})
-	GetUserByName(ctx *goservecontext.Request[T])
+	GetUserByName(ctx *goservectx.Request[T])
 	// Update user
 	// (PUT /user/{username})
-	UpdateUser(ctx *goservecontext.Request[T])
+	UpdateUser(ctx *goservectx.Request[T])
 }
 
 // PostLoginClientRequest combines all parameters for PostLogin
@@ -1027,75 +1027,75 @@ type UpdateUserClientRequest struct {
 	Body User `name:"body" json:"body"`
 }
 
-type ApiRequestService[T goservecontext.Principal] interface {
+type ApiRequestService[T goservectx.Principal] interface {
 
 	// PostLogin -> POST: /login
-	PostLogin(request PostLoginClientRequest, ctx *goservecontext.Request[T])
+	PostLogin(request PostLoginClientRequest, ctx *goservectx.Request[T])
 
 	// FindAllPets -> GET: /pet  required scopes ["write:pets","read:pets"]
-	FindAllPets(request FindAllPetsClientRequest, ctx *goservecontext.Request[T])
+	FindAllPets(request FindAllPetsClientRequest, ctx *goservectx.Request[T])
 
 	// AddPet -> POST: /pet  required scopes ["write:pets","read:pets"]
-	AddPet(request AddPetClientRequest, ctx *goservecontext.Request[T])
+	AddPet(request AddPetClientRequest, ctx *goservectx.Request[T])
 
 	// FindPetsByStatus -> GET: /pet/findByStatus  required scopes ["write:pets","read:pets"]
-	FindPetsByStatus(request FindPetsByStatusClientRequest, ctx *goservecontext.Request[T])
+	FindPetsByStatus(request FindPetsByStatusClientRequest, ctx *goservectx.Request[T])
 
 	// FindPetsByTags -> GET: /pet/findByTags  required scopes ["write:pets","read:pets"]
-	FindPetsByTags(request FindPetsByTagsClientRequest, ctx *goservecontext.Request[T])
+	FindPetsByTags(request FindPetsByTagsClientRequest, ctx *goservectx.Request[T])
 
 	// DeletePet -> DELETE: /pet/{petId}  required scopes ["write:pets","read:pets"]
-	DeletePet(request DeletePetClientRequest, ctx *goservecontext.Request[T])
+	DeletePet(request DeletePetClientRequest, ctx *goservectx.Request[T])
 
 	// GetPetById -> GET: /pet/{petId}  required scopes ["api_key","write:pets","read:pets"]
-	GetPetById(request GetPetByIdClientRequest, ctx *goservecontext.Request[T])
+	GetPetById(request GetPetByIdClientRequest, ctx *goservectx.Request[T])
 
 	// UpdatePetWithForm -> POST: /pet/{petId}  required scopes ["write:pets","read:pets"]
-	UpdatePetWithForm(request UpdatePetWithFormClientRequest, ctx *goservecontext.Request[T])
+	UpdatePetWithForm(request UpdatePetWithFormClientRequest, ctx *goservectx.Request[T])
 
 	// UpdatePet -> PUT: /pet/{petId}  required scopes ["write:pets","read:pets"]
-	UpdatePet(request UpdatePetClientRequest, ctx *goservecontext.Request[T])
+	UpdatePet(request UpdatePetClientRequest, ctx *goservectx.Request[T])
 
 	// UploadFile -> POST: /pet/{petId}/uploadImage  required scopes ["write:pets","read:pets"]
-	UploadFile(request UploadFileClientRequest, ctx *goservecontext.Request[T])
+	UploadFile(request UploadFileClientRequest, ctx *goservectx.Request[T])
 
 	// GetInventory -> GET: /store/inventory
-	GetInventory(ctx *goservecontext.Request[T])
+	GetInventory(ctx *goservectx.Request[T])
 
 	// PlaceOrder -> POST: /store/order
-	PlaceOrder(request PlaceOrderClientRequest, ctx *goservecontext.Request[T])
+	PlaceOrder(request PlaceOrderClientRequest, ctx *goservectx.Request[T])
 
 	// DeleteOrder -> DELETE: /store/order/{orderId}
-	DeleteOrder(request DeleteOrderClientRequest, ctx *goservecontext.Request[T])
+	DeleteOrder(request DeleteOrderClientRequest, ctx *goservectx.Request[T])
 
 	// GetOrderById -> GET: /store/order/{orderId}
-	GetOrderById(request GetOrderByIdClientRequest, ctx *goservecontext.Request[T])
+	GetOrderById(request GetOrderByIdClientRequest, ctx *goservectx.Request[T])
 
 	// CreateUser -> POST: /user
-	CreateUser(request CreateUserClientRequest, ctx *goservecontext.Request[T])
+	CreateUser(request CreateUserClientRequest, ctx *goservectx.Request[T])
 
 	// CreateUsersWithListInput -> POST: /user/createWithList
-	CreateUsersWithListInput(request CreateUsersWithListInputClientRequest, ctx *goservecontext.Request[T])
+	CreateUsersWithListInput(request CreateUsersWithListInputClientRequest, ctx *goservectx.Request[T])
 
 	// LogoutUser -> GET: /user/logout
-	LogoutUser(request LogoutUserClientRequest, ctx *goservecontext.Request[T])
+	LogoutUser(request LogoutUserClientRequest, ctx *goservectx.Request[T])
 
 	// DeleteUser -> DELETE: /user/{username}
-	DeleteUser(request DeleteUserClientRequest, ctx *goservecontext.Request[T])
+	DeleteUser(request DeleteUserClientRequest, ctx *goservectx.Request[T])
 
 	// GetUserByName -> GET: /user/{username}
-	GetUserByName(request GetUserByNameClientRequest, ctx *goservecontext.Request[T])
+	GetUserByName(request GetUserByNameClientRequest, ctx *goservectx.Request[T])
 
 	// UpdateUser -> PUT: /user/{username}
-	UpdateUser(request UpdateUserClientRequest, ctx *goservecontext.Request[T])
+	UpdateUser(request UpdateUserClientRequest, ctx *goservectx.Request[T])
 }
 
-type resourceHandlerImpl[T goservecontext.Principal] struct {
+type resourceHandlerImpl[T goservectx.Principal] struct {
 	Service ApiRequestService[T]
 }
 
 // ---
-func apiResourceRegister[T goservecontext.Principal](server server.Api[T], handler resourceHandler[T]) {
+func apiResourceRegister[T goservectx.Principal](server server.Api[T], handler resourceHandler[T]) {
 	server.PublicRouter(handler.PostLogin, "/login", "POST")
 
 	server.Add(handler.FindAllPets, "/pet", "GET", []string{"write:pets", "read:pets"}...)
@@ -1160,7 +1160,7 @@ func apiResourceRegister[T goservecontext.Principal](server server.Api[T], handl
 //   - ApiRequestService.DeleteUser
 //   - ApiRequestService.GetUserByName
 //   - ApiRequestService.UpdateUser
-func RequestServiceHandler[T goservecontext.Principal](server server.Api[T], service ApiRequestService[T]) {
+func RequestServiceHandler[T goservectx.Principal](server server.Api[T], service ApiRequestService[T]) {
 	handler := &resourceHandlerImpl[T]{
 		Service: service,
 	}

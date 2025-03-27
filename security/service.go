@@ -1,8 +1,8 @@
 package security
 
 import (
-	apicontext "github.com/softwareplace/goserve/context"
-	errorhandler "github.com/softwareplace/goserve/error"
+	goservectx "github.com/softwareplace/goserve/context"
+	goserveerror "github.com/softwareplace/goserve/error"
 	"github.com/softwareplace/goserve/security/jwt"
 	"github.com/softwareplace/goserve/security/principal"
 )
@@ -16,7 +16,7 @@ type JwtResponse struct {
 	Expires int    `json:"expires"`
 }
 
-type Service[T apicontext.Principal] interface {
+type Service[T goservectx.Principal] interface {
 	jwt.Service[T]
 	ResourceAccessValidation[T]
 
@@ -40,10 +40,10 @@ type Service[T apicontext.Principal] interface {
 	// - This function leverages methods like Validation and IsPublicPath to make security decisions.
 	// - Ensure that all sensitive operations and data are securely processed.
 	// - Public paths bypass validation by default, so it's critical to properly define such paths to avoid security issues.
-	AuthorizationHandler(ctx *apicontext.Request[T]) (doNext bool)
+	AuthorizationHandler(ctx *goservectx.Request[T]) (doNext bool)
 }
 
-type impl[T apicontext.Principal] struct {
+type impl[T goservectx.Principal] struct {
 	ResourceAccessValidation[T]
 	jwt.Service[T]
 	PService principal.Service[T]
@@ -60,11 +60,11 @@ type impl[T apicontext.Principal] struct {
 //
 // Returns:
 // - Service[T]: A new instance of the security Service.
-func New[T apicontext.Principal](
+func New[T goservectx.Principal](
 	apiSecretKey string,
 	service principal.Service[T],
 ) Service[T] {
-	defaultErrorHandler := errorhandler.Default[T]()
+	defaultErrorHandler := goserveerror.Default[T]()
 	return &impl[T]{
 		ResourceAccessValidation: &defaultResourceAccessHandler[T]{
 			&defaultErrorHandler,
@@ -87,10 +87,10 @@ func New[T apicontext.Principal](
 //
 // Returns:
 // - Service[T]: A new instance of the security Service with the provided configurations.
-func Create[T apicontext.Principal](
+func Create[T goservectx.Principal](
 	apiSecretKey string,
 	service principal.Service[T],
-	handler apicontext.ApiHandler[T],
+	handler goservectx.ApiHandler[T],
 	resourceValidation ResourceAccessValidation[T],
 ) Service[T] {
 	return &impl[T]{

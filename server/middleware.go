@@ -3,7 +3,7 @@ package server
 import (
 	"encoding/json"
 	log "github.com/sirupsen/logrus"
-	goservecontext "github.com/softwareplace/goserve/context"
+	goservectx "github.com/softwareplace/goserve/context"
 	goserveerrohandler "github.com/softwareplace/goserve/error"
 	"net/http"
 	"time"
@@ -12,7 +12,7 @@ import (
 func (a *baseServer[T]) RegisterMiddleware(middleware ApiMiddleware[T], name string) Api[T] {
 	a.router.Use(func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			ctx := goservecontext.Of[T](w, r, name)
+			ctx := goservectx.Of[T](w, r, name)
 			if middleware(ctx) {
 				ctx.Next(next)
 			}
@@ -22,13 +22,13 @@ func (a *baseServer[T]) RegisterMiddleware(middleware ApiMiddleware[T], name str
 }
 
 // rootAppMiddleware logs each incoming request's method, path, and remote address
-func rootAppMiddleware[T goservecontext.Principal](next http.Handler) http.Handler {
+func rootAppMiddleware[T goservectx.Principal](next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var ctx *goservecontext.Request[T]
+		var ctx *goservectx.Request[T]
 
 		goserveerrohandler.Handler(func() {
 			start := time.Now() // Record the start time
-			ctx = goservecontext.Of[T](w, r, "MIDDLEWARE/ROOT_APP")
+			ctx = goservectx.Of[T](w, r, "MIDDLEWARE/ROOT_APP")
 			queryParam := ""
 			if r.URL.RawQuery != "" {
 				queryParam = "?" + r.URL.RawQuery

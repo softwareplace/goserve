@@ -2,27 +2,27 @@ package server
 
 import (
 	log "github.com/sirupsen/logrus"
-	apicontext "github.com/softwareplace/goserve/context"
-	errorhandler "github.com/softwareplace/goserve/error"
+	goservectx "github.com/softwareplace/goserve/context"
+	goserveerror "github.com/softwareplace/goserve/error"
 	"github.com/softwareplace/goserve/request"
 	"github.com/softwareplace/goserve/security/login"
 	"github.com/softwareplace/goserve/security/secret"
 )
 
-func (a *baseServer[T]) Login(ctx *apicontext.Request[T]) {
+func (a *baseServer[T]) Login(ctx *goservectx.Request[T]) {
 	request.GetRequestBody(ctx, login.User{}, a.loginDataHandler, request.FailedToLoadBody[T])
 }
 
 // ApiKeyGenerator handles the generation of API keys by processing the request body
 // and delegating to the secret service handler. It ensures proper error handling
 // for cases where the request body cannot be loaded.
-func (a *baseServer[T]) ApiKeyGenerator(ctx *apicontext.Request[T]) {
+func (a *baseServer[T]) ApiKeyGenerator(ctx *goservectx.Request[T]) {
 	request.GetRequestBody(ctx, secret.ApiKeyEntryData{}, a.secretService.Handler, request.FailedToLoadBody[T])
 }
 
-func (a *baseServer[T]) loginDataHandler(ctx *apicontext.Request[T], user login.User) {
+func (a *baseServer[T]) loginDataHandler(ctx *goservectx.Request[T], user login.User) {
 
-	errorhandler.Handler(func() {
+	goserveerror.Handler(func() {
 		decrypt, err := a.securityService.Decrypt(user.Password)
 		if err != nil {
 			log.Printf("LOGIN/DECRYPT: Failed to decrypt encryptor: %v", err)

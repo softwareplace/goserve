@@ -1,7 +1,7 @@
 package principal
 
 import (
-	goservecontext "github.com/softwareplace/goserve/context"
+	goservectx "github.com/softwareplace/goserve/context"
 	"regexp"
 	"strings"
 )
@@ -20,7 +20,7 @@ import (
 //
 //	[]string - A slice of required roles for the path or nil if no roles are defined.
 //	bool - True if roles are required for the path, false otherwise.
-func GetRolesForPath[T goservecontext.Principal](ctx goservecontext.Request[T]) ([]string, bool) {
+func GetRolesForPath[T goservectx.Principal](ctx goservectx.Request[T]) ([]string, bool) {
 	path := ctx.Request.Method + "::" + ctx.Request.URL.Path
 
 	for pattern, requiredRoles := range roles {
@@ -48,7 +48,7 @@ func GetRolesForPath[T goservecontext.Principal](ctx goservecontext.Request[T]) 
 // Returns:
 //
 //	bool - True if the path is a public route, false otherwise.
-func IsPublicPath[T goservecontext.Principal](ctx goservecontext.Request[T]) bool {
+func IsPublicPath[T goservectx.Principal](ctx goservectx.Request[T]) bool {
 	path := ctx.Request.Method + "::" + ctx.Request.URL.Path
 	for _, openPath := range openPaths {
 		regexPattern := convertPathToRegex(openPath)

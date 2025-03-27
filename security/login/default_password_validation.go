@@ -1,7 +1,7 @@
 package login
 
 import (
-	goservecontext "github.com/softwareplace/goserve/context"
+	goservectx "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/security/encryptor"
 )
 
@@ -10,7 +10,7 @@ import (
 //
 // T represents a type that implements the Principal interface.
 // It ensures that the principal context contains methods to retrieve the encrypted password and other details.
-type DefaultPasswordValidator[T goservecontext.Principal] struct {
+type DefaultPasswordValidator[T goservectx.Principal] struct {
 }
 
 func (a *DefaultPasswordValidator[T]) IsValidPassword(loginEntryData User, principal T) bool {

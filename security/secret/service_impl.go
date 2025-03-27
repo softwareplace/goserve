@@ -8,8 +8,8 @@ import (
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	log "github.com/sirupsen/logrus"
-	apicontext "github.com/softwareplace/goserve/context"
-	errorhandler "github.com/softwareplace/goserve/error"
+	goservectx "github.com/softwareplace/goserve/context"
+	goserveerror "github.com/softwareplace/goserve/error"
 	"github.com/softwareplace/goserve/security"
 	goservejwt "github.com/softwareplace/goserve/security/jwt"
 	"github.com/softwareplace/goserve/security/principal"
@@ -35,7 +35,7 @@ import (
 //
 // This struct provides methods to initialize the secret key, validate the public key against the private key,
 // and enforce access security middleware, ensuring requests are authorized with proper credentials.
-func New[T apicontext.Principal](
+func New[T goservectx.Principal](
 	secretKey string,
 	provider Provider[T],
 	service security.Service[T],
@@ -49,8 +49,8 @@ func New[T apicontext.Principal](
 	return &handler
 }
 
-func (a *apiSecretHandlerImpl[T]) Handler(ctx *apicontext.Request[T], apiKeyEntryData ApiKeyEntryData) {
-	errorhandler.Handler(func() {
+func (a *apiSecretHandlerImpl[T]) Handler(ctx *goservectx.Request[T], apiKeyEntryData ApiKeyEntryData) {
+	goserveerror.Handler(func() {
 		log.Infof("API/KEY/GENERATOR: requested by: %s", ctx.AccessId)
 
 		info, err := a.GetJwtEntry(apiKeyEntryData, ctx)
@@ -100,7 +100,7 @@ func (a *apiSecretHandlerImpl[T]) DisableForPublicPath(ignore bool) Service[T] {
 	return a
 }
 
-func (a *apiSecretHandlerImpl[T]) HandlerSecretAccess(ctx *apicontext.Request[T]) bool {
+func (a *apiSecretHandlerImpl[T]) HandlerSecretAccess(ctx *goservectx.Request[T]) bool {
 	isPublicPath := principal.IsPublicPath[T](*ctx)
 	if a.ignoreValidationForPublicPaths && isPublicPath {
 		return true
@@ -179,7 +179,7 @@ func (a *apiSecretHandlerImpl[T]) initAPISecretKey() {
 //	  bool:
 //		 - `true` if the public key is valid and corresponds to the private key.
 //		 - `false` if the public key is invalid or the validation fails.
-func (a *apiSecretHandlerImpl[T]) apiSecretKeyValidation(ctx *apicontext.Request[T]) bool {
+func (a *apiSecretHandlerImpl[T]) apiSecretKeyValidation(ctx *goservectx.Request[T]) bool {
 	// Decode the Base64-encoded public key
 	claims, err := a.JWTClaims(ctx)
 
@@ -339,7 +339,7 @@ func (a *apiSecretHandlerImpl[T]) GeneratePubKey(secretKey string) (string, erro
 	return encryptedKey, err
 }
 
-func (a *apiSecretHandlerImpl[T]) JWTClaims(ctx *apicontext.Request[T]) (map[string]interface{}, error) {
+func (a *apiSecretHandlerImpl[T]) JWTClaims(ctx *goservectx.Request[T]) (map[string]interface{}, error) {
 	token, err := jwt.Parse(ctx.ApiKey, func(token *jwt.Token) (interface{}, error) {
 		return a.Secret(), nil
 	})

@@ -7,7 +7,7 @@ type {{.TypeName}} {{if .IsAlias}}={{end}} {{.Schema.TypeDecl}}
 
 {{range .}}{{$entry := .}}
 {{$opid := $entry.OperationId}}
-func (rh *resourceHandlerImpl[T]){{$opid}}(ctx *goservecontext.Request[T]) {
+func (rh *resourceHandlerImpl[T]){{$opid}}(ctx *goservectx.Request[T]) {
     {{$opid := .OperationId}}
     {{ $processed := false -}}
     {{$hasParams := or .PathParams .QueryParams .HeaderParams}}
@@ -17,14 +17,14 @@ func (rh *resourceHandlerImpl[T]){{$opid}}(ctx *goservecontext.Request[T]) {
     {{$contentType := .ContentType -}}
         goserveerrohandler.Handler(func() {
             requestBody := {{.Schema.TypeDecl}}{}
-            request.GetRequestBody(ctx, requestBody, func(ctx *goservecontext.Request[T], body {{.Schema.TypeDecl}}) {
+            request.GetRequestBody(ctx, requestBody, func(ctx *goservectx.Request[T], body {{.Schema.TypeDecl}}) {
             clientRequest := {{$entry.OperationId}}ClientRequest{
                                     Body: body,
                                 }
             {{if or $hasParams }}err := ctx.BindRequestParams(&clientRequest)
-                contentType := ctx.Request.Header.Get(goservecontext.ContentType)
+                contentType := ctx.Request.Header.Get(goservectx.ContentType)
                 // Try to load form param to the body struct. File form will be ignored.
-                if err == nil && strings.Contains(contentType, goservecontext.MultipartFormData) {
+                if err == nil && strings.Contains(contentType, goservectx.MultipartFormData) {
                     _ = goservereflect.ParamsExtract(&clientRequest.Body,
                         goservereflect.ParamsExtractorSource{
                             Tree: ctx.FormValues(),
@@ -38,7 +38,7 @@ func (rh *resourceHandlerImpl[T]){{$opid}}(ctx *goservecontext.Request[T]) {
                 }
             {{ end }}
             rh.Service.{{$entry.OperationId}}(clientRequest, ctx)
-            }, func(ctx *goservecontext.Request[T], err error) {
+            }, func(ctx *goservectx.Request[T], err error) {
             ctx.InternalServerError("Internal server error")
             })
         }, func(err error) {

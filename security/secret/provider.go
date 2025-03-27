@@ -1,7 +1,7 @@
 package secret
 
 import (
-	apicontext "github.com/softwareplace/goserve/context"
+	goservectx "github.com/softwareplace/goserve/context"
 	goservejwt "github.com/softwareplace/goserve/security/jwt"
 	"time"
 )
@@ -30,7 +30,7 @@ type Entry struct {
 // Type Parameters:
 //   - T: A type that satisfies the `context.Principal` interface, representing
 //     the authentication and authorization context for API requests.
-type Provider[T apicontext.Principal] interface {
+type Provider[T goservectx.Principal] interface {
 
 	// Get (ctx *context.Request[T]) (string, error):
 	//	   Fetches the API secret key for the given request context. The method should implement
@@ -45,7 +45,7 @@ type Provider[T apicontext.Principal] interface {
 	//   - A string representing the API secret key.
 	//   - An error if the key retrieval or processing fails, ensuring proper error handling in the
 	//	 request lifecycle.
-	Get(ctx *apicontext.Request[T]) (string, error)
+	Get(ctx *goservectx.Request[T]) (string, error)
 
 	// GetJwtEntry generates the jwt.Entry for the given ApiKeyEntryData and Request.
 	// This method is responsible for processing the API key entry data and request context to create an ApiJWTInfo object,
@@ -58,7 +58,7 @@ type Provider[T apicontext.Principal] interface {
 	// Returns:
 	//   - jwt.Entry: The generated ApiJWTInfo object containing JWT details necessary for creating the API secret JWT.
 	//   - error: If an error occurs during the process, it returns the corresponding error; otherwise, nil.
-	GetJwtEntry(apiKeyEntryData ApiKeyEntryData, ctx *apicontext.Request[T]) (Entry, error)
+	GetJwtEntry(apiKeyEntryData ApiKeyEntryData, ctx *goservectx.Request[T]) (Entry, error)
 
 	// OnGenerated is invoked after an API key has been successfully generated.
 	// This function allows additional processing or handling, such as logging,
@@ -69,7 +69,7 @@ type Provider[T apicontext.Principal] interface {
 	//   - jwtEntry: The requested jwt.Entry.
 	//   - ctx: The API request context, containing metadata and principal
 	//		  information related to the API key generation.
-	OnGenerated(response goservejwt.Response, jwtEntry Entry, ctx apicontext.SampleContext[T])
+	OnGenerated(response goservejwt.Response, jwtEntry Entry, ctx goservectx.SampleContext[T])
 
 	// RequiredScopes returns a list of scopes that are mandatory for accessing the related end point
 	// resources registered by invoking server.Api SecretService method.

@@ -1,7 +1,7 @@
 package principal
 
 import (
-	goservecontext "github.com/softwareplace/goserve/context"
+	goservectx "github.com/softwareplace/goserve/context"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -72,7 +72,7 @@ func TestGetRolesForPath(t *testing.T) {
 
 			// Create a mock request
 
-			ctx := goservecontext.Of[*goservecontext.DefaultContext](httptest.NewRecorder(), &http.Request{
+			ctx := goservectx.Of[*goservectx.DefaultContext](httptest.NewRecorder(), &http.Request{
 				Method: tt.method,
 				URL:    &url.URL{Path: tt.requestPath},
 			}, "")
@@ -137,7 +137,7 @@ func TestForPublicPaths(t *testing.T) {
 			t.Run("given__"+tt.path+"==>"+tt.requestPath+"__must_return__"+strconv.FormatBool(tt.expectedResult), func(t *testing.T) {
 
 				// Create mock request
-				ctx := goservecontext.Of[*goservecontext.DefaultContext](httptest.NewRecorder(), &http.Request{
+				ctx := goservectx.Of[*goservectx.DefaultContext](httptest.NewRecorder(), &http.Request{
 					Method: tt.method,
 					URL:    &url.URL{Path: tt.requestPath},
 				}, "")

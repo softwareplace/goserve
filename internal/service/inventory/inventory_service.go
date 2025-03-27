@@ -1,7 +1,7 @@
 package inventory
 
 import (
-	goservecontext "github.com/softwareplace/goserve/context"
+	goservectx "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/internal/service/base"
 	"net/http"
 	"sync"
@@ -22,6 +22,6 @@ func New() *Service {
 	return serviceInstance
 }
 
-func (s Service) GetInventory(ctx *goservecontext.Request[*goservecontext.DefaultContext]) {
+func (s Service) GetInventory(ctx *goservectx.Request[*goservectx.DefaultContext]) {
 	ctx.NotFount(base.Response("Inventory not found", http.StatusNotFound))
 }

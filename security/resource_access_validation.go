@@ -1,11 +1,11 @@
 package security
 
 import (
-	apicontext "github.com/softwareplace/goserve/context"
+	goservectx "github.com/softwareplace/goserve/context"
 	"net/http"
 )
 
-type ResourceAccessValidation[T apicontext.Principal] interface {
+type ResourceAccessValidation[T goservectx.Principal] interface {
 
 	// HasResourceAccess wraps the given HTTP handler to enforce resource access control.
 	//
@@ -31,5 +31,5 @@ type ResourceAccessValidation[T apicontext.Principal] interface {
 	// Returns:
 	//
 	//	bool - True if the user has the required roles or if the path does not require roles, false otherwise.
-	HasResourceAccessRight(ctx apicontext.Request[T]) bool
+	HasResourceAccessRight(ctx goservectx.Request[T]) bool
 }
