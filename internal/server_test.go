@@ -76,7 +76,7 @@ func TestMockServer(t *testing.T) {
 		rr := httptest.NewRecorder()
 
 		secretProvider := provider.NewSecretProvider()
-		secretHandler := secret.New(
+		secretService := secret.New(
 			"./secret/private.key",
 			secretProvider,
 			securityService,
@@ -84,7 +84,7 @@ func TestMockServer(t *testing.T) {
 
 		server.Default().
 			LoginService(loginService).
-			SecretService(secretHandler).
+			SecretService(secretService).
 			SecurityService(securityService).
 			NotFoundHandler().
 			ServeHTTP(rr, req)
@@ -92,6 +92,37 @@ func TestMockServer(t *testing.T) {
 		if status := rr.Code; status != http.StatusUnauthorized {
 			t.Errorf("handler returned wrong status code: got %v want %v",
 				status, http.StatusUnauthorized)
+		}
+	})
+
+	t.Run("expects that can login in when secret service was provided but public path skip was activated", func(t *testing.T) {
+		// Create a new request
+		loginBody := strings.NewReader(`{"username": "my-username","password": "ynT9558iiMga&ayTVGs3Gc6ug1"}`)
+		req, err := http.NewRequest("POST", "/login", loginBody)
+
+		if err != nil {
+			t.Fatalf("Failed to create request: %v", err)
+		}
+
+		rr := httptest.NewRecorder()
+
+		secretProvider := provider.NewSecretProvider()
+		secretService := secret.New(
+			"./secret/private.key",
+			secretProvider,
+			securityService,
+		).DisableForPublicPath(true)
+
+		server.Default().
+			LoginService(loginService).
+			SecretService(secretService).
+			SecurityService(securityService).
+			NotFoundHandler().
+			ServeHTTP(rr, req)
+
+		if status := rr.Code; status != http.StatusOK {
+			t.Errorf("handler returned wrong status code: got %v want %v",
+				status, http.StatusOK)
 		}
 	})
 
