@@ -62,17 +62,15 @@ func init() {
 
 var (
 	userPrincipalService = login.NewPrincipalService()
-	errorHandler         = handler.New()
-	securityService      = security.New(
+	securityService = security.New(
 		"ue1pUOtCGaYS7Z1DLJ80nFtZ",
 		userPrincipalService,
-		errorHandler,
 	)
 
-	loginService   = login.NewLoginService(securityService)
+	loginService = login.NewLoginService(securityService)
 	secretProvider = provider.NewSecretProvider()
 
-	secretHandler = secret.New(
+	secretService = secret.New(
 		"./internal/secret/private.key",
 		secretProvider,
 		securityService,
@@ -83,11 +81,9 @@ func main() {
 	server.Default().
 		LoginResourceEnabled(true).
 		SecretKeyGeneratorResourceEnabled(true).
-		ApiKeyGeneratorResource(loginService).
 		LoginService(loginService).
-		SecretService(secretHandler).
+		SecretService(secretService).
 		SecurityService(securityService).
-		PrincipalService(userPrincipalService).
 		EmbeddedServer(apiservice.Register).
 		Get(apiservice.ReportCallerHandler, "/report/caller").
 		SwaggerDocHandler("./internal/resource/pet-store.yaml").
