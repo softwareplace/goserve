@@ -266,8 +266,9 @@ func (rh *resourceHandlerImpl[T]) PostLogin(ctx *goservecontext.Request[T]) {
 			}
 			err := ctx.BindRequestParams(&clientRequest)
 			contentType := ctx.Request.Header.Get(goservecontext.ContentType)
+			// Try to load form param to the body struct. File form will be ignored.
 			if err == nil && strings.Contains(contentType, goservecontext.MultipartFormData) {
-				_ = goservereflect.ParamsExtract(&body,
+				_ = goservereflect.ParamsExtract(&clientRequest.Body,
 					goservereflect.ParamsExtractorSource{
 						Tree: ctx.FormValues(),
 					},
@@ -320,8 +321,9 @@ func (rh *resourceHandlerImpl[T]) AddPet(ctx *goservecontext.Request[T]) {
 			}
 			err := ctx.BindRequestParams(&clientRequest)
 			contentType := ctx.Request.Header.Get(goservecontext.ContentType)
+			// Try to load form param to the body struct. File form will be ignored.
 			if err == nil && strings.Contains(contentType, goservecontext.MultipartFormData) {
-				_ = goservereflect.ParamsExtract(&body,
+				_ = goservereflect.ParamsExtract(&clientRequest.Body,
 					goservereflect.ParamsExtractorSource{
 						Tree: ctx.FormValues(),
 					},
@@ -454,8 +456,9 @@ func (rh *resourceHandlerImpl[T]) UpdatePet(ctx *goservecontext.Request[T]) {
 			}
 			err := ctx.BindRequestParams(&clientRequest)
 			contentType := ctx.Request.Header.Get(goservecontext.ContentType)
+			// Try to load form param to the body struct. File form will be ignored.
 			if err == nil && strings.Contains(contentType, goservecontext.MultipartFormData) {
-				_ = goservereflect.ParamsExtract(&body,
+				_ = goservereflect.ParamsExtract(&clientRequest.Body,
 					goservereflect.ParamsExtractorSource{
 						Tree: ctx.FormValues(),
 					},
@@ -521,8 +524,9 @@ func (rh *resourceHandlerImpl[T]) PlaceOrder(ctx *goservecontext.Request[T]) {
 			}
 			err := ctx.BindRequestParams(&clientRequest)
 			contentType := ctx.Request.Header.Get(goservecontext.ContentType)
+			// Try to load form param to the body struct. File form will be ignored.
 			if err == nil && strings.Contains(contentType, goservecontext.MultipartFormData) {
-				_ = goservereflect.ParamsExtract(&body,
+				_ = goservereflect.ParamsExtract(&clientRequest.Body,
 					goservereflect.ParamsExtractorSource{
 						Tree: ctx.FormValues(),
 					},
@@ -615,8 +619,9 @@ func (rh *resourceHandlerImpl[T]) CreateUsersWithListInput(ctx *goservecontext.R
 			}
 			err := ctx.BindRequestParams(&clientRequest)
 			contentType := ctx.Request.Header.Get(goservecontext.ContentType)
+			// Try to load form param to the body struct. File form will be ignored.
 			if err == nil && strings.Contains(contentType, goservecontext.MultipartFormData) {
-				_ = goservereflect.ParamsExtract(&body,
+				_ = goservereflect.ParamsExtract(&clientRequest.Body,
 					goservereflect.ParamsExtractorSource{
 						Tree: ctx.FormValues(),
 					},
@@ -709,8 +714,9 @@ func (rh *resourceHandlerImpl[T]) UpdateUser(ctx *goservecontext.Request[T]) {
 			}
 			err := ctx.BindRequestParams(&clientRequest)
 			contentType := ctx.Request.Header.Get(goservecontext.ContentType)
+			// Try to load form param to the body struct. File form will be ignored.
 			if err == nil && strings.Contains(contentType, goservecontext.MultipartFormData) {
-				_ = goservereflect.ParamsExtract(&body,
+				_ = goservereflect.ParamsExtract(&clientRequest.Body,
 					goservereflect.ParamsExtractorSource{
 						Tree: ctx.FormValues(),
 					},
