@@ -15,7 +15,7 @@ func (rh *resourceHandlerImpl[T]){{$opid}}(ctx *goservectx.Request[T]) {
     {{range .Bodies}}
     {{if and (not $processed) .IsSupported -}}
     {{$contentType := .ContentType -}}
-        goserveerrohandler.Handler(func() {
+        goserveerror.Handler(func() {
             requestBody := {{.Schema.TypeDecl}}{}
             request.GetRequestBody(ctx, requestBody, func(ctx *goservectx.Request[T], body {{.Schema.TypeDecl}}) {
             clientRequest := {{$entry.OperationId}}ClientRequest{
@@ -49,7 +49,7 @@ func (rh *resourceHandlerImpl[T]){{$opid}}(ctx *goservectx.Request[T]) {
         {{end}}
         {{end}}
         {{if not $processed -}}
-        goserveerrohandler.Handler(func() {
+        goserveerror.Handler(func() {
             {{if or $hasParams }}
             clientRequest := {{$entry.OperationId}}ClientRequest{
             }

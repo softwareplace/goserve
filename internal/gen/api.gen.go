@@ -9,7 +9,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	goservectx "github.com/softwareplace/goserve/context"
-	goserveerrohandler "github.com/softwareplace/goserve/error"
+	goserveerror "github.com/softwareplace/goserve/error"
 	goservereflect "github.com/softwareplace/goserve/reflect"
 	"github.com/softwareplace/goserve/request"
 	"github.com/softwareplace/goserve/server"
@@ -258,7 +258,7 @@ type UpdateUserParams struct {
 
 func (rh *resourceHandlerImpl[T]) PostLogin(ctx *goservectx.Request[T]) {
 
-	goserveerrohandler.Handler(func() {
+	goserveerror.Handler(func() {
 		requestBody := LoginRequest{}
 		request.GetRequestBody(ctx, requestBody, func(ctx *goservectx.Request[T], body LoginRequest) {
 			clientRequest := PostLoginClientRequest{
@@ -293,7 +293,7 @@ func (rh *resourceHandlerImpl[T]) PostLogin(ctx *goservectx.Request[T]) {
 
 func (rh *resourceHandlerImpl[T]) FindAllPets(ctx *goservectx.Request[T]) {
 
-	goserveerrohandler.Handler(func() {
+	goserveerror.Handler(func() {
 
 		clientRequest := FindAllPetsClientRequest{}
 		err := ctx.BindRequestParams(&clientRequest)
@@ -313,7 +313,7 @@ func (rh *resourceHandlerImpl[T]) FindAllPets(ctx *goservectx.Request[T]) {
 
 func (rh *resourceHandlerImpl[T]) AddPet(ctx *goservectx.Request[T]) {
 
-	goserveerrohandler.Handler(func() {
+	goserveerror.Handler(func() {
 		requestBody := Pet{}
 		request.GetRequestBody(ctx, requestBody, func(ctx *goservectx.Request[T], body Pet) {
 			clientRequest := AddPetClientRequest{
@@ -348,7 +348,7 @@ func (rh *resourceHandlerImpl[T]) AddPet(ctx *goservectx.Request[T]) {
 
 func (rh *resourceHandlerImpl[T]) FindPetsByStatus(ctx *goservectx.Request[T]) {
 
-	goserveerrohandler.Handler(func() {
+	goserveerror.Handler(func() {
 
 		clientRequest := FindPetsByStatusClientRequest{}
 		err := ctx.BindRequestParams(&clientRequest)
@@ -368,7 +368,7 @@ func (rh *resourceHandlerImpl[T]) FindPetsByStatus(ctx *goservectx.Request[T]) {
 
 func (rh *resourceHandlerImpl[T]) FindPetsByTags(ctx *goservectx.Request[T]) {
 
-	goserveerrohandler.Handler(func() {
+	goserveerror.Handler(func() {
 
 		clientRequest := FindPetsByTagsClientRequest{}
 		err := ctx.BindRequestParams(&clientRequest)
@@ -388,7 +388,7 @@ func (rh *resourceHandlerImpl[T]) FindPetsByTags(ctx *goservectx.Request[T]) {
 
 func (rh *resourceHandlerImpl[T]) DeletePet(ctx *goservectx.Request[T]) {
 
-	goserveerrohandler.Handler(func() {
+	goserveerror.Handler(func() {
 
 		clientRequest := DeletePetClientRequest{}
 		err := ctx.BindRequestParams(&clientRequest)
@@ -408,7 +408,7 @@ func (rh *resourceHandlerImpl[T]) DeletePet(ctx *goservectx.Request[T]) {
 
 func (rh *resourceHandlerImpl[T]) GetPetById(ctx *goservectx.Request[T]) {
 
-	goserveerrohandler.Handler(func() {
+	goserveerror.Handler(func() {
 
 		clientRequest := GetPetByIdClientRequest{}
 		err := ctx.BindRequestParams(&clientRequest)
@@ -428,7 +428,7 @@ func (rh *resourceHandlerImpl[T]) GetPetById(ctx *goservectx.Request[T]) {
 
 func (rh *resourceHandlerImpl[T]) UpdatePetWithForm(ctx *goservectx.Request[T]) {
 
-	goserveerrohandler.Handler(func() {
+	goserveerror.Handler(func() {
 
 		clientRequest := UpdatePetWithFormClientRequest{}
 		err := ctx.BindRequestParams(&clientRequest)
@@ -448,7 +448,7 @@ func (rh *resourceHandlerImpl[T]) UpdatePetWithForm(ctx *goservectx.Request[T]) 
 
 func (rh *resourceHandlerImpl[T]) UpdatePet(ctx *goservectx.Request[T]) {
 
-	goserveerrohandler.Handler(func() {
+	goserveerror.Handler(func() {
 		requestBody := Pet{}
 		request.GetRequestBody(ctx, requestBody, func(ctx *goservectx.Request[T], body Pet) {
 			clientRequest := UpdatePetClientRequest{
@@ -483,7 +483,7 @@ func (rh *resourceHandlerImpl[T]) UpdatePet(ctx *goservectx.Request[T]) {
 
 func (rh *resourceHandlerImpl[T]) UploadFile(ctx *goservectx.Request[T]) {
 
-	goserveerrohandler.Handler(func() {
+	goserveerror.Handler(func() {
 
 		clientRequest := UploadFileClientRequest{}
 		err := ctx.BindRequestParams(&clientRequest)
@@ -503,7 +503,7 @@ func (rh *resourceHandlerImpl[T]) UploadFile(ctx *goservectx.Request[T]) {
 
 func (rh *resourceHandlerImpl[T]) GetInventory(ctx *goservectx.Request[T]) {
 
-	goserveerrohandler.Handler(func() {
+	goserveerror.Handler(func() {
 
 		rh.Service.GetInventory(ctx)
 
@@ -516,7 +516,7 @@ func (rh *resourceHandlerImpl[T]) GetInventory(ctx *goservectx.Request[T]) {
 
 func (rh *resourceHandlerImpl[T]) PlaceOrder(ctx *goservectx.Request[T]) {
 
-	goserveerrohandler.Handler(func() {
+	goserveerror.Handler(func() {
 		requestBody := Order{}
 		request.GetRequestBody(ctx, requestBody, func(ctx *goservectx.Request[T], body Order) {
 			clientRequest := PlaceOrderClientRequest{
@@ -551,7 +551,7 @@ func (rh *resourceHandlerImpl[T]) PlaceOrder(ctx *goservectx.Request[T]) {
 
 func (rh *resourceHandlerImpl[T]) DeleteOrder(ctx *goservectx.Request[T]) {
 
-	goserveerrohandler.Handler(func() {
+	goserveerror.Handler(func() {
 
 		clientRequest := DeleteOrderClientRequest{}
 		err := ctx.BindRequestParams(&clientRequest)
@@ -571,7 +571,7 @@ func (rh *resourceHandlerImpl[T]) DeleteOrder(ctx *goservectx.Request[T]) {
 
 func (rh *resourceHandlerImpl[T]) GetOrderById(ctx *goservectx.Request[T]) {
 
-	goserveerrohandler.Handler(func() {
+	goserveerror.Handler(func() {
 
 		clientRequest := GetOrderByIdClientRequest{}
 		err := ctx.BindRequestParams(&clientRequest)
@@ -591,7 +591,7 @@ func (rh *resourceHandlerImpl[T]) GetOrderById(ctx *goservectx.Request[T]) {
 
 func (rh *resourceHandlerImpl[T]) CreateUser(ctx *goservectx.Request[T]) {
 
-	goserveerrohandler.Handler(func() {
+	goserveerror.Handler(func() {
 		requestBody := User{}
 		request.GetRequestBody(ctx, requestBody, func(ctx *goservectx.Request[T], body User) {
 			clientRequest := CreateUserClientRequest{
@@ -611,7 +611,7 @@ func (rh *resourceHandlerImpl[T]) CreateUser(ctx *goservectx.Request[T]) {
 
 func (rh *resourceHandlerImpl[T]) CreateUsersWithListInput(ctx *goservectx.Request[T]) {
 
-	goserveerrohandler.Handler(func() {
+	goserveerror.Handler(func() {
 		requestBody := CreateUsersWithListInputJSONBody{}
 		request.GetRequestBody(ctx, requestBody, func(ctx *goservectx.Request[T], body CreateUsersWithListInputJSONBody) {
 			clientRequest := CreateUsersWithListInputClientRequest{
@@ -646,7 +646,7 @@ func (rh *resourceHandlerImpl[T]) CreateUsersWithListInput(ctx *goservectx.Reque
 
 func (rh *resourceHandlerImpl[T]) LogoutUser(ctx *goservectx.Request[T]) {
 
-	goserveerrohandler.Handler(func() {
+	goserveerror.Handler(func() {
 
 		clientRequest := LogoutUserClientRequest{}
 		err := ctx.BindRequestParams(&clientRequest)
@@ -666,7 +666,7 @@ func (rh *resourceHandlerImpl[T]) LogoutUser(ctx *goservectx.Request[T]) {
 
 func (rh *resourceHandlerImpl[T]) DeleteUser(ctx *goservectx.Request[T]) {
 
-	goserveerrohandler.Handler(func() {
+	goserveerror.Handler(func() {
 
 		clientRequest := DeleteUserClientRequest{}
 		err := ctx.BindRequestParams(&clientRequest)
@@ -686,7 +686,7 @@ func (rh *resourceHandlerImpl[T]) DeleteUser(ctx *goservectx.Request[T]) {
 
 func (rh *resourceHandlerImpl[T]) GetUserByName(ctx *goservectx.Request[T]) {
 
-	goserveerrohandler.Handler(func() {
+	goserveerror.Handler(func() {
 
 		clientRequest := GetUserByNameClientRequest{}
 		err := ctx.BindRequestParams(&clientRequest)
@@ -706,7 +706,7 @@ func (rh *resourceHandlerImpl[T]) GetUserByName(ctx *goservectx.Request[T]) {
 
 func (rh *resourceHandlerImpl[T]) UpdateUser(ctx *goservectx.Request[T]) {
 
-	goserveerrohandler.Handler(func() {
+	goserveerror.Handler(func() {
 		requestBody := User{}
 		request.GetRequestBody(ctx, requestBody, func(ctx *goservectx.Request[T], body User) {
 			clientRequest := UpdateUserClientRequest{

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	log "github.com/sirupsen/logrus"
 	goservectx "github.com/softwareplace/goserve/context"
-	goserveerrohandler "github.com/softwareplace/goserve/error"
+	goserveerror "github.com/softwareplace/goserve/error"
 	"net/http"
 	"time"
 )
@@ -26,7 +26,7 @@ func rootAppMiddleware[T goservectx.Principal](next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var ctx *goservectx.Request[T]
 
-		goserveerrohandler.Handler(func() {
+		goserveerror.Handler(func() {
 			start := time.Now() // Record the start time
 			ctx = goservectx.Of[T](w, r, "MIDDLEWARE/ROOT_APP")
 			queryParam := ""
@@ -52,7 +52,7 @@ func rootAppMiddleware[T goservectx.Principal](next http.Handler) http.Handler {
 		})
 
 		defer func() {
-			goserveerrohandler.Handler(ctx.Flush, func(err error) {
+			goserveerror.Handler(ctx.Flush, func(err error) {
 				log.Errorf("Error flushing context: %v", err)
 			})
 			ctx = nil
