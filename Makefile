@@ -13,3 +13,9 @@ codegen:
 pet-store:
 	 @oapi-codegen --config ./internal/resource/config.yaml ./internal/resource/pet-store.yaml  2>&1 | xclip -selection clipboard
 
+# Try test implementation
+run:
+	@make update
+	@make codegen
+	@PROTECTED_API=true LOG_REPORT_CALLER=true go run ./internal/main.go
+
