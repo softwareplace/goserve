@@ -71,6 +71,7 @@ type Provider[T apicontext.Principal] interface {
 	//		  information related to the API key generation.
 	OnGenerated(response goservejwt.Response, jwtEntry Entry, ctx apicontext.SampleContext[T])
 
-	// RequiredScopes returns a list of scopes that are mandatory for accessing the related resources.
+	// RequiredScopes returns a list of scopes that are mandatory for accessing the related end point
+	// resources registered by invoking server.Api SecretService method.
 	RequiredScopes() []string
 }

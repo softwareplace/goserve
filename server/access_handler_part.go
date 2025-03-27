@@ -7,6 +7,10 @@ import (
 
 func (a *baseServer[T]) SecretService(service secret.Service[T]) Api[T] {
 	a.secretService = service
+	if a.apiSecretKeyGeneratorResourceEnable {
+		scopes := service.RequiredScopes()
+		a.Add(a.ApiKeyGenerator, "api-key/generate", "POST", scopes...)
+	}
 	return a.RegisterMiddleware(service.HandlerSecretAccess, secret.AccessHandlerName)
 }
 

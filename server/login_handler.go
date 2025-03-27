@@ -13,6 +13,9 @@ func (a *baseServer[T]) Login(ctx *apicontext.Request[T]) {
 	request.GetRequestBody(ctx, login.User{}, a.loginDataHandler, request.FailedToLoadBody[T])
 }
 
+// ApiKeyGenerator handles the generation of API keys by processing the request body
+// and delegating to the secret service handler. It ensures proper error handling
+// for cases where the request body cannot be loaded.
 func (a *baseServer[T]) ApiKeyGenerator(ctx *apicontext.Request[T]) {
 	request.GetRequestBody(ctx, secret.ApiKeyEntryData{}, a.secretService.Handler, request.FailedToLoadBody[T])
 }

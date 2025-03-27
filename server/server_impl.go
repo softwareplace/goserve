@@ -4,7 +4,6 @@ import (
 	"github.com/gorilla/mux"
 	goservecontext "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/security/login"
-	"github.com/softwareplace/goserve/security/secret"
 	"net/http"
 )
 
@@ -22,15 +21,6 @@ func (a *baseServer[T]) LoginService(service login.Service[T]) Api[T] {
 	a.loginService = service
 	if a.loginResourceEnable {
 		a.PublicRouter(a.Login, "login", "POST")
-	}
-	return a
-}
-
-func (a *baseServer[T]) ApiKeyGeneratorResource(service secret.Service[T]) Api[T] {
-	a.secretService = service
-	if a.apiSecretKeyGeneratorResourceEnable {
-		scopes := service.RequiredScopes()
-		a.Add(a.ApiKeyGenerator, "api-key/generate", "POST", scopes...)
 	}
 	return a
 }

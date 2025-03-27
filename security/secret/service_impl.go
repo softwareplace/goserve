@@ -49,8 +49,46 @@ func New[T apicontext.Principal](
 	return &handler
 }
 
-func (a *apiSecretHandlerImpl[T]) Handler(ctx *apicontext.Request[T], body ApiKeyEntryData) {
+func (a *apiSecretHandlerImpl[T]) Handler(ctx *apicontext.Request[T], apiKeyEntryData ApiKeyEntryData) {
+	errorhandler.Handler(func() {
+		log.Infof("API/KEY/GENERATOR: requested by: %s", ctx.AccessId)
 
+		info, err := a.GetJwtEntry(apiKeyEntryData, ctx)
+
+		if err != nil {
+			log.Errorf("API/KEY/GENERATOR: Failed to generate JWT: %v", err)
+			ctx.InternalServerError("Failed to generate JWT. Please try again later.")
+			return
+		}
+
+		if info.PublicKey == nil || *info.PublicKey == "" {
+			key, err := a.GeneratePubKey(a.SecretKey())
+			if err != nil {
+				log.Errorf("API/KEY/GENERATOR: Failed to generate public key: %v", err)
+				ctx.InternalServerError("Failed to generate JWT. Please try again later.")
+				return
+			}
+
+			info.PublicKey = &key
+		}
+
+		info.Expiration = time.Hour * info.Expiration
+
+		response, err := a.From(info.Key, info.Roles, info.Expiration)
+
+		if err != nil {
+			log.Errorf("API/KEY/GENERATOR: Failed to generate JWT: %v", err)
+			ctx.InternalServerError("Failed to generate JWT. Please try again later.")
+			return
+		}
+
+		ctx.Ok(response)
+
+		a.OnGenerated(*response, info, ctx.GetSample())
+	}, func(err error) {
+		log.Errorf("API/KEY/GENERATOR/HANDLER: Failed to handle request: %v", err)
+		ctx.InternalServerError("Failed to generate JWT. Please try again later.")
+	})
 }
 
 func (a *apiSecretHandlerImpl[T]) SecretKey() string {
@@ -63,7 +101,8 @@ func (a *apiSecretHandlerImpl[T]) DisableForPublicPath(ignore bool) Service[T] {
 }
 
 func (a *apiSecretHandlerImpl[T]) HandlerSecretAccess(ctx *apicontext.Request[T]) bool {
-	if a.ignoreValidationForPublicPaths && principal.IsPublicPath[T](*ctx) {
+	isPublicPath := principal.IsPublicPath[T](*ctx)
+	if a.ignoreValidationForPublicPaths && isPublicPath {
 		return true
 	}
 
@@ -314,46 +353,4 @@ func (a *apiSecretHandlerImpl[T]) JWTClaims(ctx *apicontext.Request[T]) (map[str
 	}
 
 	return nil, fmt.Errorf("failed to extract jwt claims")
-}
-
-func (a *apiSecretHandlerImpl[T]) apiKeyGeneratorDataHandler(ctx *apicontext.Request[T], apiKeyEntryData ApiKeyEntryData) {
-	errorhandler.Handler(func() {
-		log.Infof("API/KEY/GENERATOR: requested by: %s", ctx.AccessId)
-
-		info, err := a.GetJwtEntry(apiKeyEntryData, ctx)
-
-		if err != nil {
-			log.Errorf("API/KEY/GENERATOR: Failed to generate JWT: %v", err)
-			ctx.InternalServerError("Failed to generate JWT. Please try again later.")
-			return
-		}
-
-		if info.PublicKey == nil || *info.PublicKey == "" {
-			key, err := a.GeneratePubKey(a.SecretKey())
-			if err != nil {
-				log.Errorf("API/KEY/GENERATOR: Failed to generate public key: %v", err)
-				ctx.InternalServerError("Failed to generate JWT. Please try again later.")
-				return
-			}
-
-			info.PublicKey = &key
-		}
-
-		info.Expiration = time.Hour * info.Expiration
-
-		response, err := a.From(info.Key, info.Roles, info.Expiration)
-
-		if err != nil {
-			log.Errorf("API/KEY/GENERATOR: Failed to generate JWT: %v", err)
-			ctx.InternalServerError("Failed to generate JWT. Please try again later.")
-			return
-		}
-
-		ctx.Ok(response)
-
-		a.OnGenerated(*response, info, ctx.GetSample())
-	}, func(err error) {
-		log.Errorf("API/KEY/GENERATOR/HANDLER: Failed to handle request: %v", err)
-		ctx.InternalServerError("Failed to generate JWT. Please try again later.")
-	})
 }

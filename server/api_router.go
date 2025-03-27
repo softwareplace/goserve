@@ -235,10 +235,14 @@ type Api[T goservecontext.Principal] interface {
 	// It registers a POST endpoint for generating API keys at the route path "/api-keys/generate".
 	// This method ensures that the endpoint follows consistent naming conventions and best practices.
 	//
-	//  By registering the secret.Service, also add a resource ContextPath/api-key/generate that make
-	//  possible to generate a new X-Api-Key, handle the apiKey generator request by
-	//  invoking secret.Service.GetJwtEntry. You can also disable it by calling
-	//  SecretKeyGeneratorResourceEnabled before call SecretService method.
+	// By registering the secret.Service, also add a resource ContextPath/api-key/generate that make
+	// possible to generate a new X-Api-Key, handle the apiKey generator request by
+	// invoking secret.Service.GetJwtEntry. You can also disable it by calling
+	// SecretKeyGeneratorResourceEnabled before call SecretService method.
+	//
+	// Once the ApiKey management service is registered, all requests in the application will validate whether
+	// the `x-Api-Key` header was sent in the request and whether the requester has access to the requested resource.
+	// To keep public routers
 	//
 	// Parameters:
 	//   - service: The implementation of secret.Service[T] responsible for generating API keys.
