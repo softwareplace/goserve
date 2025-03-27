@@ -1,10 +1,21 @@
 package jwt
 
 import (
-	goservecontext "github.com/softwareplace/goserve/context"
+	apicontext "github.com/softwareplace/goserve/context"
+	errorhandler "github.com/softwareplace/goserve/error"
 	"github.com/softwareplace/goserve/security/encryptor"
 	"github.com/softwareplace/goserve/security/principal"
 	"time"
+)
+
+const (
+	IAT                = "iat"
+	EXP                = "exp"
+	AUD                = "aud"
+	SUB                = "sub"
+	ISS                = "iss"
+	LoadPrincipalError = "JWT/LOAD_PRINCIPAL_ERROR"
+	ExtractClaimsError = "JWT/EXTRACT_CLAIMS_ERROR"
 )
 
 type Entry struct {
@@ -16,15 +27,18 @@ type Entry struct {
 }
 
 type Response struct {
-	Token   string `json:"token"`
-	Expires int    `json:"expires"`
+	JWT      string `json:"jwt"`
+	Expires  int    `json:"expires"`
+	IssuedAt int    `json:"issuedAt"`
 }
 
-type Service[T goservecontext.Principal] interface {
+type Service[T apicontext.Principal] interface {
 	encryptor.Service
 	// GenerateApiSecretJWT generates a JWT token with the provided Entry.
 	// It encrypts the apiKey provided in jwtInfo, then creates a JWT token with
 	// the claims containing the client identifier, encrypted apiKey, and expiration time.
+	//
+	// See JWT documentation in https://datatracker.ietf.org/doc/html/rfc7519#section-4.1
 	//
 	// Parameters:
 	// - entry: an instance of Entry containing the client identifier, apiKey, and expiration duration.
@@ -56,7 +70,7 @@ type Service[T goservecontext.Principal] interface {
 	// Notes:
 	// - This method relies on the `jwt-go` library for parsing and managing JWT tokens.
 	// - Decrypt and cryptographic methods used must ensure secure implementation.
-	ExtractJWTClaims(requestContext *goservecontext.Request[T]) bool
+	ExtractJWTClaims(requestContext *apicontext.Request[T]) bool
 
 	// JWTClaims extracts and parses the claims from the provided JWT token in the Request.
 	// It uses the context's ApiKey field as the JWT token for processing. The token is validated
@@ -78,12 +92,14 @@ type Service[T goservecontext.Principal] interface {
 	//	   log.Fatalf("failed to extract claims: %v", err)
 	//   }
 	//   fmt.Printf("Extracted JWT claims: %v", claims)
-	JWTClaims(ctx *goservecontext.Request[T]) (map[string]interface{}, error)
+	JWTClaims(ctx *apicontext.Request[T]) (map[string]interface{}, error)
 
 	// GenerateJWT
 	// apiSecurityServiceImpl provides methods to handle JWT operations such as
 	// generation, validation, and extraction of claims. It also deals with secure
 	// management of the application's authorization mechanism.
+	//
+	// See JWT documentation in https://datatracker.ietf.org/doc/html/rfc7519#section-4.1
 	//
 	// Validation is performed using the provided JWT token, ensuring that the
 	// claims and tokens are properly extracted, decrypted, and stored within the
@@ -121,28 +137,31 @@ type Service[T goservecontext.Principal] interface {
 	// - It is recommended to configure proper secret rotation policies.
 	GenerateJWT(user T, duration time.Duration) (*Response, error)
 
+	// Issuer returns the identifier of the entity responsible for issuing the JWT tokens in the service.
+	Issuer() string
+
 	HandlerErrorOrElse(
-		ctx *goservecontext.Request[T],
+		ctx *apicontext.Request[T],
 		error error,
 		executionContext string,
 		handlerNotFound func(),
 	)
 }
 
-type serviceImpl[T goservecontext.Principal] struct {
+type serviceImpl[T apicontext.Principal] struct {
 	encryptor.Service
 	PService     principal.Service[T]
-	ErrorHandler goservecontext.ApiHandler[T]
+	ErrorHandler errorhandler.ApiHandler[T]
 }
 
-func New[T goservecontext.Principal](
+func New[T apicontext.Principal](
 	pService principal.Service[T],
 	apiSecretAuthorization string,
-	errorHandler goservecontext.ApiHandler[T],
+	handler errorhandler.ApiHandler[T],
 ) Service[T] {
 	return &serviceImpl[T]{
 		Service:      encryptor.New([]byte(apiSecretAuthorization)),
 		PService:     pService,
-		ErrorHandler: errorHandler,
+		ErrorHandler: handler,
 	}
 }

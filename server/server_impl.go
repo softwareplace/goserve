@@ -4,7 +4,6 @@ import (
 	"github.com/gorilla/mux"
 	goservecontext "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/security/login"
-	"github.com/softwareplace/goserve/security/principal"
 	"net/http"
 	"strings"
 )
@@ -42,14 +41,6 @@ func (a *baseServer[T]) SecretKeyGeneratorResourceEnabled(enable bool) Api[T] {
 
 func (a *baseServer[T]) LoginResourceEnabled(enable bool) Api[T] {
 	a.loginResourceEnable = enable
-	return a
-}
-
-func (a *baseServer[T]) PrincipalService(service principal.Service[T]) Api[T] {
-	a.principalService = service
-	if a.principalService != nil {
-		a.router.Use(a.hasResourceAccess)
-	}
 	return a
 }
 

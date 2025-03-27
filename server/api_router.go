@@ -6,7 +6,6 @@ import (
 	goservecontext "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/security"
 	"github.com/softwareplace/goserve/security/login"
-	"github.com/softwareplace/goserve/security/principal"
 	"github.com/softwareplace/goserve/security/secret"
 	"net/http"
 )
@@ -158,8 +157,16 @@ type Api[T goservecontext.Principal] interface {
 	// This middleware provides an additional layer of security by validating API secret keys
 	// on incoming requests before they are processed by specific route handlers.
 	//
+	// Make sure to call SecretService at top of api definition struct to ensure that
+	// the all router can't be accessible without authorization check.
+	//
+	// Example:
+	// 	 - server.New[...]().
+	//	 		SecretService(mySecretServiceImpl)
+	//	 		SecurityService(mySecurityServiceImpl)
+	//
 	// ApiKey generator resource:
-	//   - By registering the secret.Service, also add a login resource ContextPath+api-key/generate
+	//   - By registering the secret.Service, also add a login resource ContextPath/api-key/generate
 	//     that handle the apiKey generator request by invoking Service. You can also disable it by
 	//     calling SecretKeyGeneratorResourceEnabled before call Service.
 	//
@@ -177,6 +184,13 @@ type Api[T goservecontext.Principal] interface {
 	// This service is responsible for handling various security aspects such as authentication,
 	// authorization, and token validation for incoming requests. By assigning a security service,
 	// the API router ensures that all operations comply with the defined security policies.
+	//
+	// Make sure to call SecurityService at top of api definition struct to ensure that
+	// the all router can't be accessible without authorization check.
+	//
+	// Example:
+	// 	 - server.New[...]().
+	//	 		SecurityService(mySecurityServiceImpl)
 	//
 	// Login resource:
 	//   - By registering the security.Service, also add a login resource ContextPath+login
@@ -218,16 +232,6 @@ type Api[T goservecontext.Principal] interface {
 	// Returns:
 	//   - Api[T]: The router handler for chaining further route configurations.
 	RegisterCustomMiddleware(func(next http.Handler) http.Handler) Api[T]
-
-	// PrincipalService assigns a principal service to the router.
-	// This service provides role-based access control and other principal-related features.
-	//
-	// Parameters:
-	//   - service: The principal service instance.
-	//
-	// Returns:
-	//   - Api[T]: The router handler for chaining further route configurations.
-	PrincipalService(service principal.Service[T]) Api[T]
 
 	// ErrorHandler assigns a custom error handler to the router.
 	// This handler is used to process API errors and provide appropriate responses.

@@ -85,7 +85,7 @@ func (l *Service) OnGenerated(data jwt.Response,
 	ctx goservecontext.SampleContext[*goservecontext.DefaultContext],
 ) {
 	provider.MockStore[jwtEntry.Key] = *jwtEntry.PublicKey
-	log.Printf("%s - %s", jwtEntry.Key, data.Token)
+	log.Printf("%s - %s", jwtEntry.Key, data.JWT)
 	log.Printf("API KEY GENERATED: from %s - %v", ctx.AccessId, data)
 }
 

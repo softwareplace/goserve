@@ -12,5 +12,6 @@ func (a *baseServer[T]) SecretService(service secret.Service[T]) Api[T] {
 
 func (a *baseServer[T]) SecurityService(service security.Service[T]) Api[T] {
 	a.securityService = service
-	return a.RegisterMiddleware(service.AuthorizationHandler, security.ApiSecurityHandlerName)
+	return a.RegisterMiddleware(service.AuthorizationHandler, security.ApiSecurityHandlerName).
+		EmbeddedServer(func(Api[T]) { a.router.Use(service.HasResourceAccess) })
 }

@@ -14,12 +14,13 @@ func (a *serviceImpl[T]) GenerateApiSecretJWT(info Entry) (*Response, error) {
 	}
 
 	duration := info.Expiration
-	expiration := time.Now().Add(duration).Unix()
+	now := time.Now()
+	expiration := now.Add(duration).Unix()
 
 	claims := jwt.MapClaims{
-		"client": info.Client,
-		"apiKey": encryptedKey,
-		"exp":    expiration,
+		SUB: encryptedKey,
+		EXP: expiration,
+		IAT: now.Unix(),
 	}
 
 	if info.Scopes != nil && len(info.Scopes) > 0 {
@@ -32,13 +33,18 @@ func (a *serviceImpl[T]) GenerateApiSecretJWT(info Entry) (*Response, error) {
 			encryptedRoles = append(encryptedRoles, encryptedRole)
 		}
 
-		claims["scope"] = encryptedRoles
+		claims[AUD] = encryptedRoles
+	}
+
+	if issuer := a.Issuer(); issuer != "" {
+		claims[ISS] = issuer
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	signedToken, err := token.SignedString(secret)
 	return &Response{
-		Token:   signedToken,
-		Expires: int(expiration),
+		JWT:      signedToken,
+		Expires:  int(expiration),
+		IssuedAt: int(now.Unix()),
 	}, err
 }

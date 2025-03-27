@@ -8,6 +8,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	goservecontext "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/security"
+	"github.com/softwareplace/goserve/security/jwt"
 	"github.com/softwareplace/goserve/security/principal"
 	"net/http"
 	"os"
@@ -143,7 +144,7 @@ func (a *apiSecretHandlerImpl[T]) apiSecretKeyValidation(ctx *goservecontext.Req
 
 	ctx.ApiKeyClaims = claims
 
-	apiKey, err := a.service.Decrypt(claims["apiKey"].(string))
+	apiKey, err := a.service.Decrypt(claims[jwt.SUB].(string))
 
 	if err != nil {
 		log.Errorf("JWT/CLAIMS_EXTRACT: AuthorizationHandler failed: %v", err)

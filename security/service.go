@@ -1,7 +1,8 @@
 package security
 
 import (
-	goservecontext "github.com/softwareplace/goserve/context"
+	apicontext "github.com/softwareplace/goserve/context"
+	errorhandler "github.com/softwareplace/goserve/error"
 	"github.com/softwareplace/goserve/security/jwt"
 	"github.com/softwareplace/goserve/security/principal"
 )
@@ -15,8 +16,9 @@ type JwtResponse struct {
 	Expires int    `json:"expires"`
 }
 
-type Service[T goservecontext.Principal] interface {
+type Service[T apicontext.Principal] interface {
 	jwt.Service[T]
+	ResourceAccessValidation[T]
 
 	// AuthorizationHandler
 	// This method is invoked to handle API requests and manage security validation processes.
@@ -38,34 +40,62 @@ type Service[T goservecontext.Principal] interface {
 	// - This function leverages methods like Validation and IsPublicPath to make security decisions.
 	// - Ensure that all sensitive operations and data are securely processed.
 	// - Public paths bypass validation by default, so it's critical to properly define such paths to avoid security issues.
-	AuthorizationHandler(ctx *goservecontext.Request[T]) (doNext bool)
+	AuthorizationHandler(ctx *apicontext.Request[T]) (doNext bool)
 }
 
-type impl[T goservecontext.Principal] struct {
+type impl[T apicontext.Principal] struct {
+	ResourceAccessValidation[T]
 	jwt.Service[T]
 	PService principal.Service[T]
 }
 
-func New[T goservecontext.Principal](
+// New creates a new instance of the security Service with a default error handler.
+//
+// This function initializes the Service using the provided API secret authorization key
+// and principal service. It also sets up a default resource access handler and error handler.
+//
+// Parameters:
+// - apiSecretAuthorization: The secret key used for API authorization and JWT management.
+// - service: The principal service responsible for managing and loading user principals.
+//
+// Returns:
+// - Service[T]: A new instance of the security Service.
+func New[T apicontext.Principal](
 	apiSecretAuthorization string,
 	service principal.Service[T],
-	errorHandler goservecontext.ApiHandler[T],
 ) Service[T] {
+	defaultErrorHandler := errorhandler.Default[T]()
 	return &impl[T]{
-		jwt.New(service, apiSecretAuthorization, errorHandler),
-		service,
+		ResourceAccessValidation: &defaultResourceAccessHandler[T]{
+			&defaultErrorHandler,
+		},
+		Service:  jwt.New(service, apiSecretAuthorization, defaultErrorHandler),
+		PService: service,
 	}
 }
 
-func (a *impl[T]) AuthorizationHandler(ctx *goservecontext.Request[T]) (doNext bool) {
-	if principal.IsPublicPath[T](*ctx) {
-		return true
+// Create creates a new instance of the security Service with the provided configurations.
+//
+// This function is a more customizable version of New where you can provide your own error
+// handler and resource access validation logic.
+//
+// Parameters:
+//   - apiSecretAuthorization: The secret key used for API authorization and JWT management.
+//   - service: The principal service responsible for managing and loading user principals.
+//   - handler: A pointer to a custom API error handler that processes authorization errors.
+//   - resourceValidation: A custom resource access validation implementation.
+//
+// Returns:
+// - Service[T]: A new instance of the security Service with the provided configurations.
+func Create[T apicontext.Principal](
+	apiSecretAuthorization string,
+	service principal.Service[T],
+	handler errorhandler.ApiHandler[T],
+	resourceValidation ResourceAccessValidation[T],
+) Service[T] {
+	return &impl[T]{
+		ResourceAccessValidation: resourceValidation,
+		Service:                  jwt.New(service, apiSecretAuthorization, handler),
+		PService:                 service,
 	}
-
-	if !a.ExtractJWTClaims(ctx) {
-		ctx.Forbidden("Invalid JWT token")
-		return false
-	}
-
-	return a.PService.LoadPrincipal(ctx)
 }

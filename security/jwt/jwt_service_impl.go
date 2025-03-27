@@ -4,18 +4,14 @@ import (
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	log "github.com/sirupsen/logrus"
-	goservecontext "github.com/softwareplace/goserve/context"
+	apicontext "github.com/softwareplace/goserve/context"
+	"github.com/softwareplace/goserve/utils"
 	"net/http"
 	"time"
 )
 
-const (
-	LoadPrincipalError = "JWT/LOAD_PRINCIPAL_ERROR"
-	ExtractClaimsError = "JWT/EXTRACT_CLAIMS_ERROR"
-)
-
 func (a *serviceImpl[T]) Principal(
-	ctx *goservecontext.Request[T],
+	ctx *apicontext.Request[T],
 ) bool {
 	success := a.PService.LoadPrincipal(ctx)
 
@@ -30,7 +26,7 @@ func (a *serviceImpl[T]) Principal(
 	return success
 }
 
-func (a *serviceImpl[T]) ExtractJWTClaims(ctx *goservecontext.Request[T]) bool {
+func (a *serviceImpl[T]) ExtractJWTClaims(ctx *apicontext.Request[T]) bool {
 
 	token, err := jwt.Parse(ctx.Authorization, func(token *jwt.Token) (interface{}, error) {
 		return a.Secret(), nil
@@ -44,7 +40,7 @@ func (a *serviceImpl[T]) ExtractJWTClaims(ctx *goservecontext.Request[T]) bool {
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		ctx.AuthorizationClaims = claims
 
-		requester, err := a.Decrypt(claims["request"].(string))
+		requester, err := a.Decrypt(claims[SUB].(string))
 
 		if err != nil {
 			log.Errorf("%s: AuthorizationHandler failed: %+v", ExtractClaimsError, err)
@@ -68,7 +64,7 @@ func (a *serviceImpl[T]) ExtractJWTClaims(ctx *goservecontext.Request[T]) bool {
 	return false
 }
 
-func (a *serviceImpl[T]) JWTClaims(ctx *goservecontext.Request[T]) (map[string]interface{}, error) {
+func (a *serviceImpl[T]) JWTClaims(ctx *apicontext.Request[T]) (map[string]interface{}, error) {
 	token, err := jwt.Parse(ctx.ApiKey, func(token *jwt.Token) (interface{}, error) {
 		return a.Secret(), nil
 	})
@@ -85,10 +81,12 @@ func (a *serviceImpl[T]) JWTClaims(ctx *goservecontext.Request[T]) (map[string]i
 }
 
 func (a *serviceImpl[T]) GenerateJWT(data T, duration time.Duration) (*Response, error) {
-	expiration := time.Now().Add(duration).Unix()
+	now := time.Now()
+	expiration := now.Add(duration).Unix()
 	requestBy, err := a.Encrypt(data.GetId())
 
 	var encryptedRoles []string
+
 	for _, role := range data.GetRoles() {
 		encryptedRole, err := a.Encrypt(role)
 		if err != nil {
@@ -98,15 +96,26 @@ func (a *serviceImpl[T]) GenerateJWT(data T, duration time.Duration) (*Response,
 	}
 
 	claims := jwt.MapClaims{
-		"request": requestBy,
-		"scope":   encryptedRoles,
-		"exp":     expiration,
+		SUB: requestBy,
+		AUD: encryptedRoles,
+		EXP: expiration,
+		IAT: now.Unix(),
 	}
+
+	if issuer := a.Issuer(); issuer != "" {
+		claims[ISS] = issuer
+	}
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	signedToken, err := token.SignedString(a.Secret())
 
 	return &Response{
-		Token:   signedToken,
-		Expires: int(expiration),
+		JWT:      signedToken,
+		Expires:  int(expiration),
+		IssuedAt: int(now.Unix()),
 	}, err
+}
+
+func (a *serviceImpl[T]) Issuer() string {
+	return utils.GetEnvOrDefault("JWT_ISSUER", "")
 }

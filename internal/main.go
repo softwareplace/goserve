@@ -2,7 +2,6 @@ package main
 
 import (
 	log "github.com/sirupsen/logrus"
-	"github.com/softwareplace/goserve/internal/handler"
 	"github.com/softwareplace/goserve/internal/service/apiservice"
 	"github.com/softwareplace/goserve/internal/service/login"
 	"github.com/softwareplace/goserve/internal/service/provider"
@@ -21,11 +20,9 @@ func init() {
 
 func runSecretApi() {
 	userPrincipalService := login.NewPrincipalService()
-	errorHandler := handler.New()
 	securityService := security.New(
 		"ue1pUOtCGaYS7Z1DLJ80nFtZ",
 		userPrincipalService,
-		errorHandler,
 	)
 
 	loginService := login.NewLoginService(securityService)
@@ -44,7 +41,6 @@ func runSecretApi() {
 		LoginService(loginService).
 		SecretService(secretHandler).
 		SecurityService(securityService).
-		PrincipalService(userPrincipalService).
 		EmbeddedServer(apiservice.Register).
 		Get(apiservice.ReportCallerHandler, "/report/caller").
 		SwaggerDocHandler("./internal/resource/pet-store.yaml").
@@ -53,11 +49,9 @@ func runSecretApi() {
 
 func runPublicApi() {
 	userPrincipalService := login.NewPrincipalService()
-	errorHandler := handler.New()
 	securityService := security.New(
 		"ue1pUOtCGaYS7Z1DLJ80nFtZ",
 		userPrincipalService,
-		errorHandler,
 	)
 
 	loginService := login.NewLoginService(securityService)
@@ -65,9 +59,7 @@ func runPublicApi() {
 	server.Default().
 		LoginResourceEnabled(true).
 		LoginService(loginService).
-		ErrorHandler(handler.New()).
 		SecurityService(securityService).
-		PrincipalService(userPrincipalService).
 		SwaggerDocHandler("./internal/resource/pet-store.yaml").
 		EmbeddedServer(apiservice.Register).
 		Get(apiservice.ReportCallerHandler, "/report/caller").
