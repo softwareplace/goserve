@@ -858,69 +858,48 @@ type UpdateUserRequest = User
 
 // resourceHandler represents all server handlers.
 type resourceHandler[T goservectx.Principal] interface {
-	// Authentication endpoint
-	// (POST /login)
+	// Authentication endpoint (POST /login)
 	PostLogin(ctx *goservectx.Request[T])
-	// Finds Pets by status
-	// (GET /pet)
+	// Finds Pets by status (GET /pet)
 	FindAllPets(ctx *goservectx.Request[T])
-	// Add a new pet to the store
-	// (POST /pet)
+	// Add a new pet to the store (POST /pet)
 	AddPet(ctx *goservectx.Request[T])
-	// Finds Pets by status
-	// (GET /pet/findByStatus)
+	// Finds Pets by status (GET /pet/findByStatus)
 	FindPetsByStatus(ctx *goservectx.Request[T])
-	// Finds Pets by tags
-	// (GET /pet/findByTags)
+	// Finds Pets by tags (GET /pet/findByTags)
 	FindPetsByTags(ctx *goservectx.Request[T])
-	// Deletes a pet
-	// (DELETE /pet/{petId})
+	// Deletes a pet (DELETE /pet/{petId})
 	DeletePet(ctx *goservectx.Request[T])
-	// Find pet by ID
-	// (GET /pet/{petId})
+	// Find pet by ID (GET /pet/{petId})
 	GetPetById(ctx *goservectx.Request[T])
-	// Updates a pet in the store with form data
-	// (POST /pet/{petId})
+	// Updates a pet in the store with form data (POST /pet/{petId})
 	UpdatePetWithForm(ctx *goservectx.Request[T])
-	// Update an existing pet
-	// (PUT /pet/{petId})
+	// Update an existing pet (PUT /pet/{petId})
 	UpdatePet(ctx *goservectx.Request[T])
-	// uploads an image
-	// (POST /pet/{petId}/uploadImage)
+	// uploads an image (POST /pet/{petId}/uploadImage)
 	UploadFile(ctx *goservectx.Request[T])
-	// Returns pet inventories by status
-	// (GET /store/inventory)
+	// Returns pet inventories by status (GET /store/inventory)
 	GetInventory(ctx *goservectx.Request[T])
-	// Place an order for a pet
-	// (POST /store/order)
+	// Place an order for a pet (POST /store/order)
 	PlaceOrder(ctx *goservectx.Request[T])
-	// Delete purchase order by ID
-	// (DELETE /store/order/{orderId})
+	// Delete purchase order by ID (DELETE /store/order/{orderId})
 	DeleteOrder(ctx *goservectx.Request[T])
-	// Find purchase order by ID
-	// (GET /store/order/{orderId})
+	// Find purchase order by ID (GET /store/order/{orderId})
 	GetOrderById(ctx *goservectx.Request[T])
-	// Create user
-	// (POST /user)
+	// Create user (POST /user)
 	CreateUser(ctx *goservectx.Request[T])
-	// Creates list of users with given input array
-	// (POST /user/createWithList)
+	// Creates list of users with given input array (POST /user/createWithList)
 	CreateUsersWithListInput(ctx *goservectx.Request[T])
-	// Logs out current logged in user session
-	// (GET /user/logout)
+	// Logs out current logged in user session (GET /user/logout)
 	LogoutUser(ctx *goservectx.Request[T])
-	// Delete user
-	// (DELETE /user/{username})
+	// Delete user (DELETE /user/{username})
 	DeleteUser(ctx *goservectx.Request[T])
-	// Get user by user name
-	// (GET /user/{username})
+	// Get user by user name (GET /user/{username})
 	GetUserByName(ctx *goservectx.Request[T])
-	// Update user
-	// (PUT /user/{username})
+	// Update user (PUT /user/{username})
 	UpdateUser(ctx *goservectx.Request[T])
 }
 
-// PostLoginClientRequest combines all parameters for PostLogin
 type PostLoginClientRequest struct {
 
 	// X-Api-Key - Header parameter
@@ -929,7 +908,6 @@ type PostLoginClientRequest struct {
 	Body LoginRequest `name:"body" json:"body" required:"true" validate:"required"`
 }
 
-// FindAllPetsClientRequest combines all parameters for FindAllPets
 type FindAllPetsClientRequest struct {
 
 	// page - Query parameter
@@ -990,7 +968,6 @@ type FindAllPetsClientRequest struct {
 	XRateLimitBypass bool `name:"X-RateLimit-Bypass"  error_message:"required header param [X-RateLimit-Bypass] " header:"X-RateLimit-Bypass" required:"true" validate:"required" json:"X-RateLimit-Bypass"`
 }
 
-// AddPetClientRequest combines all parameters for AddPet
 type AddPetClientRequest struct {
 
 	// Authorization - Header parameter
@@ -999,7 +976,6 @@ type AddPetClientRequest struct {
 	Body Pet `name:"body" json:"body" required:"true" validate:"required"`
 }
 
-// FindPetsByStatusClientRequest combines all parameters for FindPetsByStatus
 type FindPetsByStatusClientRequest struct {
 
 	// status - Query parameter
@@ -1009,7 +985,6 @@ type FindPetsByStatusClientRequest struct {
 	Authorization Authorization `name:"Authorization"  error_message:"required header param [Authorization] " header:"Authorization" required:"true" validate:"required" json:"Authorization"`
 }
 
-// FindPetsByTagsClientRequest combines all parameters for FindPetsByTags
 type FindPetsByTagsClientRequest struct {
 
 	// tags - Query parameter
@@ -1019,11 +994,9 @@ type FindPetsByTagsClientRequest struct {
 	Authorization Authorization `name:"Authorization"  error_message:"required header param [Authorization] " header:"Authorization" required:"true" validate:"required" json:"Authorization"`
 }
 
-// DeletePetClientRequest combines all parameters for DeletePet
 type DeletePetClientRequest struct {
 
 	// petId - Path parameter
-
 	PetId int64 `name:"petId" error_message:"required path param [petId]" path:"petId" required:"true" validate:"required" json:"petId"`
 
 	// Authorization - Header parameter
@@ -1033,22 +1006,18 @@ type DeletePetClientRequest struct {
 	ApiKey string `name:"api_key"  error_message:"required header param [api_key] " header:"api_key" json:"api_key"`
 }
 
-// GetPetByIdClientRequest combines all parameters for GetPetById
 type GetPetByIdClientRequest struct {
 
 	// petId - Path parameter
-
 	PetId int64 `name:"petId" error_message:"required path param [petId]" path:"petId" required:"true" validate:"required" json:"petId"`
 
 	// Authorization - Header parameter
 	Authorization Authorization `name:"Authorization"  error_message:"required header param [Authorization] " header:"Authorization" required:"true" validate:"required" json:"Authorization"`
 }
 
-// UpdatePetWithFormClientRequest combines all parameters for UpdatePetWithForm
 type UpdatePetWithFormClientRequest struct {
 
 	// petId - Path parameter
-
 	PetId int64 `name:"petId" error_message:"required path param [petId]" path:"petId" required:"true" validate:"required" json:"petId"`
 
 	// name - Query parameter
@@ -1061,11 +1030,9 @@ type UpdatePetWithFormClientRequest struct {
 	Authorization Authorization `name:"Authorization"  error_message:"required header param [Authorization] " header:"Authorization" required:"true" validate:"required" json:"Authorization"`
 }
 
-// UpdatePetClientRequest combines all parameters for UpdatePet
 type UpdatePetClientRequest struct {
 
 	// petId - Path parameter
-
 	PetId int64 `name:"petId" error_message:"required path param [petId]" path:"petId" required:"true" validate:"required" json:"petId"`
 
 	// Authorization - Header parameter
@@ -1074,11 +1041,9 @@ type UpdatePetClientRequest struct {
 	Body Pet `name:"body" json:"body" required:"true" validate:"required"`
 }
 
-// UploadFileClientRequest combines all parameters for UploadFile
 type UploadFileClientRequest struct {
 
 	// petId - Path parameter
-
 	PetId int64 `name:"petId" error_message:"required path param [petId]" path:"petId" required:"true" validate:"required" json:"petId"`
 
 	// additionalMetadata - Query parameter
@@ -1091,7 +1056,6 @@ type UploadFileClientRequest struct {
 type GetInventoryClientRequest struct {
 }
 
-// PlaceOrderClientRequest combines all parameters for PlaceOrder
 type PlaceOrderClientRequest struct {
 
 	// Authorization - Header parameter
@@ -1100,22 +1064,18 @@ type PlaceOrderClientRequest struct {
 	Body Order `name:"body" json:"body"`
 }
 
-// DeleteOrderClientRequest combines all parameters for DeleteOrder
 type DeleteOrderClientRequest struct {
 
 	// orderId - Path parameter
-
 	OrderId int64 `name:"orderId" error_message:"required path param [orderId]" path:"orderId" required:"true" validate:"required" json:"orderId"`
 
 	// Authorization - Header parameter
 	Authorization Authorization `name:"Authorization"  error_message:"required header param [Authorization] " header:"Authorization" required:"true" validate:"required" json:"Authorization"`
 }
 
-// GetOrderByIdClientRequest combines all parameters for GetOrderById
 type GetOrderByIdClientRequest struct {
 
 	// orderId - Path parameter
-
 	OrderId int64 `name:"orderId" error_message:"required path param [orderId]" path:"orderId" required:"true" validate:"required" json:"orderId"`
 
 	// Authorization - Header parameter
@@ -1126,7 +1086,6 @@ type CreateUserClientRequest struct {
 	Body User `name:"body" json:"body"`
 }
 
-// CreateUsersWithListInputClientRequest combines all parameters for CreateUsersWithListInput
 type CreateUsersWithListInputClientRequest struct {
 
 	// Authorization - Header parameter
@@ -1135,40 +1094,33 @@ type CreateUsersWithListInputClientRequest struct {
 	Body CreateUsersWithListInputJSONBody `name:"body" json:"body"`
 }
 
-// LogoutUserClientRequest combines all parameters for LogoutUser
 type LogoutUserClientRequest struct {
 
 	// Authorization - Header parameter
 	Authorization Authorization `name:"Authorization"  error_message:"required header param [Authorization] " header:"Authorization" required:"true" validate:"required" json:"Authorization"`
 }
 
-// DeleteUserClientRequest combines all parameters for DeleteUser
 type DeleteUserClientRequest struct {
 
 	// username - Path parameter
-
 	Username string `name:"username" error_message:"required path param [username]" path:"username" required:"true" validate:"required" json:"username"`
 
 	// Authorization - Header parameter
 	Authorization Authorization `name:"Authorization"  error_message:"required header param [Authorization] " header:"Authorization" required:"true" validate:"required" json:"Authorization"`
 }
 
-// GetUserByNameClientRequest combines all parameters for GetUserByName
 type GetUserByNameClientRequest struct {
 
 	// username - Path parameter
-
 	Username string `name:"username" error_message:"required path param [username]" path:"username" required:"true" validate:"required" json:"username"`
 
 	// Authorization - Header parameter
 	Authorization Authorization `name:"Authorization"  error_message:"required header param [Authorization] " header:"Authorization" required:"true" validate:"required" json:"Authorization"`
 }
 
-// UpdateUserClientRequest combines all parameters for UpdateUser
 type UpdateUserClientRequest struct {
 
 	// username - Path parameter
-
 	Username string `name:"username" error_message:"required path param [username]" path:"username" required:"true" validate:"required" json:"username"`
 
 	// Authorization - Header parameter
@@ -1244,8 +1196,33 @@ type resourceHandlerImpl[T goservectx.Principal] struct {
 	Service ApiRequestService[T]
 }
 
-// ---
-func apiResourceRegister[T goservectx.Principal](server server.Api[T], handler resourceHandler[T]) {
+// RequestServiceHandler registers all generated API endpoints with their corresponding service implementation.
+// Generated resource:
+//   - ApiRequestService.PostLogin
+//   - ApiRequestService.FindAllPets
+//   - ApiRequestService.AddPet
+//   - ApiRequestService.FindPetsByStatus
+//   - ApiRequestService.FindPetsByTags
+//   - ApiRequestService.DeletePet
+//   - ApiRequestService.GetPetById
+//   - ApiRequestService.UpdatePetWithForm
+//   - ApiRequestService.UpdatePet
+//   - ApiRequestService.UploadFile
+//   - ApiRequestService.GetInventory
+//   - ApiRequestService.PlaceOrder
+//   - ApiRequestService.DeleteOrder
+//   - ApiRequestService.GetOrderById
+//   - ApiRequestService.CreateUser
+//   - ApiRequestService.CreateUsersWithListInput
+//   - ApiRequestService.LogoutUser
+//   - ApiRequestService.DeleteUser
+//   - ApiRequestService.GetUserByName
+//   - ApiRequestService.UpdateUser
+func RequestServiceHandler[T goservectx.Principal](server server.Api[T], service ApiRequestService[T]) {
+	handler := &resourceHandlerImpl[T]{
+		Service: service,
+	}
+
 	server.PublicRouter(handler.PostLogin, "/login", "POST")
 
 	server.Add(handler.FindAllPets, "/pet", "GET", []string{"write:pets", "read:pets"}...)
@@ -1286,33 +1263,4 @@ func apiResourceRegister[T goservectx.Principal](server server.Api[T], handler r
 
 	server.PublicRouter(handler.UpdateUser, "/user/{username}", "PUT")
 
-}
-
-// RequestServiceHandler registers all generated API endpoints with their corresponding service implementation.
-// Generated resource:
-//   - ApiRequestService.PostLogin
-//   - ApiRequestService.FindAllPets
-//   - ApiRequestService.AddPet
-//   - ApiRequestService.FindPetsByStatus
-//   - ApiRequestService.FindPetsByTags
-//   - ApiRequestService.DeletePet
-//   - ApiRequestService.GetPetById
-//   - ApiRequestService.UpdatePetWithForm
-//   - ApiRequestService.UpdatePet
-//   - ApiRequestService.UploadFile
-//   - ApiRequestService.GetInventory
-//   - ApiRequestService.PlaceOrder
-//   - ApiRequestService.DeleteOrder
-//   - ApiRequestService.GetOrderById
-//   - ApiRequestService.CreateUser
-//   - ApiRequestService.CreateUsersWithListInput
-//   - ApiRequestService.LogoutUser
-//   - ApiRequestService.DeleteUser
-//   - ApiRequestService.GetUserByName
-//   - ApiRequestService.UpdateUser
-func RequestServiceHandler[T goservectx.Principal](server server.Api[T], service ApiRequestService[T]) {
-	handler := &resourceHandlerImpl[T]{
-		Service: service,
-	}
-	apiResourceRegister(server, handler)
 }

@@ -1,7 +1,6 @@
 // resourceHandler represents all server handlers.
 type resourceHandler[T goservectx.Principal] interface {
-{{range .}}{{.SummaryAsComment }}
-// ({{.Method}} {{.Path}})
+{{range .}}{{.SummaryAsComment }} ({{.Method}} {{.Path}})
 {{.OperationId}}(ctx *goservectx.Request[T])
 {{end}}
 }
@@ -11,15 +10,12 @@ type resourceHandler[T goservectx.Principal] interface {
 {{$opid := $entry.OperationId}}
 {{/* Generate ClientRequest struct ONCE per operation */}}
 {{if .TypeDefinitions}}
-// {{$opid}}ClientRequest combines all parameters for {{$opid}}
 type {{$opid}}ClientRequest struct {
    {{/* Path Parameters */}}
     {{range .PathParams}}
-    // {{.ParamName}} - Path parameter
-    {{$def := .}}
+    // {{.ParamName}} - Path parameter{{$def := .}}
     {{.GoName}} {{$def.TypeDef}} `name:"{{.ParamName}}" error_message:"required path param [{{.ParamName}}]" path:"{{$def.ParamName}}"{{if $def.Required}} required:"true" validate:"required"{{end}} json:"{{.ParamName}}"`
     {{end}}
-
     {{/* Query Parameters */}}
     {{range .QueryParams}}
     // {{.ParamName}} - Query parameter
