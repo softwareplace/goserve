@@ -78,6 +78,179 @@ paths:
       operationId: findAllPets
       parameters:
         - $ref: "#/components/parameters/authorization"
+        - in: header
+          name: X-Api-Key
+          description: API authentication key
+          required: true
+          schema:
+            type: string
+            example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlLZXkiOiJTL2VTYzVDQ3Jub1laaDAyU2pLdFVsSzFXdmRaaVA1OXpFUU9jNE54K0pjL1c1dkhMa0tndE1ueExHN3dKTUwvIiwiY2xpZW50IjoiU29mdHdhcmUgUGxhY2UiLCJleHAiOjMwMzM5MzczNTcsInNjb3BlIjpbIkhFMSs0cEVwM3YzZFBzWXNLa3FLMGkzdiswSjMvYjFVN01YQkx3ZzhxQ0E9IiwiR2lQWUVNU1IvK1BjNUdaTm9OcUpqZDRkS1FZbjZ6QzBMbmdYTHVxdFc4VzkiLCJjY294TWNaT0tEZ0srTUZuend0YWFEWXgxaEtPSVlKNDl3PT0iLCJxOWRHb3V5bTBxZWxvV1V4bElKZ2Y1U3l6UnIrU3YwWWwvVT0iLCJNOHdrRkN3cmZpeVBKc2hjb3NrQU5GS0RZZ2ZxRnJOWXkwVmljOEdlM3dPSyJdfQ.n5_8kp3nNqXOAZVB73GCIXcv61gNyyihqz6xDIjIA0k"
+
+        - in: header
+          name: X-Request-ID
+          description: Unique request identifier
+          required: true
+          schema:
+            type: string
+            example: "req_1234567890abcdef"
+
+        - in: header
+          name: X-Correlation-ID
+          description: Correlation ID for tracing
+          required: true
+          schema:
+            type: string
+            example: "corr_9876543210fedcba"
+
+        - in: header
+          name: Accept-Language
+          required: true
+          description: Language preference
+          schema:
+            type: string
+            enum: [ "en-US", "es-ES", "fr-FR", "de-DE", "ja-JP" ]
+            default: "en-US"
+
+        - in: header
+          name: User-Agent
+          required: true
+          description: Client application information
+          schema:
+            type: string
+            example: "BenchmarkClient/1.0.0"
+
+        - in: header
+          name: Cache-Control
+          required: true
+          description: Caching directives
+          schema:
+            type: string
+            example: "no-cache"
+
+        - in: header
+          required: true
+          name: X-Forwarded-For
+          description: Client IP address
+          schema:
+            type: string
+            example: "203.0.113.42"
+
+        - in: header
+          required: true
+          name: X-RateLimit-Bypass
+          description: Bypass rate limiting for testing
+          schema:
+            type: boolean
+            example: true
+        - in: query
+          required: true
+          name: page
+          description: Page number for pagination
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+            example: 1
+
+        - in: query
+          required: true
+          name: page_size
+          description: Number of items per page
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+            example: 50
+
+        - in: query
+          required: true
+          name: sort_by
+          description: Field to sort results by
+          schema:
+            type: string
+            enum: [ "id", "created_at", "updated_at", "name" ]
+            default: "id"
+
+        - in: query
+          required: true
+          name: sort_order
+          description: Sort direction
+          schema:
+            type: string
+            enum: [ "asc", "desc" ]
+            default: "asc"
+
+        - in: query
+          name: filter
+          required: true
+          description: Filter criteria (JSON encoded)
+          schema:
+            type: string
+            example: '{"status":["active","pending"],"created_after":"2023-01-01"}'
+
+#        - in: query
+#          name: filter
+#          required: true
+#          description: Filter criteria (JSON encoded)
+#          schema:
+#            type: object
+#            properties:
+#              status:
+#                type: string
+#                enum:
+#                  - active
+#                  - pending
+#              created_after:
+#                type: string
+#                format: date-time
+#                example: 2023-01-01
+        - in: query
+          name: created_at
+          required: false
+          description: The date that was created
+          schema:
+            type: string
+            format: date-time
+            example: 2023-01-01
+
+        - in: query
+          name: include
+          required: true
+          description: Related resources to include
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [ "metadata", "stats", "related" ]
+            collectionFormat: multi
+            example: [ "metadata", "stats" ]
+
+        - in: query
+          required: true
+          name: search
+          description: Full-text search query
+          schema:
+            type: string
+            example: "benchmark test"
+
+        - in: query
+          name: debug
+          required: true
+          description: Enable debug mode
+          schema:
+            type: boolean
+            default: false
+
+        - in: query
+          name: stress_factor
+          required: true
+          description: Multiplier for stress testing
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 1
       responses:
         '200':
           description: successful operation

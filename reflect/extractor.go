@@ -69,13 +69,13 @@ func FindField(t reflect.Type, name string) (reflect.StructField, bool) {
 
 	for i := 0; i < t.NumField(); i++ {
 		field := t.Field(i)
-		if field.Name == name {
+		if strings.EqualFold(field.Name, name) {
 			return field, true
 		}
 		// Check for json tag
 		if jsonTag := field.Tag.Get("json"); jsonTag != "" {
 			jsonName := strings.Split(jsonTag, ",")[0]
-			if jsonName == name {
+			if strings.EqualFold(jsonName, name) {
 				return field, true
 			}
 		}

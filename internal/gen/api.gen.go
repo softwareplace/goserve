@@ -34,6 +34,36 @@ const (
 	PetStatusSold      PetStatus = "sold"
 )
 
+// Defines values for FindAllPetsParamsSortBy.
+const (
+	CreatedAt FindAllPetsParamsSortBy = "created_at"
+	Id        FindAllPetsParamsSortBy = "id"
+	Name      FindAllPetsParamsSortBy = "name"
+	UpdatedAt FindAllPetsParamsSortBy = "updated_at"
+)
+
+// Defines values for FindAllPetsParamsSortOrder.
+const (
+	Asc  FindAllPetsParamsSortOrder = "asc"
+	Desc FindAllPetsParamsSortOrder = "desc"
+)
+
+// Defines values for FindAllPetsParamsInclude.
+const (
+	Metadata FindAllPetsParamsInclude = "metadata"
+	Related  FindAllPetsParamsInclude = "related"
+	Stats    FindAllPetsParamsInclude = "stats"
+)
+
+// Defines values for FindAllPetsParamsAcceptLanguage.
+const (
+	DeDE FindAllPetsParamsAcceptLanguage = "de-DE"
+	EnUS FindAllPetsParamsAcceptLanguage = "en-US"
+	EsES FindAllPetsParamsAcceptLanguage = "es-ES"
+	FrFR FindAllPetsParamsAcceptLanguage = "fr-FR"
+	JaJP FindAllPetsParamsAcceptLanguage = "ja-JP"
+)
+
 // Defines values for FindPetsByStatusParamsStatus.
 const (
 	FindPetsByStatusParamsStatusAvailable FindPetsByStatusParamsStatus = "available"
@@ -134,9 +164,75 @@ type PostLoginParams struct {
 
 // FindAllPetsParams defines parameters for FindAllPets.
 type FindAllPetsParams struct {
+	// Page Page number for pagination
+	Page int `form:"page" json:"page"`
+
+	// PageSize Number of items per page
+	PageSize int `form:"page_size" json:"page_size"`
+
+	// SortBy Field to sort results by
+	SortBy FindAllPetsParamsSortBy `form:"sort_by" json:"sort_by"`
+
+	// SortOrder Sort direction
+	SortOrder FindAllPetsParamsSortOrder `form:"sort_order" json:"sort_order"`
+
+	// Filter Filter criteria (JSON encoded)
+	Filter string `form:"filter" json:"filter"`
+
+	// CreatedAt The date that was created
+	CreatedAt *time.Time `form:"created_at,omitempty" json:"created_at,omitempty"`
+
+	// Include Related resources to include
+	Include []FindAllPetsParamsInclude `form:"include" json:"include"`
+
+	// Search Full-text search query
+	Search string `form:"search" json:"search"`
+
+	// Debug Enable debug mode
+	Debug bool `form:"debug" json:"debug"`
+
+	// StressFactor Multiplier for stress testing
+	StressFactor int `form:"stress_factor" json:"stress_factor"`
+
 	// Authorization jwt
 	Authorization Authorization `json:"Authorization"`
+
+	// XApiKey API authentication key
+	XApiKey string `json:"X-Api-Key"`
+
+	// XRequestID Unique request identifier
+	XRequestID string `json:"X-Request-ID"`
+
+	// XCorrelationID Correlation ID for tracing
+	XCorrelationID string `json:"X-Correlation-ID"`
+
+	// AcceptLanguage Language preference
+	AcceptLanguage FindAllPetsParamsAcceptLanguage `json:"Accept-Language"`
+
+	// UserAgent Client application information
+	UserAgent string `json:"User-Agent"`
+
+	// CacheControl Caching directives
+	CacheControl string `json:"Cache-Control"`
+
+	// XForwardedFor Client IP address
+	XForwardedFor string `json:"X-Forwarded-For"`
+
+	// XRateLimitBypass Bypass rate limiting for testing
+	XRateLimitBypass bool `json:"X-RateLimit-Bypass"`
 }
+
+// FindAllPetsParamsSortBy defines parameters for FindAllPets.
+type FindAllPetsParamsSortBy string
+
+// FindAllPetsParamsSortOrder defines parameters for FindAllPets.
+type FindAllPetsParamsSortOrder string
+
+// FindAllPetsParamsInclude defines parameters for FindAllPets.
+type FindAllPetsParamsInclude string
+
+// FindAllPetsParamsAcceptLanguage defines parameters for FindAllPets.
+type FindAllPetsParamsAcceptLanguage string
 
 // AddPetParams defines parameters for AddPet.
 type AddPetParams struct {
@@ -836,8 +932,62 @@ type PostLoginClientRequest struct {
 // FindAllPetsClientRequest combines all parameters for FindAllPets
 type FindAllPetsClientRequest struct {
 
+	// page - Query parameter
+	Page int `name:"page" error_message:"required query param [page]" query:"page" required:"true" validate:"required" json:"page"`
+
+	// page_size - Query parameter
+	PageSize int `name:"page_size" error_message:"required query param [page_size]" query:"page_size" required:"true" validate:"required" json:"page_size"`
+
+	// sort_by - Query parameter
+	SortBy FindAllPetsParamsSortBy `name:"sort_by" error_message:"required query param [sort_by]" query:"sort_by" required:"true" validate:"required" json:"sort_by"`
+
+	// sort_order - Query parameter
+	SortOrder FindAllPetsParamsSortOrder `name:"sort_order" error_message:"required query param [sort_order]" query:"sort_order" required:"true" validate:"required" json:"sort_order"`
+
+	// filter - Query parameter
+	Filter string `name:"filter" error_message:"required query param [filter]" query:"filter" required:"true" validate:"required" json:"filter"`
+
+	// created_at - Query parameter
+	CreatedAt time.Time `name:"created_at" error_message:"required query param [created_at]" query:"created_at" json:"created_at"`
+
+	// include - Query parameter
+	Include []FindAllPetsParamsInclude `name:"include" error_message:"required query param [include]" query:"include" required:"true" validate:"required" json:"include"`
+
+	// search - Query parameter
+	Search string `name:"search" error_message:"required query param [search]" query:"search" required:"true" validate:"required" json:"search"`
+
+	// debug - Query parameter
+	Debug bool `name:"debug" error_message:"required query param [debug]" query:"debug" required:"true" validate:"required" json:"debug"`
+
+	// stress_factor - Query parameter
+	StressFactor int `name:"stress_factor" error_message:"required query param [stress_factor]" query:"stress_factor" required:"true" validate:"required" json:"stress_factor"`
+
 	// Authorization - Header parameter
 	Authorization Authorization `name:"Authorization"  error_message:"required header param [Authorization] " header:"Authorization" required:"true" validate:"required" json:"Authorization"`
+
+	// X-Api-Key - Header parameter
+	XApiKey string `name:"X-Api-Key"  error_message:"required header param [X-Api-Key] " header:"X-Api-Key" required:"true" validate:"required" json:"X-Api-Key"`
+
+	// X-Request-ID - Header parameter
+	XRequestID string `name:"X-Request-ID"  error_message:"required header param [X-Request-ID] " header:"X-Request-ID" required:"true" validate:"required" json:"X-Request-ID"`
+
+	// X-Correlation-ID - Header parameter
+	XCorrelationID string `name:"X-Correlation-ID"  error_message:"required header param [X-Correlation-ID] " header:"X-Correlation-ID" required:"true" validate:"required" json:"X-Correlation-ID"`
+
+	// Accept-Language - Header parameter
+	AcceptLanguage FindAllPetsParamsAcceptLanguage `name:"Accept-Language"  error_message:"required header param [Accept-Language] " header:"Accept-Language" required:"true" validate:"required" json:"Accept-Language"`
+
+	// User-Agent - Header parameter
+	UserAgent string `name:"User-Agent"  error_message:"required header param [User-Agent] " header:"User-Agent" required:"true" validate:"required" json:"User-Agent"`
+
+	// Cache-Control - Header parameter
+	CacheControl string `name:"Cache-Control"  error_message:"required header param [Cache-Control] " header:"Cache-Control" required:"true" validate:"required" json:"Cache-Control"`
+
+	// X-Forwarded-For - Header parameter
+	XForwardedFor string `name:"X-Forwarded-For"  error_message:"required header param [X-Forwarded-For] " header:"X-Forwarded-For" required:"true" validate:"required" json:"X-Forwarded-For"`
+
+	// X-RateLimit-Bypass - Header parameter
+	XRateLimitBypass bool `name:"X-RateLimit-Bypass"  error_message:"required header param [X-RateLimit-Bypass] " header:"X-RateLimit-Bypass" required:"true" validate:"required" json:"X-RateLimit-Bypass"`
 }
 
 // AddPetClientRequest combines all parameters for AddPet
