@@ -4,7 +4,7 @@ update:
 test:
 	@make update
 	@make codegen
-	@go test ./...
+	@go test -v -bench=. ./...
 
 codegen:
 	 @rm -rf ./internal/gen/api.gen.go
