@@ -18,7 +18,8 @@ func (rh *resourceHandlerImpl[T]){{$opid}}(ctx *goservectx.Request[T]) {
         goserveerror.Handler(func() {
             requestBody := {{.Schema.TypeDecl}}{}
             request.GetRequestBody(ctx, requestBody, func(ctx *goservectx.Request[T], body {{.Schema.TypeDecl}}) {
-            clientRequest := {{$entry.OperationId}}ClientRequest{
+            clientRequest := {{$entry.OperationId}}ClientRequest[T]{
+                                    Ctx: ctx,
                                     Body: body,
                                 }
             {{if or $hasParams }}err := ctx.BindRequestParams(&clientRequest)
@@ -37,7 +38,7 @@ func (rh *resourceHandlerImpl[T]){{$opid}}(ctx *goservectx.Request[T]) {
                     return
                 }
             {{ end }}
-            rh.Service.{{$entry.OperationId}}(clientRequest, ctx)
+            rh.Service.{{$entry.OperationId}}(clientRequest)
             }, func(ctx *goservectx.Request[T], err error) {
             ctx.InternalServerError("Internal server error")
             })
@@ -51,7 +52,8 @@ func (rh *resourceHandlerImpl[T]){{$opid}}(ctx *goservectx.Request[T]) {
         {{if not $processed -}}
         goserveerror.Handler(func() {
             {{if or $hasParams }}
-            clientRequest := {{$entry.OperationId}}ClientRequest{
+            clientRequest := {{$entry.OperationId}}ClientRequest[T]{
+                Ctx: ctx,
             }
             err := ctx.BindRequestParams(&clientRequest)
                 if err != nil {
@@ -59,7 +61,7 @@ func (rh *resourceHandlerImpl[T]){{$opid}}(ctx *goservectx.Request[T]) {
                     ctx.Error(err.Error(), err.Code)
                     return
                 }
-                rh.Service.{{$entry.OperationId}}(clientRequest, ctx)
+                rh.Service.{{$entry.OperationId}}(clientRequest)
                 {{ else }}
                 rh.Service.{{$entry.OperationId}}(ctx)
             {{ end }}

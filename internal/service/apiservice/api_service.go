@@ -41,7 +41,7 @@ type Service struct {
 	orderService
 }
 
-func (s Service) UploadFileRequest(request gen.UploadFileClientRequest, ctx *goservectx.Request[*goservectx.DefaultContext]) {
+func (s Service) UploadFileRequest(request gen.UploadFileClientRequest[*goservectx.DefaultContext]) {
 	//TODO implement me
 	panic("implement me")
 }

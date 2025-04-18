@@ -1,6 +1,4 @@
-func apiResourceRegister[T goservectx.Principal](server server.Api[T], handler resourceHandler[T]) {  {{range .}}
-    {{- $scopes := "" -}}
-    {{- range .SecurityDefinitions -}}
+func apiResourceRegister[T goservectx.Principal](server server.Api[T], handler resourceHandler[T]) {  {{range .}}{{- $scopes := "" -}}{{- range .SecurityDefinitions -}}
         {{- range .Scopes -}}
             {{- if $scopes -}}
                 {{- $scopes = printf "%s,\"%s\"" $scopes . -}}
@@ -8,14 +6,9 @@ func apiResourceRegister[T goservectx.Principal](server server.Api[T], handler r
                 {{- $scopes = printf "\"%s\"" . -}}
             {{- end -}}
         {{- end -}}
-    {{- end -}}
-
-    {{if $scopes}}
-    server.Add(handler.{{.OperationId}}, "{{.Path | swaggerUriToGorillaUri }}", "{{.Method }}", []string{ {{$scopes}} }...)
-    {{else}}
-    server.PublicRouter(handler.{{.OperationId}}, "{{.Path | swaggerUriToGorillaUri }}", "{{.Method }}")
-    {{end}}
-{{end}}
+    {{- end -}}{{if $scopes}}server.Add(handler.{{.OperationId}}, "{{.Path | swaggerUriToGorillaUri }}", "{{.Method }}", []string{ {{$scopes}} }...)
+    {{else}}server.PublicRouter(handler.{{.OperationId}}, "{{.Path | swaggerUriToGorillaUri }}", "{{.Method }}")
+    {{end}}{{end}}
 }
 
 // RequestServiceHandler registers all generated API endpoints with their corresponding service implementation.

@@ -21,6 +21,6 @@ func New() *Service {
 	return serviceInstance
 }
 
-func (s Service) UploadFile(request gen.UploadFileClientRequest, ctx *goservectx.Request[*goservectx.DefaultContext]) {
-	ctx.BadRequest("Failed to upload file")
+func (s Service) UploadFile(request gen.UploadFileClientRequest[*goservectx.DefaultContext]) {
+	request.Ctx.BadRequest("Failed to upload file")
 }

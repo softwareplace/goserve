@@ -205,14 +205,14 @@ paths:
 #                type: string
 #                format: date-time
 #                example: 2023-01-01
-        - in: query
-          name: created_at
-          required: false
-          description: The date that was created
-          schema:
-            type: string
-            format: date-time
-            example: 2023-01-01
+#        - in: query
+#          name: created_at
+#          required: false
+#          description: The date that was created
+#          schema:
+#            type: string
+#            format: date-time
+#            example: 2023-01-01
 
         - in: query
           name: include

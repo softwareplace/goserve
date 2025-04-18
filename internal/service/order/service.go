@@ -21,17 +21,17 @@ func New() *Service {
 	return serviceInstance
 }
 
-func (s Service) PlaceOrder(request gen.PlaceOrderClientRequest, ctx *goservectx.Request[*goservectx.DefaultContext]) {
+func (s Service) PlaceOrder(request gen.PlaceOrderClientRequest[*goservectx.DefaultContext]) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s Service) DeleteOrder(request gen.DeleteOrderClientRequest, ctx *goservectx.Request[*goservectx.DefaultContext]) {
+func (s Service) DeleteOrder(request gen.DeleteOrderClientRequest[*goservectx.DefaultContext]) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (s Service) GetOrderById(request gen.GetOrderByIdClientRequest, ctx *goservectx.Request[*goservectx.DefaultContext]) {
+func (s Service) GetOrderById(request gen.GetOrderByIdClientRequest[*goservectx.DefaultContext]) {
 	//TODO implement me
 	panic("implement me")
 }

@@ -179,9 +179,6 @@ type FindAllPetsParams struct {
 	// Filter Filter criteria (JSON encoded)
 	Filter string `form:"filter" json:"filter"`
 
-	// CreatedAt The date that was created
-	CreatedAt *time.Time `form:"created_at,omitempty" json:"created_at,omitempty"`
-
 	// Include Related resources to include
 	Include []FindAllPetsParamsInclude `form:"include" json:"include"`
 
@@ -357,7 +354,8 @@ func (rh *resourceHandlerImpl[T]) PostLogin(ctx *goservectx.Request[T]) {
 	goserveerror.Handler(func() {
 		requestBody := LoginRequest{}
 		request.GetRequestBody(ctx, requestBody, func(ctx *goservectx.Request[T], body LoginRequest) {
-			clientRequest := PostLoginClientRequest{
+			clientRequest := PostLoginClientRequest[T]{
+				Ctx:  ctx,
 				Body: body,
 			}
 			err := ctx.BindRequestParams(&clientRequest)
@@ -376,7 +374,7 @@ func (rh *resourceHandlerImpl[T]) PostLogin(ctx *goservectx.Request[T]) {
 				return
 			}
 
-			rh.Service.PostLogin(clientRequest, ctx)
+			rh.Service.PostLogin(clientRequest)
 		}, func(ctx *goservectx.Request[T], err error) {
 			ctx.InternalServerError("Internal server error")
 		})
@@ -391,14 +389,16 @@ func (rh *resourceHandlerImpl[T]) FindAllPets(ctx *goservectx.Request[T]) {
 
 	goserveerror.Handler(func() {
 
-		clientRequest := FindAllPetsClientRequest{}
+		clientRequest := FindAllPetsClientRequest[T]{
+			Ctx: ctx,
+		}
 		err := ctx.BindRequestParams(&clientRequest)
 		if err != nil {
 			log.Errorf("Failed to bind FindAllPetsClientRequest request params: %+v", err)
 			ctx.Error(err.Error(), err.Code)
 			return
 		}
-		rh.Service.FindAllPets(clientRequest, ctx)
+		rh.Service.FindAllPets(clientRequest)
 
 	}, func(err error) {
 		log.Errorf("[GET /pet]:: FindAllPets result with error: %+v", err)
@@ -412,7 +412,8 @@ func (rh *resourceHandlerImpl[T]) AddPet(ctx *goservectx.Request[T]) {
 	goserveerror.Handler(func() {
 		requestBody := Pet{}
 		request.GetRequestBody(ctx, requestBody, func(ctx *goservectx.Request[T], body Pet) {
-			clientRequest := AddPetClientRequest{
+			clientRequest := AddPetClientRequest[T]{
+				Ctx:  ctx,
 				Body: body,
 			}
 			err := ctx.BindRequestParams(&clientRequest)
@@ -431,7 +432,7 @@ func (rh *resourceHandlerImpl[T]) AddPet(ctx *goservectx.Request[T]) {
 				return
 			}
 
-			rh.Service.AddPet(clientRequest, ctx)
+			rh.Service.AddPet(clientRequest)
 		}, func(ctx *goservectx.Request[T], err error) {
 			ctx.InternalServerError("Internal server error")
 		})
@@ -446,14 +447,16 @@ func (rh *resourceHandlerImpl[T]) FindPetsByStatus(ctx *goservectx.Request[T]) {
 
 	goserveerror.Handler(func() {
 
-		clientRequest := FindPetsByStatusClientRequest{}
+		clientRequest := FindPetsByStatusClientRequest[T]{
+			Ctx: ctx,
+		}
 		err := ctx.BindRequestParams(&clientRequest)
 		if err != nil {
 			log.Errorf("Failed to bind FindPetsByStatusClientRequest request params: %+v", err)
 			ctx.Error(err.Error(), err.Code)
 			return
 		}
-		rh.Service.FindPetsByStatus(clientRequest, ctx)
+		rh.Service.FindPetsByStatus(clientRequest)
 
 	}, func(err error) {
 		log.Errorf("[GET /pet/findByStatus]:: FindPetsByStatus result with error: %+v", err)
@@ -466,14 +469,16 @@ func (rh *resourceHandlerImpl[T]) FindPetsByTags(ctx *goservectx.Request[T]) {
 
 	goserveerror.Handler(func() {
 
-		clientRequest := FindPetsByTagsClientRequest{}
+		clientRequest := FindPetsByTagsClientRequest[T]{
+			Ctx: ctx,
+		}
 		err := ctx.BindRequestParams(&clientRequest)
 		if err != nil {
 			log.Errorf("Failed to bind FindPetsByTagsClientRequest request params: %+v", err)
 			ctx.Error(err.Error(), err.Code)
 			return
 		}
-		rh.Service.FindPetsByTags(clientRequest, ctx)
+		rh.Service.FindPetsByTags(clientRequest)
 
 	}, func(err error) {
 		log.Errorf("[GET /pet/findByTags]:: FindPetsByTags result with error: %+v", err)
@@ -486,14 +491,16 @@ func (rh *resourceHandlerImpl[T]) DeletePet(ctx *goservectx.Request[T]) {
 
 	goserveerror.Handler(func() {
 
-		clientRequest := DeletePetClientRequest{}
+		clientRequest := DeletePetClientRequest[T]{
+			Ctx: ctx,
+		}
 		err := ctx.BindRequestParams(&clientRequest)
 		if err != nil {
 			log.Errorf("Failed to bind DeletePetClientRequest request params: %+v", err)
 			ctx.Error(err.Error(), err.Code)
 			return
 		}
-		rh.Service.DeletePet(clientRequest, ctx)
+		rh.Service.DeletePet(clientRequest)
 
 	}, func(err error) {
 		log.Errorf("[DELETE /pet/{petId}]:: DeletePet result with error: %+v", err)
@@ -506,14 +513,16 @@ func (rh *resourceHandlerImpl[T]) GetPetById(ctx *goservectx.Request[T]) {
 
 	goserveerror.Handler(func() {
 
-		clientRequest := GetPetByIdClientRequest{}
+		clientRequest := GetPetByIdClientRequest[T]{
+			Ctx: ctx,
+		}
 		err := ctx.BindRequestParams(&clientRequest)
 		if err != nil {
 			log.Errorf("Failed to bind GetPetByIdClientRequest request params: %+v", err)
 			ctx.Error(err.Error(), err.Code)
 			return
 		}
-		rh.Service.GetPetById(clientRequest, ctx)
+		rh.Service.GetPetById(clientRequest)
 
 	}, func(err error) {
 		log.Errorf("[GET /pet/{petId}]:: GetPetById result with error: %+v", err)
@@ -526,14 +535,16 @@ func (rh *resourceHandlerImpl[T]) UpdatePetWithForm(ctx *goservectx.Request[T]) 
 
 	goserveerror.Handler(func() {
 
-		clientRequest := UpdatePetWithFormClientRequest{}
+		clientRequest := UpdatePetWithFormClientRequest[T]{
+			Ctx: ctx,
+		}
 		err := ctx.BindRequestParams(&clientRequest)
 		if err != nil {
 			log.Errorf("Failed to bind UpdatePetWithFormClientRequest request params: %+v", err)
 			ctx.Error(err.Error(), err.Code)
 			return
 		}
-		rh.Service.UpdatePetWithForm(clientRequest, ctx)
+		rh.Service.UpdatePetWithForm(clientRequest)
 
 	}, func(err error) {
 		log.Errorf("[POST /pet/{petId}]:: UpdatePetWithForm result with error: %+v", err)
@@ -547,7 +558,8 @@ func (rh *resourceHandlerImpl[T]) UpdatePet(ctx *goservectx.Request[T]) {
 	goserveerror.Handler(func() {
 		requestBody := Pet{}
 		request.GetRequestBody(ctx, requestBody, func(ctx *goservectx.Request[T], body Pet) {
-			clientRequest := UpdatePetClientRequest{
+			clientRequest := UpdatePetClientRequest[T]{
+				Ctx:  ctx,
 				Body: body,
 			}
 			err := ctx.BindRequestParams(&clientRequest)
@@ -566,7 +578,7 @@ func (rh *resourceHandlerImpl[T]) UpdatePet(ctx *goservectx.Request[T]) {
 				return
 			}
 
-			rh.Service.UpdatePet(clientRequest, ctx)
+			rh.Service.UpdatePet(clientRequest)
 		}, func(ctx *goservectx.Request[T], err error) {
 			ctx.InternalServerError("Internal server error")
 		})
@@ -581,14 +593,16 @@ func (rh *resourceHandlerImpl[T]) UploadFile(ctx *goservectx.Request[T]) {
 
 	goserveerror.Handler(func() {
 
-		clientRequest := UploadFileClientRequest{}
+		clientRequest := UploadFileClientRequest[T]{
+			Ctx: ctx,
+		}
 		err := ctx.BindRequestParams(&clientRequest)
 		if err != nil {
 			log.Errorf("Failed to bind UploadFileClientRequest request params: %+v", err)
 			ctx.Error(err.Error(), err.Code)
 			return
 		}
-		rh.Service.UploadFile(clientRequest, ctx)
+		rh.Service.UploadFile(clientRequest)
 
 	}, func(err error) {
 		log.Errorf("[POST /pet/{petId}/uploadImage]:: UploadFile result with error: %+v", err)
@@ -615,7 +629,8 @@ func (rh *resourceHandlerImpl[T]) PlaceOrder(ctx *goservectx.Request[T]) {
 	goserveerror.Handler(func() {
 		requestBody := Order{}
 		request.GetRequestBody(ctx, requestBody, func(ctx *goservectx.Request[T], body Order) {
-			clientRequest := PlaceOrderClientRequest{
+			clientRequest := PlaceOrderClientRequest[T]{
+				Ctx:  ctx,
 				Body: body,
 			}
 			err := ctx.BindRequestParams(&clientRequest)
@@ -634,7 +649,7 @@ func (rh *resourceHandlerImpl[T]) PlaceOrder(ctx *goservectx.Request[T]) {
 				return
 			}
 
-			rh.Service.PlaceOrder(clientRequest, ctx)
+			rh.Service.PlaceOrder(clientRequest)
 		}, func(ctx *goservectx.Request[T], err error) {
 			ctx.InternalServerError("Internal server error")
 		})
@@ -649,14 +664,16 @@ func (rh *resourceHandlerImpl[T]) DeleteOrder(ctx *goservectx.Request[T]) {
 
 	goserveerror.Handler(func() {
 
-		clientRequest := DeleteOrderClientRequest{}
+		clientRequest := DeleteOrderClientRequest[T]{
+			Ctx: ctx,
+		}
 		err := ctx.BindRequestParams(&clientRequest)
 		if err != nil {
 			log.Errorf("Failed to bind DeleteOrderClientRequest request params: %+v", err)
 			ctx.Error(err.Error(), err.Code)
 			return
 		}
-		rh.Service.DeleteOrder(clientRequest, ctx)
+		rh.Service.DeleteOrder(clientRequest)
 
 	}, func(err error) {
 		log.Errorf("[DELETE /store/order/{orderId}]:: DeleteOrder result with error: %+v", err)
@@ -669,14 +686,16 @@ func (rh *resourceHandlerImpl[T]) GetOrderById(ctx *goservectx.Request[T]) {
 
 	goserveerror.Handler(func() {
 
-		clientRequest := GetOrderByIdClientRequest{}
+		clientRequest := GetOrderByIdClientRequest[T]{
+			Ctx: ctx,
+		}
 		err := ctx.BindRequestParams(&clientRequest)
 		if err != nil {
 			log.Errorf("Failed to bind GetOrderByIdClientRequest request params: %+v", err)
 			ctx.Error(err.Error(), err.Code)
 			return
 		}
-		rh.Service.GetOrderById(clientRequest, ctx)
+		rh.Service.GetOrderById(clientRequest)
 
 	}, func(err error) {
 		log.Errorf("[GET /store/order/{orderId}]:: GetOrderById result with error: %+v", err)
@@ -690,11 +709,12 @@ func (rh *resourceHandlerImpl[T]) CreateUser(ctx *goservectx.Request[T]) {
 	goserveerror.Handler(func() {
 		requestBody := User{}
 		request.GetRequestBody(ctx, requestBody, func(ctx *goservectx.Request[T], body User) {
-			clientRequest := CreateUserClientRequest{
+			clientRequest := CreateUserClientRequest[T]{
+				Ctx:  ctx,
 				Body: body,
 			}
 
-			rh.Service.CreateUser(clientRequest, ctx)
+			rh.Service.CreateUser(clientRequest)
 		}, func(ctx *goservectx.Request[T], err error) {
 			ctx.InternalServerError("Internal server error")
 		})
@@ -710,7 +730,8 @@ func (rh *resourceHandlerImpl[T]) CreateUsersWithListInput(ctx *goservectx.Reque
 	goserveerror.Handler(func() {
 		requestBody := CreateUsersWithListInputJSONBody{}
 		request.GetRequestBody(ctx, requestBody, func(ctx *goservectx.Request[T], body CreateUsersWithListInputJSONBody) {
-			clientRequest := CreateUsersWithListInputClientRequest{
+			clientRequest := CreateUsersWithListInputClientRequest[T]{
+				Ctx:  ctx,
 				Body: body,
 			}
 			err := ctx.BindRequestParams(&clientRequest)
@@ -729,7 +750,7 @@ func (rh *resourceHandlerImpl[T]) CreateUsersWithListInput(ctx *goservectx.Reque
 				return
 			}
 
-			rh.Service.CreateUsersWithListInput(clientRequest, ctx)
+			rh.Service.CreateUsersWithListInput(clientRequest)
 		}, func(ctx *goservectx.Request[T], err error) {
 			ctx.InternalServerError("Internal server error")
 		})
@@ -744,14 +765,16 @@ func (rh *resourceHandlerImpl[T]) LogoutUser(ctx *goservectx.Request[T]) {
 
 	goserveerror.Handler(func() {
 
-		clientRequest := LogoutUserClientRequest{}
+		clientRequest := LogoutUserClientRequest[T]{
+			Ctx: ctx,
+		}
 		err := ctx.BindRequestParams(&clientRequest)
 		if err != nil {
 			log.Errorf("Failed to bind LogoutUserClientRequest request params: %+v", err)
 			ctx.Error(err.Error(), err.Code)
 			return
 		}
-		rh.Service.LogoutUser(clientRequest, ctx)
+		rh.Service.LogoutUser(clientRequest)
 
 	}, func(err error) {
 		log.Errorf("[GET /user/logout]:: LogoutUser result with error: %+v", err)
@@ -764,14 +787,16 @@ func (rh *resourceHandlerImpl[T]) DeleteUser(ctx *goservectx.Request[T]) {
 
 	goserveerror.Handler(func() {
 
-		clientRequest := DeleteUserClientRequest{}
+		clientRequest := DeleteUserClientRequest[T]{
+			Ctx: ctx,
+		}
 		err := ctx.BindRequestParams(&clientRequest)
 		if err != nil {
 			log.Errorf("Failed to bind DeleteUserClientRequest request params: %+v", err)
 			ctx.Error(err.Error(), err.Code)
 			return
 		}
-		rh.Service.DeleteUser(clientRequest, ctx)
+		rh.Service.DeleteUser(clientRequest)
 
 	}, func(err error) {
 		log.Errorf("[DELETE /user/{username}]:: DeleteUser result with error: %+v", err)
@@ -784,14 +809,16 @@ func (rh *resourceHandlerImpl[T]) GetUserByName(ctx *goservectx.Request[T]) {
 
 	goserveerror.Handler(func() {
 
-		clientRequest := GetUserByNameClientRequest{}
+		clientRequest := GetUserByNameClientRequest[T]{
+			Ctx: ctx,
+		}
 		err := ctx.BindRequestParams(&clientRequest)
 		if err != nil {
 			log.Errorf("Failed to bind GetUserByNameClientRequest request params: %+v", err)
 			ctx.Error(err.Error(), err.Code)
 			return
 		}
-		rh.Service.GetUserByName(clientRequest, ctx)
+		rh.Service.GetUserByName(clientRequest)
 
 	}, func(err error) {
 		log.Errorf("[GET /user/{username}]:: GetUserByName result with error: %+v", err)
@@ -805,7 +832,8 @@ func (rh *resourceHandlerImpl[T]) UpdateUser(ctx *goservectx.Request[T]) {
 	goserveerror.Handler(func() {
 		requestBody := User{}
 		request.GetRequestBody(ctx, requestBody, func(ctx *goservectx.Request[T], body User) {
-			clientRequest := UpdateUserClientRequest{
+			clientRequest := UpdateUserClientRequest[T]{
+				Ctx:  ctx,
 				Body: body,
 			}
 			err := ctx.BindRequestParams(&clientRequest)
@@ -824,7 +852,7 @@ func (rh *resourceHandlerImpl[T]) UpdateUser(ctx *goservectx.Request[T]) {
 				return
 			}
 
-			rh.Service.UpdateUser(clientRequest, ctx)
+			rh.Service.UpdateUser(clientRequest)
 		}, func(ctx *goservectx.Request[T], err error) {
 			ctx.InternalServerError("Internal server error")
 		})
@@ -921,7 +949,8 @@ type resourceHandler[T goservectx.Principal] interface {
 }
 
 // PostLoginClientRequest combines all parameters for PostLogin
-type PostLoginClientRequest struct {
+type PostLoginClientRequest[T goservectx.Principal] struct {
+	Ctx *goservectx.Request[T]
 
 	// X-Api-Key - Header parameter
 	XApiKey string `name:"X-Api-Key"  error_message:"required header param [X-Api-Key] " header:"X-Api-Key" json:"X-Api-Key"`
@@ -930,7 +959,8 @@ type PostLoginClientRequest struct {
 }
 
 // FindAllPetsClientRequest combines all parameters for FindAllPets
-type FindAllPetsClientRequest struct {
+type FindAllPetsClientRequest[T goservectx.Principal] struct {
+	Ctx *goservectx.Request[T]
 
 	// page - Query parameter
 	Page int `name:"page" error_message:"required query param [page]" query:"page" required:"true" validate:"required" json:"page"`
@@ -946,9 +976,6 @@ type FindAllPetsClientRequest struct {
 
 	// filter - Query parameter
 	Filter string `name:"filter" error_message:"required query param [filter]" query:"filter" required:"true" validate:"required" json:"filter"`
-
-	// created_at - Query parameter
-	CreatedAt time.Time `name:"created_at" error_message:"required query param [created_at]" query:"created_at" json:"created_at"`
 
 	// include - Query parameter
 	Include []FindAllPetsParamsInclude `name:"include" error_message:"required query param [include]" query:"include" required:"true" validate:"required" json:"include"`
@@ -991,7 +1018,8 @@ type FindAllPetsClientRequest struct {
 }
 
 // AddPetClientRequest combines all parameters for AddPet
-type AddPetClientRequest struct {
+type AddPetClientRequest[T goservectx.Principal] struct {
+	Ctx *goservectx.Request[T]
 
 	// Authorization - Header parameter
 	Authorization Authorization `name:"Authorization"  error_message:"required header param [Authorization] " header:"Authorization" required:"true" validate:"required" json:"Authorization"`
@@ -1000,7 +1028,8 @@ type AddPetClientRequest struct {
 }
 
 // FindPetsByStatusClientRequest combines all parameters for FindPetsByStatus
-type FindPetsByStatusClientRequest struct {
+type FindPetsByStatusClientRequest[T goservectx.Principal] struct {
+	Ctx *goservectx.Request[T]
 
 	// status - Query parameter
 	Status []FindPetsByStatusParamsStatus `name:"status" error_message:"required query param [status]" query:"status" required:"true" validate:"required" json:"status"`
@@ -1010,7 +1039,8 @@ type FindPetsByStatusClientRequest struct {
 }
 
 // FindPetsByTagsClientRequest combines all parameters for FindPetsByTags
-type FindPetsByTagsClientRequest struct {
+type FindPetsByTagsClientRequest[T goservectx.Principal] struct {
+	Ctx *goservectx.Request[T]
 
 	// tags - Query parameter
 	Tags []string `name:"tags" error_message:"required query param [tags]" query:"tags" json:"tags"`
@@ -1020,7 +1050,8 @@ type FindPetsByTagsClientRequest struct {
 }
 
 // DeletePetClientRequest combines all parameters for DeletePet
-type DeletePetClientRequest struct {
+type DeletePetClientRequest[T goservectx.Principal] struct {
+	Ctx *goservectx.Request[T]
 
 	// petId - Path parameter
 
@@ -1034,7 +1065,8 @@ type DeletePetClientRequest struct {
 }
 
 // GetPetByIdClientRequest combines all parameters for GetPetById
-type GetPetByIdClientRequest struct {
+type GetPetByIdClientRequest[T goservectx.Principal] struct {
+	Ctx *goservectx.Request[T]
 
 	// petId - Path parameter
 
@@ -1045,7 +1077,8 @@ type GetPetByIdClientRequest struct {
 }
 
 // UpdatePetWithFormClientRequest combines all parameters for UpdatePetWithForm
-type UpdatePetWithFormClientRequest struct {
+type UpdatePetWithFormClientRequest[T goservectx.Principal] struct {
+	Ctx *goservectx.Request[T]
 
 	// petId - Path parameter
 
@@ -1062,7 +1095,8 @@ type UpdatePetWithFormClientRequest struct {
 }
 
 // UpdatePetClientRequest combines all parameters for UpdatePet
-type UpdatePetClientRequest struct {
+type UpdatePetClientRequest[T goservectx.Principal] struct {
+	Ctx *goservectx.Request[T]
 
 	// petId - Path parameter
 
@@ -1075,7 +1109,8 @@ type UpdatePetClientRequest struct {
 }
 
 // UploadFileClientRequest combines all parameters for UploadFile
-type UploadFileClientRequest struct {
+type UploadFileClientRequest[T goservectx.Principal] struct {
+	Ctx *goservectx.Request[T]
 
 	// petId - Path parameter
 
@@ -1088,11 +1123,13 @@ type UploadFileClientRequest struct {
 	Authorization Authorization `name:"Authorization"  error_message:"required header param [Authorization] " header:"Authorization" required:"true" validate:"required" json:"Authorization"`
 }
 
-type GetInventoryClientRequest struct {
+type GetInventoryClientRequest[T goservectx.Principal] struct {
+	Ctx *goservectx.Request[T]
 }
 
 // PlaceOrderClientRequest combines all parameters for PlaceOrder
-type PlaceOrderClientRequest struct {
+type PlaceOrderClientRequest[T goservectx.Principal] struct {
+	Ctx *goservectx.Request[T]
 
 	// Authorization - Header parameter
 	Authorization Authorization `name:"Authorization"  error_message:"required header param [Authorization] " header:"Authorization" required:"true" validate:"required" json:"Authorization"`
@@ -1101,7 +1138,8 @@ type PlaceOrderClientRequest struct {
 }
 
 // DeleteOrderClientRequest combines all parameters for DeleteOrder
-type DeleteOrderClientRequest struct {
+type DeleteOrderClientRequest[T goservectx.Principal] struct {
+	Ctx *goservectx.Request[T]
 
 	// orderId - Path parameter
 
@@ -1112,7 +1150,8 @@ type DeleteOrderClientRequest struct {
 }
 
 // GetOrderByIdClientRequest combines all parameters for GetOrderById
-type GetOrderByIdClientRequest struct {
+type GetOrderByIdClientRequest[T goservectx.Principal] struct {
+	Ctx *goservectx.Request[T]
 
 	// orderId - Path parameter
 
@@ -1122,12 +1161,15 @@ type GetOrderByIdClientRequest struct {
 	Authorization Authorization `name:"Authorization"  error_message:"required header param [Authorization] " header:"Authorization" required:"true" validate:"required" json:"Authorization"`
 }
 
-type CreateUserClientRequest struct {
+type CreateUserClientRequest[T goservectx.Principal] struct {
+	Ctx *goservectx.Request[T]
+
 	Body User `name:"body" json:"body"`
 }
 
 // CreateUsersWithListInputClientRequest combines all parameters for CreateUsersWithListInput
-type CreateUsersWithListInputClientRequest struct {
+type CreateUsersWithListInputClientRequest[T goservectx.Principal] struct {
+	Ctx *goservectx.Request[T]
 
 	// Authorization - Header parameter
 	Authorization Authorization `name:"Authorization"  error_message:"required header param [Authorization] " header:"Authorization" required:"true" validate:"required" json:"Authorization"`
@@ -1136,14 +1178,16 @@ type CreateUsersWithListInputClientRequest struct {
 }
 
 // LogoutUserClientRequest combines all parameters for LogoutUser
-type LogoutUserClientRequest struct {
+type LogoutUserClientRequest[T goservectx.Principal] struct {
+	Ctx *goservectx.Request[T]
 
 	// Authorization - Header parameter
 	Authorization Authorization `name:"Authorization"  error_message:"required header param [Authorization] " header:"Authorization" required:"true" validate:"required" json:"Authorization"`
 }
 
 // DeleteUserClientRequest combines all parameters for DeleteUser
-type DeleteUserClientRequest struct {
+type DeleteUserClientRequest[T goservectx.Principal] struct {
+	Ctx *goservectx.Request[T]
 
 	// username - Path parameter
 
@@ -1154,7 +1198,8 @@ type DeleteUserClientRequest struct {
 }
 
 // GetUserByNameClientRequest combines all parameters for GetUserByName
-type GetUserByNameClientRequest struct {
+type GetUserByNameClientRequest[T goservectx.Principal] struct {
+	Ctx *goservectx.Request[T]
 
 	// username - Path parameter
 
@@ -1165,7 +1210,8 @@ type GetUserByNameClientRequest struct {
 }
 
 // UpdateUserClientRequest combines all parameters for UpdateUser
-type UpdateUserClientRequest struct {
+type UpdateUserClientRequest[T goservectx.Principal] struct {
+	Ctx *goservectx.Request[T]
 
 	// username - Path parameter
 
@@ -1177,67 +1223,559 @@ type UpdateUserClientRequest struct {
 	Body User `name:"body" json:"body"`
 }
 
+// PostLoginClientRequest[T goservectx.Principal] combines all parameters for PostLogin
+
+// X-Api-Key - Header parameter
+
+func (r *PostLoginClientRequest[T]) GetXApiKeyHeaderValues() []string {
+	return r.Ctx.HeadersOf("X-Api-Key")
+}
+
+func (r *PostLoginClientRequest[T]) GetXApiKeyHeaderValue() string {
+	return r.Ctx.HeaderOf("X-Api-Key")
+}
+
+// GetBody()
+
+// FindAllPetsClientRequest[T goservectx.Principal] combines all parameters for FindAllPets
+
+func (r *FindAllPetsClientRequest[T]) GetPageQueryValues() []string {
+	return r.Ctx.QueriesOf("page")
+}
+
+func (r *FindAllPetsClientRequest[T]) GetPageQueryValue() string {
+	return r.Ctx.QueryOf("page")
+}
+
+func (r *FindAllPetsClientRequest[T]) GetPageSizeQueryValues() []string {
+	return r.Ctx.QueriesOf("page_size")
+}
+
+func (r *FindAllPetsClientRequest[T]) GetPageSizeQueryValue() string {
+	return r.Ctx.QueryOf("page_size")
+}
+
+func (r *FindAllPetsClientRequest[T]) GetSortByQueryValues() []string {
+	return r.Ctx.QueriesOf("sort_by")
+}
+
+func (r *FindAllPetsClientRequest[T]) GetSortByQueryValue() string {
+	return r.Ctx.QueryOf("sort_by")
+}
+
+func (r *FindAllPetsClientRequest[T]) GetSortOrderQueryValues() []string {
+	return r.Ctx.QueriesOf("sort_order")
+}
+
+func (r *FindAllPetsClientRequest[T]) GetSortOrderQueryValue() string {
+	return r.Ctx.QueryOf("sort_order")
+}
+
+func (r *FindAllPetsClientRequest[T]) GetFilterQueryValues() []string {
+	return r.Ctx.QueriesOf("filter")
+}
+
+func (r *FindAllPetsClientRequest[T]) GetFilterQueryValue() string {
+	return r.Ctx.QueryOf("filter")
+}
+
+func (r *FindAllPetsClientRequest[T]) GetIncludeQueryValues() []string {
+	return r.Ctx.QueriesOf("include")
+}
+
+func (r *FindAllPetsClientRequest[T]) GetIncludeQueryValue() string {
+	return r.Ctx.QueryOf("include")
+}
+
+func (r *FindAllPetsClientRequest[T]) GetSearchQueryValues() []string {
+	return r.Ctx.QueriesOf("search")
+}
+
+func (r *FindAllPetsClientRequest[T]) GetSearchQueryValue() string {
+	return r.Ctx.QueryOf("search")
+}
+
+func (r *FindAllPetsClientRequest[T]) GetDebugQueryValues() []string {
+	return r.Ctx.QueriesOf("debug")
+}
+
+func (r *FindAllPetsClientRequest[T]) GetDebugQueryValue() string {
+	return r.Ctx.QueryOf("debug")
+}
+
+func (r *FindAllPetsClientRequest[T]) GetStressFactorQueryValues() []string {
+	return r.Ctx.QueriesOf("stress_factor")
+}
+
+func (r *FindAllPetsClientRequest[T]) GetStressFactorQueryValue() string {
+	return r.Ctx.QueryOf("stress_factor")
+}
+
+// Authorization - Header parameter
+
+func (r *FindAllPetsClientRequest[T]) GetAuthorizationHeaderValues() []string {
+	return r.Ctx.HeadersOf("Authorization")
+}
+
+func (r *FindAllPetsClientRequest[T]) GetAuthorizationHeaderValue() string {
+	return r.Ctx.HeaderOf("Authorization")
+}
+
+// X-Api-Key - Header parameter
+
+func (r *FindAllPetsClientRequest[T]) GetXApiKeyHeaderValues() []string {
+	return r.Ctx.HeadersOf("X-Api-Key")
+}
+
+func (r *FindAllPetsClientRequest[T]) GetXApiKeyHeaderValue() string {
+	return r.Ctx.HeaderOf("X-Api-Key")
+}
+
+// X-Request-ID - Header parameter
+
+func (r *FindAllPetsClientRequest[T]) GetXRequestIDHeaderValues() []string {
+	return r.Ctx.HeadersOf("X-Request-ID")
+}
+
+func (r *FindAllPetsClientRequest[T]) GetXRequestIDHeaderValue() string {
+	return r.Ctx.HeaderOf("X-Request-ID")
+}
+
+// X-Correlation-ID - Header parameter
+
+func (r *FindAllPetsClientRequest[T]) GetXCorrelationIDHeaderValues() []string {
+	return r.Ctx.HeadersOf("X-Correlation-ID")
+}
+
+func (r *FindAllPetsClientRequest[T]) GetXCorrelationIDHeaderValue() string {
+	return r.Ctx.HeaderOf("X-Correlation-ID")
+}
+
+// Accept-Language - Header parameter
+
+func (r *FindAllPetsClientRequest[T]) GetAcceptLanguageHeaderValues() []string {
+	return r.Ctx.HeadersOf("Accept-Language")
+}
+
+func (r *FindAllPetsClientRequest[T]) GetAcceptLanguageHeaderValue() string {
+	return r.Ctx.HeaderOf("Accept-Language")
+}
+
+// User-Agent - Header parameter
+
+func (r *FindAllPetsClientRequest[T]) GetUserAgentHeaderValues() []string {
+	return r.Ctx.HeadersOf("User-Agent")
+}
+
+func (r *FindAllPetsClientRequest[T]) GetUserAgentHeaderValue() string {
+	return r.Ctx.HeaderOf("User-Agent")
+}
+
+// Cache-Control - Header parameter
+
+func (r *FindAllPetsClientRequest[T]) GetCacheControlHeaderValues() []string {
+	return r.Ctx.HeadersOf("Cache-Control")
+}
+
+func (r *FindAllPetsClientRequest[T]) GetCacheControlHeaderValue() string {
+	return r.Ctx.HeaderOf("Cache-Control")
+}
+
+// X-Forwarded-For - Header parameter
+
+func (r *FindAllPetsClientRequest[T]) GetXForwardedForHeaderValues() []string {
+	return r.Ctx.HeadersOf("X-Forwarded-For")
+}
+
+func (r *FindAllPetsClientRequest[T]) GetXForwardedForHeaderValue() string {
+	return r.Ctx.HeaderOf("X-Forwarded-For")
+}
+
+// X-RateLimit-Bypass - Header parameter
+
+func (r *FindAllPetsClientRequest[T]) GetXRateLimitBypassHeaderValues() []string {
+	return r.Ctx.HeadersOf("X-RateLimit-Bypass")
+}
+
+func (r *FindAllPetsClientRequest[T]) GetXRateLimitBypassHeaderValue() string {
+	return r.Ctx.HeaderOf("X-RateLimit-Bypass")
+}
+
+// AddPetClientRequest[T goservectx.Principal] combines all parameters for AddPet
+
+// Authorization - Header parameter
+
+func (r *AddPetClientRequest[T]) GetAuthorizationHeaderValues() []string {
+	return r.Ctx.HeadersOf("Authorization")
+}
+
+func (r *AddPetClientRequest[T]) GetAuthorizationHeaderValue() string {
+	return r.Ctx.HeaderOf("Authorization")
+}
+
+// GetBody()
+
+// FindPetsByStatusClientRequest[T goservectx.Principal] combines all parameters for FindPetsByStatus
+
+func (r *FindPetsByStatusClientRequest[T]) GetStatusQueryValues() []string {
+	return r.Ctx.QueriesOf("status")
+}
+
+func (r *FindPetsByStatusClientRequest[T]) GetStatusQueryValue() string {
+	return r.Ctx.QueryOf("status")
+}
+
+// Authorization - Header parameter
+
+func (r *FindPetsByStatusClientRequest[T]) GetAuthorizationHeaderValues() []string {
+	return r.Ctx.HeadersOf("Authorization")
+}
+
+func (r *FindPetsByStatusClientRequest[T]) GetAuthorizationHeaderValue() string {
+	return r.Ctx.HeaderOf("Authorization")
+}
+
+// FindPetsByTagsClientRequest[T goservectx.Principal] combines all parameters for FindPetsByTags
+
+func (r *FindPetsByTagsClientRequest[T]) GetTagsQueryValues() []string {
+	return r.Ctx.QueriesOf("tags")
+}
+
+func (r *FindPetsByTagsClientRequest[T]) GetTagsQueryValue() string {
+	return r.Ctx.QueryOf("tags")
+}
+
+// Authorization - Header parameter
+
+func (r *FindPetsByTagsClientRequest[T]) GetAuthorizationHeaderValues() []string {
+	return r.Ctx.HeadersOf("Authorization")
+}
+
+func (r *FindPetsByTagsClientRequest[T]) GetAuthorizationHeaderValue() string {
+	return r.Ctx.HeaderOf("Authorization")
+}
+
+// DeletePetClientRequest[T goservectx.Principal] combines all parameters for DeletePet
+
+// petId - Path parameter
+
+func (r *DeletePetClientRequest[T]) GetPetIdPathValue() string {
+	return r.Ctx.PathValueOf("petId")
+}
+
+// Authorization - Header parameter
+
+func (r *DeletePetClientRequest[T]) GetAuthorizationHeaderValues() []string {
+	return r.Ctx.HeadersOf("Authorization")
+}
+
+func (r *DeletePetClientRequest[T]) GetAuthorizationHeaderValue() string {
+	return r.Ctx.HeaderOf("Authorization")
+}
+
+// api_key - Header parameter
+
+func (r *DeletePetClientRequest[T]) GetApiKeyHeaderValues() []string {
+	return r.Ctx.HeadersOf("api_key")
+}
+
+func (r *DeletePetClientRequest[T]) GetApiKeyHeaderValue() string {
+	return r.Ctx.HeaderOf("api_key")
+}
+
+// GetPetByIdClientRequest[T goservectx.Principal] combines all parameters for GetPetById
+
+// petId - Path parameter
+
+func (r *GetPetByIdClientRequest[T]) GetPetIdPathValue() string {
+	return r.Ctx.PathValueOf("petId")
+}
+
+// Authorization - Header parameter
+
+func (r *GetPetByIdClientRequest[T]) GetAuthorizationHeaderValues() []string {
+	return r.Ctx.HeadersOf("Authorization")
+}
+
+func (r *GetPetByIdClientRequest[T]) GetAuthorizationHeaderValue() string {
+	return r.Ctx.HeaderOf("Authorization")
+}
+
+// UpdatePetWithFormClientRequest[T goservectx.Principal] combines all parameters for UpdatePetWithForm
+
+// petId - Path parameter
+
+func (r *UpdatePetWithFormClientRequest[T]) GetPetIdPathValue() string {
+	return r.Ctx.PathValueOf("petId")
+}
+
+func (r *UpdatePetWithFormClientRequest[T]) GetNameQueryValues() []string {
+	return r.Ctx.QueriesOf("name")
+}
+
+func (r *UpdatePetWithFormClientRequest[T]) GetNameQueryValue() string {
+	return r.Ctx.QueryOf("name")
+}
+
+func (r *UpdatePetWithFormClientRequest[T]) GetStatusQueryValues() []string {
+	return r.Ctx.QueriesOf("status")
+}
+
+func (r *UpdatePetWithFormClientRequest[T]) GetStatusQueryValue() string {
+	return r.Ctx.QueryOf("status")
+}
+
+// Authorization - Header parameter
+
+func (r *UpdatePetWithFormClientRequest[T]) GetAuthorizationHeaderValues() []string {
+	return r.Ctx.HeadersOf("Authorization")
+}
+
+func (r *UpdatePetWithFormClientRequest[T]) GetAuthorizationHeaderValue() string {
+	return r.Ctx.HeaderOf("Authorization")
+}
+
+// UpdatePetClientRequest[T goservectx.Principal] combines all parameters for UpdatePet
+
+// petId - Path parameter
+
+func (r *UpdatePetClientRequest[T]) GetPetIdPathValue() string {
+	return r.Ctx.PathValueOf("petId")
+}
+
+// Authorization - Header parameter
+
+func (r *UpdatePetClientRequest[T]) GetAuthorizationHeaderValues() []string {
+	return r.Ctx.HeadersOf("Authorization")
+}
+
+func (r *UpdatePetClientRequest[T]) GetAuthorizationHeaderValue() string {
+	return r.Ctx.HeaderOf("Authorization")
+}
+
+// GetBody()
+
+// UploadFileClientRequest[T goservectx.Principal] combines all parameters for UploadFile
+
+// petId - Path parameter
+
+func (r *UploadFileClientRequest[T]) GetPetIdPathValue() string {
+	return r.Ctx.PathValueOf("petId")
+}
+
+func (r *UploadFileClientRequest[T]) GetAdditionalMetadataQueryValues() []string {
+	return r.Ctx.QueriesOf("additionalMetadata")
+}
+
+func (r *UploadFileClientRequest[T]) GetAdditionalMetadataQueryValue() string {
+	return r.Ctx.QueryOf("additionalMetadata")
+}
+
+// Authorization - Header parameter
+
+func (r *UploadFileClientRequest[T]) GetAuthorizationHeaderValues() []string {
+	return r.Ctx.HeadersOf("Authorization")
+}
+
+func (r *UploadFileClientRequest[T]) GetAuthorizationHeaderValue() string {
+	return r.Ctx.HeaderOf("Authorization")
+}
+
+// PlaceOrderClientRequest[T goservectx.Principal] combines all parameters for PlaceOrder
+
+// Authorization - Header parameter
+
+func (r *PlaceOrderClientRequest[T]) GetAuthorizationHeaderValues() []string {
+	return r.Ctx.HeadersOf("Authorization")
+}
+
+func (r *PlaceOrderClientRequest[T]) GetAuthorizationHeaderValue() string {
+	return r.Ctx.HeaderOf("Authorization")
+}
+
+// GetBody()
+
+// DeleteOrderClientRequest[T goservectx.Principal] combines all parameters for DeleteOrder
+
+// orderId - Path parameter
+
+func (r *DeleteOrderClientRequest[T]) GetOrderIdPathValue() string {
+	return r.Ctx.PathValueOf("orderId")
+}
+
+// Authorization - Header parameter
+
+func (r *DeleteOrderClientRequest[T]) GetAuthorizationHeaderValues() []string {
+	return r.Ctx.HeadersOf("Authorization")
+}
+
+func (r *DeleteOrderClientRequest[T]) GetAuthorizationHeaderValue() string {
+	return r.Ctx.HeaderOf("Authorization")
+}
+
+// GetOrderByIdClientRequest[T goservectx.Principal] combines all parameters for GetOrderById
+
+// orderId - Path parameter
+
+func (r *GetOrderByIdClientRequest[T]) GetOrderIdPathValue() string {
+	return r.Ctx.PathValueOf("orderId")
+}
+
+// Authorization - Header parameter
+
+func (r *GetOrderByIdClientRequest[T]) GetAuthorizationHeaderValues() []string {
+	return r.Ctx.HeadersOf("Authorization")
+}
+
+func (r *GetOrderByIdClientRequest[T]) GetAuthorizationHeaderValue() string {
+	return r.Ctx.HeaderOf("Authorization")
+}
+
+// func () GetBody()
+
+// CreateUsersWithListInputClientRequest[T goservectx.Principal] combines all parameters for CreateUsersWithListInput
+
+// Authorization - Header parameter
+
+func (r *CreateUsersWithListInputClientRequest[T]) GetAuthorizationHeaderValues() []string {
+	return r.Ctx.HeadersOf("Authorization")
+}
+
+func (r *CreateUsersWithListInputClientRequest[T]) GetAuthorizationHeaderValue() string {
+	return r.Ctx.HeaderOf("Authorization")
+}
+
+// GetBody()
+
+// LogoutUserClientRequest[T goservectx.Principal] combines all parameters for LogoutUser
+
+// Authorization - Header parameter
+
+func (r *LogoutUserClientRequest[T]) GetAuthorizationHeaderValues() []string {
+	return r.Ctx.HeadersOf("Authorization")
+}
+
+func (r *LogoutUserClientRequest[T]) GetAuthorizationHeaderValue() string {
+	return r.Ctx.HeaderOf("Authorization")
+}
+
+// DeleteUserClientRequest[T goservectx.Principal] combines all parameters for DeleteUser
+
+// username - Path parameter
+
+func (r *DeleteUserClientRequest[T]) GetUsernamePathValue() string {
+	return r.Ctx.PathValueOf("username")
+}
+
+// Authorization - Header parameter
+
+func (r *DeleteUserClientRequest[T]) GetAuthorizationHeaderValues() []string {
+	return r.Ctx.HeadersOf("Authorization")
+}
+
+func (r *DeleteUserClientRequest[T]) GetAuthorizationHeaderValue() string {
+	return r.Ctx.HeaderOf("Authorization")
+}
+
+// GetUserByNameClientRequest[T goservectx.Principal] combines all parameters for GetUserByName
+
+// username - Path parameter
+
+func (r *GetUserByNameClientRequest[T]) GetUsernamePathValue() string {
+	return r.Ctx.PathValueOf("username")
+}
+
+// Authorization - Header parameter
+
+func (r *GetUserByNameClientRequest[T]) GetAuthorizationHeaderValues() []string {
+	return r.Ctx.HeadersOf("Authorization")
+}
+
+func (r *GetUserByNameClientRequest[T]) GetAuthorizationHeaderValue() string {
+	return r.Ctx.HeaderOf("Authorization")
+}
+
+// UpdateUserClientRequest[T goservectx.Principal] combines all parameters for UpdateUser
+
+// username - Path parameter
+
+func (r *UpdateUserClientRequest[T]) GetUsernamePathValue() string {
+	return r.Ctx.PathValueOf("username")
+}
+
+// Authorization - Header parameter
+
+func (r *UpdateUserClientRequest[T]) GetAuthorizationHeaderValues() []string {
+	return r.Ctx.HeadersOf("Authorization")
+}
+
+func (r *UpdateUserClientRequest[T]) GetAuthorizationHeaderValue() string {
+	return r.Ctx.HeaderOf("Authorization")
+}
+
+// GetBody()
+
 type ApiRequestService[T goservectx.Principal] interface {
 
 	// PostLogin -> POST: /login
-	PostLogin(request PostLoginClientRequest, ctx *goservectx.Request[T])
+	PostLogin(request PostLoginClientRequest[T])
 
 	// FindAllPets -> GET: /pet  required scopes ["write:pets","read:pets"]
-	FindAllPets(request FindAllPetsClientRequest, ctx *goservectx.Request[T])
+	FindAllPets(request FindAllPetsClientRequest[T])
 
 	// AddPet -> POST: /pet  required scopes ["write:pets","read:pets"]
-	AddPet(request AddPetClientRequest, ctx *goservectx.Request[T])
+	AddPet(request AddPetClientRequest[T])
 
 	// FindPetsByStatus -> GET: /pet/findByStatus  required scopes ["write:pets","read:pets"]
-	FindPetsByStatus(request FindPetsByStatusClientRequest, ctx *goservectx.Request[T])
+	FindPetsByStatus(request FindPetsByStatusClientRequest[T])
 
 	// FindPetsByTags -> GET: /pet/findByTags  required scopes ["write:pets","read:pets"]
-	FindPetsByTags(request FindPetsByTagsClientRequest, ctx *goservectx.Request[T])
+	FindPetsByTags(request FindPetsByTagsClientRequest[T])
 
 	// DeletePet -> DELETE: /pet/{petId}  required scopes ["write:pets","read:pets"]
-	DeletePet(request DeletePetClientRequest, ctx *goservectx.Request[T])
+	DeletePet(request DeletePetClientRequest[T])
 
 	// GetPetById -> GET: /pet/{petId}  required scopes ["api_key","write:pets","read:pets"]
-	GetPetById(request GetPetByIdClientRequest, ctx *goservectx.Request[T])
+	GetPetById(request GetPetByIdClientRequest[T])
 
 	// UpdatePetWithForm -> POST: /pet/{petId}  required scopes ["write:pets","read:pets"]
-	UpdatePetWithForm(request UpdatePetWithFormClientRequest, ctx *goservectx.Request[T])
+	UpdatePetWithForm(request UpdatePetWithFormClientRequest[T])
 
 	// UpdatePet -> PUT: /pet/{petId}  required scopes ["write:pets","read:pets"]
-	UpdatePet(request UpdatePetClientRequest, ctx *goservectx.Request[T])
+	UpdatePet(request UpdatePetClientRequest[T])
 
 	// UploadFile -> POST: /pet/{petId}/uploadImage  required scopes ["write:pets","read:pets"]
-	UploadFile(request UploadFileClientRequest, ctx *goservectx.Request[T])
+	UploadFile(request UploadFileClientRequest[T])
 
 	// GetInventory -> GET: /store/inventory
 	GetInventory(ctx *goservectx.Request[T])
 
 	// PlaceOrder -> POST: /store/order
-	PlaceOrder(request PlaceOrderClientRequest, ctx *goservectx.Request[T])
+	PlaceOrder(request PlaceOrderClientRequest[T])
 
 	// DeleteOrder -> DELETE: /store/order/{orderId}
-	DeleteOrder(request DeleteOrderClientRequest, ctx *goservectx.Request[T])
+	DeleteOrder(request DeleteOrderClientRequest[T])
 
 	// GetOrderById -> GET: /store/order/{orderId}
-	GetOrderById(request GetOrderByIdClientRequest, ctx *goservectx.Request[T])
+	GetOrderById(request GetOrderByIdClientRequest[T])
 
 	// CreateUser -> POST: /user
-	CreateUser(request CreateUserClientRequest, ctx *goservectx.Request[T])
+	CreateUser(request CreateUserClientRequest[T])
 
 	// CreateUsersWithListInput -> POST: /user/createWithList
-	CreateUsersWithListInput(request CreateUsersWithListInputClientRequest, ctx *goservectx.Request[T])
+	CreateUsersWithListInput(request CreateUsersWithListInputClientRequest[T])
 
 	// LogoutUser -> GET: /user/logout
-	LogoutUser(request LogoutUserClientRequest, ctx *goservectx.Request[T])
+	LogoutUser(request LogoutUserClientRequest[T])
 
 	// DeleteUser -> DELETE: /user/{username}
-	DeleteUser(request DeleteUserClientRequest, ctx *goservectx.Request[T])
+	DeleteUser(request DeleteUserClientRequest[T])
 
 	// GetUserByName -> GET: /user/{username}
-	GetUserByName(request GetUserByNameClientRequest, ctx *goservectx.Request[T])
+	GetUserByName(request GetUserByNameClientRequest[T])
 
 	// UpdateUser -> PUT: /user/{username}
-	UpdateUser(request UpdateUserClientRequest, ctx *goservectx.Request[T])
+	UpdateUser(request UpdateUserClientRequest[T])
 }
 
 type resourceHandlerImpl[T goservectx.Principal] struct {
@@ -1247,43 +1785,24 @@ type resourceHandlerImpl[T goservectx.Principal] struct {
 // ---
 func apiResourceRegister[T goservectx.Principal](server server.Api[T], handler resourceHandler[T]) {
 	server.PublicRouter(handler.PostLogin, "/login", "POST")
-
 	server.Add(handler.FindAllPets, "/pet", "GET", []string{"write:pets", "read:pets"}...)
-
 	server.Add(handler.AddPet, "/pet", "POST", []string{"write:pets", "read:pets"}...)
-
 	server.Add(handler.FindPetsByStatus, "/pet/findByStatus", "GET", []string{"write:pets", "read:pets"}...)
-
 	server.Add(handler.FindPetsByTags, "/pet/findByTags", "GET", []string{"write:pets", "read:pets"}...)
-
 	server.Add(handler.DeletePet, "/pet/{petId}", "DELETE", []string{"write:pets", "read:pets"}...)
-
 	server.Add(handler.GetPetById, "/pet/{petId}", "GET", []string{"api_key", "write:pets", "read:pets"}...)
-
 	server.Add(handler.UpdatePetWithForm, "/pet/{petId}", "POST", []string{"write:pets", "read:pets"}...)
-
 	server.Add(handler.UpdatePet, "/pet/{petId}", "PUT", []string{"write:pets", "read:pets"}...)
-
 	server.Add(handler.UploadFile, "/pet/{petId}/uploadImage", "POST", []string{"write:pets", "read:pets"}...)
-
 	server.PublicRouter(handler.GetInventory, "/store/inventory", "GET")
-
 	server.PublicRouter(handler.PlaceOrder, "/store/order", "POST")
-
 	server.PublicRouter(handler.DeleteOrder, "/store/order/{orderId}", "DELETE")
-
 	server.PublicRouter(handler.GetOrderById, "/store/order/{orderId}", "GET")
-
 	server.PublicRouter(handler.CreateUser, "/user", "POST")
-
 	server.PublicRouter(handler.CreateUsersWithListInput, "/user/createWithList", "POST")
-
 	server.PublicRouter(handler.LogoutUser, "/user/logout", "GET")
-
 	server.PublicRouter(handler.DeleteUser, "/user/{username}", "DELETE")
-
 	server.PublicRouter(handler.GetUserByName, "/user/{username}", "GET")
-
 	server.PublicRouter(handler.UpdateUser, "/user/{username}", "PUT")
 
 }
