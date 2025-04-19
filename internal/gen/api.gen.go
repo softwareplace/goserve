@@ -48,6 +48,18 @@ const (
 	Desc FindAllPetsParamsSortOrder = "desc"
 )
 
+// Defines values for FindAllPetsParamsStatus.
+const (
+	FindAllPetsParamsStatusActive  FindAllPetsParamsStatus = "active"
+	FindAllPetsParamsStatusPending FindAllPetsParamsStatus = "pending"
+)
+
+// Defines values for FindAllPetsParamsFilterStatus.
+const (
+	FindAllPetsParamsFilterStatusActive  FindAllPetsParamsFilterStatus = "active"
+	FindAllPetsParamsFilterStatusPending FindAllPetsParamsFilterStatus = "pending"
+)
+
 // Defines values for FindAllPetsParamsInclude.
 const (
 	Metadata FindAllPetsParamsInclude = "metadata"
@@ -175,9 +187,13 @@ type FindAllPetsParams struct {
 
 	// SortOrder Sort direction
 	SortOrder FindAllPetsParamsSortOrder `form:"sort_order" json:"sort_order"`
+	Status    *[]FindAllPetsParamsStatus `form:"status,omitempty" json:"status,omitempty"`
 
 	// Filter Filter criteria (JSON encoded)
-	Filter string `form:"filter" json:"filter"`
+	Filter struct {
+		CreatedAfter *string                          `json:"created_after,omitempty"`
+		Status       *[]FindAllPetsParamsFilterStatus `json:"status,omitempty"`
+	} `form:"filter" json:"filter"`
 
 	// CreatedAt The date that was created
 	CreatedAt *time.Time `form:"created_at,omitempty" json:"created_at,omitempty"`
@@ -227,6 +243,12 @@ type FindAllPetsParamsSortBy string
 
 // FindAllPetsParamsSortOrder defines parameters for FindAllPets.
 type FindAllPetsParamsSortOrder string
+
+// FindAllPetsParamsStatus defines parameters for FindAllPets.
+type FindAllPetsParamsStatus string
+
+// FindAllPetsParamsFilterStatus defines parameters for FindAllPets.
+type FindAllPetsParamsFilterStatus string
 
 // FindAllPetsParamsInclude defines parameters for FindAllPets.
 type FindAllPetsParamsInclude string
@@ -922,8 +944,14 @@ type FindAllPetsClientRequest struct {
 	// sort_order - Query parameter
 	SortOrder FindAllPetsParamsSortOrder `name:"sort_order" error_message:"required query param [sort_order]" query:"sort_order" required:"true" validate:"required" json:"sort_order"`
 
+	// status - Query parameter
+	Status []FindAllPetsParamsStatus `name:"status" error_message:"required query param [status]" query:"status" json:"status"`
+
 	// filter - Query parameter
-	Filter string `name:"filter" error_message:"required query param [filter]" query:"filter" required:"true" validate:"required" json:"filter"`
+	Filter struct {
+		CreatedAfter *string                          `json:"created_after,omitempty"`
+		Status       *[]FindAllPetsParamsFilterStatus `json:"status,omitempty"`
+	} `name:"filter" error_message:"required query param [filter]" query:"filter" required:"true" validate:"required" json:"filter"`
 
 	// created_at - Query parameter
 	CreatedAt time.Time `name:"created_at" error_message:"required query param [created_at]" query:"created_at" json:"created_at"`

@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type ParamsExtractorSource struct {
@@ -31,7 +32,7 @@ func ParamsExtract(target interface{}, source ...ParamsExtractorSource) error {
 		if values.Tree != nil {
 			for name, value := range values.Tree {
 				if field, ok := FindField(targetType, name); ok {
-					params[name] = ConvertValues(value, field.Type)
+					params[name] = ConvertValues(value, field)
 				}
 			}
 		}
@@ -89,7 +90,8 @@ func FindField(t reflect.Type, name string) (reflect.StructField, bool) {
 // targetType: The desired type to which the values should be converted.
 //
 // Returns the converted value, which may be a slice or a single value, depending on the target type.
-func ConvertValues(values []string, targetType reflect.Type) interface{} {
+func ConvertValues(values []string, field reflect.StructField) interface{} {
+	targetType := field.Type
 	// Handle slice types
 	if targetType.Kind() == reflect.Slice || targetType.Kind() == reflect.Array {
 		elemType := targetType.Elem()
@@ -137,9 +139,29 @@ func ConvertValue(value string, targetType reflect.Type) interface{} {
 		if boolValue, err := strconv.ParseBool(value); err == nil {
 			return boolValue
 		}
+	case reflect.Ptr, reflect.Struct:
+		// Handle time.Time specifically
+		if targetType == reflect.TypeOf(time.Time{}) {
+			if t, err := time.Parse("2006-01-02", value); err == nil {
+				return &t
+			}
+			// Add more time formats if needed
+			if t, err := time.Parse(time.RFC3339, value); err == nil {
+				return &t
+			}
+		} else {
+			fieldValue := reflect.New(targetType).Interface()
+			err := json.Unmarshal([]byte(value), &fieldValue)
+
+			if err == nil {
+				return fieldValue
+			}
+		}
 	default:
-		return value
+		// No conversion possible
 	}
 
+	// Fallback: return the original value as string
+	// You might want to handle this differently depending on your needs
 	return value
 }

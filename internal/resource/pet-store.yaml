@@ -181,30 +181,39 @@ paths:
             enum: [ "asc", "desc" ]
             default: "asc"
 
+        #        - in: query
+        #          name: filter
+        #          required: true
+        #          description: Filter criteria (JSON encoded)
+        #          schema:
+        #            type: string
+        #            example: '{"status":["active","pending"],"created_after":"2023-01-01"}'
+        - in: query
+          name: status
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - active
+                - pending
         - in: query
           name: filter
           required: true
           description: Filter criteria (JSON encoded)
           schema:
-            type: string
-            example: '{"status":["active","pending"],"created_after":"2023-01-01"}'
-
-#        - in: query
-#          name: filter
-#          required: true
-#          description: Filter criteria (JSON encoded)
-#          schema:
-#            type: object
-#            properties:
-#              status:
-#                type: string
-#                enum:
-#                  - active
-#                  - pending
-#              created_after:
-#                type: string
-#                format: date-time
-#                example: 2023-01-01
+            type: object
+            properties:
+              status:
+                type: array
+                items:
+                  type: string
+                  enum:
+                    - active
+                    - pending
+              created_after:
+                type: string
+                example: 2023-01-01
         - in: query
           name: created_at
           required: false
@@ -321,7 +330,7 @@ paths:
           explode: true
           schema:
             type: array
-            default: [available]
+            default: [ available ]
             items:
               type: string
               enum:
