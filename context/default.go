@@ -29,7 +29,7 @@ func NewDefaultCtx() *DefaultContext {
 	return &DefaultContext{}
 }
 
-// RequesterId returns the requester ID associated with the context.
+// GetId returns the requester ID associated with the context.
 // If no custom requester ID is set, it returns the default requester ID.
 // WARNING: The default requester ID is hardcoded and is **not secure for production use**.
 // In production, you should use a unique and secure requester ID for each request.

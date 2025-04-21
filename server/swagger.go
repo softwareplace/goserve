@@ -50,7 +50,7 @@ func (a *baseServer[T]) SwaggerDocProvider(getSwagger func() (swagger *openapi3.
 	var oldsPaths []string
 	for path, pathItem := range swagger.Paths.Map() {
 		newPath := strings.TrimRight(a.contextPath, "/") + path
-		log.Printf("path: %s", newPath)
+		pathLogger(pathItem, newPath)
 		oldsPaths = append(oldsPaths, path)
 		paths[newPath] = pathItem
 	}
@@ -86,5 +86,47 @@ func (a *baseServer[T]) SwaggerDocHandler(swaggerFile string) Api[T] {
 func (a *baseServer[T]) handleSwaggerJSON(swagger *openapi3.T) func(ctx *goservectx.Request[T]) {
 	return func(ctx *goservectx.Request[T]) {
 		ctx.Response(swagger, 200)
+	}
+}
+
+func pathLogger(pathItem *openapi3.PathItem, path string) {
+	if pathItem.Post != nil {
+		log.Printf("POST %s", path)
+	}
+
+	if pathItem.Get != nil {
+		log.Printf("GET %s", path)
+	}
+
+	if pathItem.Put != nil {
+		log.Printf("PUT %s", path)
+	}
+
+	if pathItem.Delete != nil {
+		log.Printf("DELETE %s", path)
+	}
+
+	if pathItem.Patch != nil {
+		log.Printf("PATCH %s", path)
+	}
+
+	if pathItem.Options != nil {
+		log.Printf("OPTIONS %s", path)
+	}
+
+	if pathItem.Head != nil {
+		log.Printf("HEAD %s", path)
+	}
+
+	if pathItem.Trace != nil {
+		log.Printf("TRACE %s", path)
+	}
+
+	if pathItem.Connect != nil {
+		log.Printf("CONNECT %s", path)
+	}
+
+	if pathItem.Servers != nil {
+		log.Printf("SERVERS %s", path)
 	}
 }
