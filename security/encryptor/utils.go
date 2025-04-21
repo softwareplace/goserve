@@ -26,7 +26,7 @@ func Encrypt(value string, secret []byte) (string, error) {
 	// Encrypt the data
 	keyBytes := []byte(value)
 	encrypted := make([]byte, len(keyBytes))
-	mode := cipher.NewCFBEncrypter(block, iv)
+	mode := cipher.NewCTR(block, iv)
 	mode.XORKeyStream(encrypted, keyBytes)
 
 	// Prepend the IV to the encrypted data and encode as Base64
@@ -55,7 +55,7 @@ func Decrypt(encrypted string, secret []byte) (string, error) {
 
 	// Decrypt the data
 	decrypted := make([]byte, len(encryptedData))
-	mode := cipher.NewCFBDecrypter(block, iv)
+	mode := cipher.NewCTR(block, iv)
 	mode.XORKeyStream(decrypted, encryptedData)
 	return string(decrypted), nil
 }
