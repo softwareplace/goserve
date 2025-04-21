@@ -12,10 +12,14 @@ import (
 
 func apiContextPath() string {
 	if contextPath := os.Getenv("CONTEXT_PATH"); contextPath != "" {
-		contextPath = "/" + strings.TrimPrefix(contextPath, "/")
-		return strings.TrimSuffix(contextPath, "/") + "/"
+		return contextPathFix(contextPath)
 	}
 	return "/"
+}
+
+func contextPathFix(contextPath string) string {
+	contextPath = "/" + strings.TrimPrefix(contextPath, "/")
+	return strings.TrimSuffix(contextPath, "/") + "/"
 }
 
 func apiPort() string {
@@ -63,7 +67,7 @@ func (a *baseServer[T]) Port(port string) Api[T] {
 }
 
 func (a *baseServer[T]) ContextPath(contextPath string) Api[T] {
-	a.contextPath = contextPath
+	a.contextPath = contextPathFix(contextPath)
 	return a
 }
 
