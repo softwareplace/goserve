@@ -39,11 +39,20 @@ func (rh *resourceHandlerImpl[T]){{$opid}}(ctx *goservectx.Request[T]) {
             {{ end }}
             rh.Service.{{$entry.OperationId}}(clientRequest, ctx)
             }, func(ctx *goservectx.Request[T], err error) {
-            ctx.InternalServerError("Internal server error")
+            log.Errorf("Failed to bind {{$entry.OperationId}}ClientRequest request params: %+v", err)
+            if err != nil && strings.Contains(err.Error(), "validation") {
+                ctx.BadRequest(err.Error())
+                return
+            }
+            ctx.BadRequest(fmt.Sprintf("Failed to process the request: %+v", err))
             })
         }, func(err error) {
             log.Errorf("[{{$entry.Method}} {{$entry.Path}}]:: {{$opid}} result with error: %+v", err)
-            ctx.InternalServerError("Internal server error")
+            if err != nil && strings.Contains(err.Error(), "validation") {
+                ctx.BadRequest(err.Error())
+                return
+            }
+            ctx.BadRequest(fmt.Sprintf("Failed to process the request: %+v", err))
         })
         {{ $processed = true -}}
         {{end}}
@@ -66,7 +75,11 @@ func (rh *resourceHandlerImpl[T]){{$opid}}(ctx *goservectx.Request[T]) {
 
         }, func(err error) {
             log.Errorf("[{{.Method}} {{.Path}}]:: {{$opid}} result with error: %+v", err)
-            ctx.InternalServerError("Internal server error")
+            if err != nil && strings.Contains(err.Error(), "validation") {
+                ctx.BadRequest(err.Error())
+                return
+            }
+            ctx.BadRequest(fmt.Sprintf("Failed to process the request: %+v", err))
         })
         {{end}}
         }

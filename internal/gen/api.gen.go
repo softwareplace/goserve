@@ -4,6 +4,7 @@
 package gen
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
@@ -400,11 +401,20 @@ func (rh *resourceHandlerImpl[T]) PostLogin(ctx *goservectx.Request[T]) {
 
 			rh.Service.PostLogin(clientRequest, ctx)
 		}, func(ctx *goservectx.Request[T], err error) {
-			ctx.InternalServerError("Internal server error")
+			log.Errorf("Failed to bind PostLoginClientRequest request params: %+v", err)
+			if err != nil && strings.Contains(err.Error(), "validation") {
+				ctx.BadRequest(err.Error())
+				return
+			}
+			ctx.BadRequest(fmt.Sprintf("Failed to process the request: %+v", err))
 		})
 	}, func(err error) {
 		log.Errorf("[POST /login]:: PostLogin result with error: %+v", err)
-		ctx.InternalServerError("Internal server error")
+		if err != nil && strings.Contains(err.Error(), "validation") {
+			ctx.BadRequest(err.Error())
+			return
+		}
+		ctx.BadRequest(fmt.Sprintf("Failed to process the request: %+v", err))
 	})
 
 }
@@ -424,7 +434,11 @@ func (rh *resourceHandlerImpl[T]) FindAllPets(ctx *goservectx.Request[T]) {
 
 	}, func(err error) {
 		log.Errorf("[GET /pet]:: FindAllPets result with error: %+v", err)
-		ctx.InternalServerError("Internal server error")
+		if err != nil && strings.Contains(err.Error(), "validation") {
+			ctx.BadRequest(err.Error())
+			return
+		}
+		ctx.BadRequest(fmt.Sprintf("Failed to process the request: %+v", err))
 	})
 
 }
@@ -455,11 +469,20 @@ func (rh *resourceHandlerImpl[T]) AddPet(ctx *goservectx.Request[T]) {
 
 			rh.Service.AddPet(clientRequest, ctx)
 		}, func(ctx *goservectx.Request[T], err error) {
-			ctx.InternalServerError("Internal server error")
+			log.Errorf("Failed to bind AddPetClientRequest request params: %+v", err)
+			if err != nil && strings.Contains(err.Error(), "validation") {
+				ctx.BadRequest(err.Error())
+				return
+			}
+			ctx.BadRequest(fmt.Sprintf("Failed to process the request: %+v", err))
 		})
 	}, func(err error) {
 		log.Errorf("[POST /pet]:: AddPet result with error: %+v", err)
-		ctx.InternalServerError("Internal server error")
+		if err != nil && strings.Contains(err.Error(), "validation") {
+			ctx.BadRequest(err.Error())
+			return
+		}
+		ctx.BadRequest(fmt.Sprintf("Failed to process the request: %+v", err))
 	})
 
 }
@@ -479,7 +502,11 @@ func (rh *resourceHandlerImpl[T]) FindPetsByStatus(ctx *goservectx.Request[T]) {
 
 	}, func(err error) {
 		log.Errorf("[GET /pet/findByStatus]:: FindPetsByStatus result with error: %+v", err)
-		ctx.InternalServerError("Internal server error")
+		if err != nil && strings.Contains(err.Error(), "validation") {
+			ctx.BadRequest(err.Error())
+			return
+		}
+		ctx.BadRequest(fmt.Sprintf("Failed to process the request: %+v", err))
 	})
 
 }
@@ -499,7 +526,11 @@ func (rh *resourceHandlerImpl[T]) FindPetsByTags(ctx *goservectx.Request[T]) {
 
 	}, func(err error) {
 		log.Errorf("[GET /pet/findByTags]:: FindPetsByTags result with error: %+v", err)
-		ctx.InternalServerError("Internal server error")
+		if err != nil && strings.Contains(err.Error(), "validation") {
+			ctx.BadRequest(err.Error())
+			return
+		}
+		ctx.BadRequest(fmt.Sprintf("Failed to process the request: %+v", err))
 	})
 
 }
@@ -519,7 +550,11 @@ func (rh *resourceHandlerImpl[T]) DeletePet(ctx *goservectx.Request[T]) {
 
 	}, func(err error) {
 		log.Errorf("[DELETE /pet/{petId}]:: DeletePet result with error: %+v", err)
-		ctx.InternalServerError("Internal server error")
+		if err != nil && strings.Contains(err.Error(), "validation") {
+			ctx.BadRequest(err.Error())
+			return
+		}
+		ctx.BadRequest(fmt.Sprintf("Failed to process the request: %+v", err))
 	})
 
 }
@@ -539,7 +574,11 @@ func (rh *resourceHandlerImpl[T]) GetPetById(ctx *goservectx.Request[T]) {
 
 	}, func(err error) {
 		log.Errorf("[GET /pet/{petId}]:: GetPetById result with error: %+v", err)
-		ctx.InternalServerError("Internal server error")
+		if err != nil && strings.Contains(err.Error(), "validation") {
+			ctx.BadRequest(err.Error())
+			return
+		}
+		ctx.BadRequest(fmt.Sprintf("Failed to process the request: %+v", err))
 	})
 
 }
@@ -559,7 +598,11 @@ func (rh *resourceHandlerImpl[T]) UpdatePetWithForm(ctx *goservectx.Request[T]) 
 
 	}, func(err error) {
 		log.Errorf("[POST /pet/{petId}]:: UpdatePetWithForm result with error: %+v", err)
-		ctx.InternalServerError("Internal server error")
+		if err != nil && strings.Contains(err.Error(), "validation") {
+			ctx.BadRequest(err.Error())
+			return
+		}
+		ctx.BadRequest(fmt.Sprintf("Failed to process the request: %+v", err))
 	})
 
 }
@@ -590,11 +633,20 @@ func (rh *resourceHandlerImpl[T]) UpdatePet(ctx *goservectx.Request[T]) {
 
 			rh.Service.UpdatePet(clientRequest, ctx)
 		}, func(ctx *goservectx.Request[T], err error) {
-			ctx.InternalServerError("Internal server error")
+			log.Errorf("Failed to bind UpdatePetClientRequest request params: %+v", err)
+			if err != nil && strings.Contains(err.Error(), "validation") {
+				ctx.BadRequest(err.Error())
+				return
+			}
+			ctx.BadRequest(fmt.Sprintf("Failed to process the request: %+v", err))
 		})
 	}, func(err error) {
 		log.Errorf("[PUT /pet/{petId}]:: UpdatePet result with error: %+v", err)
-		ctx.InternalServerError("Internal server error")
+		if err != nil && strings.Contains(err.Error(), "validation") {
+			ctx.BadRequest(err.Error())
+			return
+		}
+		ctx.BadRequest(fmt.Sprintf("Failed to process the request: %+v", err))
 	})
 
 }
@@ -614,7 +666,11 @@ func (rh *resourceHandlerImpl[T]) UploadFile(ctx *goservectx.Request[T]) {
 
 	}, func(err error) {
 		log.Errorf("[POST /pet/{petId}/uploadImage]:: UploadFile result with error: %+v", err)
-		ctx.InternalServerError("Internal server error")
+		if err != nil && strings.Contains(err.Error(), "validation") {
+			ctx.BadRequest(err.Error())
+			return
+		}
+		ctx.BadRequest(fmt.Sprintf("Failed to process the request: %+v", err))
 	})
 
 }
@@ -627,7 +683,11 @@ func (rh *resourceHandlerImpl[T]) GetInventory(ctx *goservectx.Request[T]) {
 
 	}, func(err error) {
 		log.Errorf("[GET /store/inventory]:: GetInventory result with error: %+v", err)
-		ctx.InternalServerError("Internal server error")
+		if err != nil && strings.Contains(err.Error(), "validation") {
+			ctx.BadRequest(err.Error())
+			return
+		}
+		ctx.BadRequest(fmt.Sprintf("Failed to process the request: %+v", err))
 	})
 
 }
@@ -658,11 +718,20 @@ func (rh *resourceHandlerImpl[T]) PlaceOrder(ctx *goservectx.Request[T]) {
 
 			rh.Service.PlaceOrder(clientRequest, ctx)
 		}, func(ctx *goservectx.Request[T], err error) {
-			ctx.InternalServerError("Internal server error")
+			log.Errorf("Failed to bind PlaceOrderClientRequest request params: %+v", err)
+			if err != nil && strings.Contains(err.Error(), "validation") {
+				ctx.BadRequest(err.Error())
+				return
+			}
+			ctx.BadRequest(fmt.Sprintf("Failed to process the request: %+v", err))
 		})
 	}, func(err error) {
 		log.Errorf("[POST /store/order]:: PlaceOrder result with error: %+v", err)
-		ctx.InternalServerError("Internal server error")
+		if err != nil && strings.Contains(err.Error(), "validation") {
+			ctx.BadRequest(err.Error())
+			return
+		}
+		ctx.BadRequest(fmt.Sprintf("Failed to process the request: %+v", err))
 	})
 
 }
@@ -682,7 +751,11 @@ func (rh *resourceHandlerImpl[T]) DeleteOrder(ctx *goservectx.Request[T]) {
 
 	}, func(err error) {
 		log.Errorf("[DELETE /store/order/{orderId}]:: DeleteOrder result with error: %+v", err)
-		ctx.InternalServerError("Internal server error")
+		if err != nil && strings.Contains(err.Error(), "validation") {
+			ctx.BadRequest(err.Error())
+			return
+		}
+		ctx.BadRequest(fmt.Sprintf("Failed to process the request: %+v", err))
 	})
 
 }
@@ -702,7 +775,11 @@ func (rh *resourceHandlerImpl[T]) GetOrderById(ctx *goservectx.Request[T]) {
 
 	}, func(err error) {
 		log.Errorf("[GET /store/order/{orderId}]:: GetOrderById result with error: %+v", err)
-		ctx.InternalServerError("Internal server error")
+		if err != nil && strings.Contains(err.Error(), "validation") {
+			ctx.BadRequest(err.Error())
+			return
+		}
+		ctx.BadRequest(fmt.Sprintf("Failed to process the request: %+v", err))
 	})
 
 }
@@ -718,11 +795,20 @@ func (rh *resourceHandlerImpl[T]) CreateUser(ctx *goservectx.Request[T]) {
 
 			rh.Service.CreateUser(clientRequest, ctx)
 		}, func(ctx *goservectx.Request[T], err error) {
-			ctx.InternalServerError("Internal server error")
+			log.Errorf("Failed to bind CreateUserClientRequest request params: %+v", err)
+			if err != nil && strings.Contains(err.Error(), "validation") {
+				ctx.BadRequest(err.Error())
+				return
+			}
+			ctx.BadRequest(fmt.Sprintf("Failed to process the request: %+v", err))
 		})
 	}, func(err error) {
 		log.Errorf("[POST /user]:: CreateUser result with error: %+v", err)
-		ctx.InternalServerError("Internal server error")
+		if err != nil && strings.Contains(err.Error(), "validation") {
+			ctx.BadRequest(err.Error())
+			return
+		}
+		ctx.BadRequest(fmt.Sprintf("Failed to process the request: %+v", err))
 	})
 
 }
@@ -753,11 +839,20 @@ func (rh *resourceHandlerImpl[T]) CreateUsersWithListInput(ctx *goservectx.Reque
 
 			rh.Service.CreateUsersWithListInput(clientRequest, ctx)
 		}, func(ctx *goservectx.Request[T], err error) {
-			ctx.InternalServerError("Internal server error")
+			log.Errorf("Failed to bind CreateUsersWithListInputClientRequest request params: %+v", err)
+			if err != nil && strings.Contains(err.Error(), "validation") {
+				ctx.BadRequest(err.Error())
+				return
+			}
+			ctx.BadRequest(fmt.Sprintf("Failed to process the request: %+v", err))
 		})
 	}, func(err error) {
 		log.Errorf("[POST /user/createWithList]:: CreateUsersWithListInput result with error: %+v", err)
-		ctx.InternalServerError("Internal server error")
+		if err != nil && strings.Contains(err.Error(), "validation") {
+			ctx.BadRequest(err.Error())
+			return
+		}
+		ctx.BadRequest(fmt.Sprintf("Failed to process the request: %+v", err))
 	})
 
 }
@@ -777,7 +872,11 @@ func (rh *resourceHandlerImpl[T]) LogoutUser(ctx *goservectx.Request[T]) {
 
 	}, func(err error) {
 		log.Errorf("[GET /user/logout]:: LogoutUser result with error: %+v", err)
-		ctx.InternalServerError("Internal server error")
+		if err != nil && strings.Contains(err.Error(), "validation") {
+			ctx.BadRequest(err.Error())
+			return
+		}
+		ctx.BadRequest(fmt.Sprintf("Failed to process the request: %+v", err))
 	})
 
 }
@@ -797,7 +896,11 @@ func (rh *resourceHandlerImpl[T]) DeleteUser(ctx *goservectx.Request[T]) {
 
 	}, func(err error) {
 		log.Errorf("[DELETE /user/{username}]:: DeleteUser result with error: %+v", err)
-		ctx.InternalServerError("Internal server error")
+		if err != nil && strings.Contains(err.Error(), "validation") {
+			ctx.BadRequest(err.Error())
+			return
+		}
+		ctx.BadRequest(fmt.Sprintf("Failed to process the request: %+v", err))
 	})
 
 }
@@ -817,7 +920,11 @@ func (rh *resourceHandlerImpl[T]) GetUserByName(ctx *goservectx.Request[T]) {
 
 	}, func(err error) {
 		log.Errorf("[GET /user/{username}]:: GetUserByName result with error: %+v", err)
-		ctx.InternalServerError("Internal server error")
+		if err != nil && strings.Contains(err.Error(), "validation") {
+			ctx.BadRequest(err.Error())
+			return
+		}
+		ctx.BadRequest(fmt.Sprintf("Failed to process the request: %+v", err))
 	})
 
 }
@@ -848,11 +955,20 @@ func (rh *resourceHandlerImpl[T]) UpdateUser(ctx *goservectx.Request[T]) {
 
 			rh.Service.UpdateUser(clientRequest, ctx)
 		}, func(ctx *goservectx.Request[T], err error) {
-			ctx.InternalServerError("Internal server error")
+			log.Errorf("Failed to bind UpdateUserClientRequest request params: %+v", err)
+			if err != nil && strings.Contains(err.Error(), "validation") {
+				ctx.BadRequest(err.Error())
+				return
+			}
+			ctx.BadRequest(fmt.Sprintf("Failed to process the request: %+v", err))
 		})
 	}, func(err error) {
 		log.Errorf("[PUT /user/{username}]:: UpdateUser result with error: %+v", err)
-		ctx.InternalServerError("Internal server error")
+		if err != nil && strings.Contains(err.Error(), "validation") {
+			ctx.BadRequest(err.Error())
+			return
+		}
+		ctx.BadRequest(fmt.Sprintf("Failed to process the request: %+v", err))
 	})
 
 }
