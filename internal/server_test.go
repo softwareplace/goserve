@@ -11,6 +11,7 @@ import (
 	"github.com/softwareplace/goserve/server"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"testing"
 )
@@ -21,11 +22,10 @@ func init() {
 }
 
 var (
+	_ = os.Setenv("API_SECRET_KEY", "ue1pUOtCGaYS7Z1DLJ80nFtZ")
+
 	userPrincipalService = login.NewPrincipalService()
-	securityService      = security.New(
-		"ue1pUOtCGaYS7Z1DLJ80nFtZ",
-		userPrincipalService,
-	)
+	securityService      = security.New(userPrincipalService)
 
 	loginService   = login.NewLoginService(securityService)
 	secretProvider = provider.NewSecretProvider()

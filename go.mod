@@ -1,8 +1,6 @@
 module github.com/softwareplace/goserve
 
-go 1.23.0
-
-toolchain go1.23.4
+go 1.24.2
 
 require (
 	github.com/google/uuid v1.6.0
@@ -19,6 +17,7 @@ require (
 	github.com/go-playground/universal-translator v0.18.1
 	github.com/go-playground/validator/v10 v10.26.0
 	github.com/golang-jwt/jwt/v5 v5.2.2
+	github.com/softwareplace/go-password v0.0.0-20250421155003-f0dc9885bfd6
 	github.com/swaggo/http-swagger v1.3.4
 )
 

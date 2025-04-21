@@ -1,6 +1,7 @@
 package error
 
 import (
+	"errors"
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	goservectx "github.com/softwareplace/goserve/context"
@@ -22,7 +23,7 @@ func Handler(try func(), catch func(err error)) {
 				errMessage = fmt.Sprintf("panic occurred - %v", r)
 			}
 
-			catch(Wrapper(fmt.Errorf(errMessage), "Recovered panic"))
+			catch(Wrapper(errors.New(errMessage), "Recovered panic"))
 		}
 	}()
 	try()

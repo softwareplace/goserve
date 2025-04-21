@@ -1,10 +1,12 @@
 package security
 
 import (
+	log "github.com/sirupsen/logrus"
 	goservectx "github.com/softwareplace/goserve/context"
 	goserveerror "github.com/softwareplace/goserve/error"
 	"github.com/softwareplace/goserve/security/jwt"
 	"github.com/softwareplace/goserve/security/principal"
+	"github.com/softwareplace/goserve/utils"
 )
 
 const (
@@ -55,16 +57,20 @@ type impl[T goservectx.Principal] struct {
 // and principal service. It also sets up a default resource access handler and error handler.
 //
 // Parameters:
-// - apiSecretKey: The secret key used for API authorization and JWT management, encrypt and decrypt values.
 // - service: The principal service responsible for managing and loading user principals.
 //
 // Returns:
 // - Service[T]: A new instance of the security Service.
 func New[T goservectx.Principal](
-	apiSecretKey string,
 	service principal.Service[T],
 ) Service[T] {
 	defaultErrorHandler := goserveerror.Default[T]()
+	apiSecretKey := utils.GetEnvOrDefault("API_SECRET_KEY", "")
+
+	if apiSecretKey == "" {
+		log.Fatal("API_SECRET_KEY environment variable is not set")
+	}
+
 	return &impl[T]{
 		ResourceAccessValidation: &defaultResourceAccessHandler[T]{
 			&defaultErrorHandler,

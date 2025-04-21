@@ -2,6 +2,7 @@ package main
 
 import (
 	log "github.com/sirupsen/logrus"
+	"github.com/softwareplace/go-password/pkg/str"
 	"github.com/softwareplace/goserve/internal/service/apiservice"
 	"github.com/softwareplace/goserve/internal/service/login"
 	"github.com/softwareplace/goserve/internal/service/provider"
@@ -16,12 +17,17 @@ func init() {
 	// Setup log system. Using nested-logrus-formatter -> https://github.com/antonfisher/nested-logrus-formatter?tab=readme-ov-file
 	// Reload log file target reference based on `LOG_FILE_NAME_DATE_FORMAT`
 	logger.LogSetup()
+
+	randomString := str.New().
+		Generate()
+
+	log.Infof("API_SECRET_KEY: %s", randomString)
+	_ = os.Setenv("API_SECRET_KEY", randomString)
 }
 
 func runSecretApi() {
 	userPrincipalService := login.NewPrincipalService()
 	securityService := security.New(
-		"ue1pUOtCGaYS7Z1DLJ80nFtZ",
 		userPrincipalService,
 	)
 
@@ -49,7 +55,6 @@ func runSecretApi() {
 func runPublicApi() {
 	userPrincipalService := login.NewPrincipalService()
 	securityService := security.New(
-		"ue1pUOtCGaYS7Z1DLJ80nFtZ",
 		userPrincipalService,
 	)
 
