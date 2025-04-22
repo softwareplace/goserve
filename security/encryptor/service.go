@@ -11,7 +11,7 @@ type Service interface {
 
 	// Encrypt encrypts the given value using the secret associated with the apiSecurityServiceImpl instance.
 	// It returns the encrypted string or an error if encryption fails.
-	Encrypt(key string) (string, error)
+	Encrypt(value string) (string, error)
 
 	// Decrypt decrypts the given encrypted string using the secret associated with the apiSecurityServiceImpl instance.
 	// It returns the decrypted string or an error if decryption fails.

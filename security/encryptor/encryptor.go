@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"fmt"
 	log "github.com/sirupsen/logrus"
+	"github.com/softwareplace/goserve/utils"
 	"golang.org/x/crypto/bcrypt"
 	"math/big"
 	"os"
@@ -133,4 +134,8 @@ func getBcryptCost() int {
 		return bcrypt.DefaultCost
 	}
 	return cost
+}
+
+func JwtClaimsEncryptionEnabled() bool {
+	return utils.GetBoolEnvOrDefault("JWT_CLAIMS_ENCRYPTION_ENABLED", true)
 }

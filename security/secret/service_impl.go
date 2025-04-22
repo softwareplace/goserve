@@ -11,6 +11,7 @@ import (
 	goservectx "github.com/softwareplace/goserve/context"
 	goserveerror "github.com/softwareplace/goserve/error"
 	"github.com/softwareplace/goserve/security"
+	"github.com/softwareplace/goserve/security/encryptor"
 	goservejwt "github.com/softwareplace/goserve/security/jwt"
 	"github.com/softwareplace/goserve/security/principal"
 	"net/http"
@@ -190,7 +191,13 @@ func (a *apiSecretHandlerImpl[T]) apiSecretKeyValidation(ctx *goservectx.Request
 
 	ctx.ApiKeyClaims = claims
 
-	apiKey, err := a.Decrypt(claims[goservejwt.SUB].(string))
+	jwtEncryptionEnabled := encryptor.JwtClaimsEncryptionEnabled()
+
+	apiKey := claims[goservejwt.SUB].(string)
+
+	if jwtEncryptionEnabled {
+		apiKey, err = a.Decrypt(claims[goservejwt.SUB].(string))
+	}
 
 	if err != nil {
 		log.Errorf("JWT/CLAIMS_EXTRACT: AuthorizationHandler failed: %v", err)
@@ -211,6 +218,7 @@ func (a *apiSecretHandlerImpl[T]) apiSecretKeyValidation(ctx *goservectx.Request
 		log.Errorf("API_SECRET_DECRYPT: AuthorizationHandler failed: %v", err)
 		return false
 	}
+
 	block, _ := pem.Decode([]byte(decryptKey))
 	if block == nil || block.Type != "PUBLIC KEY" {
 		log.Errorf("Failed to decode public key PEM block")

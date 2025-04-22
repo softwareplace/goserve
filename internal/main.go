@@ -10,6 +10,7 @@ import (
 	"github.com/softwareplace/goserve/security"
 	"github.com/softwareplace/goserve/security/secret"
 	"github.com/softwareplace/goserve/server"
+	"github.com/softwareplace/goserve/utils"
 	"os"
 )
 
@@ -18,11 +19,14 @@ func init() {
 	// Reload log file target reference based on `LOG_FILE_NAME_DATE_FORMAT`
 	logger.LogSetup()
 
-	randomString := str.New().
-		Generate()
+	if secretKey := utils.GetEnvOrDefault("API_SECRET_KEY", ""); secretKey == "" {
+		randomString := str.New().
+			Generate()
 
-	log.Infof("API_SECRET_KEY: %s", randomString)
-	_ = os.Setenv("API_SECRET_KEY", randomString)
+		log.Infof("API_SECRET_KEY: %s", randomString)
+		_ = os.Setenv("API_SECRET_KEY", randomString)
+	}
+
 }
 
 func runSecretApi() {
@@ -38,7 +42,7 @@ func runSecretApi() {
 		"./internal/secret/private.key",
 		secretProvider,
 		securityService,
-	)
+	).DisableForPublicPath(true)
 
 	server.Default().
 		LoginResourceEnabled(true).

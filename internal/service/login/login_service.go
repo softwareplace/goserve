@@ -10,6 +10,7 @@ import (
 	"github.com/softwareplace/goserve/security/login"
 	"github.com/softwareplace/goserve/security/principal"
 	"github.com/softwareplace/goserve/security/secret"
+	"github.com/softwareplace/goserve/utils"
 	"sync"
 	"time"
 )
@@ -51,7 +52,7 @@ func (d *PrincipalServiceImpl) LoadPrincipal(ctx *goservectx.Request[*goservectx
 	}
 
 	context := goservectx.NewDefaultCtx()
-	//context.SetRoles("api:key:generator")
+	context.SetRoles("api:key:generator")
 	context.SetRoles("api:key:generator", "write:pets", "read:pets")
 	ctx.Principal = &context
 	return true
@@ -70,13 +71,7 @@ func (l *Service) GetApiJWTInfo(apiKeyEntryData secret.ApiKeyEntryData,
 	return secret.Entry{
 		Key:        apiKeyEntryData.ClientId,
 		Expiration: apiKeyEntryData.Expiration,
-		Roles: []string{
-			"api:example:user",
-			"api:example:admin",
-			"read:pets",
-			"write:pets",
-			"api:key:generator",
-		},
+		Roles:      provider.MockScopes,
 	}, nil
 }
 
@@ -91,8 +86,12 @@ func (l *Service) OnGenerated(data jwt.Response,
 
 func (l *Service) Login(user login.User) (*goservectx.DefaultContext, error) {
 	result := &goservectx.DefaultContext{}
-	//result.SetRoles("api:example:user", "api:example:admin", "read:pets", "write:pets", "api:key:generator")
-	result.SetRoles("api:example:user")
+	fullAuthorization := utils.GetBoolEnvOrDefault("FULL_AUTHORIZATION", false)
+	if fullAuthorization {
+		result.SetRoles(provider.MockScopes...)
+	} else {
+		result.SetRoles("api:example:user")
+	}
 	password := encryptor.NewEncrypt(user.Password).EncodedPassword()
 	result.SetEncryptedPassword(password)
 	return result, nil

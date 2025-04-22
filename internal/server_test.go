@@ -14,6 +14,7 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"time"
 )
 
 func init() {
@@ -22,7 +23,8 @@ func init() {
 }
 
 var (
-	_ = os.Setenv("API_SECRET_KEY", "ue1pUOtCGaYS7Z1DLJ80nFtZ")
+	_ = os.Setenv("API_SECRET_KEY", "DlJeR4%pPbB5Pr5cICMxg0xB")
+	_ = os.Setenv("JWT_CLAIMS_ENCRYPTION_ENABLED", "false")
 
 	userPrincipalService = login.NewPrincipalService()
 	securityService      = security.New(userPrincipalService)
@@ -35,9 +37,15 @@ var (
 		secretProvider,
 		securityService,
 	)
-
-	apiSecret = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOlsiRWZUZElvbm8vd3o2ZUxOWG5PajZOQ2lOUnpqTWNMSklYdWlEeUt5d1ZEST0iLCI1elA0cWs1a2Q2aUtCekZ2Y2NiTUI3OW5EbUEwczgrY0dsMHVZT2s4MUE5cCIsIjdMVnZDVTlXbVl2SVY2OU1sTHdIZHpXb0hlV0VSSlBpQ1E9PSIsInNNem8vYjlUTGVHMVBwUjFkYkV5MGhmRC9vbHZkalZpeVIwPSIsIngzODhLdTkxdUJHTncwckp1MHcyRVhIR0JZajVKVUVaZFBuV2g0b1JyMk1rIl0sImV4cCI6NTE5OTA5ODAxMywiaWF0IjoxNzQzMDk4MDEzLCJpc3MiOiJnb3NlcnZlci1leGFtcGxlIiwic3ViIjoibFdQKzdHTjNzZjhoNVZXcVRyaTBUM0RaSHNaYmEvWWcwenV4TWhKK0o4Mkw2R0FHelRkUFl6N2hGV0doWkhBYiJ9.6-Z4W5np8uXLuQJttd9BOvuG7iG9EFC8RsTL2fB0OqU"
 )
+
+func getApiKey() (string, error) {
+	response, err := securityService.From(provider.MockJWTSub, provider.MockScopes, time.Minute*10)
+	if err != nil {
+		return "", err
+	}
+	return response.JWT, nil
+}
 
 func TestMockServer(t *testing.T) {
 	t.Run("expects that can get login response successfully", func(t *testing.T) {
@@ -128,6 +136,9 @@ func TestMockServer(t *testing.T) {
 
 	t.Run("expects that can get login response successfully when requires api secret and it was provided", func(t *testing.T) {
 		// Create a new request
+
+		_ = os.Setenv("FULL_AUTHORIZATION", "true")
+
 		loginBody := strings.NewReader(`{"username": "my-username","password": "ynT9558iiMga&ayTVGs3Gc6ug1"}`)
 		req, err := http.NewRequest("POST", "/login", loginBody)
 
@@ -135,7 +146,12 @@ func TestMockServer(t *testing.T) {
 			t.Fatalf("Failed to create request: %v", err)
 		}
 
-		req.Header.Set(goservectx.XApiKey, apiSecret)
+		key, err := getApiKey()
+		if err != nil {
+			t.Fatalf("Failed to get api key: %v", err)
+		}
+
+		req.Header.Set(goservectx.XApiKey, key)
 
 		rr := httptest.NewRecorder()
 

@@ -4,6 +4,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	log "github.com/sirupsen/logrus"
 	goservectx "github.com/softwareplace/goserve/context"
+	"github.com/softwareplace/goserve/security/encryptor"
 	"github.com/softwareplace/goserve/utils"
 	"net/http"
 	"time"
@@ -39,7 +40,13 @@ func (a *BaseService[T]) ExtractJWTClaims(ctx *goservectx.Request[T]) bool {
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		ctx.AuthorizationClaims = claims
 
-		requester, err := a.Decrypt(claims[SUB].(string))
+		jwtEncryptionEnabled := encryptor.JwtClaimsEncryptionEnabled()
+
+		var err error
+		var requester string
+		if jwtEncryptionEnabled {
+			requester, err = a.Decrypt(claims[SUB].(string))
+		}
 
 		if err != nil {
 			log.Errorf("%s: AuthorizationHandler failed: %+v", ExtractClaimsError, err)
@@ -70,16 +77,29 @@ func (a *BaseService[T]) Generate(data T, duration time.Duration) (*Response, er
 func (a *BaseService[T]) From(sub string, roles []string, duration time.Duration) (*Response, error) {
 	now := time.Now()
 	expiration := now.Add(duration).Unix()
-	requestBy, err := a.Encrypt(sub)
 
+	jwtEncryptionEnabled := encryptor.JwtClaimsEncryptionEnabled()
+
+	var err error
+	var requestBy string
 	var encryptedRoles []string
 
-	for _, role := range roles {
-		encryptedRole, err := a.Encrypt(role)
+	if jwtEncryptionEnabled {
+		requestBy, err = a.Encrypt(sub)
 		if err != nil {
 			return nil, err
 		}
-		encryptedRoles = append(encryptedRoles, encryptedRole)
+
+		for _, role := range roles {
+			encryptedRole, err := a.Encrypt(role)
+			if err != nil {
+				return nil, err
+			}
+			encryptedRoles = append(encryptedRoles, encryptedRole)
+		}
+	} else {
+		requestBy = sub
+		encryptedRoles = roles
 	}
 
 	claims := jwt.MapClaims{

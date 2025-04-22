@@ -96,17 +96,18 @@ func main() {
 
 ### Environment
 
-| Name                      | Required                                                           | Default    | Description                                                                                        |
-|---------------------------|--------------------------------------------------------------------|------------|----------------------------------------------------------------------------------------------------|
-| CONTEXT_PATH              | No                                                                 | /          | The base path for the application API.                                                             |
-| PORT                      | No                                                                 | 8080       | The port on which the application runs.                                                            |
-| API_SECRET_KEY            | Only if use [security.Service](security/service.go) implementation |            | An encryption/description secret key                                                               |
-| B_CRYPT_COST              | No                                                                 | 10         | The cost factor for bcrypt hashing.                                                                |
-| LOG_DIR                   | No                                                                 | ./.log     | The directory path where log files will be stored.                                                 |
-| LOG_APP_NAME              | No                                                                 |            | The application name tha used to define the log file name.                                         |
-| LOG_REPORT_CALLER         | No                                                                 | false      | [Logging Method Name](https://github.com/sirupsen/logrus?tab=readme-ov-file#logging-method-name)   |
-| LOG_FILE_NAME_DATE_FORMAT | No                                                                 | 2006-01-02 | Defines the date format (YYYY-MM-DD) used for naming log files and tracking the current date       |
-| JWT_ISSUER                | No                                                                 |            | Issuer returns the identifier of the entity responsible for issuing the JWT tokens in the service. |
+| Name                          | Required                                                           | Default    | Description                                                                                        |
+|-------------------------------|--------------------------------------------------------------------|------------|----------------------------------------------------------------------------------------------------|
+| CONTEXT_PATH                  | No                                                                 | /          | The base path for the application API.                                                             |
+| PORT                          | No                                                                 | 8080       | The port on which the application runs.                                                            |
+| API_SECRET_KEY                | Only if use [security.Service](security/service.go) implementation |            | An encryption/description secret key                                                               |
+| B_CRYPT_COST                  | No                                                                 | 10         | The cost factor for bcrypt hashing.                                                                |
+| LOG_DIR                       | No                                                                 | ./.log     | The directory path where log files will be stored.                                                 |
+| LOG_APP_NAME                  | No                                                                 |            | The application name tha used to define the log file name.                                         |
+| LOG_REPORT_CALLER             | No                                                                 | false      | [Logging Method Name](https://github.com/sirupsen/logrus?tab=readme-ov-file#logging-method-name)   |
+| LOG_FILE_NAME_DATE_FORMAT     | No                                                                 | 2006-01-02 | Defines the date format (YYYY-MM-DD) used for naming log files and tracking the current date       |
+| JWT_ISSUER                    | No                                                                 |            | Issuer returns the identifier of the entity responsible for issuing the JWT tokens in the service. |
+| JWT_CLAIMS_ENCRYPTION_ENABLED | No                                                                 | true       | If true, the jwt claims will be encrypted.                                                         |
 
 ### Advanced Configuration with Code Generation
 
