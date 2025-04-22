@@ -191,11 +191,11 @@ func (a *apiSecretHandlerImpl[T]) apiSecretKeyValidation(ctx *goservectx.Request
 
 	ctx.ApiKeyClaims = claims
 
-	jwtEncryptionEnabled := encryptor.JwtClaimsEncryptionEnabled()
+	isJwtClaimsEncryptionEnabled := encryptor.JwtClaimsEncryptionEnabled()
 
 	apiKey := claims[goservejwt.SUB].(string)
 
-	if jwtEncryptionEnabled {
+	if isJwtClaimsEncryptionEnabled {
 		apiKey, err = a.Decrypt(claims[goservejwt.SUB].(string))
 	}
 

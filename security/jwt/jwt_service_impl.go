@@ -40,11 +40,12 @@ func (a *BaseService[T]) ExtractJWTClaims(ctx *goservectx.Request[T]) bool {
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		ctx.AuthorizationClaims = claims
 
-		jwtEncryptionEnabled := encryptor.JwtClaimsEncryptionEnabled()
+		isJwtClaimsEncryptionEnabled := encryptor.JwtClaimsEncryptionEnabled()
 
 		var err error
-		var requester string
-		if jwtEncryptionEnabled {
+		requester := claims[SUB].(string)
+
+		if isJwtClaimsEncryptionEnabled {
 			requester, err = a.Decrypt(claims[SUB].(string))
 		}
 
@@ -78,13 +79,13 @@ func (a *BaseService[T]) From(sub string, roles []string, duration time.Duration
 	now := time.Now()
 	expiration := now.Add(duration).Unix()
 
-	jwtEncryptionEnabled := encryptor.JwtClaimsEncryptionEnabled()
+	isJwtClaimsEncryptionEnabled := encryptor.JwtClaimsEncryptionEnabled()
 
 	var err error
 	var requestBy string
 	var encryptedRoles []string
 
-	if jwtEncryptionEnabled {
+	if isJwtClaimsEncryptionEnabled {
 		requestBy, err = a.Encrypt(sub)
 		if err != nil {
 			return nil, err
