@@ -36,6 +36,9 @@ type Service interface {
 	// Head sends an HTTP HEAD request with the provided configuration and returns the HTTP response or an error.
 	Head(config *Config) (*http.Response, error)
 
+	// Exec sends an HTTP request using the specified method and configuration and returns the HTTP response and an error.
+	Exec(method string, config *Config) (*http.Response, error)
+
 	// ToString converts the body of the last HTTP response into a string and returns it along with an error if any.
 	ToString() (string, error)
 
@@ -129,8 +132,22 @@ func (config *Config) WithQuery(name string, value any) *Config {
 	return config
 }
 
+func (config *Config) WithQueries(queries map[string]any) *Config {
+	for name, value := range queries {
+		config.WithQuery(name, value)
+	}
+	return config
+}
+
 func (config *Config) WithHeader(name string, value any) *Config {
 	config.Headers[name] = fmt.Sprintf("%v", value)
+	return config
+}
+
+func (config *Config) WithHeaders(headers map[string]any) *Config {
+	for name, value := range headers {
+		config.WithHeader(name, value)
+	}
 	return config
 }
 

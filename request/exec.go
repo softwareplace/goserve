@@ -23,7 +23,12 @@ func (i *_impl) build(method string, config *Config) (*http.Request, error) {
 
 	requestHost := strings.Trim(config.Host, "/")
 	requestPath := strings.TrimPrefix(config.Path, "/")
-	req, err := http.NewRequest(method, requestHost+"/"+requestPath, body)
+
+	if requestPath != "" {
+		requestHost += "/" + requestPath
+	}
+
+	req, err := http.NewRequest(method, requestHost, body)
 
 	if err != nil {
 		return nil, fmt.Errorf("failed to create POST request: %v", err)
@@ -43,7 +48,7 @@ func (i *_impl) build(method string, config *Config) (*http.Request, error) {
 	return req, nil
 }
 
-func (i *_impl) exec(method string, config *Config) (*http.Response, error) {
+func (i *_impl) Exec(method string, config *Config) (*http.Response, error) {
 	request, err := i.build(method, config)
 
 	if err != nil {
