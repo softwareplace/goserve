@@ -57,16 +57,17 @@ goserve-generator -n <project-name> -u <github-username> [-r true|false]
 
 ### Flags
 
-| Flag | Description                  | Required |
-|------|------------------------------|----------|
-| `-n` | Name of your project         | ✅ Yes    |
-| `-u` | Your GitHub username         | ✅ Yes    |
-| `-r` | Force replace existing files | ❌ No     |
+| Flag  | Description                  | Required |
+|-------|------------------------------|----------|
+| `-n`  | Name of your project         | ✅ Yes    |
+| `-u`  | Your GitHub username         | ✅ Yes    |
+| `-r`  | Force replace existing files | ❌ No     |
+| `-gi` | Gi project initialization    | ❌ No     |
 
 ### Example
 
 ```bash
-goserve-generator -n goserve-example -u myuser -r true
+goserve-generator -n goserve-example -u myuser -r true -gi true
 ```
 
 ---

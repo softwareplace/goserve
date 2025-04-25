@@ -15,6 +15,7 @@ var (
 	projectName    = flag.String("n", "", "Project name")
 	username       = flag.String("u", "", "GitHub username")
 	replaceCurrent = flag.String("r", "false", "Replace current directory/files with generated files")
+	giInit         = flag.String("gi", "false", "(optional): Git project initialization")
 )
 
 type ReplaceEntry struct {
@@ -33,6 +34,7 @@ func main() {
 		fmt.Printf("  -u  (required): GitHub username (e.g., myusername)\n")
 		fmt.Printf("  -r  (optional): Replace current directory/files with generated files (true/false, default: false)\n")
 		fmt.Printf("  -h  (optional): Show this help message\n")
+		fmt.Printf("  -gi  (optional): Git project initialization\n")
 		os.Exit(1)
 	}
 
@@ -86,11 +88,13 @@ func main() {
 
 	run("make", "test")
 
-	if _, err := os.Stat(root + "/.git"); err != nil {
-		run("git", "init", "-q")
-		run("git", "add", ".")
-		run("git", "commit", "-m", "Base project setup")
-		run("git", "branch", "-M", "main")
+	if *giInit == "true" {
+		if _, err := os.Stat(root + "/.git"); err != nil {
+			run("git", "init", "-q")
+			run("git", "add", ".")
+			run("git", "commit", "-m", "Base project setup")
+			run("git", "branch", "-M", "main")
+		}
 	}
 
 	fmt.Printf("✅ Project %s created successfully!\n", *projectName)
