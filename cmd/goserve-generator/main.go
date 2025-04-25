@@ -82,26 +82,37 @@ func main() {
 	// Check if 'oapi-codegen' is available, if not, install it
 	if _, err := exec.LookPath("oapi-codegen"); err != nil {
 		fmt.Println("🔍 'oapi-codegen' not found. Installing it...")
-		run("go", "install", oapiCodegen)
+		mandatoryCmd("go", "install", oapiCodegen)
 		fmt.Println("✅ 'oapi-codegen' installed successfully.")
 	}
 
-	run("make", "test")
+	mandatoryCmd("go", "mod", "tidy")
+	mandatoryCmd("go", "mod", "tidy")
+	mandatoryCmd("oapi-codegen", "--config", "./config/config.yaml", "./api/swagger.yaml")
+	mandatoryCmd("go", "test", "./...")
 
 	if *giInit == "true" {
-		if _, err := os.Stat(root + "/.git"); err != nil {
-			run("git", "init", "-q")
-			run("git", "add", ".")
-			run("git", "commit", "-m", "Base project setup")
-			run("git", "branch", "-M", "main")
+		_, err := os.Stat(".git")
+		if err != nil {
+			log.Printf("Git project initialization: %v", err)
+			cmd("git", "init", "-q")
+			cmd("git", "branch", "-M", "main")
+			cmd("git", "add", ".")
+			cmd("git", "commit", "-m", "Base project setup")
 		}
 	}
 
 	fmt.Printf("✅ Project %s created successfully!\n", *projectName)
-
 }
 
-func run(command string, args ...string) {
+func cmd(command string, args ...string) {
+	cmd := exec.Command(command, args...)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	_ = cmd.Run()
+}
+
+func mandatoryCmd(command string, args ...string) {
 	cmd := exec.Command(command, args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
