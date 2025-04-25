@@ -87,7 +87,7 @@ func main() {
 	run("make", "test")
 
 	if _, err := os.Stat(root + "/.git"); err != nil {
-		run("git", "init")
+		run("git", "init", "-q")
 		run("git", "add", ".")
 		run("git", "commit", "-m", "Base project setup")
 		run("git", "branch", "-M", "main")
