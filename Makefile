@@ -20,7 +20,7 @@ run:
 	@PROTECTED_API=true LOG_REPORT_CALLER=true go run ./internal/main.go
 
 install:
-	@go install github.com/softwareplace/goserve/cmd/geserve-generator@latest
+	@go install github.com/softwareplace/goserve/cmd/goserve-generator@v0.0.1-SNAPSHOT
 
 goserve-generator:
 	@go run cmd/goserve-generator/main.go -n go-example -u softwareplace -r true

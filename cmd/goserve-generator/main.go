@@ -26,7 +26,7 @@ func main() {
 	flag.Parse()
 
 	if *projectName == "" || *username == "" {
-		fmt.Println("Options:")
+		fmt.Printf("\nOptions:\n")
 		fmt.Printf("  -n  (required): Project name (e.g., myproject)\n")
 		fmt.Printf("  -u  (required): GitHub username (e.g., myusername)\n")
 		fmt.Printf("  -r  (optional): Replace current directory/files with generated files (true/false, default: false)\n")
