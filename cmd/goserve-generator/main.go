@@ -87,9 +87,8 @@ func main() {
 	}
 
 	mandatoryCmd("go", "mod", "tidy")
-	mandatoryCmd("go", "mod", "tidy")
 	mandatoryCmd("oapi-codegen", "--config", "./config/config.yaml", "./api/swagger.yaml")
-	mandatoryCmd("go", "test", "./...")
+	mandatoryCmd("go", "test", "-bench=.", "./...")
 
 	if *giInit == "true" {
 		_, err := os.Stat(".git")
