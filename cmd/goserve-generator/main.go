@@ -15,7 +15,7 @@ var (
 	projectName    = flag.String("n", "", "Project name")
 	username       = flag.String("u", "", "GitHub username")
 	replaceCurrent = flag.String("r", "false", "Replace current directory/files with generated files")
-	giInit         = flag.String("gi", "false", "(optional): Git project initialization")
+	giInit         = flag.String("gi", "true", "(optional): Git project initialization")
 )
 
 type ReplaceEntry struct {

@@ -20,7 +20,7 @@ jobs:
           go mod tidy
       - name: CLI
         run: |
-          go run cmd/goserve-generator/main.go -n go-example -u softwareplace -r true
+          go run cmd/goserve-generator/main.go -n go-example -u softwareplace -r true -gi false
 
   validation:
     name: "Build validation"

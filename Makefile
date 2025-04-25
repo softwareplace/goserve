@@ -24,3 +24,6 @@ install:
 
 goserve-generator:
 	@go run cmd/goserve-generator/main.go -n go-example -u softwareplace -r true
+	@cd go-example && git status
+	@rm -rf go-example
+

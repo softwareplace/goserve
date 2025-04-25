@@ -52,22 +52,22 @@ go get -u github.com/softwareplace/goserve
 Generate a new goserve project:
 
 ```bash
-goserve-generator -n <project-name> -u <github-username> [-r true|false]
+goserve-generator -n <project-name> -u <github-username> [-r true|false] [-gi true|false]
 ```
 
 ### Flags
 
-| Flag  | Description                  | Required |
-|-------|------------------------------|----------|
-| `-n`  | Name of your project         | ✅ Yes    |
-| `-u`  | Your GitHub username         | ✅ Yes    |
-| `-r`  | Force replace existing files | ❌ No     |
-| `-gi` | Gi project initialization    | ❌ No     |
+| Flag  | Description                  | Required | Default |
+|-------|------------------------------|----------|---------|
+| `-n`  | Name of your project         | ✅ Yes    |         |
+| `-u`  | Your GitHub username         | ✅ Yes    |         |
+| `-r`  | Force replace existing files | ❌ No     | false   |
+| `-gi` | Gi project initialization    | ❌ No     | true    |
 
 ### Example
 
 ```bash
-goserve-generator -n goserve-example -u myuser -r true -gi true
+goserve-generator -n goserve-example -u myuser -r true -gi false
 ```
 
 ---
