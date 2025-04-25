@@ -52,6 +52,7 @@ func TestMockServer(t *testing.T) {
 		// Create a new request
 		loginBody := strings.NewReader(`{"username": "my-username","password": "ynT9558iiMga&ayTVGs3Gc6ug1"}`)
 		req, err := http.NewRequest("POST", "/login", loginBody)
+
 		//req.Header.Set("Content-Type", "application/json")
 
 		if err != nil {
