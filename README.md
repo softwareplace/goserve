@@ -234,4 +234,9 @@ boilerplate.
 
 ## 🧩 License
 
-© [Software Place](https://github.com/softwareplace)
+## 🎉 Welcome to the Open Source Community!
+
+Open source is more than just code — it's a collaborative effort powered by you! Contributing to goserve means you're
+joining a community of developers who believe in making software more accessible, secure, and scalable for everyone.
+
+Thank you for being a part of this journey! Together, we create, innovate, and grow. 🚀
