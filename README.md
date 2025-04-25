@@ -29,10 +29,10 @@ enabling you to focus on building features without worrying about boilerplate.
 > You can generate a base project by installing the generator CLI
 
 ````shell
-go install github.com/softwareplace/goserve/cmd/geserve-generator@latest
-# geserve-generator -n <project name> -u <github username> -r <true to replace current generated files>
+go install github.com/softwareplace/goserve/cmd/goserve-generator@latest
+# goserve-generator -n <project name> -u <github username> -r <true to replace current generated files>
 # Example
-geserve-generator -n goserve-example -u myuser
+goserve-generator -n goserve-example -u myuser
 ````
 
 
