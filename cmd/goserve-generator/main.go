@@ -22,6 +22,8 @@ type ReplaceEntry struct {
 	Value string
 }
 
+const oapiCodegen = "github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen@v2.2.0"
+
 func main() {
 	flag.Parse()
 
@@ -73,6 +75,13 @@ func main() {
 
 	if err := os.Chdir(root); err != nil {
 		log.Fatalf("❌ Failed to change directory to %s: %v", root, err)
+	}
+
+	// Check if 'oapi-codegen' is available, if not, install it
+	if _, err := exec.LookPath("oapi-codegen"); err != nil {
+		fmt.Println("🔍 'oapi-codegen' not found. Installing it...")
+		run("go", "install", oapiCodegen)
+		fmt.Println("✅ 'oapi-codegen' installed successfully.")
 	}
 
 	run("make", "test")
