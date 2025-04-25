@@ -19,3 +19,5 @@ run:
 	@make codegen
 	@PROTECTED_API=true LOG_REPORT_CALLER=true go run ./internal/main.go
 
+goserve-generator:
+	@go run cmd/goserve-generator/main.go -n go-example -u softwareplace -r true

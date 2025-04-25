@@ -15,7 +15,7 @@ var MockScopes = []string{
 	"api:example:admin",
 	"read:pets",
 	"write:pets",
-	"api:key:generator",
+	"api:key:goserve-generator",
 }
 
 var MockJWTSub = "37c75552614a4eb58a2eb2d04928cdfd"
@@ -61,6 +61,6 @@ func (s *secretProviderImpl) RequiredScopes() []string {
 	return []string{
 		"api:example:user",
 		"api:example:admin",
-		"api:key:generator",
+		"api:key:goserve-generator",
 	}
 }

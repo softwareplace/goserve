@@ -236,7 +236,7 @@ type Api[T goservectx.Principal] interface {
 	// This method ensures that the endpoint follows consistent naming conventions and best practices.
 	//
 	// By registering the secret.Service, also add a resource ContextPath/api-key/generate that make
-	// possible to generate a new X-Api-Key, handle the apiKey generator request by
+	// possible to generate a new X-Api-Key, handle the apiKey goserve-generator request by
 	// invoking secret.Service.GetJwtEntry. You can also disable it by calling
 	// SecretKeyGeneratorResourceEnabled before call SecretService method.
 	//

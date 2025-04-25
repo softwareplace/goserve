@@ -52,16 +52,16 @@ func (d *PrincipalServiceImpl) LoadPrincipal(ctx *goservectx.Request[*goservectx
 	}
 
 	context := goservectx.NewDefaultCtx()
-	context.SetRoles("api:key:generator")
-	context.SetRoles("api:key:generator", "write:pets", "read:pets")
+	context.SetRoles("api:key:goserve-generator")
+	context.SetRoles("api:key:goserve-generator", "write:pets", "read:pets")
 	ctx.Principal = &context
 	return true
 }
 
 func (l *Service) RequiredScopes() []string {
 	return []string{
-		"api:key:generator",
-		"api:key:generator-v2",
+		"api:key:goserve-generator",
+		"api:key:goserve-generator-v2",
 	}
 }
 

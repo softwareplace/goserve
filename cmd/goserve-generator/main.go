@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/softwareplace/goserve/cmd/generator/template"
+	"github.com/softwareplace/goserve/cmd/goserve-generator/template"
 	"log"
 	"os"
 	"os/exec"
@@ -26,13 +26,19 @@ func main() {
 	flag.Parse()
 
 	if *projectName == "" || *username == "" {
-		log.Fatal("You must provide both -n (project name) and -u (GitHub username)")
+		fmt.Println("Options:")
+		fmt.Printf("  -n  (required): Project name (e.g., myproject)\n")
+		fmt.Printf("  -u  (required): GitHub username (e.g., myusername)\n")
+		fmt.Printf("  -r  (optional): Replace current directory/files with generated files (true/false, default: false)\n")
+		fmt.Printf("  -h  (optional): Show this help message\n")
+		os.Exit(1)
 	}
 
 	dirs := []string{
 		"cmd/server",
 		"internal/application",
 		"internal/adapter/handler",
+		"internal/adapter/handler/gen",
 		"internal/adapter/repository",
 		"internal/adapter/client",
 		"internal/core/domain",
@@ -63,16 +69,20 @@ func main() {
 	createFile(filepath.Join(root, "go.mod"), template.GoMod)
 	createFile(filepath.Join(root, ".gitignore"), template.GitIgnore)
 	createFile(filepath.Join(root, "/internal/application/context.go"), template.Context)
+	createFile(filepath.Join(root, "/internal/adapter/handler/gen/api.gen.go"), "")
 
 	if err := os.Chdir(root); err != nil {
 		log.Fatalf("❌ Failed to change directory to %s: %v", root, err)
 	}
 
 	run("make", "test")
-	run("git", "init")
-	run("git", "add", ".")
-	run("git", "commit", "-m", "Base project setup")
-	run("git", "branch", "-M", "main")
+
+	if _, err := os.Stat(root + "/.git"); err != nil {
+		run("git", "init")
+		run("git", "add", ".")
+		run("git", "commit", "-m", "Base project setup")
+		run("git", "branch", "-M", "main")
+	}
 
 	fmt.Printf("✅ Project %s created successfully!\n", *projectName)
 
@@ -84,7 +94,7 @@ func run(command string, args ...string) {
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Run(); err != nil {
-		log.Fatalf("❌ Failed to execute 'make codegen': %v", err)
+		log.Fatalf("❌ Failed to execute command '%s %v': %v", command, args, err)
 	}
 }
 

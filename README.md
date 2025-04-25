@@ -24,6 +24,18 @@ Whether you're building lightweight services or complex applications, `goserve` 
 developer-friendly approach to creating HTTP servers. Its design ensures security, maintainability, and ease of use,
 enabling you to focus on building features without worrying about boilerplate.
 
+## Generator CIL
+
+> You can generate a base project by installing the generator CLI
+
+````shell
+go install github.com/softwareplace/goserve/cmd/geserve-generator@latest
+# geserve-generator -n <project name> -u <github username> -r <true to replace current generated files>
+# Example
+geserve-generator -n goserve-example -u myuser
+````
+
+
 ## Installation
 
 Install `goserve` using:
