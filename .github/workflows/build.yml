@@ -7,6 +7,21 @@ on:
       - feat/**
 
 jobs:
+  generator:
+    name: "Generator CIL"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: 1.23.4
+      - name: Install dependencies
+        run: |
+          go mod tidy
+      - name: CLI
+        run: |
+          go run cmd/goserve-generator/main.go -n go-example -u softwareplace -r true
+
   validation:
     name: "Build validation"
     runs-on: ubuntu-latest
