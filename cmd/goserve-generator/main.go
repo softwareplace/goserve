@@ -42,6 +42,7 @@ func main() {
 		"cmd/server",
 		".github/workflows",
 		"internal/application",
+		"internal/application/config",
 		"internal/adapter/handler",
 		"internal/adapter/handler/gen",
 		"internal/adapter/repository",
@@ -50,7 +51,6 @@ func main() {
 		"internal/core/domain/model",
 		"internal/core/service",
 		"internal/core/ports",
-		"internal/config",
 		"internal/pkg",
 		"migrations",
 		"config",
@@ -78,7 +78,10 @@ func main() {
 	createFile(filepath.Join(root, "go.mod"), template.GoMod)
 	createFile(filepath.Join(root, ".gitignore"), template.GitIgnore)
 	createFile(filepath.Join(root, "internal/application/principal.go"), template.Context)
+	createFile(filepath.Join(root, "internal/application/config/config.go"), template.AppConfig)
 	createFile(filepath.Join(root, "internal/adapter/handler/gen/api.gen.go"), "")
+	createFile(filepath.Join(root, "Dockerfile"), template.Dockerfile)
+	createFile(filepath.Join(root, "docker-compose.yaml"), template.DockerCompose)
 
 	if err := os.Chdir(root); err != nil {
 		log.Fatalf("❌ Failed to change directory to %s: %v", root, err)
@@ -92,6 +95,7 @@ func main() {
 	}
 
 	mandatoryCmd("go", "mod", "tidy")
+	mandatoryCmd("go", "get", "-u", "github.com/softwareplace/goserve@latest")
 	mandatoryCmd("oapi-codegen", "--config", "./config/config.yaml", "./api/swagger.yaml")
 	mandatoryCmd("go", "fmt", "./...")
 	mandatoryCmd("go", "test", "-bench=.", "./...")

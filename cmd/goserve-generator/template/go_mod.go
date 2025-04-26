@@ -8,6 +8,6 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/oapi-codegen/runtime v1.1.1
 	github.com/sirupsen/logrus v1.9.3
-	github.com/softwareplace/goserve v0.0.0-20250423162812-135b78a3ec8b
+	github.com/softwareplace/goserve v1.0.4
 )
 `

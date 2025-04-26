@@ -97,6 +97,7 @@ const GoServeMain = `package main
 import (
 	"github.com/${USERNAME}/${PROJECT}/internal/adapter/handler"
 	"github.com/${USERNAME}/${PROJECT}/internal/application"
+	"github.com/softwareplace/${PROJECT}/internal/application/config"
 	"github.com/softwareplace/goserve/logger"
 	"github.com/softwareplace/goserve/server"
 )
@@ -109,10 +110,10 @@ func init() {
 
 func main() {
 	server.New[*application.Principal]().
-		Port("8080").
-		ContextPath("/api/${PROJECT}/v1/").
+		Port(config.Port).
+		ContextPath(config.ContextPath).
+		SwaggerDocHandler(config.SwaggerFile).
 		EmbeddedServer(handler.EmbeddedServer).
-		SwaggerDocHandler("./api/swagger.yaml").
 		StartServer()
 }
 `
