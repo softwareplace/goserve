@@ -2,11 +2,11 @@ package security
 
 import (
 	goservectx "github.com/softwareplace/goserve/context"
-	"github.com/softwareplace/goserve/security/principal"
+	"github.com/softwareplace/goserve/security/router"
 )
 
 func (a *impl[T]) AuthorizationHandler(ctx *goservectx.Request[T]) (doNext bool) {
-	if principal.IsPublicPath[T](*ctx) {
+	if router.IsPublicPath[T](*ctx) {
 		return true
 	}
 

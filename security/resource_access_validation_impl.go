@@ -4,7 +4,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	goservectx "github.com/softwareplace/goserve/context"
 	goserveerror "github.com/softwareplace/goserve/error"
-	"github.com/softwareplace/goserve/security/principal"
+	"github.com/softwareplace/goserve/security/router"
 	"net/http"
 	"strings"
 )
@@ -17,7 +17,7 @@ func (a *defaultResourceAccessHandler[T]) HasResourceAccess(next http.Handler) h
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := goservectx.Of[T](w, r, goserveerror.SecurityValidatorResourceAccess)
 
-		if principal.IsPublicPath[T](*ctx) {
+		if router.IsPublicPath[T](*ctx) {
 			ctx.Next(next)
 			return
 		}
@@ -37,7 +37,7 @@ func (a *defaultResourceAccessHandler[T]) HasResourceAccess(next http.Handler) h
 }
 
 func (a *defaultResourceAccessHandler[T]) HasResourceAccessRight(ctx goservectx.Request[T]) bool {
-	requiredRoles, isRoleRequired := principal.GetRolesForPath(ctx)
+	requiredRoles, isRoleRequired := router.GetRolesForPath(ctx)
 	userRoles := (*ctx.Principal).GetRoles()
 
 	if userRoles == nil || len(userRoles) == 0 {

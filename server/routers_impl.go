@@ -2,7 +2,7 @@ package server
 
 import (
 	goservectx "github.com/softwareplace/goserve/context"
-	"github.com/softwareplace/goserve/security/principal"
+	"github.com/softwareplace/goserve/security/router"
 	"net/http"
 	"strings"
 )
@@ -10,7 +10,7 @@ import (
 func (a *baseServer[T]) PublicRouter(handler ApiContextHandler[T], path string, method string) Api[T] {
 	a.Add(handler, path, method)
 	combinedKey := method + "::" + a.contextPath + path
-	principal.AddOpenPath(combinedKey)
+	router.AddOpenPath(combinedKey)
 	return a
 }
 
@@ -23,7 +23,7 @@ func (a *baseServer[T]) Add(handler ApiContextHandler[T], path string, method st
 		handler(ctx)
 	}).Methods(method)
 
-	principal.AddRoles(method+"::"+handlerPath, requiredRoles...)
+	router.AddRoles(method+"::"+handlerPath, requiredRoles...)
 	return a
 }
 

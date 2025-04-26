@@ -1,4 +1,4 @@
-package principal
+package router
 
 import (
 	goservectx "github.com/softwareplace/goserve/context"

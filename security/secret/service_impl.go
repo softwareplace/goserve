@@ -13,7 +13,7 @@ import (
 	"github.com/softwareplace/goserve/security"
 	"github.com/softwareplace/goserve/security/encryptor"
 	goservejwt "github.com/softwareplace/goserve/security/jwt"
-	"github.com/softwareplace/goserve/security/principal"
+	"github.com/softwareplace/goserve/security/router"
 	"net/http"
 	"os"
 	"time"
@@ -102,7 +102,7 @@ func (a *apiSecretHandlerImpl[T]) DisableForPublicPath(ignore bool) Service[T] {
 }
 
 func (a *apiSecretHandlerImpl[T]) HandlerSecretAccess(ctx *goservectx.Request[T]) bool {
-	isPublicPath := principal.IsPublicPath[T](*ctx)
+	isPublicPath := router.IsPublicPath[T](*ctx)
 	if a.ignoreValidationForPublicPaths && isPublicPath {
 		return true
 	}

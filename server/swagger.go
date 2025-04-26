@@ -5,7 +5,7 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 	log "github.com/sirupsen/logrus"
 	goservectx "github.com/softwareplace/goserve/context"
-	"github.com/softwareplace/goserve/security/principal"
+	"github.com/softwareplace/goserve/security/router"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"os"
 	"strings"
@@ -71,8 +71,8 @@ func (a *baseServer[T]) SwaggerDocProvider(getSwagger func() (swagger *openapi3.
 	a.Router().PathPrefix(a.contextPath + "swagger/").Handler(swaggerHandler)
 
 	a.PublicRouter(a.handleSwaggerJSON(swagger), "doc.json", "GET")
-	principal.AddOpenPath("GET::" + a.contextPath + "doc.json")
-	principal.AddOpenPath("GET::" + a.contextPath + "swagger/.*")
+	router.AddOpenPath("GET::" + a.contextPath + "doc.json")
+	router.AddOpenPath("GET::" + a.contextPath + "swagger/.*")
 	a.swaggerIsEnabled = true
 	return a
 }
