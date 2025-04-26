@@ -97,7 +97,7 @@ const GoServeMain = `package main
 import (
 	"github.com/${USERNAME}/${PROJECT}/internal/adapter/handler"
 	"github.com/${USERNAME}/${PROJECT}/internal/application"
-	"github.com/softwareplace/${PROJECT}/internal/application/config"
+	"github.com/${USERNAME}/${PROJECT}/internal/application/config"
 	"github.com/softwareplace/goserve/logger"
 	"github.com/softwareplace/goserve/server"
 )

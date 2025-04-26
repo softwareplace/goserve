@@ -95,8 +95,8 @@ func main() {
 		fmt.Println("✅ 'oapi-codegen' installed successfully.")
 	}
 
-	mandatoryCmd("go", "mod", "tidy")
 	mandatoryCmd("oapi-codegen", "--config", "./config/config.yaml", "./api/swagger.yaml")
+	mandatoryCmd("go", "mod", "tidy")
 	mandatoryCmd("go", "fmt", "./...")
 	mandatoryCmd("go", "test", "-bench=.", "./...")
 
