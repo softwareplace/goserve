@@ -22,6 +22,7 @@ type baseServer[T goservectx.Principal] struct {
 	swaggerIsEnabled                    bool
 	loginResourceEnable                 bool
 	apiSecretKeyGeneratorResourceEnable bool
+	healthResourceEnable                bool
 	contextPath                         string
 	port                                string
 }
@@ -60,6 +61,7 @@ func New[T goservectx.Principal](topMiddlewares ...ApiMiddleware[T]) Api[T] {
 		router:                              router,
 		apiSecretKeyGeneratorResourceEnable: true,
 		loginResourceEnable:                 true,
+		healthResourceEnable:                true,
 		contextPath:                         apiContextPath(),
 		port:                                apiPort(),
 	}
@@ -87,6 +89,7 @@ func NewWith[T goservectx.Principal](router mux.Router) Api[T] {
 	api := &baseServer[T]{
 		router:                              &router,
 		apiSecretKeyGeneratorResourceEnable: true,
+		healthResourceEnable:                true,
 		loginResourceEnable:                 true,
 		contextPath:                         apiContextPath(),
 		port:                                apiPort(),

@@ -510,6 +510,9 @@ type Api[T goservectx.Principal] interface {
 	// The server is restarted with the current configuration for port and context path.
 	RestartServer() error
 
+	// HealthResourceEnabled enables or disable default api health resource endpoint
+	HealthResourceEnabled(value bool) Api[T]
+
 	// StopServer stops the HTTP server gracefully.
 	// It waits for any ongoing requests to finish within a given timeout before shutting down.
 	// If the server is not running, it simply returns without any action.

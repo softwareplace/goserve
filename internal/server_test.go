@@ -73,6 +73,43 @@ func TestMockServer(t *testing.T) {
 		}
 	})
 
+	t.Run("should return ok by request api health check", func(t *testing.T) {
+		req, err := http.NewRequest("GET", "/health", nil)
+
+		if err != nil {
+			t.Fatalf("Failed to create request: %v", err)
+		}
+
+		rr := httptest.NewRecorder()
+
+		server.Default().
+			ServeHTTP(rr, req)
+
+		if status := rr.Code; status != http.StatusOK {
+			t.Errorf("handler returned wrong status code: got %v want %v",
+				status, http.StatusOK)
+		}
+	})
+
+	t.Run("should return 404 by request api health check and it was disable", func(t *testing.T) {
+		req, err := http.NewRequest("GET", "/health", nil)
+
+		if err != nil {
+			t.Fatalf("Failed to create request: %v", err)
+		}
+
+		rr := httptest.NewRecorder()
+
+		server.Default().
+			HealthResourceEnabled(false).
+			ServeHTTP(rr, req)
+
+		if status := rr.Code; status != http.StatusNotFound {
+			t.Errorf("handler returned wrong status code: got %v want %v",
+				status, http.StatusNotFound)
+		}
+	})
+
 	t.Run("expects that return 401 when api secret is required for all resources but was not provided", func(t *testing.T) {
 		// Create a new request
 		loginBody := strings.NewReader(`{"username": "my-username","password": "ynT9558iiMga&ayTVGs3Gc6ug1"}`)

@@ -36,6 +36,7 @@ func (a *baseServer[T]) LoginResourceEnabled(enable bool) Api[T] {
 }
 
 func (a *baseServer[T]) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	a.HealthResource()
 	a.router.ServeHTTP(w, req)
 }
 

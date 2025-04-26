@@ -72,6 +72,7 @@ func (a *baseServer[T]) ContextPath(contextPath string) Api[T] {
 }
 
 func (a *baseServer[T]) StartServerInGoroutine() Api[T] {
+	a.HealthResource()
 	a.mu.Lock()
 	defer a.mu.Unlock()
 
@@ -104,6 +105,8 @@ func (a *baseServer[T]) StartServerInGoroutine() Api[T] {
 }
 
 func (a *baseServer[T]) StartServer() {
+	a.HealthResource()
+
 	if a.port == "" {
 		a.port = apiPort()
 	}
