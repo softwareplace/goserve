@@ -12,30 +12,54 @@ import (
 	"strings"
 )
 
-var (
-	projectName    = flag.String("n", "", "Project name")
-	username       = flag.String("u", "", "GitHub username")
-	replaceCurrent = flag.String("r", "false", "Replace current directory/files with generated files")
-	giInit         = flag.String("gi", "true", "(optional): Git project initialization")
-)
+const oapiCodegen = "github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen@v2.2.0"
 
 type ReplaceEntry struct {
 	Key   string
 	Value string
 }
 
-const oapiCodegen = "github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen@v2.2.0"
+var (
+	projectName    string
+	username       string
+	replaceCurrent string
+	giInit         string
+	buildVersion   string
+)
+
+func init() {
+	flag.StringVar(&projectName, "n", "", "Project name")
+	flag.StringVar(&username, "u", "", "GitHub username")
+	flag.StringVar(&replaceCurrent, "r", "false", "Replace current directory/files with generated files")
+	flag.StringVar(&giInit, "gi", "true", "(optional): Git project initialization")
+
+	flag.Usage = func() {
+		flagUsage()
+	}
+}
+
+func flagUsage() {
+	_, _ = fmt.Fprintf(os.Stderr, "\nUsage: goserve-generator [options]\n")
+	flag.PrintDefaults()
+	println("  -version|-v|--version\n\tCheck the current version of goserve-generator")
+}
 
 func main() {
+	args := os.Args
+	if len(args) > 1 && (args[1] == "-version" || args[1] == "-v" || args[1] == "--version") {
+		cmd("go", "version")
+		path, err := exec.LookPath("goserve-generator")
+		if err != nil {
+			log.Fatalf("Could not find goserve-generator: %v", err)
+		}
+		cmd("go", "version", "-m", path)
+		return
+	}
+
 	flag.Parse()
 
-	if *projectName == "" || *username == "" {
-		fmt.Printf("\nOptions:\n")
-		fmt.Printf("  -n  (required): Project name (e.g., myproject)\n")
-		fmt.Printf("  -u  (required): GitHub username (e.g., myusername)\n")
-		fmt.Printf("  -r  (optional): Replace current directory/files with generated files (true/false, default: false)\n")
-		fmt.Printf("  -h  (optional): Show this version message\n")
-		fmt.Printf("  -gi  (optional): Git project initialization\n")
+	if projectName == "" || username == "" {
+		flagUsage()
 		os.Exit(1)
 	}
 
@@ -58,7 +82,7 @@ func main() {
 		"api",
 	}
 
-	root := *projectName
+	root := projectName
 	for _, dir := range dirs {
 		path := filepath.Join(root, dir)
 		if err := os.MkdirAll(path, 0755); err != nil {
@@ -100,7 +124,7 @@ func main() {
 	mandatoryCmd("go", "fmt", "./...")
 	mandatoryCmd("go", "test", "-bench=.", "./...")
 
-	if *giInit == "true" {
+	if giInit == "true" {
 		_, err := os.Stat(".git")
 		if err != nil {
 			log.Printf("Git project initialization: %v", err)
@@ -111,7 +135,7 @@ func main() {
 		}
 	}
 
-	fmt.Printf("✅ Project %s created successfully!\n", *projectName)
+	fmt.Printf("✅ Project %s created successfully!\n", projectName)
 }
 
 func cmd(command string, args ...string) {
@@ -139,7 +163,7 @@ func replacement(key string, value string) ReplaceEntry {
 }
 
 func createFile(path string, content string, entries ...ReplaceEntry) {
-	if *replaceCurrent == "false" {
+	if replaceCurrent == "false" {
 		if _, err := os.Stat(path); err == nil {
 			log.Printf("⚠️  File already exists: %s (skipping)", path)
 			return
@@ -148,8 +172,8 @@ func createFile(path string, content string, entries ...ReplaceEntry) {
 
 	entries = append(
 		entries,
-		replacement(template.UsernameKey, *username),
-		replacement(template.ProjectKey, *projectName),
+		replacement(template.UsernameKey, username),
+		replacement(template.ProjectKey, projectName),
 	)
 
 	for _, entry := range entries {
