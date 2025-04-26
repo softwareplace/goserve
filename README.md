@@ -17,14 +17,21 @@ Before using goserve, make sure you have the following installed:
    go version
    ```
 
-2. **Environment Setup**  
+2. **Git** (Version Control System)  
+   👉 [Install Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)  
+   ✅ Verify installation:
+   ```bash
+   git --version
+   ```
+
+3. **Environment Setup**  
    Add Go binaries to your `PATH`:
    ```bash
    export PATH="$HOME/go/bin:$PATH"
    ```
    Add this line to your shell configuration file (e.g., `.bashrc`, `.zshrc`) to persist it.
 
-3. **oapi-codegen Tool** (for OpenAPI/Swagger integration):
+4. **oapi-codegen Tool** (for OpenAPI/Swagger integration):
    ```bash
    go install github.com/deepmap/oapi-codegen/v2/cmd/oapi-codegen@v2.2.0
    ```

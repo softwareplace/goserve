@@ -40,15 +40,23 @@ func init() {
 func flagUsage() {
 	_, _ = fmt.Fprintf(os.Stderr, "\nUsage: goserve-generator [options]\n")
 	flag.PrintDefaults()
-	println("  -version|-v|--version\n\tCheck the current version of goserve-generator")
+	println("  version\n\tCheck the current version of goserve-generator")
+	println("  update\n\tUpdate goserve-generator to the latest version")
 }
 
 func main() {
 	args := os.Args
 
-	if len(args) > 1 && (args[1] == "-version" || args[1] == "-v" || args[1] == "--version") {
-		version.CheckCurrentVersion()
-		return
+	if len(args) > 1 {
+		if args[1] == "version" {
+			version.CheckCurrentVersion()
+			return
+		}
+
+		if args[1] == "update" {
+			version.Update()
+			return
+		}
 	}
 
 	flag.Parse()
