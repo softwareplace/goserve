@@ -67,13 +67,15 @@ func main() {
 	createFile(filepath.Join(root, "cmd/server/main.go"), template.GoServeMain)
 	createFile(filepath.Join(root, "README.md"), template.Readme)
 	createFile(filepath.Join(root, "cmd/server/main_test.go"), template.GoServeMainTest)
-	createFile(filepath.Join(root, "internal/adapter/handler/hello.go"), template.Handler)
+	createFile(filepath.Join(root, "internal/adapter/handler/service.go"), template.HandlerService)
+	createFile(filepath.Join(root, "internal/adapter/handler/hello.go"), template.HandlerImpl)
+	createFile(filepath.Join(root, "internal/core/domain/model/model.go"), template.DomainModel)
 	createFile(filepath.Join(root, "config/config.yaml"), template.GoServeGenConfig)
 	createFile(filepath.Join(root, "api/swagger.yaml"), template.Swagger)
 	createFile(filepath.Join(root, "Makefile"), template.Makefile)
 	createFile(filepath.Join(root, "go.mod"), template.GoMod)
 	createFile(filepath.Join(root, ".gitignore"), template.GitIgnore)
-	createFile(filepath.Join(root, "/internal/application/context.go"), template.Context)
+	createFile(filepath.Join(root, "/internal/application/principal.go"), template.Context)
 	createFile(filepath.Join(root, "/internal/adapter/handler/gen/api.gen.go"), "")
 
 	if err := os.Chdir(root); err != nil {
@@ -88,8 +90,8 @@ func main() {
 	}
 
 	mandatoryCmd("go", "mod", "tidy")
-	mandatoryCmd("go", "fmt", "./...")
 	mandatoryCmd("oapi-codegen", "--config", "./config/config.yaml", "./api/swagger.yaml")
+	mandatoryCmd("go", "fmt", "./...")
 	mandatoryCmd("go", "test", "-bench=.", "./...")
 
 	if *giInit == "true" {

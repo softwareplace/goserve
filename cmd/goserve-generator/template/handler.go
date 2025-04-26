@@ -1,37 +1,46 @@
 package template
 
-const Handler = `package handler
+const HandlerService = `package handler
 
 import (
-	"fmt"
-	goservectx "github.com/softwareplace/goserve/context"
-	"github.com/softwareplace/goserve/server"
 	"github.com/${USERNAME}/${PROJECT}/internal/adapter/handler/gen"
 	"github.com/${USERNAME}/${PROJECT}/internal/application"
+	"github.com/softwareplace/goserve/server"
 	"sync"
-	"time"
 )
 
-type Hello struct {
+type Service struct {
 }
 
 var (
-	serviceInstance *Hello
+	serviceInstance *Service
 	serviceOnce     sync.Once
 )
 
-func create() gen.ApiRequestService[*application.Ctx] {
+func create() gen.ApiRequestService[*application.Principal] {
 	serviceOnce.Do(func() {
-		serviceInstance = &Hello{}
+		serviceInstance = &Service{}
 	})
 	return serviceInstance
 }
 
-func EmbeddedServer(api server.Api[*application.Ctx]) {
-	gen.RequestServiceHandler[*application.Ctx](api, create())
+func EmbeddedServer(api server.Api[*application.Principal]) {
+	gen.RequestServiceHandler[*application.Principal](api, create())
 }
 
-func (t Hello) Hello(request gen.HelloClientRequest, ctx *goservectx.Request[*application.Ctx]) {
+`
+
+const HandlerImpl = `package handler
+
+import (
+	"fmt"
+	"github.com/${USERNAME}/${PROJECT}/internal/adapter/handler/gen"
+	"github.com/${USERNAME}/${PROJECT}/internal/application"
+	goservectx "github.com/softwareplace/goserve/context"
+	"time"
+)
+
+func (s *Service) Hello(request gen.HelloClientRequest, ctx *goservectx.Request[*application.Principal]) {
 	message := fmt.Sprintf("Hello, %s", request.Username)
 	now := time.Now().Unix()
 

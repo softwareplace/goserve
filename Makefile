@@ -5,6 +5,7 @@ test:
 	@make update
 	@make codegen
 	@go test -v -bench=. ./...
+	@make goserve-generator
 
 codegen:
 	 @rm -rf ./internal/gen/api.gen.go

@@ -4,35 +4,35 @@ const Context = `package application
 
 import goservectx "github.com/softwareplace/goserve/context"
 
-type Ctx struct {
+type Principal struct {
 	roles             []string
 	encryptedPassword string
 	RequesterId       string
 }
 
 func New(requesterId string) goservectx.Principal {
-	return &Ctx{
+	return &Principal{
 		RequesterId: requesterId,
 	}
 }
 
-func (c *Ctx) GetId() string {
+func (c *Principal) GetId() string {
 	return c.RequesterId
 }
 
-func (c *Ctx) GetRoles() []string {
+func (c *Principal) GetRoles() []string {
 	return c.roles
 }
 
-func (c *Ctx) SetEncryptedPassword(encryptedPassword string) {
+func (c *Principal) SetEncryptedPassword(encryptedPassword string) {
 	c.encryptedPassword = encryptedPassword
 }
 
-func (c *Ctx) EncryptedPassword() string {
+func (c *Principal) EncryptedPassword() string {
 	return c.encryptedPassword
 }
 
-func (c *Ctx) AddRoles(roles ...string) {
+func (c *Principal) AddRoles(roles ...string) {
 	if roles == nil {
 		c.roles = []string{}
 	}

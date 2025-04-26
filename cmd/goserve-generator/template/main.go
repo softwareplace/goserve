@@ -4,9 +4,9 @@ const GoServeMainTest = `package main
 
 import (
 	log "github.com/sirupsen/logrus"
-	"github.com/softwareplace/goserve/server"
 	"github.com/${USERNAME}/${PROJECT}/internal/adapter/handler"
 	"github.com/${USERNAME}/${PROJECT}/internal/application"
+	"github.com/softwareplace/goserve/server"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -24,7 +24,7 @@ func TestMockServer(t *testing.T) {
 
 		rr := httptest.NewRecorder()
 
-		server.New[*application.Ctx]().
+		server.New[*application.Principal]().
 			ContextPath("/api/${PROJECT}/v1/").
 			EmbeddedServer(handler.EmbeddedServer).
 			ServeHTTP(rr, req)
@@ -51,7 +51,7 @@ func TestMockServer(t *testing.T) {
 
 		rr := httptest.NewRecorder()
 
-		server.New[*application.Ctx]().
+		server.New[*application.Principal]().
 			ContextPath("/api/${PROJECT}/v1/").
 			EmbeddedServer(handler.EmbeddedServer).
 			ServeHTTP(rr, req)
@@ -77,7 +77,7 @@ func TestMockServer(t *testing.T) {
 
 		rr := httptest.NewRecorder()
 
-		server.New[*application.Ctx]().
+		server.New[*application.Principal]().
 			ContextPath("/api/${PROJECT}/v1/").
 			EmbeddedServer(handler.EmbeddedServer).
 			ServeHTTP(rr, req)
@@ -95,10 +95,10 @@ func TestMockServer(t *testing.T) {
 const GoServeMain = `package main
 
 import (
-	"github.com/softwareplace/goserve/logger"
-	"github.com/softwareplace/goserve/server"
 	"github.com/${USERNAME}/${PROJECT}/internal/adapter/handler"
 	"github.com/${USERNAME}/${PROJECT}/internal/application"
+	"github.com/softwareplace/goserve/logger"
+	"github.com/softwareplace/goserve/server"
 )
 
 func init() {
@@ -108,7 +108,7 @@ func init() {
 }
 
 func main() {
-	server.New[*application.Ctx]().
+	server.New[*application.Principal]().
 		Port("8080").
 		ContextPath("/api/${PROJECT}/v1/").
 		EmbeddedServer(handler.EmbeddedServer).
