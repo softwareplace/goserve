@@ -1,6 +1,6 @@
 package template
 
-const GoMod = `module github.con/${USERNAME}/${PROJECT}
+const GoMod = `module github.com/${USERNAME}/${PROJECT}
 
 go 1.24.2
 

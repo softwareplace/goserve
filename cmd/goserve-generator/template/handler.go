@@ -6,8 +6,8 @@ import (
 	"fmt"
 	goservectx "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/server"
-	"github.con/${USERNAME}/${PROJECT}/internal/adapter/handler/gen"
-	"github.con/${USERNAME}/${PROJECT}/internal/application"
+	"github.com/${USERNAME}/${PROJECT}/internal/adapter/handler/gen"
+	"github.com/${USERNAME}/${PROJECT}/internal/application"
 	"sync"
 	"time"
 )

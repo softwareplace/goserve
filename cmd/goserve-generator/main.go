@@ -46,6 +46,7 @@ func main() {
 		"internal/adapter/repository",
 		"internal/adapter/client",
 		"internal/core/domain",
+		"internal/core/domain/model",
 		"internal/core/service",
 		"internal/core/ports",
 		"internal/config",

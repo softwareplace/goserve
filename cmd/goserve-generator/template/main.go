@@ -5,8 +5,8 @@ const GoServeMainTest = `package main
 import (
 	log "github.com/sirupsen/logrus"
 	"github.com/softwareplace/goserve/server"
-	"github.con/${USERNAME}/${PROJECT}/internal/adapter/handler"
-	"github.con/${USERNAME}/${PROJECT}/internal/application"
+	"github.com/${USERNAME}/${PROJECT}/internal/adapter/handler"
+	"github.com/${USERNAME}/${PROJECT}/internal/application"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -97,8 +97,8 @@ const GoServeMain = `package main
 import (
 	"github.com/softwareplace/goserve/logger"
 	"github.com/softwareplace/goserve/server"
-	"github.con/${USERNAME}/${PROJECT}/internal/adapter/handler"
-	"github.con/${USERNAME}/${PROJECT}/internal/application"
+	"github.com/${USERNAME}/${PROJECT}/internal/adapter/handler"
+	"github.com/${USERNAME}/${PROJECT}/internal/application"
 )
 
 func init() {
