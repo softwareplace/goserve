@@ -27,6 +27,11 @@ func CheckCurrentVersion() {
 	}
 
 	fmt.Printf("goserve-generator version: %s\n", currentVersion)
+
+	latestVersion := GoServeLatest()
+	if latestVersion != currentVersion {
+		fmt.Printf("A new version of goserve-generator is available: %s\n", latestVersion)
+	}
 }
 
 func extractVersion(output string) string {
