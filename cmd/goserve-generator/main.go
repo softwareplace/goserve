@@ -40,6 +40,7 @@ func main() {
 
 	dirs := []string{
 		"cmd/server",
+		".github/workflows",
 		"internal/application",
 		"internal/adapter/handler",
 		"internal/adapter/handler/gen",
@@ -65,6 +66,7 @@ func main() {
 	}
 
 	createFile(filepath.Join(root, "cmd/server/main.go"), template.GoServeMain)
+	createFile(filepath.Join(root, ".github/workflows/test.yml"), template.GitHubWorkflow)
 	createFile(filepath.Join(root, "README.md"), template.Readme)
 	createFile(filepath.Join(root, "cmd/server/main_test.go"), template.GoServeMainTest)
 	createFile(filepath.Join(root, "internal/adapter/handler/service.go"), template.HandlerService)
@@ -75,8 +77,8 @@ func main() {
 	createFile(filepath.Join(root, "Makefile"), template.Makefile)
 	createFile(filepath.Join(root, "go.mod"), template.GoMod)
 	createFile(filepath.Join(root, ".gitignore"), template.GitIgnore)
-	createFile(filepath.Join(root, "/internal/application/principal.go"), template.Context)
-	createFile(filepath.Join(root, "/internal/adapter/handler/gen/api.gen.go"), "")
+	createFile(filepath.Join(root, "internal/application/principal.go"), template.Context)
+	createFile(filepath.Join(root, "internal/adapter/handler/gen/api.gen.go"), "")
 
 	if err := os.Chdir(root); err != nil {
 		log.Fatalf("❌ Failed to change directory to %s: %v", root, err)
