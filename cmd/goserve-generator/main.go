@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/softwareplace/goserve/cmd/goserve-generator/template"
+	"github.com/softwareplace/goserve/cmd/goserve-generator/version"
 	"log"
 	"os"
 	"os/exec"
@@ -33,7 +34,7 @@ func main() {
 		fmt.Printf("  -n  (required): Project name (e.g., myproject)\n")
 		fmt.Printf("  -u  (required): GitHub username (e.g., myusername)\n")
 		fmt.Printf("  -r  (optional): Replace current directory/files with generated files (true/false, default: false)\n")
-		fmt.Printf("  -h  (optional): Show this help message\n")
+		fmt.Printf("  -h  (optional): Show this version message\n")
 		fmt.Printf("  -gi  (optional): Git project initialization\n")
 		os.Exit(1)
 	}
@@ -75,7 +76,7 @@ func main() {
 	createFile(filepath.Join(root, "config/config.yaml"), template.GoServeGenConfig)
 	createFile(filepath.Join(root, "api/swagger.yaml"), template.Swagger)
 	createFile(filepath.Join(root, "Makefile"), template.Makefile)
-	createFile(filepath.Join(root, "go.mod"), template.GoMod)
+	createFile(filepath.Join(root, "go.mod"), template.GoMod, replacement(template.GoServeLatestVersionKey, version.GoServeLatest()))
 	createFile(filepath.Join(root, ".gitignore"), template.GitIgnore)
 	createFile(filepath.Join(root, "internal/application/principal.go"), template.Context)
 	createFile(filepath.Join(root, "internal/application/config/config.go"), template.AppConfig)
@@ -95,7 +96,6 @@ func main() {
 	}
 
 	mandatoryCmd("go", "mod", "tidy")
-	mandatoryCmd("go", "get", "-u", "github.com/softwareplace/goserve@latest")
 	mandatoryCmd("oapi-codegen", "--config", "./config/config.yaml", "./api/swagger.yaml")
 	mandatoryCmd("go", "fmt", "./...")
 	mandatoryCmd("go", "test", "-bench=.", "./...")
