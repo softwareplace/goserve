@@ -8,13 +8,13 @@ on:
 
 jobs:
   generator:
-    name: "Generator CIL"
+    name: "Generator CLI"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: 1.23.4
+          go-version: 1.24.2
       - name: Install dependencies
         run: |
           go mod tidy
@@ -29,7 +29,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: 1.23.4
+          go-version: 1.24.2
       - name: Code Gen Test
         run: |
           rm ./internal/gen/api.gen.go
