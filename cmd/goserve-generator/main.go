@@ -88,6 +88,7 @@ func main() {
 	}
 
 	mandatoryCmd("go", "mod", "tidy")
+	mandatoryCmd("go", "fmt", "./...")
 	mandatoryCmd("oapi-codegen", "--config", "./config/config.yaml", "./api/swagger.yaml")
 	mandatoryCmd("go", "test", "-bench=.", "./...")
 
