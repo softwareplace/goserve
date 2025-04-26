@@ -14,33 +14,40 @@ import (
 	"github.com/softwareplace/goserve/security/encryptor"
 	goservejwt "github.com/softwareplace/goserve/security/jwt"
 	"github.com/softwareplace/goserve/security/router"
+	"github.com/softwareplace/goserve/utils"
 	"net/http"
 	"os"
 	"time"
 )
 
-// New apiSecretHandlerImpl is an implementation of the Service interface which manages
-// security-related operations for API requests, such as validating API keys and initializing
-// cryptographic keys. It encapsulates the logic for validating an API secret key and restricting
-// unauthorized access to resources.
+// New creates and initializes a new instance of Service interface implementation,
+// which handles security-related operations for API requests, such as validating API keys and initializing
+// cryptographic keys. It encapsulates the logic necessary for validating API secret keys, restricting unauthorized
+// resource access, and managing cryptographic operations.
 //
 // Type Parameters:
-//   - T: A type that satisfies the `context.Principal` interface, providing API principal-specific context.
+//   - T: A type that satisfies the `goservectx.Principal` interface, representing the API request's security context.
 //
-// Fields:
-//   - secretKey: The file path to the secret key used for cryptographic operations.
-//   - securityService: An instance of Service responsible for cryptographic and security services.
-//   - apiSecret: Holder of the parsed private key, supporting either ECDSA or RSA key types.
-//   - secretProvider: A secretProvider responsible for loading the API secret key for access validation.
-//   - pService: A securityService managing API principal claims and IDs to ensure request security.
+// Parameters:
+//   - provider: An implementation of the Provider interface responsible for managing API secrets and key-related operations.
+//   - service: An implementation of the security.Service interface for cryptographic and validation-related services.
 //
-// This struct provides methods to initialize the secret key, validate the public key against the private key,
-// and enforce access security middleware, ensuring requests are authorized with proper credentials.
+// Returns:
+//   - An instance of the Service interface, initialized and ready to perform security operations.
+//
+// Notes:
+//   - The function retrieves the API private key from the "API_PRIVATE_KEY" environment variable.
+//   - It terminates the application if the private key is not set or fails to initialize properly.
 func New[T goservectx.Principal](
-	secretKey string,
 	provider Provider[T],
 	service security.Service[T],
 ) Service[T] {
+	secretKey := utils.GetEnvOrDefault("API_PRIVATE_KEY", "")
+
+	if secretKey == "" {
+		log.Fatalf("API_PRIVATE_KEY environment variable not set")
+	}
+
 	handler := apiSecretHandlerImpl[T]{
 		secretKey: secretKey,
 		Service:   service,

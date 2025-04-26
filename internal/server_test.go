@@ -25,6 +25,7 @@ func init() {
 var (
 	_ = os.Setenv("API_SECRET_KEY", "DlJeR4%pPbB5Pr5cICMxg0xB")
 	_ = os.Setenv("JWT_CLAIMS_ENCRYPTION_ENABLED", "false")
+	_ = os.Setenv("API_PRIVATE_KEY", "./secret/private.key")
 
 	userPrincipalService = login.NewPrincipalService()
 	securityService      = security.New(userPrincipalService)
@@ -33,7 +34,6 @@ var (
 	secretProvider = provider.NewSecretProvider()
 
 	secretHandler = secret.New(
-		"./secret/private.key",
 		secretProvider,
 		securityService,
 	)
@@ -123,7 +123,6 @@ func TestMockServer(t *testing.T) {
 
 		secretProvider := provider.NewSecretProvider()
 		secretService := secret.New(
-			"./secret/private.key",
 			secretProvider,
 			securityService,
 		)
@@ -154,7 +153,6 @@ func TestMockServer(t *testing.T) {
 
 		secretProvider := provider.NewSecretProvider()
 		secretService := secret.New(
-			"./secret/private.key",
 			secretProvider,
 			securityService,
 		).DisableForPublicPath(true)

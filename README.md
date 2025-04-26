@@ -97,6 +97,7 @@ goserve-generator -n goserve-example -u myuser -r true -gi false
 | `CONTEXT_PATH`                  | No        | `/`          | Base path for all endpoints          |
 | `PORT`                          | No        | `8080`       | Port the server listens on           |
 | `API_SECRET_KEY`                | Yes*      |              | Used in encryption/authentication    |
+| `API_PRIVATE_KEY`               | Yes*      |              | The private.key file path            |
 | `B_CRYPT_COST`                  | No        | `10`         | Cost factor for bcrypt               |
 | `LOG_DIR`                       | No        | `./.log`     | Where log files are stored           |
 | `LOG_APP_NAME`                  | No        |              | Used in the log file naming          |
@@ -133,13 +134,11 @@ func init() {
 var (
 	userPrincipalService = login.NewPrincipalService()
 	securityService      = security.New(
-		"your-api-secret",
 		userPrincipalService,
 	)
 	loginService   = login.NewLoginService(securityService)
 	secretProvider = provider.NewSecretProvider()
 	secretService  = secret.New(
-		"./internal/secret/private.key",
 		secretProvider,
 		securityService,
 	)

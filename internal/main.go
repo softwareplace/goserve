@@ -39,7 +39,6 @@ func runSecretApi() {
 	secretProvider := provider.NewSecretProvider()
 
 	secretService := secret.New(
-		"./internal/secret/private.key",
 		secretProvider,
 		securityService,
 	).DisableForPublicPath(true)
