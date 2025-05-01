@@ -4,7 +4,7 @@ set -e
 
 mkdir -p .out || true
 go test ./... -coverprofile=.out/coverage_raw.out
-grep -v "/test/" .out/coverage_raw.out > .out/coverage.out
+grep -v "/internal/" .out/coverage_raw.out > .out/coverage.out
 go tool cover -func=.out/coverage.out > .out/coverage_report.txt
 
 # Extract total coverage percentage
