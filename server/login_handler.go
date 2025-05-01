@@ -6,7 +6,7 @@ import (
 	goserveerror "github.com/softwareplace/goserve/error"
 	"github.com/softwareplace/goserve/request"
 	"github.com/softwareplace/goserve/security/login"
-	"github.com/softwareplace/goserve/security/secret"
+	"github.com/softwareplace/goserve/security/model"
 )
 
 func (a *baseServer[T]) Login(ctx *goservectx.Request[T]) {
@@ -17,7 +17,7 @@ func (a *baseServer[T]) Login(ctx *goservectx.Request[T]) {
 // and delegating to the secret service handler. It ensures proper error handling
 // for cases where the request body cannot be loaded.
 func (a *baseServer[T]) ApiKeyGenerator(ctx *goservectx.Request[T]) {
-	request.GetRequestBody(ctx, secret.ApiKeyEntryData{}, a.secretService.Handler, request.FailedToLoadBody[T])
+	request.GetRequestBody(ctx, model.ApiKeyEntryData{}, a.secretService.Handler, request.FailedToLoadBody[T])
 }
 
 func (a *baseServer[T]) loginDataHandler(ctx *goservectx.Request[T], user login.User) {

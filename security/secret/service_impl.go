@@ -13,6 +13,7 @@ import (
 	"github.com/softwareplace/goserve/security"
 	"github.com/softwareplace/goserve/security/encryptor"
 	goservejwt "github.com/softwareplace/goserve/security/jwt"
+	"github.com/softwareplace/goserve/security/model"
 	"github.com/softwareplace/goserve/security/router"
 	"github.com/softwareplace/goserve/utils"
 	"net/http"
@@ -57,7 +58,7 @@ func New[T goservectx.Principal](
 	return &handler
 }
 
-func (a *apiSecretHandlerImpl[T]) Handler(ctx *goservectx.Request[T], apiKeyEntryData ApiKeyEntryData) {
+func (a *apiSecretHandlerImpl[T]) Handler(ctx *goservectx.Request[T], apiKeyEntryData model.ApiKeyEntryData) {
 	goserveerror.Handler(func() {
 		log.Infof("API/KEY/GENERATOR: requested by: %s", ctx.AccessId)
 

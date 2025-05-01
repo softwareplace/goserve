@@ -7,8 +7,8 @@ import (
 	"github.com/softwareplace/goserve/security/encryptor"
 	"github.com/softwareplace/goserve/security/jwt"
 	"github.com/softwareplace/goserve/security/login"
+	"github.com/softwareplace/goserve/security/model"
 	"github.com/softwareplace/goserve/security/principal"
-	"github.com/softwareplace/goserve/security/secret"
 	"github.com/softwareplace/goserve/test/service/provider"
 	"github.com/softwareplace/goserve/utils"
 	"sync"
@@ -65,10 +65,10 @@ func (l *Service) RequiredScopes() []string {
 	}
 }
 
-func (l *Service) GetApiJWTInfo(apiKeyEntryData secret.ApiKeyEntryData,
+func (l *Service) GetApiJWTInfo(apiKeyEntryData model.ApiKeyEntryData,
 	_ *goservectx.Request[*goservectx.DefaultContext],
-) (secret.Entry, error) {
-	return secret.Entry{
+) (model.Entry, error) {
+	return model.Entry{
 		Key:        apiKeyEntryData.ClientId,
 		Expiration: apiKeyEntryData.Expiration,
 		Roles:      provider.MockScopes,
@@ -76,7 +76,7 @@ func (l *Service) GetApiJWTInfo(apiKeyEntryData secret.ApiKeyEntryData,
 }
 
 func (l *Service) OnGenerated(data jwt.Response,
-	jwtEntry secret.Entry,
+	jwtEntry model.Entry,
 	ctx goservectx.SampleContext[*goservectx.DefaultContext],
 ) {
 	provider.MockStore[jwtEntry.Key] = *jwtEntry.PublicKey

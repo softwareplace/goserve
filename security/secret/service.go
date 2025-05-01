@@ -3,6 +3,7 @@ package secret
 import (
 	goservectx "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/security"
+	"github.com/softwareplace/goserve/security/model"
 	"github.com/softwareplace/goserve/security/principal"
 )
 
@@ -48,7 +49,7 @@ type Service[T goservectx.Principal] interface {
 	//	 Set to `true` to skip validation; set to `false` to enforce validation.
 	DisableForPublicPath(ignore bool) Service[T]
 
-	Handler(ctx *goservectx.Request[T], body ApiKeyEntryData)
+	Handler(ctx *goservectx.Request[T], body model.ApiKeyEntryData)
 }
 
 type apiSecretHandlerImpl[T goservectx.Principal] struct {

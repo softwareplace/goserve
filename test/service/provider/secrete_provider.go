@@ -4,6 +4,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	goservectx "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/security/jwt"
+	"github.com/softwareplace/goserve/security/model"
 	"github.com/softwareplace/goserve/security/secret"
 	"sync"
 )
@@ -37,11 +38,11 @@ func NewSecretProvider() secret.Provider[*goservectx.DefaultContext] {
 	return secretProvider
 }
 
-func (s *secretProviderImpl) GetJwtEntry(apiKeyEntryData secret.ApiKeyEntryData,
+func (s *secretProviderImpl) GetJwtEntry(apiKeyEntryData model.ApiKeyEntryData,
 	_ *goservectx.Request[*goservectx.DefaultContext],
-) (secret.Entry, error) {
+) (model.Entry, error) {
 
-	return secret.Entry{
+	return model.Entry{
 		Key:        apiKeyEntryData.ClientId,
 		Expiration: apiKeyEntryData.Expiration,
 		Roles:      MockScopes,
@@ -49,7 +50,7 @@ func (s *secretProviderImpl) GetJwtEntry(apiKeyEntryData secret.ApiKeyEntryData,
 }
 
 func (s *secretProviderImpl) OnGenerated(data jwt.Response,
-	jwtEntry secret.Entry,
+	jwtEntry model.Entry,
 	ctx goservectx.SampleContext[*goservectx.DefaultContext],
 ) {
 	MockStore[jwtEntry.Key] = *jwtEntry.PublicKey
