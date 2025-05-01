@@ -1,6 +1,7 @@
 package jwt
 
 import (
+	"github.com/golang-jwt/jwt/v5"
 	goservectx "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/security/encryptor"
 	"github.com/softwareplace/goserve/security/principal"
@@ -57,6 +58,16 @@ type Service[T goservectx.Principal] interface {
 
 	// Issuer returns the identifier of the entity responsible for issuing the JWT tokens in the service.
 	Issuer() string
+
+	// Decode extracts claims from a given JWT token string.
+	// It validates the token and parses its claims into a map[string]interface{}.
+	// Returns an error if the token is invalid or if the claims' structure is incorrect.
+	Decode(tokenString string) (map[string]interface{}, error)
+
+	// Parse parses and validates a JWT token string.
+	// It uses the secret key provided by the BaseService for token signing and validation.
+	// Returns the parsed *jwt.Token or an error if the token cannot be parsed or is invalid.
+	Parse(tokenString string) (*jwt.Token, error)
 
 	HandlerErrorOrElse(
 		ctx *goservectx.Request[T],

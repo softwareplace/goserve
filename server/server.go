@@ -97,7 +97,7 @@ func (a *baseServer[T]) StartServerInGoroutine() Api[T] {
 	// Start the server in a goroutine
 	go func() {
 		if err := a.server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			log.Fatalf("Server failed: %v", err)
+			log.Panicf("Server failed: %v", err)
 		}
 	}()
 

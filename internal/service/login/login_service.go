@@ -9,7 +9,6 @@ import (
 	"github.com/softwareplace/goserve/security/jwt"
 	"github.com/softwareplace/goserve/security/login"
 	"github.com/softwareplace/goserve/security/model"
-	"github.com/softwareplace/goserve/security/principal"
 	"github.com/softwareplace/goserve/utils"
 	"sync"
 	"time"
@@ -39,7 +38,7 @@ func NewLoginService(
 	return loginServiceInstance
 }
 
-func NewPrincipalService() principal.Service[*goservectx.DefaultContext] {
+func NewPrincipalService() *PrincipalServiceImpl {
 	principalServiceService.Do(func() {
 		principalServiceInstance = &PrincipalServiceImpl{}
 	})

@@ -38,6 +38,6 @@ func CreateFile(
 	}
 
 	if err := os.WriteFile(path, []byte(content), 0644); err != nil {
-		log.Fatalf("❌ Failed to create file %s: %v", path, err)
+		log.Panicf("❌ Failed to create file %s: %v", path, err)
 	}
 }

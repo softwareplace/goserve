@@ -26,7 +26,7 @@ func ProjectValidate(projectName string) {
 // changed, it logs the error and terminates the program.
 func joinInProject(projectName string) {
 	if err := os.Chdir(projectName); err != nil {
-		log.Fatalf("❌ Failed to change directory to %s: %v", projectName, err)
+		log.Panicf("❌ Failed to change directory to %s: %v", projectName, err)
 	}
 }
 

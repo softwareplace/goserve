@@ -78,7 +78,7 @@ func NewEncrypt(password string) PasswordEncryptor {
 func (e *_PasswordEncryptorImpl) hashPassword(password string) string {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), getBcryptCost())
 	if err != nil {
-		log.Fatalf("Failed to hash password: %v", err)
+		log.Panicf("Failed to hash password: %v", err)
 	}
 	return string(hashedPassword)
 }
@@ -94,7 +94,7 @@ func (e *_PasswordEncryptorImpl) hashPassword(password string) string {
 func (e *_PasswordEncryptorImpl) mixedString() string {
 	randomResult, err := rand.Int(rand.Reader, big.NewInt(100000))
 	if err != nil {
-		log.Fatalf("Failed to generate random number: %v", err)
+		log.Panicf("Failed to generate random number: %v", err)
 	}
 	return fmt.Sprintf("%d", time.Now().UnixNano()+randomResult.Int64())
 }

@@ -1,6 +1,7 @@
 package jwt
 
 import (
+	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	log "github.com/sirupsen/logrus"
 	goservectx "github.com/softwareplace/goserve/context"
@@ -27,10 +28,7 @@ func (a *BaseService[T]) Principal(
 }
 
 func (a *BaseService[T]) ExtractJWTClaims(ctx *goservectx.Request[T]) bool {
-
-	token, err := jwt.Parse(ctx.Authorization, func(token *jwt.Token) (interface{}, error) {
-		return a.Secret(), nil
-	})
+	token, err := a.Parse(ctx.Authorization)
 
 	if err != nil {
 		log.Errorf("JWT/PARSE: AuthorizationHandler failed: %+v", err)
@@ -126,4 +124,30 @@ func (a *BaseService[T]) From(sub string, roles []string, duration time.Duration
 
 func (a *BaseService[T]) Issuer() string {
 	return utils.GetEnvOrDefault("JWT_ISSUER", "")
+}
+
+func (a *BaseService[T]) Decode(tokenString string) (map[string]interface{}, error) {
+	token, err := a.Parse(tokenString)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok {
+		return claims, nil
+	}
+
+	return nil, fmt.Errorf("invalid token claims structure")
+}
+
+func (a *BaseService[T]) Parse(tokenString string) (*jwt.Token, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		return a.Secret(), nil
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse token: %v", err)
+	}
+
+	return token, nil
 }

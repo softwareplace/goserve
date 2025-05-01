@@ -25,6 +25,6 @@ func MandatoryExecute(command string, args ...string) {
 	cmd.Stderr = os.Stderr
 
 	if err := cmd.Run(); err != nil {
-		log.Fatalf("❌ Failed to Execute command '%s %v': %v", command, args, err)
+		log.Panicf("❌ Failed to Execute command '%s %v': %v", command, args, err)
 	}
 }

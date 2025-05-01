@@ -16,7 +16,7 @@ func (i *_impl) build(method string, config *Config) (*http.Request, error) {
 	if config.Body != nil {
 		jsonBody, err := json.Marshal(config.Body)
 		if err != nil {
-			log.Fatalf("Failed to marshal request body: %v", err)
+			log.Panicf("Failed to marshal request body: %v", err)
 		}
 		body = bytes.NewBuffer(jsonBody)
 	}

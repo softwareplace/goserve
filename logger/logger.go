@@ -52,7 +52,7 @@ func LogSetup() {
 // createLogFile creates or reopens the log file
 func createLogFile() {
 	if err := os.MkdirAll(logDirPath, 0755); err != nil {
-		log.Fatalf("Failed to create log directory: %v", err)
+		log.Panicf("Failed to create log directory: %v", err)
 	}
 
 	// Generate the log file name with the current date
@@ -69,7 +69,7 @@ func createLogFile() {
 	var err error
 	logFile, err = os.OpenFile(logFilePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		log.Fatalf("Failed to open log file: %v", err)
+		log.Panicf("Failed to open log file: %v", err)
 	}
 	// Create a multi-writer that writes to both the terminal and the file
 	LumberjackLogger.Filename = logFilePath

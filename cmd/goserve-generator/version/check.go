@@ -13,7 +13,7 @@ func Update() {
 	_, err := cmd.CombinedOutput()
 
 	if err != nil {
-		log.Fatalf("Failed to update: %v", err)
+		log.Panicf("Failed to update: %v", err)
 	}
 
 	fmt.Print("✅  goserve-generator updated successfully")
@@ -25,13 +25,13 @@ func CheckCurrentVersion() {
 	fmt.Println("")
 
 	if err != nil {
-		log.Fatalf("Could not find goserve-generator: %v", err)
+		log.Panicf("Could not find goserve-generator: %v", err)
 	}
 
 	cmd := exec.Command("go", "version", "-m", path)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		log.Fatalf("Failed to check version: %v", err)
+		log.Panicf("Failed to check version: %v", err)
 	}
 
 	// Parse the output to find the version

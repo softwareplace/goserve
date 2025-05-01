@@ -102,7 +102,7 @@ func createProjectDir(projectName string) {
 	for _, dir := range dirs {
 		path := filepath.Join(projectName, dir)
 		if err := os.MkdirAll(path, 0755); err != nil {
-			log.Fatalf("❌ Failed to create directory %s: %v", path, err)
+			log.Panicf("❌ Failed to create directory %s: %v", path, err)
 		}
 	}
 }
