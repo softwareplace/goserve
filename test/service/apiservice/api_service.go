@@ -3,14 +3,14 @@ package apiservice
 import (
 	log "github.com/sirupsen/logrus"
 	goservectx "github.com/softwareplace/goserve/context"
-	"github.com/softwareplace/goserve/internal/gen"
-	"github.com/softwareplace/goserve/internal/service/file"
-	"github.com/softwareplace/goserve/internal/service/inventory"
-	"github.com/softwareplace/goserve/internal/service/order"
-	"github.com/softwareplace/goserve/internal/service/petstore"
-	"github.com/softwareplace/goserve/internal/service/user"
 	"github.com/softwareplace/goserve/logger"
 	"github.com/softwareplace/goserve/server"
+	"github.com/softwareplace/goserve/test/gen"
+	"github.com/softwareplace/goserve/test/service/file"
+	"github.com/softwareplace/goserve/test/service/inventory"
+	"github.com/softwareplace/goserve/test/service/order"
+	"github.com/softwareplace/goserve/test/service/petstore"
+	"github.com/softwareplace/goserve/test/service/user"
 	"sync"
 )
 

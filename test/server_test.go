@@ -2,13 +2,13 @@ package main
 
 import (
 	goservectx "github.com/softwareplace/goserve/context"
-	"github.com/softwareplace/goserve/internal/service/apiservice"
-	"github.com/softwareplace/goserve/internal/service/login"
-	"github.com/softwareplace/goserve/internal/service/provider"
 	"github.com/softwareplace/goserve/logger"
 	"github.com/softwareplace/goserve/security"
 	"github.com/softwareplace/goserve/security/secret"
 	"github.com/softwareplace/goserve/server"
+	"github.com/softwareplace/goserve/test/service/apiservice"
+	"github.com/softwareplace/goserve/test/service/login"
+	"github.com/softwareplace/goserve/test/service/provider"
 	"net/http"
 	"net/http/httptest"
 	"os"

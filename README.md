@@ -153,7 +153,7 @@ func main() {
 		SecurityService(securityService).
 		EmbeddedServer(apiservice.Register).
 		Get(apiservice.ReportCallerHandler, "/report/caller").
-		SwaggerDocHandler("./internal/resource/pet-store.yaml").
+		SwaggerDocHandler("./test/resource/pet-store.yaml").
 		StartServer()
 }
 ```
@@ -197,7 +197,7 @@ oapi-codegen --config path/to/config.yaml path/to/swagger.yaml
 ### Start server
 
 ```bash
-go run internal/main.go
+go run test/main.go
 ```
 
 Open [http://localhost:8080/swagger/index.html](http://localhost:8080/swagger/index.html)
@@ -207,7 +207,7 @@ Open [http://localhost:8080/swagger/index.html](http://localhost:8080/swagger/in
 ### Start in protected mode
 
 ```bash
-PROTECTED_API=true go run internal/main.go
+PROTECTED_API=true go run test/main.go
 ```
 
 Without token:
