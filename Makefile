@@ -10,7 +10,7 @@ run-test:
 	@make goserve-generator
 
 pet-store:
-	 @oapi-codegen --config ./test/resource/config.yaml ./test/resource/pet-store.yaml  2>&1 | xclip -selection clipboard
+	 @oapi-codegen --config ./internal/resource/config.yaml ./internal/resource/pet-store.yaml  2>&1 | xclip -selection clipboard
 
 # Try test implementation
 run:

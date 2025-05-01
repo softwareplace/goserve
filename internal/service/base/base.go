@@ -1,6 +1,6 @@
 package base
 
-import "github.com/softwareplace/goserve/test/gen"
+import "github.com/softwareplace/goserve/internal/gen"
 
 func Response(message string, status int) gen.BaseResponse {
 	success := false

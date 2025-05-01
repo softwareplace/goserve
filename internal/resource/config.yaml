@@ -3,7 +3,7 @@ package: gen
 generate:
   gorilla-server: true
   models: true
-output: ./test/gen/api.gen.go
+output: ./internal/gen/api.gen.go
 output-options:
   user-templates:
     imports.tmpl: ./resource/templates/imports.tmpl

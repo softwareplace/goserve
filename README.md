@@ -153,7 +153,7 @@ func main() {
 		SecurityService(securityService).
 		EmbeddedServer(apiservice.Register).
 		Get(apiservice.ReportCallerHandler, "/report/caller").
-		SwaggerDocHandler("./test/resource/pet-store.yaml").
+		SwaggerDocHandler("./internal/resource/pet-store.yaml").
 		StartServer()
 }
 ```

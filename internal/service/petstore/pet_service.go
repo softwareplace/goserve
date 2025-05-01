@@ -3,8 +3,8 @@ package petstore
 import (
 	"fmt"
 	goservectx "github.com/softwareplace/goserve/context"
-	"github.com/softwareplace/goserve/test/gen"
-	"github.com/softwareplace/goserve/test/service/base"
+	"github.com/softwareplace/goserve/internal/gen"
+	"github.com/softwareplace/goserve/internal/service/base"
 	"net/http"
 	"sync"
 )

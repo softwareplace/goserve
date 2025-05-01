@@ -2,7 +2,7 @@ package file
 
 import (
 	goservectx "github.com/softwareplace/goserve/context"
-	"github.com/softwareplace/goserve/test/gen"
+	"github.com/softwareplace/goserve/internal/gen"
 	"sync"
 )
 
