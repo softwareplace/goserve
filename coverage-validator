@@ -1,0 +1,26 @@
+#!/bin/bash
+
+set -e
+
+mkdir -p .out || true
+go test ./... -coverprofile=.out/coverage_raw.out
+grep -v "/test/" .out/coverage_raw.out > .out/coverage.out
+go tool cover -func=.out/coverage.out > .out/coverage_report.txt
+
+# Extract total coverage percentage
+TOTAL_COVERAGE=$(go tool cover -func=.out/coverage.out | grep total | awk '{print substr($3, 1, length($3)-1)}')
+
+go tool cover -html=.out/coverage.out -o .out/index.html
+
+
+# Check if coverage meets minimum requirement
+MIN_COVERAGE=80
+if (( $(echo "$TOTAL_COVERAGE < $MIN_COVERAGE" | bc -l) )); then
+    echo -e "\033[0;31mTotal Coverage: $TOTAL_COVERAGE%\033[0m"
+    echo -e "\033[0;31m❌ Coverage is below minimum required ($MIN_COVERAGE%)\033[0m"
+    exit 1
+else
+    echo -e "\033[0;32mTotal Coverage: $TOTAL_COVERAGE%\033[0m"
+    echo -e "\033[0;32m✅ Coverage meets minimum requirement ($MIN_COVERAGE%)\033[0m"
+fi
+

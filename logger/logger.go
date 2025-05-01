@@ -26,7 +26,15 @@ var (
 func init() {
 	logFileNameDateFormat = utils.GetEnvOrDefault("LOG_FILE_NAME_DATE_FORMAT", "2006-01-02")
 	logDirPath = utils.GetEnvOrDefault("LOG_DIR", "./.log/")
-	logDirPath = utils.UserHomePathFix(logDirPath)
+
+	var err error
+
+	logDirPath, err = utils.UserHomePathFix(logDirPath)
+
+	if err != nil {
+		os.Exit(1)
+	}
+
 	appName = utils.GetEnvOrDefault("LOG_APP_NAME", "")
 	LogReportCaller = utils.GetBoolEnvOrDefault("LOG_REPORT_CALLER", false)
 	LumberjackLogger = DefaultLumberjackLogger()

@@ -1,0 +1,7 @@
+#!/bin/bash
+set -e
+
+rm ./test/gen/api.gen.go || true
+mkdir -p ./test/gen || true
+oapi-codegen --config ./test/resource/config.yaml ./test/resource/pet-store.yaml
+go mod tidy

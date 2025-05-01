@@ -1,23 +1,13 @@
 update:
-	@make codegen
-	@go mod tidy
+	@./setup
 
 coverage:
-	@mkdir .out || true
-	@go test ./... -coverprofile=.out/coverage_raw.out
-	@grep -v "/test/" .out/coverage_raw.out > .out/coverage.out
-	@go tool cover -func=.out/coverage.out
-	@go tool cover -html=.out/coverage.out -o .out/index.html
+	@./coverage-validator
 
 run-test:
 	@make update
 	@go test -v -bench=. ./...
 	@make goserve-generator
-
-codegen:
-	 @rm -rf ./test/gen/api.gen.go || true
-	 @mkdir -p ./test/gen || true
-	 @oapi-codegen --config ./test/resource/config.yaml ./test/resource/pet-store.yaml
 
 pet-store:
 	 @oapi-codegen --config ./test/resource/config.yaml ./test/resource/pet-store.yaml  2>&1 | xclip -selection clipboard
