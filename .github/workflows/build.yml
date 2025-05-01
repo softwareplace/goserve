@@ -30,11 +30,14 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: 1.24.2
+      - name: oapi-codegen installer
+        run: |
+          go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
       - name: Code Gen Test
         run: |
-          rm ./internal/gen/api.gen.go
-          go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
-          oapi-codegen --config ./internal/resource/config.yaml ./internal/resource/pet-store.yaml
+          rm ./test/gen/api.gen.go || true
+          mkdir -p ./test/gen || true
+          oapi-codegen --config ./test/resource/config.yaml ./test/resource/pet-store.yaml
       - name: Example test
         run: |
           go test ./...

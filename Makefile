@@ -1,4 +1,5 @@
 update:
+	@make codegen
 	@go mod tidy
 
 coverage:
@@ -10,12 +11,12 @@ coverage:
 
 run-test:
 	@make update
-	@make codegen
 	@go test -v -bench=. ./...
 	@make goserve-generator
 
 codegen:
-	 @rm -rf ./internal/gen/api.gen.go
+	 @rm -rf ./test/gen/api.gen.go || true
+	 @mkdir -p ./test/gen || true
 	 @oapi-codegen --config ./test/resource/config.yaml ./test/resource/pet-store.yaml
 
 pet-store:
