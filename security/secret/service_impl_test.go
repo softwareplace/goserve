@@ -3,6 +3,7 @@ package secret
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
 	goservectx "github.com/softwareplace/goserve/context"
 	goserveerror "github.com/softwareplace/goserve/error"
@@ -12,6 +13,7 @@ import (
 	"github.com/softwareplace/goserve/security"
 	"github.com/softwareplace/goserve/security/jwt"
 	"github.com/softwareplace/goserve/security/model"
+	"github.com/softwareplace/goserve/security/router"
 	"github.com/softwareplace/goserve/utils"
 	"github.com/stretchr/testify/require"
 	"net/http"
@@ -35,11 +37,23 @@ func (a *testSecurityService) Encrypt(value string) (string, error) {
 	return a.Encrypt(value)
 }
 
+type testSecretHandlerImpl struct {
+	apiSecretHandlerImpl[*goservectx.DefaultContext]
+	tesApiSecretKeyValidation func(ctx *goservectx.Request[*goservectx.DefaultContext]) bool
+}
+
+func (a *testSecretHandlerImpl) ApiSecretKeyValidation(ctx *goservectx.Request[*goservectx.DefaultContext]) bool {
+	if a.tesApiSecretKeyValidation != nil {
+		return a.tesApiSecretKeyValidation(ctx)
+	}
+	return a.apiSecretHandlerImpl.ApiSecretKeyValidation(ctx)
+}
+
 func forTest(
 	provider Provider[*goservectx.DefaultContext],
 	service security.Service[*goservectx.DefaultContext],
 	testEncrypt func(value string) (string, error),
-) apiSecretHandlerImpl[*goservectx.DefaultContext] {
+) testSecretHandlerImpl {
 	secretKey := utils.GetEnvOrDefault("API_PRIVATE_KEY", "")
 
 	if secretKey == "" {
@@ -54,7 +68,9 @@ func forTest(
 
 	handler.InitAPISecretKey()
 
-	return handler
+	return testSecretHandlerImpl{
+		apiSecretHandlerImpl: handler,
+	}
 }
 
 func init() {
@@ -331,4 +347,110 @@ func TestSecretImplValidation(t *testing.T) {
 
 		require.Equal(t, http.StatusInternalServerError, rr.Code)
 	})
+
+	t.Run("should return true when ignoreValidationForPublicPaths is enable and is a public path", func(t *testing.T) {
+		secretProvider := provider.NewSecretProvider()
+
+		secretService := New[*goservectx.DefaultContext](
+			secretProvider,
+			security.New(login.NewPrincipalService()),
+		).DisableForPublicPath(true)
+
+		req, err := http.NewRequest("POST", "http://localhost:8080/login", nil)
+		rr := httptest.NewRecorder()
+
+		router.AddOpenPath("POST::/login")
+		require.NoError(t, err)
+
+		ctx := goservectx.Of[*goservectx.DefaultContext](rr, req, goserveerror.HandlerWrapper)
+
+		require.Equal(t, true, secretService.HandlerSecretAccess(ctx))
+	})
+
+	t.Run("should return false when ignoreValidationForPublicPaths is true but is not a public path", func(t *testing.T) {
+		secretProvider := provider.NewSecretProvider()
+
+		secretService := New[*goservectx.DefaultContext](
+			secretProvider,
+			security.New(login.NewPrincipalService()),
+		).DisableForPublicPath(true)
+
+		req, err := http.NewRequest("POST", "http://localhost:8080/"+uuid.NewString(), nil)
+		rr := httptest.NewRecorder()
+
+		require.NoError(t, err)
+
+		ctx := goservectx.Of[*goservectx.DefaultContext](rr, req, goserveerror.HandlerWrapper)
+
+		require.Equal(t, false, secretService.HandlerSecretAccess(ctx))
+	})
+
+	t.Run("should return true when ignoreValidationForPublicPaths is false and is not public path but is authorized", func(t *testing.T) {
+		var expectedEntry model.Entry
+		var data jwt.Response
+
+		generateJwtForTest(t, &expectedEntry, &data)
+
+		secretProvider := provider.NewSecretProvider()
+		secretService := New[*goservectx.DefaultContext](
+			secretProvider,
+			security.New(login.NewPrincipalService()),
+		)
+
+		req, err := http.NewRequest("POST", "/api-key/generate", nil)
+		req.Header.Set(goservectx.XApiKey, data.JWT)
+		require.NoError(t, err)
+
+		rr := httptest.NewRecorder()
+
+		ctx := goservectx.Of[*goservectx.DefaultContext](rr, req, goserveerror.HandlerWrapper)
+
+		secretProvider.TestProviderGet = func(ctx *goservectx.Request[*goservectx.DefaultContext]) (string, error) {
+			return *expectedEntry.PublicKey, nil
+		}
+
+		require.Equal(t, true, secretService.HandlerSecretAccess(ctx))
+	})
+
+}
+
+func generateJwtForTest(t *testing.T, expectedEntry *model.Entry, targetData *jwt.Response) {
+	secretProvider := provider.NewSecretProvider()
+	secretService := New[*goservectx.DefaultContext](
+		secretProvider,
+		security.New(login.NewPrincipalService()),
+	)
+
+	req, err := http.NewRequest("POST", "/api-key/generate", nil)
+
+	require.NoError(t, err)
+
+	rr := httptest.NewRecorder()
+
+	ctx := goservectx.Of[*goservectx.DefaultContext](rr, req, goserveerror.HandlerWrapper)
+
+	apiKeyEntryData := model.ApiKeyEntryData{
+		ClientName: "test",
+		ClientId:   "test",
+		Expiration: 1000,
+	}
+
+	secretProvider.TestOnGenerated = func(
+		data jwt.Response,
+		jwtEntry model.Entry,
+		ctx goservectx.SampleContext[*goservectx.DefaultContext],
+	) {
+		*targetData = data
+		*expectedEntry = jwtEntry
+	}
+
+	secretService.Handler(ctx, apiKeyEntryData)
+
+	require.NotNil(t, expectedEntry)
+	require.NotNil(t, expectedEntry.Expiration)
+	require.NotNil(t, expectedEntry.PublicKey)
+	require.NotNil(t, expectedEntry.Roles)
+
+	require.NotNil(t, expectedEntry.Key)
+	require.Equal(t, expectedEntry.Key, "test")
 }

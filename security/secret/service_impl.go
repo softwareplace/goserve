@@ -116,9 +116,7 @@ func (a *apiSecretHandlerImpl[T]) HandlerSecretAccess(ctx *goservectx.Request[T]
 	}
 
 	if !a.ApiSecretKeyValidation(ctx) {
-		a.HandlerErrorOrElse(ctx, nil, AccessHandlerError, func() {
-			// ignore
-		})
+		a.HandlerErrorOrElse(ctx, nil, AccessHandlerError, nil)
 		ctx.Error("You are not allowed to access this resource", http.StatusUnauthorized)
 		return false
 	}
@@ -181,7 +179,7 @@ func (a *apiSecretHandlerImpl[T]) ApiSecretKeyValidation(ctx *goservectx.Request
 
 	ctx.ApiKeyId = apiKey
 
-	apiAccessKey, err := a.Get(ctx)
+	apiAccessKey, err := a.GetPublicKey(ctx)
 	if err != nil {
 		log.Errorf("API_SECRET_LOADER: AuthorizationHandler failed: %v", err)
 		return false

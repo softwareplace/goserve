@@ -19,7 +19,7 @@ import (
 //     the authentication and authorization context for API requests.
 type Provider[T goservectx.Principal] interface {
 
-	// Get (ctx *context.Request[T]) (string, error):
+	// GetPublicKey (ctx *context.Request[T]) (string, error):
 	//	   Fetches the API secret key for the given request context. The method should implement
 	//	   any necessary logic to securely retrieve and provide the key, such as decryption or
 	//	   validation.
@@ -32,7 +32,7 @@ type Provider[T goservectx.Principal] interface {
 	//   - A string representing the API secret key.
 	//   - An error if the key retrieval or processing fails, ensuring proper error handling in the
 	//	 request lifecycle.
-	Get(ctx *goservectx.Request[T]) (string, error)
+	GetPublicKey(ctx *goservectx.Request[T]) (string, error)
 
 	// GetJwtEntry generates the jwt.Entry for the given ApiKeyEntryData and Request.
 	// This method is responsible for processing the API key entry data and request context to create an ApiJWTInfo object,

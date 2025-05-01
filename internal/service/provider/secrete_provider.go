@@ -38,7 +38,7 @@ func NewSecretProvider() *TestSecretProviderImpl {
 	return &TestSecretProviderImpl{}
 }
 
-func (s *TestSecretProviderImpl) Get(ctx *goservectx.Request[*goservectx.DefaultContext]) (string, error) {
+func (s *TestSecretProviderImpl) GetPublicKey(ctx *goservectx.Request[*goservectx.DefaultContext]) (string, error) {
 	if s.TestProviderGet != nil {
 		return s.TestProviderGet(ctx)
 	}
