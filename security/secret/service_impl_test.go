@@ -52,7 +52,7 @@ func forTest(
 		Provider:  provider,
 	}
 
-	handler.initAPISecretKey()
+	handler.InitAPISecretKey()
 
 	return handler
 }

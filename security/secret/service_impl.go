@@ -5,8 +5,6 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
-	"fmt"
-	"github.com/golang-jwt/jwt/v5"
 	log "github.com/sirupsen/logrus"
 	goservectx "github.com/softwareplace/goserve/context"
 	goserveerror "github.com/softwareplace/goserve/error"
@@ -54,7 +52,7 @@ func New[T goservectx.Principal](
 		Service:   service,
 		Provider:  provider,
 	}
-	handler.initAPISecretKey()
+	handler.InitAPISecretKey()
 	return &handler
 }
 
@@ -117,7 +115,7 @@ func (a *apiSecretHandlerImpl[T]) HandlerSecretAccess(ctx *goservectx.Request[T]
 		return true
 	}
 
-	if !a.apiSecretKeyValidation(ctx) {
+	if !a.ApiSecretKeyValidation(ctx) {
 		a.HandlerErrorOrElse(ctx, nil, AccessHandlerError, func() {
 			// ignore
 		})
@@ -127,17 +125,7 @@ func (a *apiSecretHandlerImpl[T]) HandlerSecretAccess(ctx *goservectx.Request[T]
 	return true
 }
 
-// initAPISecretKey initializes the API secret key by reading and parsing a private key file.
-//
-// This function performs the following steps:
-// - Reads the private key file specified by the `secretKey` field.
-// - Decodes the PEM block from the file data.
-// - Parses the private key from the PEM data using PKCS8 format.
-// - Validates the type of the private key (either ECDSA or RSA).
-// - Stores the private key in the `apiSecret` field of the `apiSecretHandlerImpl` struct.
-//
-// Logs an error and terminates the application if any of the above steps fail.
-func (a *apiSecretHandlerImpl[T]) initAPISecretKey() {
+func (a *apiSecretHandlerImpl[T]) InitAPISecretKey() {
 	// Load private key from the provided secretKey file path
 	privateKeyData, err := os.ReadFile(a.secretKey)
 	if err != nil {
@@ -167,32 +155,9 @@ func (a *apiSecretHandlerImpl[T]) initAPISecretKey() {
 	}
 }
 
-// apiSecretKeyValidation verifies the validity of a public key against the private key stored in the handler.
-//
-// This function performs the following steps:
-// - Extracts JWT claims from the request context using the Service.
-// - Loads the API secret using the provided `ApiSecretKeyServiceProvider`.
-// - Decrypts the API access key to retrieve the PEM-encoded public key.
-// - Decodes the PEM-encoded public key and parses it into a usable public key object.
-// - Validates the type of the parsed public key (ECDSA or RSA).
-// - Ensures the extracted public key corresponds to the private key stored in the `apiSecret` field.
-//
-// If any of the above steps fail, the function logs the error and returns `false`, indicating that
-// the public key validation has failed. Otherwise, it returns `true`.
-//
-// Args:
-//
-//	  ctx (*api_context.Request[T]):
-//		 - The context of the API request carrying the necessary data for validation.
-//
-// Returns:
-//
-//	  bool:
-//		 - `true` if the public key is valid and corresponds to the private key.
-//		 - `false` if the public key is invalid or the validation fails.
-func (a *apiSecretHandlerImpl[T]) apiSecretKeyValidation(ctx *goservectx.Request[T]) bool {
+func (a *apiSecretHandlerImpl[T]) ApiSecretKeyValidation(ctx *goservectx.Request[T]) bool {
 	// Decode the Base64-encoded public key
-	claims, err := a.JWTClaims(ctx)
+	claims, err := a.Decode(ctx.ApiKey)
 
 	if err != nil {
 		log.Errorf("JWT/CLAIMS_EXTRACT: AuthorizationHandler failed: %+v", err)
@@ -279,32 +244,6 @@ func (a *apiSecretHandlerImpl[T]) apiSecretKeyValidation(ctx *goservectx.Request
 	return true
 }
 
-// GeneratePubKey generates an encrypted public key from a given private key file.
-//
-// This function performs the following steps:
-// - Reads the private key from the specified file path.
-// - Decodes the PEM block from the private key data.
-// - Parses the private key using the PKCS8 format.
-// - Determines the type of the private key (ECDSA or RSA).
-// - Marshals the corresponding public key into PEM format.
-// - Encrypts the generated PEM-encoded public key using the securityService's encryption logic.
-//
-// Arguments:
-//   - secretKey (string): The file path to the private key.
-//
-// Returns:
-//   - (string, error): An encrypted PEM-encoded public key and an error (if any occurred).
-//
-// Errors:
-//   - Fails if the private key file cannot be read, parsed, or if the key type is unsupported.
-//   - Fails if the public key cannot be marshaled or encrypted.
-//
-// Example:
-//
-//	 encryptedPubKey, err := handler.generatePubKey("path/to/private.key")
-//	 if err != nil {
-//		 log.Printf("Error generating public key: %v", err)
-//	 }
 func (a *apiSecretHandlerImpl[T]) GeneratePubKey(secretKey string) (string, error) {
 	privateKeyData, err := os.ReadFile(secretKey)
 	if err != nil {
@@ -349,20 +288,4 @@ func (a *apiSecretHandlerImpl[T]) GeneratePubKey(secretKey string) (string, erro
 	})
 
 	return a.Encrypt(string(publicKeyPEM))
-}
-
-func (a *apiSecretHandlerImpl[T]) JWTClaims(ctx *goservectx.Request[T]) (map[string]interface{}, error) {
-	token, err := jwt.Parse(ctx.ApiKey, func(token *jwt.Token) (interface{}, error) {
-		return a.Secret(), nil
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		return claims, nil
-	}
-
-	return nil, fmt.Errorf("failed to extract jwt claims")
 }
