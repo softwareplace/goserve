@@ -25,7 +25,7 @@ func init() {
 var (
 	_ = os.Setenv("API_SECRET_KEY", "DlJeR4%pPbB5Pr5cICMxg0xB")
 	_ = os.Setenv("JWT_CLAIMS_ENCRYPTION_ENABLED", "false")
-	_ = os.Setenv("API_PRIVATE_KEY", "./secret/private.key")
+	_ = os.Setenv("API_PRIVATE_KEY", "./resource/secret/private.key")
 
 	userPrincipalService = login.NewPrincipalService()
 	securityService      = security.New(userPrincipalService)
