@@ -2,6 +2,7 @@ package secret
 
 import (
 	"encoding/json"
+	"fmt"
 	goservectx "github.com/softwareplace/goserve/context"
 	goserveerror "github.com/softwareplace/goserve/error"
 	"github.com/softwareplace/goserve/internal/service/login"
@@ -27,7 +28,6 @@ func init() {
 }
 
 func TestSecretImplValidation(t *testing.T) {
-	secretProvider := provider.NewSecretProvider()
 
 	t.Run("should run in panic when API_PRIVATE_KEY path was not set", func(t *testing.T) {
 		_ = os.Unsetenv("API_PRIVATE_KEY")
@@ -38,6 +38,7 @@ func TestSecretImplValidation(t *testing.T) {
 
 		var resultError error
 
+		secretProvider := provider.NewSecretProvider()
 		goserveerror.Handler(func() {
 			_ = New[*goservectx.DefaultContext](
 				secretProvider,
@@ -58,6 +59,7 @@ func TestSecretImplValidation(t *testing.T) {
 
 		var resultError error
 
+		secretProvider := provider.NewSecretProvider()
 		goserveerror.Handler(func() {
 			_ = New[*goservectx.DefaultContext](
 				secretProvider,
@@ -70,6 +72,7 @@ func TestSecretImplValidation(t *testing.T) {
 	})
 
 	t.Run("should return a new Service instance when API_PRIVATE_KEY exists", func(t *testing.T) {
+		secretProvider := provider.NewSecretProvider()
 		secretService := New[*goservectx.DefaultContext](
 			secretProvider,
 			security.New(login.NewPrincipalService()),
@@ -79,6 +82,7 @@ func TestSecretImplValidation(t *testing.T) {
 	})
 
 	t.Run("should return expect secret", func(t *testing.T) {
+		secretProvider := provider.NewSecretProvider()
 		secretService := New[*goservectx.DefaultContext](
 			secretProvider,
 			security.New(login.NewPrincipalService()),
@@ -90,6 +94,7 @@ func TestSecretImplValidation(t *testing.T) {
 	})
 
 	t.Run("should call listener when api key successfully generated", func(t *testing.T) {
+		secretProvider := provider.NewSecretProvider()
 		secretService := New[*goservectx.DefaultContext](
 			secretProvider,
 			security.New(login.NewPrincipalService()),
@@ -111,15 +116,14 @@ func TestSecretImplValidation(t *testing.T) {
 
 		var expectedEntry *model.Entry
 
-		defer func() {
-			secretProvider.Callback = nil
-		}()
+		secretProvider.TestOnGenerated = func(
+			data jwt.Response,
+			jwtEntry model.Entry,
+			ctx goservectx.SampleContext[*goservectx.DefaultContext],
+		) {
+			expectedEntry = &jwtEntry
+		}
 
-		callBack := utils.TestCallBack[model.Entry](func(entry model.Entry) {
-			expectedEntry = &entry
-		})
-
-		secretProvider.Callback = &callBack
 		secretService.Handler(ctx, apiKeyEntryData)
 
 		require.NotNil(t, expectedEntry)
@@ -132,6 +136,7 @@ func TestSecretImplValidation(t *testing.T) {
 	})
 
 	t.Run("should return 200 when api key successfully generated ", func(t *testing.T) {
+		secretProvider := provider.NewSecretProvider()
 		secretService := New[*goservectx.DefaultContext](
 			secretProvider,
 			security.New(login.NewPrincipalService()),
@@ -153,11 +158,82 @@ func TestSecretImplValidation(t *testing.T) {
 
 		secretService.Handler(ctx, apiKeyEntryData)
 
-		require.Equal(t, rr.Code, http.StatusOK)
+		require.Equal(t, http.StatusOK, rr.Code)
 
 		var response jwt.Response
 
 		err = json.NewDecoder(rr.Body).Decode(&response)
 		require.NoError(t, err)
 	})
+
+	t.Run("should return 500 when failed to GetJwtEntry ", func(t *testing.T) {
+		secretProvider := provider.NewSecretProvider()
+		secretService := New[*goservectx.DefaultContext](
+			secretProvider,
+			security.New(login.NewPrincipalService()),
+		)
+
+		req, err := http.NewRequest("POST", "/api-key/generate", nil)
+
+		require.NoError(t, err)
+
+		rr := httptest.NewRecorder()
+
+		ctx := goservectx.Of[*goservectx.DefaultContext](rr, req, goserveerror.HandlerWrapper)
+
+		apiKeyEntryData := model.ApiKeyEntryData{
+			ClientName: "test",
+			ClientId:   "test",
+			Expiration: 1000,
+		}
+
+		secretProvider.TestGetJwtEntry = func(
+			apiKeyEntryData model.ApiKeyEntryData,
+			_ *goservectx.Request[*goservectx.DefaultContext],
+		) (model.Entry, error) {
+			return model.Entry{}, fmt.Errorf("failed to GetJwtEntry")
+		}
+
+		secretService.Handler(ctx, apiKeyEntryData)
+
+		require.Equal(t, http.StatusInternalServerError, rr.Code)
+	})
+
+	t.Run("should return 500 when public key is empty", func(t *testing.T) {
+		secretProvider := provider.NewSecretProvider()
+		secretService := New[*goservectx.DefaultContext](
+			secretProvider,
+			security.New(login.NewPrincipalService()),
+		)
+
+		req, err := http.NewRequest("POST", "/api-key/generate", nil)
+
+		require.NoError(t, err)
+
+		rr := httptest.NewRecorder()
+
+		ctx := goservectx.Of[*goservectx.DefaultContext](rr, req, goserveerror.HandlerWrapper)
+
+		apiKeyEntryData := model.ApiKeyEntryData{
+			ClientName: "test",
+			ClientId:   "test",
+			Expiration: 1000,
+		}
+
+		secretProvider.TestGetJwtEntry = func(
+			apiKeyEntryData model.ApiKeyEntryData,
+			_ *goservectx.Request[*goservectx.DefaultContext],
+		) (model.Entry, error) {
+			return model.Entry{
+				Key:        "",
+				Expiration: apiKeyEntryData.Expiration,
+				Roles:      provider.MockScopes,
+			}, nil
+		}
+
+		secretService.Handler(ctx, apiKeyEntryData)
+
+		require.Equal(t, http.StatusInternalServerError, rr.Code)
+	})
+
 }

@@ -74,6 +74,10 @@ func (a *BaseService[T]) Generate(data T, duration time.Duration) (*Response, er
 }
 
 func (a *BaseService[T]) From(sub string, roles []string, duration time.Duration) (*Response, error) {
+	if sub == "" {
+		return nil, fmt.Errorf("sub cannot be empty")
+	}
+
 	now := time.Now()
 	expiration := now.Add(duration).Unix()
 
