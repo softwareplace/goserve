@@ -132,8 +132,10 @@ func (a *apiSecretHandlerImpl[T]) InitAPISecretKey() {
 
 	// Decode PEM block from the private key data
 	block, _ := pem.Decode(privateKeyData)
-	if block == nil || block.Type != "PRIVATE KEY" {
+
+	if block == nil || block.Type != "PRIVATE KEY" || block.Bytes == nil {
 		log.Panicf("Failed to decode private key PEM block")
+		return
 	}
 
 	// Parse the private key using ParsePKCS8PrivateKey
@@ -143,13 +145,11 @@ func (a *apiSecretHandlerImpl[T]) InitAPISecretKey() {
 	}
 	a.apiSecret = privateKey
 
-	switch key := a.apiSecret.(type) {
+	switch a.apiSecret.(type) {
 	case *ecdsa.PrivateKey:
 		log.Println("Loaded ECDSA private key successfully")
 	case *rsa.PrivateKey:
 		log.Println("Loaded RSA private key successfully")
-	default:
-		log.Panicf("Unsupported private key type: %T", key)
 	}
 }
 
