@@ -21,7 +21,7 @@ jobs:
       - name: Code Gen Test
         run: |
           ./setup
-      - name: Example test
+      - name: Test execution
         run: |
           go test ./...
   generator:
@@ -38,7 +38,7 @@ jobs:
       - name: Project setup
         run: |
           ./setup
-      - name: CLI
+      - name: Generator validating
         run: |
           go run cmd/goserve-generator/main.go -n go-example -u softwareplace -r true -gi false
   converage:
@@ -58,7 +58,7 @@ jobs:
       - name: Project setup
         run: |
           ./setup
-      - name: CLI
+      - name: Coverage Validating
         run: |
           ./coverage-validator
   
