@@ -71,7 +71,9 @@ func (a *apiSecretHandlerImpl[T]) Handler(ctx *goservectx.Request[T], apiKeyEntr
 		}
 
 		if info.PublicKey == nil || *info.PublicKey == "" {
-			key, err := a.GeneratePubKey(a.SecretKey())
+			var key string
+
+			key, err = a.GeneratePubKey(a.SecretKey())
 			if err != nil {
 				log.Errorf("API/KEY/GENERATOR: Failed to generate public key: %v", err)
 				ctx.InternalServerError("Failed to generate JWT. Please try again later.")
@@ -346,13 +348,7 @@ func (a *apiSecretHandlerImpl[T]) GeneratePubKey(secretKey string) (string, erro
 		Bytes: publicKeyBytes,
 	})
 
-	encryptedKey, err := a.Encrypt(string(publicKeyPEM))
-
-	if err != nil {
-		log.Panicf("Failed to encryptor public key: %+v", err)
-		return "", nil
-	}
-	return encryptedKey, err
+	return a.Encrypt(string(publicKeyPEM))
 }
 
 func (a *apiSecretHandlerImpl[T]) JWTClaims(ctx *goservectx.Request[T]) (map[string]interface{}, error) {
