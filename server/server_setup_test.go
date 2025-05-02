@@ -24,7 +24,7 @@ var (
 
 	loginService   *login.Service
 	secretProvider *provider.TestSecretProviderImpl
-	secretHandler  secret.Service[*goservectx.DefaultContext]
+	secretService  secret.Service[*goservectx.DefaultContext]
 )
 
 func beanInit() {
@@ -34,7 +34,7 @@ func beanInit() {
 	loginService = login.NewLoginService(securityService)
 	secretProvider = provider.NewSecretProvider()
 
-	secretHandler = secret.New(
+	secretService = secret.New(
 		secretProvider,
 		securityService,
 	)

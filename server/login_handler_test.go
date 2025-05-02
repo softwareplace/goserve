@@ -93,7 +93,7 @@ func TestLoginResourceHandlerValidation(t *testing.T) {
 
 		Default().
 			LoginService(loginService).
-			SecretService(secretHandler).
+			SecretService(secretService).
 			SecurityService(securityService).
 			NotFoundHandler().
 			ServeHTTP(rr, req)

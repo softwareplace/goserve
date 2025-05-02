@@ -14,7 +14,7 @@ go tool cover -html=.out/coverage.out -o .out/index.html
 
 
 # Check if coverage meets minimum requirement
-MIN_COVERAGE=26
+MIN_COVERAGE=34
 if (( $(echo "$TOTAL_COVERAGE < $MIN_COVERAGE" | bc -l) )); then
     echo -e "\033[0;31mTotal Coverage: $TOTAL_COVERAGE%\033[0m"
     echo -e "\033[0;31m❌ Coverage is below minimum required ($MIN_COVERAGE%)\033[0m"
