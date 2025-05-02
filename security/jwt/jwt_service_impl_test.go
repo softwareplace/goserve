@@ -160,7 +160,8 @@ func TestExtractJWTClaims(t *testing.T) {
 			PService: &testPrincipalServiceImpl{
 				status: false,
 			},
-			ErrorHandler: goserveerror.Default[*goservectx.DefaultContext](),
+			ErrorHandler:    goserveerror.Default[*goservectx.DefaultContext](),
+			claimsExtractor: defaultClaimsExtractor,
 		}
 
 		context := getDefaultCtx()
@@ -203,7 +204,7 @@ func TestExtractJWTClaims(t *testing.T) {
 		}
 
 		defer func() {
-			service.claimsExtractor = nil
+			service.claimsExtractor = defaultClaimsExtractor
 		}()
 
 		context := getDefaultCtx()
@@ -272,7 +273,7 @@ func TestDecode(t *testing.T) {
 		}
 
 		defer func() {
-			service.claimsExtractor = nil
+			service.claimsExtractor = defaultClaimsExtractor
 		}()
 
 		jwtData := generateJwt(t, 15*time.Minute)

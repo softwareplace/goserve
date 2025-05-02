@@ -103,8 +103,9 @@ func New[T goservectx.Principal](
 	handler goservectx.ApiHandler[T],
 ) Service[T] {
 	return &BaseService[T]{
-		Service:      encryptor.New([]byte(apiSecretKey)),
-		PService:     pService,
-		ErrorHandler: handler,
+		Service:         encryptor.New([]byte(apiSecretKey)),
+		PService:        pService,
+		ErrorHandler:    handler,
+		claimsExtractor: defaultClaimsExtractor,
 	}
 }

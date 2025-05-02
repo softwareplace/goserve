@@ -14,6 +14,11 @@ import (
 
 type claimsExtractor func(token *jwt.Token) (jwt.MapClaims, bool)
 
+func defaultClaimsExtractor(token *jwt.Token) (jwt.MapClaims, bool) {
+	claims, ok := token.Claims.(jwt.MapClaims)
+	return claims, ok
+}
+
 func (a *BaseService[T]) Principal(
 	ctx *goservectx.Request[T],
 ) bool {
@@ -65,11 +70,10 @@ func (a *BaseService[T]) ExtractJWTClaims(ctx *goservectx.Request[T]) bool {
 }
 
 func (a *BaseService[T]) GetClaims(token *jwt.Token) (jwt.MapClaims, bool) {
-	if a.claimsExtractor != nil {
-		return a.claimsExtractor(token)
+	if a.claimsExtractor == nil {
+		a.claimsExtractor = defaultClaimsExtractor
 	}
-	claims, ok := token.Claims.(jwt.MapClaims)
-	return claims, ok
+	return a.claimsExtractor(token)
 }
 
 func (a *BaseService[T]) Generate(data T, duration time.Duration) (*model.Response, error) {
