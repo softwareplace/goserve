@@ -21,6 +21,29 @@ func getDefaultCtx() *goservectx.DefaultContext {
 	return context
 }
 
+func TestErrorHandlerValidation(t *testing.T) {
+	t.Run("should return false when claims successful extracted", func(t *testing.T) {
+		mockApiSecretKey := "iBID8F32zkN1a0d4hCdm4gVS"
+
+		service := impl[*goservectx.DefaultContext]{
+			Service: encryptor.New([]byte(mockApiSecretKey)),
+			Claims:  &claimsImpl{},
+		}
+
+		req, err := http.NewRequest("POST", "/admin", nil)
+
+		require.NoError(t, err)
+		rr := httptest.NewRecorder()
+		ctx := goservectx.Of[*goservectx.DefaultContext](rr, req, "test")
+
+		service.HandlerErrorOrElse(ctx, nil, goserveerror.ExtractClaimsError, func() {
+			ctx.InternalServerError("test")
+		})
+
+		require.Equal(t, http.StatusInternalServerError, rr.Code)
+	})
+}
+
 func TestExtractJWTClaims(t *testing.T) {
 	t.Run("should return false when claims successful extracted", func(t *testing.T) {
 		mockApiSecretKey := "iBID8F32zkN1a0d4hCdm4gVS"
