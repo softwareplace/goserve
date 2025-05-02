@@ -2,6 +2,7 @@ package jwt
 
 import (
 	"errors"
+	"github.com/golang-jwt/jwt/v5"
 	goservectx "github.com/softwareplace/goserve/context"
 	goserveerror "github.com/softwareplace/goserve/error"
 	"github.com/softwareplace/goserve/internal/service/testencryptor"
@@ -185,13 +186,6 @@ func TestExtractJWTClaims(t *testing.T) {
 	})
 
 	t.Run("should return false when failed to get claims", func(t *testing.T) {
-		_ = os.Setenv("TEST_MODE", "true")
-		_ = os.Setenv("JWT_CLAIMS_RESULT_VALUE", "false")
-
-		defer func() {
-			_ = os.Unsetenv("TEST_MODE")
-			_ = os.Unsetenv("JWT_CLAIMS_RESULT_VALUE")
-		}()
 		mockApiSecretKey := "iBID8F32zkN1a0d4hCdm4gVS"
 
 		testEncryptor := testencryptor.New(encryptor.New([]byte(mockApiSecretKey)))
@@ -203,6 +197,14 @@ func TestExtractJWTClaims(t *testing.T) {
 			},
 			ErrorHandler: goserveerror.Default[*goservectx.DefaultContext](),
 		}
+
+		service.claimsExtractor = func(token *jwt.Token) (jwt.MapClaims, bool) {
+			return nil, false
+		}
+
+		defer func() {
+			service.claimsExtractor = nil
+		}()
 
 		context := getDefaultCtx()
 
@@ -252,13 +254,6 @@ func TestExtractJWTClaims(t *testing.T) {
 
 func TestDecode(t *testing.T) {
 	t.Run("should return nil when given an invalid jwt", func(t *testing.T) {
-		_ = os.Setenv("TEST_MODE", "true")
-		_ = os.Setenv("JWT_CLAIMS_RESULT_VALUE", "false")
-
-		defer func() {
-			_ = os.Unsetenv("TEST_MODE")
-			_ = os.Unsetenv("JWT_CLAIMS_RESULT_VALUE")
-		}()
 
 		mockApiSecretKey := "iBID8F32zkN1a0d4hCdm4gVS"
 
@@ -271,6 +266,14 @@ func TestDecode(t *testing.T) {
 			},
 			ErrorHandler: goserveerror.Default[*goservectx.DefaultContext](),
 		}
+
+		service.claimsExtractor = func(token *jwt.Token) (jwt.MapClaims, bool) {
+			return nil, false
+		}
+
+		defer func() {
+			service.claimsExtractor = nil
+		}()
 
 		jwtData := generateJwt(t, 15*time.Minute)
 		decode, err := service.Decode(jwtData.JWT)

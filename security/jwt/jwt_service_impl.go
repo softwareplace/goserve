@@ -12,6 +12,8 @@ import (
 	"time"
 )
 
+type claimsExtractor func(token *jwt.Token) (jwt.MapClaims, bool)
+
 func (a *BaseService[T]) Principal(
 	ctx *goservectx.Request[T],
 ) bool {
@@ -63,10 +65,9 @@ func (a *BaseService[T]) ExtractJWTClaims(ctx *goservectx.Request[T]) bool {
 }
 
 func (a *BaseService[T]) GetClaims(token *jwt.Token) (jwt.MapClaims, bool) {
-	if utils.GetBoolEnvOrDefault("TEST_MODE", false) {
-		return nil, utils.GetBoolEnvOrDefault("JWT_CLAIMS_RESULT_VALUE", false)
+	if a.claimsExtractor != nil {
+		return a.claimsExtractor(token)
 	}
-
 	claims, ok := token.Claims.(jwt.MapClaims)
 	return claims, ok
 }

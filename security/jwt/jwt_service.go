@@ -92,8 +92,9 @@ type Service[T goservectx.Principal] interface {
 
 type BaseService[T goservectx.Principal] struct {
 	encryptor.Service
-	PService     principal.Service[T]
-	ErrorHandler goservectx.ApiHandler[T]
+	PService        principal.Service[T]
+	ErrorHandler    goservectx.ApiHandler[T]
+	claimsExtractor claimsExtractor
 }
 
 func New[T goservectx.Principal](
