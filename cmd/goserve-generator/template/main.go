@@ -7,6 +7,7 @@ import (
 	"github.com/${USERNAME}/${PROJECT}/internal/adapter/handler"
 	"github.com/${USERNAME}/${PROJECT}/internal/application"
 	"github.com/softwareplace/goserve/server"
+	"github.com/stretchr/testify/require"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -17,10 +18,7 @@ func TestMockServer(t *testing.T) {
 	t.Run("should return 400 status code access hello endpoint when required query not provided", func(t *testing.T) {
 
 		req, err := http.NewRequest("GET", "/api/${PROJECT}/v1/hello", nil)
-
-		if err != nil {
-			t.Fatalf("❌ Failed to create request: %v", err)
-		}
+		require.NoError(t, err, "❌ Failed to create request")
 
 		rr := httptest.NewRecorder()
 
@@ -45,9 +43,7 @@ func TestMockServer(t *testing.T) {
 		q.Add("username", "${PROJECT}")
 		req.URL.RawQuery = q.Encode()
 
-		if err != nil {
-			t.Fatalf("❌ Failed to create request: %v", err)
-		}
+		require.NoError(t, err, "❌ Failed to create request")
 
 		rr := httptest.NewRecorder()
 
@@ -71,9 +67,7 @@ func TestMockServer(t *testing.T) {
 		q.Add("username", "Go Serve")
 		req.URL.RawQuery = q.Encode()
 
-		if err != nil {
-			t.Fatalf("❌ Failed to create request: %v", err)
-		}
+		require.NoError(t, err, "❌ Failed to create request")
 
 		rr := httptest.NewRecorder()
 
