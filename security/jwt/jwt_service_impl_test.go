@@ -26,8 +26,8 @@ func TestExtractJWTClaims(t *testing.T) {
 		mockApiSecretKey := "iBID8F32zkN1a0d4hCdm4gVS"
 
 		service := impl[*goservectx.DefaultContext]{
-			Service:      encryptor.New([]byte(mockApiSecretKey)),
-			ErrorHandler: goserveerror.Default[*goservectx.DefaultContext](),
+			Service: encryptor.New([]byte(mockApiSecretKey)),
+			Claims:  &claimsImpl{},
 		}
 
 		context := getDefaultCtx()
@@ -44,7 +44,9 @@ func TestExtractJWTClaims(t *testing.T) {
 
 		ctx := goservectx.Of[*goservectx.DefaultContext](rr, req, "test")
 
-		require.False(t, service.ExtractJWTClaims(ctx))
+		isSuccess := service.ExtractJWTClaims(ctx)
+		require.False(t, isSuccess)
+		require.Equal(t, http.StatusInternalServerError, rr.Code)
 	})
 
 	t.Run("should return false when got a expired jwt", func(t *testing.T) {
@@ -52,6 +54,7 @@ func TestExtractJWTClaims(t *testing.T) {
 
 		service := impl[*goservectx.DefaultContext]{
 			Service:      encryptor.New([]byte(mockApiSecretKey)),
+			Claims:       &claimsImpl{},
 			ErrorHandler: goserveerror.Default[*goservectx.DefaultContext](),
 		}
 
@@ -82,7 +85,7 @@ func TestExtractJWTClaims(t *testing.T) {
 		service := impl[*goservectx.DefaultContext]{
 			Service:      testEncryptor,
 			ErrorHandler: goserveerror.Default[*goservectx.DefaultContext](),
-			Claims:       &claimsImpl[*goservectx.DefaultContext]{},
+			Claims:       &claimsImpl{},
 		}
 
 		context := getDefaultCtx()
@@ -115,7 +118,7 @@ func TestExtractJWTClaims(t *testing.T) {
 		service := impl[*goservectx.DefaultContext]{
 			Service:      testEncryptor,
 			ErrorHandler: goserveerror.Default[*goservectx.DefaultContext](),
-			Claims:       &mockClaimsServiceImpl{false},
+			Claims:       newMockClaimsService(false),
 		}
 
 		context := getDefaultCtx()
@@ -171,7 +174,7 @@ func TestDecode(t *testing.T) {
 		service := impl[*goservectx.DefaultContext]{
 			Service:      testEncryptor,
 			ErrorHandler: goserveerror.Default[*goservectx.DefaultContext](),
-			Claims:       &mockClaimsServiceImpl{false},
+			Claims:       newMockClaimsService(false),
 		}
 
 		jwtData := generateJwt(t, 15*time.Minute)
@@ -342,6 +345,7 @@ func generateJwt(t *testing.T, duration time.Duration) *Response {
 
 	service := impl[*goservectx.DefaultContext]{
 		Service:      encryptor.New([]byte(mockApiSecretKey)),
+		Claims:       &claimsImpl{},
 		ErrorHandler: goserveerror.Default[*goservectx.DefaultContext](),
 	}
 

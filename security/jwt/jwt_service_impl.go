@@ -16,10 +16,11 @@ func (a *impl[T]) ExtractJWTClaims(ctx *goservectx.Request[T]) bool {
 
 	if err != nil {
 		log.Errorf("JWT/PARSE: AuthorizationHandler failed: %+v", err)
+		a.HandlerErrorOrElse(ctx, err, goserveerror.ExtractClaimsError, nil)
 		return false
 	}
 
-	if claims, ok := a.GetClaims(token); ok {
+	if claims, ok := a.Get(token); ok {
 		ctx.AuthorizationClaims = claims
 
 		isJwtClaimsEncryptionEnabled := encryptor.JwtClaimsEncryptionEnabled()
@@ -56,14 +57,14 @@ func (a *impl[T]) From(sub string, roles []string, duration time.Duration) (*Res
 		return nil, fmt.Errorf("sub cannot be empty")
 	}
 
-	now := time.Now()
-	expiration := now.Add(duration).Unix()
+	iat := time.Now()
+	expiration := iat.Add(duration).Unix()
 
 	isJwtClaimsEncryptionEnabled := encryptor.JwtClaimsEncryptionEnabled()
 
 	var err error
 	var requestBy string
-	var encryptedRoles []string
+	var claimRoles []string
 
 	if isJwtClaimsEncryptionEnabled {
 		requestBy, err = a.Encrypt(sub)
@@ -77,23 +78,14 @@ func (a *impl[T]) From(sub string, roles []string, duration time.Duration) (*Res
 			if err != nil {
 				return nil, err
 			}
-			encryptedRoles = append(encryptedRoles, encryptedRole)
+			claimRoles = append(claimRoles, encryptedRole)
 		}
 	} else {
 		requestBy = sub
-		encryptedRoles = roles
+		claimRoles = roles
 	}
 
-	claims := jwt.MapClaims{
-		SUB: requestBy,
-		AUD: encryptedRoles,
-		EXP: expiration,
-		IAT: now.Unix(),
-	}
-
-	if issuer := a.Issuer(); issuer != "" {
-		claims[ISS] = issuer
-	}
+	claims := a.Create(requestBy, claimRoles, expiration, iat, a.Issuer())
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	signedToken, err := token.SignedString(a.Secret())
@@ -101,7 +93,7 @@ func (a *impl[T]) From(sub string, roles []string, duration time.Duration) (*Res
 	return &Response{
 		JWT:      signedToken,
 		Expires:  int(expiration),
-		IssuedAt: int(now.Unix()),
+		IssuedAt: int(iat.Unix()),
 	}, err
 }
 
@@ -116,7 +108,7 @@ func (a *impl[T]) Decode(tokenString string) (map[string]interface{}, error) {
 		return nil, err
 	}
 
-	if claims, ok := a.GetClaims(token); ok {
+	if claims, ok := a.Get(token); ok {
 		return claims, nil
 	}
 
