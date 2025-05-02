@@ -3,6 +3,7 @@ package request
 import (
 	"encoding/json"
 	goservectx "github.com/softwareplace/goserve/context"
+	goserveerror "github.com/softwareplace/goserve/error"
 	"net/http"
 	"strings"
 )
@@ -25,18 +26,22 @@ func GetRequestBody[B any, T goservectx.Principal](
 	onSuccess OnSuccess[B, T],
 	onError OnError[T],
 ) {
-	// Check if the Content-Type is application/json
-	contentType := ctx.Request.Header.Get(goservectx.ContentType)
+	goserveerror.Handler(func() {
+		// Check if the Content-Type is application/json
+		contentType := ctx.Request.Header.Get(goservectx.ContentType)
 
-	if strings.Contains(contentType, goservectx.ApplicationJson) || contentType == "" {
-		// Decode the JSON body
-		if err := json.NewDecoder(ctx.Request.Body).Decode(&target); err != nil {
-			onError(ctx, err)
+		if strings.Contains(contentType, goservectx.ApplicationJson) || contentType == "" {
+			// Decode the JSON body
+			if err := json.NewDecoder(ctx.Request.Body).Decode(&target); err != nil {
+				onError(ctx, err)
+				return
+			}
+			onSuccess(ctx, target)
 			return
 		}
-		onSuccess(ctx, target)
-		return
-	}
 
-	onSuccess(ctx, target)
+		onSuccess(ctx, target)
+	}, func(err error) {
+		onError(ctx, err)
+	})
 }

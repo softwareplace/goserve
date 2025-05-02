@@ -9,6 +9,9 @@ import (
 	"github.com/softwareplace/goserve/security/model"
 )
 
+// Login handles user login requests by processing the request body and
+// delegating to the loginDataHandler function. It ensures proper error
+// handling in cases where the request body cannot be loaded.
 func (a *baseServer[T]) Login(ctx *goservectx.Request[T]) {
 	request.GetRequestBody(ctx, login.User{}, a.loginDataHandler, request.FailedToLoadBody[T])
 }
