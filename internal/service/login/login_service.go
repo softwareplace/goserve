@@ -51,6 +51,7 @@ func (d *PrincipalServiceImpl) LoadPrincipal(ctx *goservectx.Request[*goservectx
 	}
 
 	context := goservectx.NewDefaultCtx()
+	context.SetRequesterId("081162586c7f4f77b877fbca0f09cb7f")
 	context.SetRoles("api:key:goserve-generator")
 	context.SetRoles("api:key:goserve-generator", "write:pets", "read:pets")
 	ctx.Principal = &context
@@ -84,7 +85,8 @@ func (l *Service) OnGenerated(data jwt.Response,
 }
 
 func (l *Service) Login(user login.User) (*goservectx.DefaultContext, error) {
-	result := &goservectx.DefaultContext{}
+	result := goservectx.NewDefaultCtx()
+	result.SetRequesterId("081162586c7f4f77b877fbca0f09cb7f")
 	fullAuthorization := utils.GetBoolEnvOrDefault("FULL_AUTHORIZATION", false)
 	if fullAuthorization {
 		result.SetRoles(provider.MockScopes...)
@@ -93,6 +95,7 @@ func (l *Service) Login(user login.User) (*goservectx.DefaultContext, error) {
 	}
 	password := encryptor.NewEncrypt(user.Password).EncodedPassword()
 	result.SetEncryptedPassword(password)
+
 	return result, nil
 }
 

@@ -79,7 +79,7 @@ func createTempKeyFile(t *testing.T, keyBytes []byte, fileName string) string {
 	return filePath
 }
 
-func TestInitAPISecretKeyValidation(t *testing.T) {
+func TestSecretImplValidationP2(t *testing.T) {
 	tests := []struct {
 		name            string
 		setup           func(t *testing.T) string

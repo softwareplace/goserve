@@ -1,10 +1,5 @@
 package context
 
-// DefaultRequestId is a default requester ID used when no custom requester ID is provided.
-// This is a hardcoded value and is **not secure for production use**.
-// In production, you should use a unique and secure requester ID for each request.
-var DefaultRequestId = "081162586c7f4f77b877fbca0f09cb7f"
-
 // DefaultContext is a simple implementation of a context that holds roles, an encrypted password, and an optional requester ID.
 // This struct is intended for use in **test and development environments only** and is **not recommended for production use**.
 //
@@ -16,11 +11,11 @@ var DefaultRequestId = "081162586c7f4f77b877fbca0f09cb7f"
 // Fields:
 //   - roles: A slice of strings representing the roles associated with this context.
 //   - encryptedPassword: A string representing the encrypted password. Note that this is not secure for production use.
-//   - DefaultRequesterId: A pointer to a string representing an optional requester ID. If not provided, the default requester ID is used.
+//     -requesterId: A pointer to a string representing an optional requester ID. If not provided, the default requester ID is used.
 type DefaultContext struct {
-	roles              []string
-	encryptedPassword  string
-	DefaultRequesterId *string
+	roles             []string
+	encryptedPassword string
+	requesterId       *string
 }
 
 // NewDefaultCtx creates and returns a new instance of DefaultContext.
@@ -29,15 +24,17 @@ func NewDefaultCtx() *DefaultContext {
 	return &DefaultContext{}
 }
 
+// SetRequesterId sets the default requester ID for the context by assigning the provided string pointer torequesterId.
+func (d *DefaultContext) SetRequesterId(requesterId string) {
+	d.requesterId = &requesterId
+}
+
 // GetId returns the requester ID associated with the context.
 // If no custom requester ID is set, it returns the default requester ID.
 // WARNING: The default requester ID is hardcoded and is **not secure for production use**.
 // In production, you should use a unique and secure requester ID for each request.
 func (d *DefaultContext) GetId() string {
-	if d.DefaultRequesterId == nil || *d.DefaultRequesterId == "" {
-		return DefaultRequestId
-	}
-	return *d.DefaultRequesterId
+	return *d.requesterId
 }
 
 // GetRoles returns the roles associated with the context.

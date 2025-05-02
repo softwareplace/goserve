@@ -19,7 +19,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"strings"
 	"testing"
 )
 
@@ -389,9 +388,6 @@ func TestSecretImplValidation(t *testing.T) {
 	t.Run("should return true when ignoreValidationForPublicPaths is false and is not public path but is authorized", func(t *testing.T) {
 		var expectedEntry model.Entry
 		var data jwt.Response
-
-		var pemFile = strings.ReplaceAll(testutils.TestSecretFilePath(), ".key", ".pem")
-		_ = os.Setenv("API_PRIVATE_KEY", pemFile)
 
 		generateJwtForTest(t, &expectedEntry, &data)
 

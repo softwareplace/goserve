@@ -94,7 +94,8 @@ func (a *BaseService[T]) From(sub string, roles []string, duration time.Duration
 		}
 
 		for _, role := range roles {
-			encryptedRole, err := a.Encrypt(role)
+			var encryptedRole string
+			encryptedRole, err = a.Encrypt(role)
 			if err != nil {
 				return nil, err
 			}
