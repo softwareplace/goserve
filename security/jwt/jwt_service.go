@@ -4,6 +4,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	goservectx "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/security/encryptor"
+	"github.com/softwareplace/goserve/security/jwt/model"
 	"github.com/softwareplace/goserve/security/principal"
 	"time"
 )
@@ -15,12 +16,6 @@ const (
 	SUB = "sub"
 	ISS = "iss"
 )
-
-type Response struct {
-	JWT      string `json:"jwt"`
-	Expires  int    `json:"expires"`
-	IssuedAt int    `json:"issuedAt"`
-}
 
 type Service[T goservectx.Principal] interface {
 	encryptor.Service
@@ -47,12 +42,22 @@ type Service[T goservectx.Principal] interface {
 	// - Decrypt and cryptographic methods used must ensure secure implementation.
 	ExtractJWTClaims(requestContext *goservectx.Request[T]) bool
 
+	// GetClaims extracts and validates the JWT claims from the provided token.
+	//
+	// Parameters:
+	//   - token: The JWT token from which claims are to be extracted.
+	//
+	// Returns:
+	//   - jwt.MapClaims: A map containing the claims extracted from the token.
+	//   - bool: A boolean value indicating whether the claims were successfully extracted and valid.
+	GetClaims(token *jwt.Token) (jwt.MapClaims, bool)
+
 	// Generate creates a new JWT Response based on the provided user and duration.
 	// It returns the generated Response or an error if the process fails.
-	Generate(user T, duration time.Duration) (*Response, error)
+	Generate(user T, duration time.Duration) (*model.Response, error)
 
 	// From generates a Response containing a JWT for the given subject, roles, and duration or returns an error if it fails.
-	From(sub string, roles []string, duration time.Duration) (*Response, error)
+	From(sub string, roles []string, duration time.Duration) (*model.Response, error)
 
 	// Issuer returns the identifier of the entity responsible for issuing the JWT tokens in the service.
 	Issuer() string
@@ -66,6 +71,16 @@ type Service[T goservectx.Principal] interface {
 	// It uses the secret key provided by the BaseService for token signing and validation.
 	// Returns the parsed *jwt.Token or an error if the token cannot be parsed or is invalid.
 	Parse(tokenString string) (*jwt.Token, error)
+
+	// IsValid checks if the provided JWT token string is valid.
+	// It parses the token string using the configured secret key and verifies the token's validity.
+	//
+	// Parameters:
+	//   - tokenString: The JWT token string to be validated.
+	//
+	// Returns:
+	//   - True if the token is successfully parsed and is valid; otherwise, false.
+	IsValid(tokenString string) bool
 
 	HandlerErrorOrElse(
 		ctx *goservectx.Request[T],

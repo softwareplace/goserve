@@ -1,9 +1,12 @@
 package jwt
 
 import (
+	"errors"
 	goservectx "github.com/softwareplace/goserve/context"
 	goserveerror "github.com/softwareplace/goserve/error"
+	"github.com/softwareplace/goserve/internal/service/testencryptor"
 	"github.com/softwareplace/goserve/security/encryptor"
+	"github.com/softwareplace/goserve/security/jwt/model"
 	"github.com/stretchr/testify/require"
 	"net/http"
 	"net/http/httptest"
@@ -84,6 +87,195 @@ func TestJwtPrincipal(t *testing.T) {
 		require.False(t, service.Principal(ctx))
 
 		require.Equal(t, http.StatusUnauthorized, rr.Code)
+	})
+}
+
+func TestExtractJWTClaims(t *testing.T) {
+	t.Run("should return false when claims successful extracted", func(t *testing.T) {
+		mockApiSecretKey := "iBID8F32zkN1a0d4hCdm4gVS"
+
+		service := BaseService[*goservectx.DefaultContext]{
+			Service: encryptor.New([]byte(mockApiSecretKey)),
+			PService: &testPrincipalServiceImpl{
+				status: false,
+			},
+			ErrorHandler: goserveerror.Default[*goservectx.DefaultContext](),
+		}
+
+		context := getDefaultCtx()
+
+		jwtData, err := service.Generate(context, 15*time.Minute)
+
+		require.NoError(t, err)
+		require.NotEmpty(t, jwtData)
+
+		req, err := http.NewRequest("POST", "/admin", nil)
+		req.Header.Set(goservectx.XApiKey, jwtData.JWT)
+		require.NoError(t, err)
+		rr := httptest.NewRecorder()
+
+		ctx := goservectx.Of[*goservectx.DefaultContext](rr, req, "test")
+
+		require.False(t, service.ExtractJWTClaims(ctx))
+	})
+
+	t.Run("should return false when got a expired jwt", func(t *testing.T) {
+		mockApiSecretKey := "iBID8F32zkN1a0d4hCdm4gVS"
+
+		service := BaseService[*goservectx.DefaultContext]{
+			Service: encryptor.New([]byte(mockApiSecretKey)),
+			PService: &testPrincipalServiceImpl{
+				status: false,
+			},
+			ErrorHandler: goserveerror.Default[*goservectx.DefaultContext](),
+		}
+
+		context := getDefaultCtx()
+
+		jwtData, err := service.Generate(context, 1*time.Second)
+
+		require.NoError(t, err)
+		require.NotEmpty(t, jwtData)
+
+		time.Sleep(2 * time.Second)
+
+		req, err := http.NewRequest("POST", "/admin", nil)
+		req.Header.Set(goservectx.Authorization, jwtData.JWT)
+		require.NoError(t, err)
+		rr := httptest.NewRecorder()
+
+		ctx := goservectx.Of[*goservectx.DefaultContext](rr, req, "test")
+
+		require.False(t, service.ExtractJWTClaims(ctx))
+	})
+
+	t.Run("should return false when failed to decrypt claims", func(t *testing.T) {
+		mockApiSecretKey := "iBID8F32zkN1a0d4hCdm4gVS"
+
+		testEncryptor := testencryptor.New(encryptor.New([]byte(mockApiSecretKey)))
+
+		service := BaseService[*goservectx.DefaultContext]{
+			Service: testEncryptor,
+			PService: &testPrincipalServiceImpl{
+				status: false,
+			},
+			ErrorHandler: goserveerror.Default[*goservectx.DefaultContext](),
+		}
+
+		context := getDefaultCtx()
+
+		jwtData, err := service.Generate(context, 1*time.Minute)
+
+		require.NoError(t, err)
+		require.NotEmpty(t, jwtData)
+
+		req, err := http.NewRequest("POST", "/admin", nil)
+		req.Header.Set(goservectx.Authorization, jwtData.JWT)
+		require.NoError(t, err)
+		rr := httptest.NewRecorder()
+
+		ctx := goservectx.Of[*goservectx.DefaultContext](rr, req, "test")
+
+		testEncryptor.TestDecrypt = func(encrypted string) (string, error) {
+			return "", errors.New("failed to decrypt")
+		}
+
+		isSuccessful := service.ExtractJWTClaims(ctx)
+		require.False(t, isSuccessful)
+	})
+
+	t.Run("should return false when failed to get claims", func(t *testing.T) {
+		_ = os.Setenv("TEST_MODE", "true")
+		_ = os.Setenv("JWT_CLAIMS_RESULT_VALUE", "false")
+
+		defer func() {
+			_ = os.Unsetenv("TEST_MODE")
+			_ = os.Unsetenv("JWT_CLAIMS_RESULT_VALUE")
+		}()
+		mockApiSecretKey := "iBID8F32zkN1a0d4hCdm4gVS"
+
+		testEncryptor := testencryptor.New(encryptor.New([]byte(mockApiSecretKey)))
+
+		service := BaseService[*goservectx.DefaultContext]{
+			Service: testEncryptor,
+			PService: &testPrincipalServiceImpl{
+				status: false,
+			},
+			ErrorHandler: goserveerror.Default[*goservectx.DefaultContext](),
+		}
+
+		context := getDefaultCtx()
+
+		jwtData, err := service.Generate(context, 1*time.Minute)
+
+		require.NoError(t, err)
+		require.NotEmpty(t, jwtData)
+
+		req, err := http.NewRequest("POST", "/admin", nil)
+		req.Header.Set(goservectx.Authorization, jwtData.JWT)
+		require.NoError(t, err)
+		rr := httptest.NewRecorder()
+
+		ctx := goservectx.Of[*goservectx.DefaultContext](rr, req, "test")
+
+		isSuccessful := service.ExtractJWTClaims(ctx)
+		require.False(t, isSuccessful)
+	})
+
+	t.Run("should return true when claims extraction was successful", func(t *testing.T) {
+		mockApiSecretKey := "iBID8F32zkN1a0d4hCdm4gVS"
+
+		service := BaseService[*goservectx.DefaultContext]{
+			Service: encryptor.New([]byte(mockApiSecretKey)),
+			PService: &testPrincipalServiceImpl{
+				status: false,
+			},
+			ErrorHandler: goserveerror.Default[*goservectx.DefaultContext](),
+		}
+
+		context := getDefaultCtx()
+
+		jwtData := generateJwt(t, 15*time.Minute)
+
+		req, err := http.NewRequest("POST", "/admin", nil)
+		req.Header.Set(goservectx.Authorization, jwtData.JWT)
+		require.NoError(t, err)
+		rr := httptest.NewRecorder()
+
+		ctx := goservectx.Of[*goservectx.DefaultContext](rr, req, "test")
+
+		isSuccess := service.ExtractJWTClaims(ctx)
+		require.True(t, isSuccess)
+		require.Equal(t, context.GetId(), ctx.AccessId)
+	})
+}
+
+func TestDecode(t *testing.T) {
+	t.Run("should return nil when given an invalid jwt", func(t *testing.T) {
+		_ = os.Setenv("TEST_MODE", "true")
+		_ = os.Setenv("JWT_CLAIMS_RESULT_VALUE", "false")
+
+		defer func() {
+			_ = os.Unsetenv("TEST_MODE")
+			_ = os.Unsetenv("JWT_CLAIMS_RESULT_VALUE")
+		}()
+
+		mockApiSecretKey := "iBID8F32zkN1a0d4hCdm4gVS"
+
+		testEncryptor := testencryptor.New(encryptor.New([]byte(mockApiSecretKey)))
+
+		service := BaseService[*goservectx.DefaultContext]{
+			Service: testEncryptor,
+			PService: &testPrincipalServiceImpl{
+				status: false,
+			},
+			ErrorHandler: goserveerror.Default[*goservectx.DefaultContext](),
+		}
+
+		jwtData := generateJwt(t, 15*time.Minute)
+		decode, err := service.Decode(jwtData.JWT)
+		require.Nil(t, decode)
+		require.Error(t, err)
 	})
 }
 
@@ -248,6 +440,80 @@ func TestJwtValidation(t *testing.T) {
 		require.Error(t, err)
 		require.Nil(t, decode)
 	})
+}
+
+func TestIsValid(t *testing.T) {
+	t.Run("should return false when token already expired", func(t *testing.T) {
+		jwtData := generateJwt(t, 1*time.Second)
+
+		mockApiSecretKey := "iBID8F32zkN1a0d4hCdm4gVS"
+
+		service := BaseService[*goservectx.DefaultContext]{
+			Service: encryptor.New([]byte(mockApiSecretKey)),
+			PService: &testPrincipalServiceImpl{
+				status: false,
+			},
+			ErrorHandler: goserveerror.Default[*goservectx.DefaultContext](),
+		}
+
+		time.Sleep(2 * time.Second)
+
+		isSuccess := service.IsValid(jwtData.JWT)
+
+		require.False(t, isSuccess)
+	})
+
+	t.Run("should return false when token has no a valid signature", func(t *testing.T) {
+		mockApiSecretKey := "iBID8F32zkN1a0d4hCdm4gVS"
+		service := BaseService[*goservectx.DefaultContext]{
+			Service: encryptor.New([]byte(mockApiSecretKey)),
+			PService: &testPrincipalServiceImpl{
+				status: false,
+			},
+			ErrorHandler: goserveerror.Default[*goservectx.DefaultContext](),
+		}
+
+		isSuccess := service.IsValid("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c")
+
+		require.False(t, isSuccess)
+	})
+
+	t.Run("should return true when token is not", func(t *testing.T) {
+		jwtData := generateJwt(t, 1*time.Minute)
+
+		mockApiSecretKey := "iBID8F32zkN1a0d4hCdm4gVS"
+
+		service := BaseService[*goservectx.DefaultContext]{
+			Service: encryptor.New([]byte(mockApiSecretKey)),
+			PService: &testPrincipalServiceImpl{
+				status: false,
+			},
+			ErrorHandler: goserveerror.Default[*goservectx.DefaultContext](),
+		}
+
+		isSuccess := service.IsValid(jwtData.JWT)
+
+		require.True(t, isSuccess)
+	})
+}
+
+func generateJwt(t *testing.T, duration time.Duration) *model.Response {
+	mockApiSecretKey := "iBID8F32zkN1a0d4hCdm4gVS"
+
+	service := BaseService[*goservectx.DefaultContext]{
+		Service: encryptor.New([]byte(mockApiSecretKey)),
+		PService: &testPrincipalServiceImpl{
+			status: false,
+		},
+		ErrorHandler: goserveerror.Default[*goservectx.DefaultContext](),
+	}
+
+	context := getDefaultCtx()
+
+	jwtData, err := service.Generate(context, duration)
+	require.NoError(t, err)
+	require.NotEmpty(t, jwtData)
+	return jwtData
 }
 
 func contains[T comparable](slice []T, value T) bool {

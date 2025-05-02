@@ -3,7 +3,7 @@ package provider
 import (
 	log "github.com/sirupsen/logrus"
 	goservectx "github.com/softwareplace/goserve/context"
-	"github.com/softwareplace/goserve/security/jwt"
+	model2 "github.com/softwareplace/goserve/security/jwt/model"
 	"github.com/softwareplace/goserve/security/model"
 )
 
@@ -13,7 +13,7 @@ type TestSecretProviderImpl struct {
 		_ *goservectx.Request[*goservectx.DefaultContext],
 	) (model.Entry, error)
 
-	TestOnGenerated func(data jwt.Response,
+	TestOnGenerated func(data model2.Response,
 		jwtEntry model.Entry,
 		ctx goservectx.SampleContext[*goservectx.DefaultContext],
 	)
@@ -61,7 +61,7 @@ func (s *TestSecretProviderImpl) GetJwtEntry(apiKeyEntryData model.ApiKeyEntryDa
 	}, nil
 }
 
-func (s *TestSecretProviderImpl) OnGenerated(data jwt.Response,
+func (s *TestSecretProviderImpl) OnGenerated(data model2.Response,
 	jwtEntry model.Entry,
 	ctx goservectx.SampleContext[*goservectx.DefaultContext],
 ) {
