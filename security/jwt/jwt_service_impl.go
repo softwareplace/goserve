@@ -5,6 +5,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	log "github.com/sirupsen/logrus"
 	goservectx "github.com/softwareplace/goserve/context"
+	goserveerror "github.com/softwareplace/goserve/error"
 	"github.com/softwareplace/goserve/security/encryptor"
 	"github.com/softwareplace/goserve/utils"
 	"net/http"
@@ -17,9 +18,7 @@ func (a *BaseService[T]) Principal(
 	success := a.PService.LoadPrincipal(ctx)
 
 	if !success {
-		a.HandlerErrorOrElse(ctx, nil, LoadPrincipalError, func() {
-			ctx.Error("AuthorizationHandler failed", http.StatusForbidden)
-		})
+		a.HandlerErrorOrElse(ctx, nil, goserveerror.LoadPrincipalError, nil)
 
 		return success
 	}
@@ -48,8 +47,8 @@ func (a *BaseService[T]) ExtractJWTClaims(ctx *goservectx.Request[T]) bool {
 		}
 
 		if err != nil {
-			log.Errorf("%s: AuthorizationHandler failed: %+v", ExtractClaimsError, err)
-			a.HandlerErrorOrElse(ctx, err, ExtractClaimsError, func() {
+			log.Errorf("%s: AuthorizationHandler failed: %+v", goserveerror.ExtractClaimsError, err)
+			a.HandlerErrorOrElse(ctx, err, goserveerror.ExtractClaimsError, func() {
 				ctx.Error("AuthorizationHandler failed", http.StatusForbidden)
 			})
 			return false
@@ -62,7 +61,7 @@ func (a *BaseService[T]) ExtractJWTClaims(ctx *goservectx.Request[T]) bool {
 
 	log.Errorf("JWT/CLAIMS_EXTRACT: failed with error: %+v", err)
 
-	a.HandlerErrorOrElse(ctx, err, ExtractClaimsError, func() {
+	a.HandlerErrorOrElse(ctx, err, goserveerror.ExtractClaimsError, func() {
 		ctx.Error("AuthorizationHandler failed", http.StatusForbidden)
 	})
 

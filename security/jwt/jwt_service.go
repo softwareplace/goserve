@@ -9,13 +9,11 @@ import (
 )
 
 const (
-	IAT                = "iat"
-	EXP                = "exp"
-	AUD                = "aud"
-	SUB                = "sub"
-	ISS                = "iss"
-	LoadPrincipalError = "JWT/LOAD_PRINCIPAL_ERROR"
-	ExtractClaimsError = "JWT/EXTRACT_CLAIMS_ERROR"
+	IAT = "iat"
+	EXP = "exp"
+	AUD = "aud"
+	SUB = "sub"
+	ISS = "iss"
 )
 
 type Response struct {
