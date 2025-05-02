@@ -11,7 +11,7 @@ import (
 	"github.com/softwareplace/goserve/internal/service/provider"
 	testutils "github.com/softwareplace/goserve/internal/utils"
 	"github.com/softwareplace/goserve/security"
-	model2 "github.com/softwareplace/goserve/security/jwt/model"
+	model2 "github.com/softwareplace/goserve/security/jwt"
 	"github.com/softwareplace/goserve/security/model"
 	"github.com/softwareplace/goserve/security/router"
 	"github.com/softwareplace/goserve/utils"

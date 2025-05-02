@@ -7,33 +7,11 @@ import (
 	goservectx "github.com/softwareplace/goserve/context"
 	goserveerror "github.com/softwareplace/goserve/error"
 	"github.com/softwareplace/goserve/security/encryptor"
-	"github.com/softwareplace/goserve/security/jwt/model"
 	"github.com/softwareplace/goserve/utils"
 	"time"
 )
 
-type claimsExtractor func(token *jwt.Token) (jwt.MapClaims, bool)
-
-func defaultClaimsExtractor(token *jwt.Token) (jwt.MapClaims, bool) {
-	claims, ok := token.Claims.(jwt.MapClaims)
-	return claims, ok
-}
-
-func (a *BaseService[T]) Principal(
-	ctx *goservectx.Request[T],
-) bool {
-	success := a.PService.LoadPrincipal(ctx)
-
-	if !success {
-		a.HandlerErrorOrElse(ctx, nil, goserveerror.LoadPrincipalError, nil)
-
-		return success
-	}
-
-	return success
-}
-
-func (a *BaseService[T]) ExtractJWTClaims(ctx *goservectx.Request[T]) bool {
+func (a *impl[T]) ExtractJWTClaims(ctx *goservectx.Request[T]) bool {
 	token, err := a.Parse(ctx.Authorization)
 
 	if err != nil {
@@ -69,18 +47,11 @@ func (a *BaseService[T]) ExtractJWTClaims(ctx *goservectx.Request[T]) bool {
 	return false
 }
 
-func (a *BaseService[T]) GetClaims(token *jwt.Token) (jwt.MapClaims, bool) {
-	if a.claimsExtractor == nil {
-		a.claimsExtractor = defaultClaimsExtractor
-	}
-	return a.claimsExtractor(token)
-}
-
-func (a *BaseService[T]) Generate(data T, duration time.Duration) (*model.Response, error) {
+func (a *impl[T]) Generate(data T, duration time.Duration) (*Response, error) {
 	return a.From(data.GetId(), data.GetRoles(), duration)
 }
 
-func (a *BaseService[T]) From(sub string, roles []string, duration time.Duration) (*model.Response, error) {
+func (a *impl[T]) From(sub string, roles []string, duration time.Duration) (*Response, error) {
 	if sub == "" {
 		return nil, fmt.Errorf("sub cannot be empty")
 	}
@@ -127,18 +98,18 @@ func (a *BaseService[T]) From(sub string, roles []string, duration time.Duration
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	signedToken, err := token.SignedString(a.Secret())
 
-	return &model.Response{
+	return &Response{
 		JWT:      signedToken,
 		Expires:  int(expiration),
 		IssuedAt: int(now.Unix()),
 	}, err
 }
 
-func (a *BaseService[T]) Issuer() string {
+func (a *impl[T]) Issuer() string {
 	return utils.GetEnvOrDefault("JWT_ISSUER", "")
 }
 
-func (a *BaseService[T]) Decode(tokenString string) (map[string]interface{}, error) {
+func (a *impl[T]) Decode(tokenString string) (map[string]interface{}, error) {
 	token, err := a.Parse(tokenString)
 
 	if err != nil {
@@ -152,7 +123,7 @@ func (a *BaseService[T]) Decode(tokenString string) (map[string]interface{}, err
 	return nil, fmt.Errorf("invalid token claims structure")
 }
 
-func (a *BaseService[T]) Parse(tokenString string) (*jwt.Token, error) {
+func (a *impl[T]) Parse(tokenString string) (*jwt.Token, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		return a.Secret(), nil
 	})
@@ -164,10 +135,22 @@ func (a *BaseService[T]) Parse(tokenString string) (*jwt.Token, error) {
 	return token, nil
 }
 
-func (a *BaseService[T]) IsValid(tokenString string) bool {
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return a.Secret(), nil
-	})
+func (a *impl[T]) HandlerErrorOrElse(
+	ctx *goservectx.Request[T],
+	error error,
+	executionContext string,
+	handlerNotFound func(),
+) {
+	if a.ErrorHandler != nil {
+		a.ErrorHandler.Handler(ctx, error, executionContext)
+		return
+	}
 
-	return err == nil && token.Valid
+	if handlerNotFound != nil {
+		handlerNotFound()
+		return
+	}
+
+	log.Errorf("DEFAULT/ERROR/HANDLER:: Failed to handle the request. Error: %s", error.Error())
+	ctx.InternalServerError("Failed to handle the request. Please try again.")
 }

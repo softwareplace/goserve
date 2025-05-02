@@ -3,7 +3,7 @@ package provider
 import (
 	log "github.com/sirupsen/logrus"
 	goservectx "github.com/softwareplace/goserve/context"
-	model2 "github.com/softwareplace/goserve/security/jwt/model"
+	model2 "github.com/softwareplace/goserve/security/jwt"
 	"github.com/softwareplace/goserve/security/model"
 )
 

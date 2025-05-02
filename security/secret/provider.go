@@ -2,7 +2,7 @@ package secret
 
 import (
 	goservectx "github.com/softwareplace/goserve/context"
-	goservejwt "github.com/softwareplace/goserve/security/jwt/model"
+	goservejwt "github.com/softwareplace/goserve/security/jwt"
 	"github.com/softwareplace/goserve/security/model"
 )
 

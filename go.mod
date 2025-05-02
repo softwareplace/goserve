@@ -41,7 +41,10 @@ require (
 	github.com/swaggo/files v1.0.1 // indirect
 	github.com/swaggo/swag v1.16.4 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
+	go.uber.org/mock v0.5.2 // indirect
+	golang.org/x/mod v0.24.0 // indirect
 	golang.org/x/net v0.39.0 // indirect
+	golang.org/x/sync v0.13.0 // indirect
 	golang.org/x/sys v0.32.0 // indirect
 	golang.org/x/text v0.24.0 // indirect
 	golang.org/x/tools v0.32.0 // indirect
