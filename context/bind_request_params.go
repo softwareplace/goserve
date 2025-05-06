@@ -6,7 +6,6 @@ import (
 	goservereflect "github.com/softwareplace/goserve/reflect"
 	"net/http"
 	"net/url"
-	"reflect"
 	"strings"
 )
 
@@ -49,14 +48,10 @@ func (ctx *Request[T]) BindRequestParams(target interface{}) *RequestError {
 	contentType := ctx.Request.Header.Get(ContentType)
 
 	if strings.Contains(contentType, MultipartFormData) {
-		targetType := reflect.TypeOf(target)
-		if body, ok := goservereflect.FindField(targetType, "body"); ok {
-			_ = goservereflect.ParamsExtract(body,
-				goservereflect.ParamsExtractorSource{
-					Tree: ctx.FormValues(),
-				},
-			)
-		}
+		goservereflect.FormBodyExtract(target,
+			goservereflect.ParamsExtractorSource{
+				Tree: ctx.FormValues(),
+			})
 	}
 	_ = goservereflect.ParamsExtract(target,
 		goservereflect.ParamsExtractorSource{
