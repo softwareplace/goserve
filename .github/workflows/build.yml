@@ -42,7 +42,7 @@ jobs:
         run: |
           go run cmd/goserve-generator/main.go -n go-example -u softwareplace -r true -gi false
   converage:
-    name: "Coverage validator"
+    name: "Code coverage validator"
     runs-on: ubuntu-latest
     needs:
       - validation
@@ -55,10 +55,12 @@ jobs:
       - name: oapi-codegen installer
         run: |
           go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
+          go install github.com/axw/gocov/gocov@latest
+          go install github.com/matm/gocov-html/cmd/gocov-html@latest
       - name: Project setup
         run: |
           ./setup
-      - name: Coverage Validating
+      - name: Code coverage validator
         run: |
           ./coverage-validator
   

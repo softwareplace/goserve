@@ -28,18 +28,19 @@ if [ ${#cov_ignoring[@]} -ne 0 ]; then
 fi
 
 function runCoverage() {
-  go test ./... -coverprofile=.out/coverage_raw.out
-  coverage_out=$(cat .out/coverage_raw.out)
+  go test ./... -coverprofile=.out/coverage.out
+  coverage_out=$(cat .out/coverage.out)
 
   for i in "${cov_ignoring[@]}" ; do
       coverage_out=$(echo "$coverage_out" | grep -v "$i")
   done
+
   echo "$coverage_out" > .out/coverage.out
+  gocov convert .out/coverage.out > .out/coverage.json
+  cat .out/coverage.json | gocov-html > .out/index.html
 
   # Extract total coverage percentage
-  TOTAL_COVERAGE=$(go tool cover -func=.out/coverage.out | grep total | awk '{print substr($3, 1, length($3)-1)}')
-  
-  go tool cover -html=.out/coverage.out -o .out/index.html
+  TOTAL_COVERAGE=$(cat .out/index.html | grep 'id="totalcov"' | sed -E 's/.*>([0-9.]+%).*/\1/')
 
   # Check if coverage meets minimum requirement
   MIN_COVERAGE=34

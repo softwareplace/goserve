@@ -26,3 +26,6 @@ goserve-generator:
 	@cd go-example && git status
 	@rm -rf go-example
 
+install-coverage-utils:
+	@go install github.com/axw/gocov/gocov@latest
+	@go install github.com/matm/gocov-html/cmd/gocov-html@latest
