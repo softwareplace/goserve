@@ -43,7 +43,7 @@ function runCoverage() {
   TOTAL_COVERAGE=$(cat .out/index.html | grep 'id="totalcov"' | sed -E 's/.*>([0-9.]+%).*/\1/')
 
   # Check if coverage meets minimum requirement
-  MIN_COVERAGE=34
+  MIN_COVERAGE=40
   if (( $(echo "$TOTAL_COVERAGE < $MIN_COVERAGE" | bc -l) )); then
       echo -e "\033[0;31mTotal Coverage: $TOTAL_COVERAGE%\033[0m"
       echo -e "\033[0;31m❌ Coverage is below minimum required ($MIN_COVERAGE%)\033[0m"
