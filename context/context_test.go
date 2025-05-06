@@ -131,6 +131,12 @@ func TestRequest_ErrorResponses(t *testing.T) {
 				ctx.Forbidden("Forbidden")
 			},
 		},
+		{
+			error: "Invalid input",
+			callback: func(ctx *Request[*mockPrincipal]) {
+				ctx.InvalidInput()
+			},
+		},
 	}
 
 	for _, err := range expectedError {
