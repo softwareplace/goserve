@@ -2,25 +2,55 @@
 
 set -e
 
+echo
+
 mkdir -p .out || true
-go test ./... -coverprofile=.out/coverage_raw.out
-grep -v "/internal/" .out/coverage_raw.out > .out/coverage.out
-go tool cover -func=.out/coverage.out > .out/coverage_report.txt
 
-# Extract total coverage percentage
-TOTAL_COVERAGE=$(go tool cover -func=.out/coverage.out | grep total | awk '{print substr($3, 1, length($3)-1)}')
+cov_ignoring=()
 
-go tool cover -html=.out/coverage.out -o .out/index.html
+function appendCoverageIgnoring() {
+  local ignoring_value="$1"
 
+  # Ignoring values that starts with #, considered as a comment
+  if [[ ! "$ignoring_value" =~ ^# ]]; then
+    cov_ignoring+=("$ignoring_value")
+  fi
+}
 
-# Check if coverage meets minimum requirement
-MIN_COVERAGE=34
-if (( $(echo "$TOTAL_COVERAGE < $MIN_COVERAGE" | bc -l) )); then
-    echo -e "\033[0;31mTotal Coverage: $TOTAL_COVERAGE%\033[0m"
-    echo -e "\033[0;31m❌ Coverage is below minimum required ($MIN_COVERAGE%)\033[0m"
-    exit 1
-else
-    echo -e "\033[0;32mTotal Coverage: $TOTAL_COVERAGE%\033[0m"
-    echo -e "\033[0;32m✅ Coverage meets minimum requirement ($MIN_COVERAGE%)\033[0m"
+if [ -f .covignore ]; then
+  while ifs= read -r i; do appendCoverageIgnoring "${i%?}"; done < .covignore
 fi
 
+if [ ${#cov_ignoring[@]} -ne 0 ]; then
+  printf "Coverage ignoring:\n"
+  printf "  %s\n" "${cov_ignoring[@]}"
+  echo
+fi
+
+function runCoverage() {
+  go test ./... -coverprofile=.out/coverage_raw.out
+  coverage_out=$(cat .out/coverage_raw.out)
+
+  for i in "${cov_ignoring[@]}" ; do
+      coverage_out=$(echo "$coverage_out" | grep -v "$i")
+  done
+  echo "$coverage_out" > .out/coverage.out
+
+  # Extract total coverage percentage
+  TOTAL_COVERAGE=$(go tool cover -func=.out/coverage.out | grep total | awk '{print substr($3, 1, length($3)-1)}')
+  
+  go tool cover -html=.out/coverage.out -o .out/index.html
+
+  # Check if coverage meets minimum requirement
+  MIN_COVERAGE=34
+  if (( $(echo "$TOTAL_COVERAGE < $MIN_COVERAGE" | bc -l) )); then
+      echo -e "\033[0;31mTotal Coverage: $TOTAL_COVERAGE%\033[0m"
+      echo -e "\033[0;31m❌ Coverage is below minimum required ($MIN_COVERAGE%)\033[0m"
+      exit 1
+  else
+      echo -e "\033[0;32mTotal Coverage: $TOTAL_COVERAGE%\033[0m"
+      echo -e "\033[0;32m✅ Coverage meets minimum requirement ($MIN_COVERAGE%)\033[0m"
+  fi
+}
+
+runCoverage

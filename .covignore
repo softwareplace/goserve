@@ -1,0 +1,6 @@
+/internal/gen/.*
+/internal/doc/.*
+/internal/resource/.*
+/internal/service/.*
+/internal/utils/.*
+/internal/main.go
