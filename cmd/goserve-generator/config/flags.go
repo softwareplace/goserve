@@ -18,6 +18,9 @@ var (
 	Username       string
 	ReplaceCurrent string
 	GiInit         string
+	osExit         = os.Exit
+	checkVersion   = version.CheckCurrentVersion
+	update         = version.Update
 )
 
 func argsValidation() {
@@ -25,13 +28,13 @@ func argsValidation() {
 
 	if len(args) > 1 {
 		if args[1] == "version" {
-			version.CheckCurrentVersion()
-			os.Exit(0)
+			checkVersion()
+			osExit(0)
 		}
 
 		if args[1] == "update" {
-			version.Update()
-			os.Exit(0)
+			update()
+			osExit(0)
 		}
 	}
 
@@ -39,7 +42,7 @@ func argsValidation() {
 
 	if ProjectName == "" || Username == "" {
 		flagUsage()
-		os.Exit(1)
+		osExit(1)
 	}
 }
 
@@ -49,9 +52,7 @@ func InitFlags() {
 	flag.StringVar(&ReplaceCurrent, "r", "false", "Replace current directory/files with generated files")
 	flag.StringVar(&GiInit, "gi", "true", "(optional): Git project initialization")
 
-	flag.Usage = func() {
-		flagUsage()
-	}
+	flag.Usage = flagUsage
 
 	argsValidation()
 }
