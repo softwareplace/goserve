@@ -18,7 +18,9 @@ function appendCoverageIgnoring() {
 }
 
 if [ -f .covignore ]; then
-  while ifs= read -r i; do appendCoverageIgnoring "${i%?}"; done < .covignore
+  while IFS= read -r i || [ -n "$i" ]; do
+    appendCoverageIgnoring "$i"
+  done < .covignore
 fi
 
 if [ ${#cov_ignoring[@]} -ne 0 ]; then
@@ -28,29 +30,33 @@ if [ ${#cov_ignoring[@]} -ne 0 ]; then
 fi
 
 function runCoverage() {
+  # Run tests and generate coverage
   go test ./... -coverprofile=.out/coverage.out
   coverage_out=$(cat .out/coverage.out)
 
+  # Filter out ignored paths
   for i in "${cov_ignoring[@]}" ; do
       coverage_out=$(echo "$coverage_out" | grep -v "$i")
   done
 
   echo "$coverage_out" > .out/coverage.out
+
+  # Generate coverage reports
   gocov convert .out/coverage.out > .out/coverage.json
   cat .out/coverage.json | gocov-html > .out/index.html
 
-  # Extract total coverage percentage
-  TOTAL_COVERAGE=$(cat .out/index.html | grep 'id="totalcov"' | sed -E 's/.*>([0-9.]+%).*/\1/')
+  # Extract total coverage percentage more reliably
+  TOTAL_COVERAGE=$(grep -oP 'id="totalcov"[^>]*>\K[0-9.]+' .out/index.html || echo "0")
 
   # Check if coverage meets minimum requirement
   MIN_COVERAGE=50
-  if (( $(echo "$TOTAL_COVERAGE < $MIN_COVERAGE" | bc -l) )); then
-      echo -e "\033[0;31mTotal Coverage: $TOTAL_COVERAGE%\033[0m"
-      echo -e "\033[0;31m❌ Coverage is below minimum required ($MIN_COVERAGE%)\033[0m"
+  if (( $(echo "$TOTAL_COVERAGE < $MIN_COVERAGE" | bc -l 2>/dev/null) )); then
+      echo -e "\033[0;31mTotal Coverage: ${TOTAL_COVERAGE}%\033[0m"
+      echo -e "\033[0;31m❌ Coverage is below minimum required (${MIN_COVERAGE}%)\033[0m"
       exit 1
   else
-      echo -e "\033[0;32mTotal Coverage: $TOTAL_COVERAGE%\033[0m"
-      echo -e "\033[0;32m✅ Coverage meets minimum requirement ($MIN_COVERAGE%)\033[0m"
+      echo -e "\033[0;32mTotal Coverage: ${TOTAL_COVERAGE}%\033[0m"
+      echo -e "\033[0;32m✅ Coverage meets minimum requirement (${MIN_COVERAGE}%)\033[0m"
   fi
 }
 
