@@ -11,7 +11,6 @@ import (
 // disable log do add date on log
 func init() {
 	log.SetFlags(0)
-
 }
 
 var (

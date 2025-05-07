@@ -4,3 +4,4 @@
 /internal/service/.*
 /internal/utils/.*
 /internal/main.go
+cmd/goserve-generator/main.go
