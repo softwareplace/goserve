@@ -29,12 +29,9 @@ func rootAppMiddleware[T goservectx.Principal](next http.Handler) http.Handler {
 		goserveerror.Handler(func() {
 			start := time.Now() // Record the start time
 			ctx = goservectx.Of[T](w, r, "MIDDLEWARE/ROOT_APP")
-			queryParam := ""
-			if r.URL.RawQuery != "" {
-				queryParam = "?" + r.URL.RawQuery
-			}
 
-			log.Printf("[%s]:: Incoming request: %s %s from %s", ctx.GetSessionId(), r.Method, r.URL.Path+queryParam, r.RemoteAddr)
+			uri := r.URL.RequestURI()
+			log.Printf("[%s]:: Incoming request: %s %s from %s", ctx.GetSessionId(), r.Method, uri, r.RemoteAddr)
 
 			ctx.Next(next)
 
@@ -43,7 +40,7 @@ func rootAppMiddleware[T goservectx.Principal](next http.Handler) http.Handler {
 			log.Printf("[%s]:: => request processed: %s %s in %v",
 				ctx.GetSessionId(),
 				r.Method,
-				r.URL.Path+queryParam,
+				uri,
 				duration,
 			)
 
