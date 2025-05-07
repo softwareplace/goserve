@@ -13,11 +13,13 @@ var (
 	getLatestVersion      = GoServeLatest
 	extractCurrentVersion = extractVersion
 	gitTargetInstaller    = "github.com/softwareplace/goserve/cmd/goserve-generator@"
+	getPath               = exec.LookPath
+	runCmd                = exec.Command
 )
 
 func Update() {
 	targetResource := fmt.Sprintf("%s%s", gitTargetInstaller, getLatestVersion())
-	cmd := exec.Command("go", "install", targetResource)
+	cmd := runCmd("go", "install", targetResource)
 	_, err := cmd.CombinedOutput()
 
 	if err != nil {
@@ -29,14 +31,14 @@ func Update() {
 }
 
 func CheckCurrentVersion() {
-	path, err := exec.LookPath(executableName)
+	path, err := getPath(executableName)
 	fmt.Println("")
 
 	if err != nil {
 		log.Panicf("Could not find goserve-generator: %v", err)
 	}
 
-	cmd := exec.Command("go", "version", "-m", path)
+	cmd := runCmd("go", "version", "-m", path)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		log.Panicf("Failed to check version: %v", err)
