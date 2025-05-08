@@ -1,7 +1,8 @@
-package context
+package request
 
 import (
 	"github.com/gorilla/mux"
+	"github.com/softwareplace/goserve/context"
 	"github.com/stretchr/testify/require"
 	"net/http"
 	"net/http/httptest"
@@ -27,15 +28,15 @@ func TestRequest_BindRequestParams(t *testing.T) {
 	t.Run("should return no error when required header was provided", func(t *testing.T) {
 		router := mux.NewRouter()
 
-		var ctx *Request[*DefaultContext]
+		var ctx *context.Request[*context.DefaultContext]
 		request := MockRequest{
 			Body: MockFormBody{},
 		}
 		var errBind *RequestError
 
 		router.HandleFunc("/login/{userId}", func(w http.ResponseWriter, r *http.Request) {
-			ctx = Of[*DefaultContext](w, r, "test")
-			errBind = ctx.BindRequestParams(&request)
+			ctx = context.Of[*context.DefaultContext](w, r, "test")
+			errBind = BindRequestParams(r, &request)
 			if errBind != nil {
 				ctx.InternalServerError(errBind.Error())
 				return
@@ -45,7 +46,7 @@ func TestRequest_BindRequestParams(t *testing.T) {
 
 		req, err := http.NewRequest("POST", "/login/101?count=1000&page=10", nil)
 		require.NoError(t, err)
-		req.Header.Set("Content-Type", MultipartFormData)
+		req.Header.Set("Content-Type", context.MultipartFormData)
 		req.Header.Set("X-Api-Key", "test")
 		req.Form = make(map[string][]string)
 
@@ -71,13 +72,13 @@ func TestRequest_BindRequestParams(t *testing.T) {
 	t.Run("should return error when required header was not provided", func(t *testing.T) {
 		router := mux.NewRouter()
 
-		var ctx *Request[*DefaultContext]
+		var ctx *context.Request[*context.DefaultContext]
 		request := MockRequest{}
 		var errBind *RequestError
 
 		router.HandleFunc("/login", func(w http.ResponseWriter, r *http.Request) {
-			ctx = Of[*DefaultContext](w, r, "test")
-			errBind = ctx.BindRequestParams(&request)
+			ctx = context.Of[*context.DefaultContext](w, r, "test")
+			errBind = BindRequestParams(r, &request)
 			if errBind != nil {
 				ctx.InternalServerError(errBind.Error())
 				return

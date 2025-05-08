@@ -3,6 +3,9 @@ package context
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"github.com/stretchr/testify/require"
+	"io"
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
@@ -23,8 +26,15 @@ func newMockContext() *Request[*mockPrincipal] {
 	req := httptest.NewRequest(http.MethodGet, "/path?queryKey=queryValue", nil)
 	req.Header.Set("X-Api-Key", "mockApiKey")
 	req.Header.Set("Authorization", "mockAuth")
-	res := httptest.NewRecorder()
-	return Of[*mockPrincipal](res, req, "testReference")
+	recorder := httptest.NewRecorder()
+	return Of[*mockPrincipal](recorder, req, "testReference")
+}
+
+func newMockContextForRecorder(recorder *httptest.ResponseRecorder) *Request[*mockPrincipal] {
+	req := httptest.NewRequest(http.MethodGet, "/path?queryKey=queryValue", nil)
+	req.Header.Set("X-Api-Key", "mockApiKey")
+	req.Header.Set("Authorization", "mockAuth")
+	return Of[*mockPrincipal](recorder, req, "testReference")
 }
 
 func TestRequest_Context(t *testing.T) {
@@ -186,4 +196,23 @@ func TestRequest_FormFile(t *testing.T) {
 	content := make([]byte, 9)
 	file.Read(content)
 	assert.Equal(t, "test data", string(content))
+}
+
+func TestWriteResponse(t *testing.T) {
+	defer func() {
+		encoder = jsonEncoder
+	}()
+
+	encoder = func(w io.Writer, v any) error {
+		return fmt.Errorf("error")
+	}
+
+	recorder := httptest.NewRecorder()
+	ctx := newMockContextForRecorder(recorder)
+
+	body := map[string]string{"key": "value"}
+	ctx.Write(body, http.StatusOK)
+
+	require.Equal(t, http.StatusOK, recorder.Code)
+	require.Equal(t, recorder.Body.String(), "")
 }

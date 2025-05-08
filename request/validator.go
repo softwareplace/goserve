@@ -1,4 +1,4 @@
-package context
+package request
 
 import (
 	"errors"
@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func (ctx *Request[T]) StructValidation(target interface{}) error {
+func StructValidation(target interface{}) error {
 	validate := validator.New()
 
 	english := en.New()
@@ -25,11 +25,7 @@ func (ctx *Request[T]) StructValidation(target interface{}) error {
 	})
 
 	validate.RegisterTagNameFunc(func(fld reflect.StructField) string {
-		name := strings.SplitN(fld.Tag.Get("error_message"), ",", 2)[0]
-		if name == "-" {
-			return ""
-		}
-		return name
+		return getErrorMessage(fld)
 	})
 
 	err := validate.Struct(target)
@@ -42,4 +38,12 @@ func (ctx *Request[T]) StructValidation(target interface{}) error {
 	}
 
 	return nil
+}
+
+func getErrorMessage(fld reflect.StructField) string {
+	name := strings.SplitN(fld.Tag.Get("error_message"), ",", 2)[0]
+	if name == "-" {
+		return ""
+	}
+	return name
 }

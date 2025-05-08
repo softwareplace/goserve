@@ -1,8 +1,9 @@
-package context
+package request
 
 import (
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/softwareplace/goserve/context"
 	goservereflect "github.com/softwareplace/goserve/reflect"
 	"net/http"
 	"net/url"
@@ -29,8 +30,7 @@ func (e *RequestError) Error() string {
 	return fmt.Sprintf("%s %s", e.Source, e.Message)
 }
 
-func (ctx *Request[T]) FormValues() url.Values {
-	r := ctx.Request
+func FormValues(r *http.Request) url.Values {
 	if r.Form == nil {
 		err := r.ParseMultipartForm(defaultMaxMemory)
 		if err != nil {
@@ -42,15 +42,13 @@ func (ctx *Request[T]) FormValues() url.Values {
 
 // BindRequestParams extracts and binds request parameters such as query, form data, headers, or route vars into a target struct.
 // It validates the target struct and returns a RequestError with details on validation failure, or nil on success.
-func (ctx *Request[T]) BindRequestParams(target interface{}) *RequestError {
-	r := ctx.Request
+func BindRequestParams(r *http.Request, target interface{}) *RequestError {
+	contentType := r.Header.Get(context.ContentType)
 
-	contentType := ctx.Request.Header.Get(ContentType)
-
-	if strings.Contains(contentType, MultipartFormData) {
+	if strings.Contains(contentType, context.MultipartFormData) {
 		goservereflect.FormBodyExtract(target,
 			goservereflect.ParamsExtractorSource{
-				Tree: ctx.FormValues(),
+				Tree: FormValues(r),
 			})
 	}
 	_ = goservereflect.ParamsExtract(target,
@@ -63,7 +61,7 @@ func (ctx *Request[T]) BindRequestParams(target interface{}) *RequestError {
 		},
 	)
 
-	err := ctx.StructValidation(target)
+	err := StructValidation(target)
 
 	if err != nil {
 		return &RequestError{

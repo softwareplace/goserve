@@ -2,7 +2,6 @@ package context
 
 import (
 	"context"
-	"encoding/json"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
@@ -174,7 +173,7 @@ func (ctx *Request[T]) Done() {
 func (ctx *Request[T]) Write(body any, status int) {
 	if !ctx.Completed {
 		(*ctx.Writer).WriteHeader(status)
-		err := json.NewEncoder(*ctx.Writer).Encode(body)
+		err := encoder(*ctx.Writer, body)
 		if err != nil {
 			log.Printf("Error encoding response: %v", err)
 		}
