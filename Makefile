@@ -19,7 +19,7 @@ run:
 	@PROTECTED_API=true LOG_REPORT_CALLER=true go run ./internal/main.go
 
 install:
-	@go install github.com/softwareplace/goserve/cmd/goserve-generator@v0.0.1-SNAPSHOT
+	@go install github.com/softwareplace/goserve/cmd/goserve-generator@$(shell git rev-parse HEAD)
 
 goserve-generator:
 	@go run cmd/goserve-generator/main.go -n go-example -u softwareplace -r true -cgf internal/resource/test_config.yaml -gsv $(shell git rev-parse HEAD)
