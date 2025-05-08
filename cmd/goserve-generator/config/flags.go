@@ -25,18 +25,18 @@ var (
 	update            = version.Update
 )
 
-func argsValidation() {
-	args := os.Args
-
-	if len(args) > 1 {
-		if args[1] == "version" {
+func argsValidation(args []string) {
+	if len(args) >= 1 {
+		if args[0] == "version" {
 			checkVersion()
 			osExit(0)
+			return
 		}
 
-		if args[1] == "update" {
+		if args[0] == "update" {
 			update()
 			osExit(0)
+			return
 		}
 	}
 
@@ -67,7 +67,7 @@ func InitFlagsWithSet(fs *flag.FlagSet, args []string) error {
 		return err
 	}
 
-	argsValidation()
+	argsValidation(args)
 
 	return nil
 }
