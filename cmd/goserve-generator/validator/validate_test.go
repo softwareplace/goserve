@@ -59,7 +59,7 @@ func TestValidateProjectValidation(t *testing.T) {
 
 		baseProjectPath := utils.JoinPath(rootProjectPath, ".out/", config.ProjectName)
 		defer func() {
-			//_ = os.RemoveAll(baseProjectPath)
+			_ = os.RemoveAll(baseProjectPath)
 			testCleanup(t)
 		}()
 
@@ -84,7 +84,7 @@ func TestValidateProjectValidation(t *testing.T) {
 
 		baseProjectPath := utils.JoinPath(rootProjectPath, ".out/", config.ProjectName)
 		defer func() {
-			//_ = os.RemoveAll(baseProjectPath)
+			_ = os.RemoveAll(baseProjectPath)
 			testCleanup(t)
 		}()
 
