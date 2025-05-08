@@ -2,7 +2,6 @@ package utils
 
 import (
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"github.com/softwareplace/goserve/cmd/goserve-generator/config"
 	testutils "github.com/softwareplace/goserve/internal/utils"
 	"github.com/stretchr/testify/require"
@@ -32,7 +31,7 @@ func TestGeneratePathsValidation(t *testing.T) {
 		require.FileExists(t, JoinPath(baseProjectPath, "config_ReplaceCurrent_test02.txt"))
 		CreateFile(JoinPath(baseProjectPath, "config_ReplaceCurrent_test02.txt"), "test content 02")
 
-		require.Equal(t, "test content 01", readFileContent(JoinPath(baseProjectPath, "config_ReplaceCurrent_test02.txt")))
+		require.Equal(t, "test content 01", testutils.ReadFileContent(JoinPath(baseProjectPath, "config_ReplaceCurrent_test02.txt")))
 	})
 
 	t.Run("should should replace file content when already exists and config.ReplaceCurrent true", func(t *testing.T) {
@@ -41,7 +40,7 @@ func TestGeneratePathsValidation(t *testing.T) {
 		require.FileExists(t, JoinPath(baseProjectPath, "config_ReplaceCurrent_test03.txt"))
 		CreateFile(JoinPath(baseProjectPath, "config_ReplaceCurrent_test03.txt"), "test content 02")
 
-		require.Equal(t, "test content 02", readFileContent(JoinPath(baseProjectPath, "config_ReplaceCurrent_test03.txt")))
+		require.Equal(t, "test content 02", testutils.ReadFileContent(JoinPath(baseProjectPath, "config_ReplaceCurrent_test03.txt")))
 	})
 
 	t.Run("should run panic when failed to create a dir", func(t *testing.T) {
@@ -74,12 +73,4 @@ func TestGeneratePathsValidation(t *testing.T) {
 			})
 		})
 	})
-}
-
-func readFileContent(path string) string {
-	content, err := os.ReadFile(path)
-	if err != nil {
-		log.Panicf("❌ Failed to read file %s: %v", path, err)
-	}
-	return string(content)
 }

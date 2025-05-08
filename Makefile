@@ -22,7 +22,7 @@ install:
 	@go install github.com/softwareplace/goserve/cmd/goserve-generator@v0.0.1-SNAPSHOT
 
 goserve-generator:
-	@go run cmd/goserve-generator/main.go -n go-example -u softwareplace -r true
+	@go run cmd/goserve-generator/main.go -n go-example -u softwareplace -r true -cgf internal/resource/test_config.yaml -gsv $(shell git rev-parse HEAD)
 	@cd go-example && git status
 	@rm -rf go-example
 

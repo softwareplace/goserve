@@ -14,13 +14,15 @@ func init() {
 }
 
 var (
-	ProjectName    string
-	Username       string
-	ReplaceCurrent string
-	GiInit         string
-	osExit         = os.Exit
-	checkVersion   = version.CheckCurrentVersion
-	update         = version.Update
+	CodeGenConfigFile string
+	GoServerVersion   string
+	ProjectName       string
+	Username          string
+	ReplaceCurrent    string
+	GiInit            string
+	osExit            = os.Exit
+	checkVersion      = version.CheckCurrentVersion
+	update            = version.Update
 )
 
 func argsValidation() {
@@ -51,6 +53,8 @@ func InitFlags() {
 	flag.StringVar(&Username, "u", "", "GitHub username")
 	flag.StringVar(&ReplaceCurrent, "r", "false", "Replace current directory/files with generated files")
 	flag.StringVar(&GiInit, "gi", "true", "(optional): Git project initialization")
+	flag.StringVar(&CodeGenConfigFile, "cgf", "", "(optional): template of the codegen config file")
+	flag.StringVar(&GoServerVersion, "gsv", "", "(optional): use a specific version of goserver")
 
 	flag.Usage = flagUsage
 

@@ -1,6 +1,7 @@
 package validator
 
 import (
+	log "github.com/sirupsen/logrus"
 	"github.com/softwareplace/goserve/cmd/goserve-generator/cmd"
 	"github.com/softwareplace/goserve/cmd/goserve-generator/config"
 	"github.com/softwareplace/goserve/cmd/goserve-generator/generator"
@@ -9,27 +10,58 @@ import (
 	"github.com/stretchr/testify/require"
 	"os"
 	"os/exec"
+	"strings"
 	"testing"
 )
 
+const configFile = `package: gen
+generate:
+  gorilla-server: true
+  models: true
+output: ${ROOT_PROJECT}/.out/${PROJECT}/internal/adapter/handler/gen/api.gen.go
+output-options:
+  user-templates:
+    imports.tmpl: ${ROOT_PROJECT}/resource/templates/imports.tmpl
+    param-types.tmpl: ${ROOT_PROJECT}/resource/templates/param-types.tmpl
+    request-bodies.tmpl: ${ROOT_PROJECT}/resource/templates/request-bodies.tmpl
+    typedef.tmpl: ${ROOT_PROJECT}/resource/templates/typedef.tmpl
+    gorilla/gorilla-register.tmpl: ${ROOT_PROJECT}/resource/templates/gorilla/gorilla-register.tmpl
+    gorilla/gorilla-middleware.tmpl: ${ROOT_PROJECT}/resource/templates/gorilla/gorilla-middleware.tmpl
+    gorilla/gorilla-interface.tmpl: ${ROOT_PROJECT}/resource/templates/gorilla/gorilla-interface.tmpl
+compatibility:
+  apply-gorilla-middleware-first-to-last: true`
+
 func TestValidateProjectValidation(t *testing.T) {
-	baseProjectPath := utils.JoinPath(testutils.ProjectBasePath(), ".out/test-execution")
-	defer func(path string) {
-		_ = os.RemoveAll(path)
-		config.Username = ""
-		config.ProjectName = ""
-	}(baseProjectPath)
+	config.GiInit = "false"
+	rootProjectPath := testutils.ProjectBasePath()
+	baseProjectPath := utils.JoinPath(rootProjectPath, ".out/test-execution")
 
 	t.Run("should create all declared directories and files", func(t *testing.T) {
+		defer func(path string) {
+			_ = os.RemoveAll(path)
+			config.Username = ""
+			config.ProjectName = ""
+			config.GoServerVersion = ""
+		}(baseProjectPath)
+
 		config.Username = "test-user"
 		config.ProjectName = "test-execution"
-		require.NotPanics(t, func() {
-			generator.Execute(baseProjectPath)
-			ProjectValidate(baseProjectPath)
-		})
+		config.GoServerVersion = getGitCommitHash()
+
+		generator.Execute(baseProjectPath)
+		utils.CreateFile(utils.JoinPath(baseProjectPath, "config/config.yaml"), configFile, utils.Replacement("${ROOT_PROJECT}", rootProjectPath))
+
+		ProjectValidate(baseProjectPath)
 	})
 
 	t.Run("should exit with panic when project does not exists", func(t *testing.T) {
+		defer func(path string) {
+			_ = os.RemoveAll(path)
+			config.Username = ""
+			config.ProjectName = ""
+			config.GoServerVersion = ""
+		}(baseProjectPath)
+
 		config.Username = "test-user"
 		config.ProjectName = "test-execution"
 		projectExists = func(dir string) error {
@@ -61,4 +93,13 @@ func TestValidateProjectValidation(t *testing.T) {
 		codeGenValidator()
 		require.True(t, cmdMandatoryExecuted)
 	})
+}
+
+func getGitCommitHash() string {
+	command := exec.Command("git", "rev-parse", "HEAD")
+	output, err := command.Output()
+	if err != nil {
+		log.Errorf("Failed to get git commit hash: %v", err)
+	}
+	return strings.TrimSpace(string(output))
 }

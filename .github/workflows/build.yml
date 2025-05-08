@@ -40,7 +40,7 @@ jobs:
           ./setup
       - name: Generator validating
         run: |
-          go run cmd/goserve-generator/main.go -n go-example -u softwareplace -r true -gi false
+          go run cmd/goserve-generator/main.go -n go-example -u softwareplace -r true -cgf internal/resource/test_config.yaml -gsv $(shell git rev-parse HEAD) -gi false
   converage:
     name: "Code coverage validator"
     runs-on: ubuntu-latest

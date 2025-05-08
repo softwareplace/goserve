@@ -27,11 +27,11 @@ var (
 )
 
 // Execute is the main entry point for generating a complete project structure,
-// including directories, generatedFiles, and configuration templates.
+// including directories, filesGenerator, and configuration templates.
 //
 // Responsibilities of Execute:
 // 1. Create the project directory structure using predefined templates.
-// 2. Generate essential project generatedFiles (e.g., main.go, GitHub workflows).
+// 2. Generate essential project filesGenerator (e.g., main.go, GitHub workflows).
 // 3. Switch to the project directory for subsequent operations.
 // 4. Validate and ensure installation of external dependencies (e.g., 'oapi-codegen').
 // 5. Perform auxiliary operations such as module tidy, formatting, and testing.
@@ -55,9 +55,9 @@ func Execute(projectName string) {
 // - Generate project metadata files (e.g., README.md, go.mod, Makefile).
 //
 // Parameters:
-// - projectName: The name of the project for which generatedFiles will be generated.
+// - projectName: The name of the project for which filesGenerator will be generated.
 func createBaseProjectDirAndFiles(projectName string) {
-	for _, fileEntry := range generatedFiles {
+	for _, fileEntry := range filesGenerator() {
 		utils.CreateFile(
 			utils.JoinPath(projectName, fileEntry.Path),
 			fileEntry.Content,

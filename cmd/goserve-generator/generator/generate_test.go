@@ -18,7 +18,7 @@ func TestGeneratePathsValidation(t *testing.T) {
 	t.Run("should create all declared directories and files", func(t *testing.T) {
 		require.NotPanics(t, func() {
 			Execute(baseProjectPath)
-			for _, fileEntry := range generatedFiles {
+			for _, fileEntry := range filesGenerator() {
 				require.FileExists(t, utils.JoinPath(baseProjectPath, fileEntry.Path))
 			}
 		})

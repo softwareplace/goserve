@@ -8,8 +8,11 @@ import (
 	"github.com/softwareplace/goserve/cmd/goserve-generator/validator"
 )
 
-func main() {
+func init() {
 	config.InitFlags()
+}
+
+func main() {
 	projectName := config.ProjectName
 	generator.Execute(projectName)
 	validator.ProjectValidate(projectName)
