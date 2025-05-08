@@ -24,6 +24,7 @@ jobs:
       - name: Test execution
         run: |
           go test ./...
+
   generator:
     name: "Generator CLI"
     runs-on: ubuntu-latest
@@ -32,6 +33,10 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: 1.24.2
+      - name: Get last commit hash
+        id: last-commit
+        run: |
+          echo "LAST_COMMIT_HASH=$(git rev-parse HEAD)" >> $GITHUB_ENV
       - name: oapi-codegen installer
         run: |
           go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
@@ -40,8 +45,9 @@ jobs:
           ./setup
       - name: Generator validating
         run: |
-          go run cmd/goserve-generator/main.go -n go-example -u softwareplace -r true -cgf internal/resource/test_config.yaml -gsv $(shell git rev-parse HEAD) -gi false
-  converage:
+          go run cmd/goserve-generator/main.go -n go-example -u softwareplace -r true -cgf internal/resource/test_config.yaml -gsv $LAST_COMMIT_HASH -gi false
+
+  coverage:
     name: "Code coverage validator"
     runs-on: ubuntu-latest
     needs:
@@ -63,5 +69,3 @@ jobs:
       - name: Code coverage validator
         run: |
           ./coverage-validator
-  
-
