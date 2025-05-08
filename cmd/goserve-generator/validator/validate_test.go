@@ -34,18 +34,19 @@ compatibility:
 func TestValidateProjectValidation(t *testing.T) {
 	config.GiInit = "false"
 	rootProjectPath := testutils.ProjectBasePath()
-	baseProjectPath := utils.JoinPath(rootProjectPath, ".out/test-execution")
 
 	t.Run("should create all declared directories and files", func(t *testing.T) {
-		defer func(path string) {
-			_ = os.RemoveAll(path)
+		config.ProjectName = "test-execution-validate-01"
+
+		baseProjectPath := utils.JoinPath(rootProjectPath, ".out/", config.ProjectName)
+		defer func() {
+			_ = os.RemoveAll(baseProjectPath)
 			config.Username = ""
 			config.ProjectName = ""
 			config.GoServerVersion = ""
-		}(baseProjectPath)
+		}()
 
 		config.Username = "test-user"
-		config.ProjectName = "test-execution"
 		config.GoServerVersion = getGitCommitHash()
 
 		generator.Execute(baseProjectPath)
@@ -57,15 +58,17 @@ func TestValidateProjectValidation(t *testing.T) {
 	})
 
 	t.Run("should exit with panic when project does not exists", func(t *testing.T) {
-		defer func(path string) {
-			_ = os.RemoveAll(path)
+		config.ProjectName = "test-execution-validate-02"
+
+		baseProjectPath := utils.JoinPath(rootProjectPath, ".out/", config.ProjectName)
+		defer func() {
+			_ = os.RemoveAll(baseProjectPath)
 			config.Username = ""
 			config.ProjectName = ""
 			config.GoServerVersion = ""
-		}(baseProjectPath)
+		}()
 
 		config.Username = "test-user"
-		config.ProjectName = "test-execution"
 		projectExists = func(dir string) error {
 			return os.ErrNotExist
 		}

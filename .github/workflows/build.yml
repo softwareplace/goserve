@@ -69,3 +69,23 @@ jobs:
       - name: Code coverage validator
         run: |
           ./coverage-validator
+
+  benchTest:
+    name: "Bench validator"
+    runs-on: ubuntu-latest
+    needs:
+      - coverage
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: 1.24.2
+      - name: oapi-codegen installer
+        run: |
+          go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
+      - name: Code Gen Test
+        run: |
+          ./setup
+      - name: Test execution
+        run: |
+          go test -v -bench=. ./...
