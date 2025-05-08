@@ -10,7 +10,7 @@ import (
 )
 
 func TestGeneratePathsValidation(t *testing.T) {
-	baseProjectPath := utils.JoinPath(testutils.ProjectBasePath(), ".out/test-execution")
+	baseProjectPath := utils.JoinPath(testutils.ProjectBasePath(), ".out/generate-test-execution")
 	defer func(path string) {
 		_ = os.RemoveAll(path)
 	}(baseProjectPath)
