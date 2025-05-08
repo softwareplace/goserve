@@ -51,6 +51,8 @@ func TestValidateProjectValidation(t *testing.T) {
 		generator.Execute(baseProjectPath)
 		utils.CreateFile(utils.JoinPath(baseProjectPath, "config/config.yaml"), configFile, utils.Replacement("${ROOT_PROJECT}", rootProjectPath))
 
+		log.Infof("go.mod \n%s", testutils.ReadFileContent(utils.JoinPath(baseProjectPath, "go.mod")))
+
 		ProjectValidate(baseProjectPath)
 	})
 
