@@ -46,7 +46,7 @@ function runCoverage() {
   cat .out/coverage.json | gocov-html > .out/index.html
 
   # Extract total coverage percentage more reliably
-  TOTAL_COVERAGE=$(grep -oP 'id="totalcov"[^>]*>\K[0-9.]+' .out/index.html || echo "0")
+  TOTAL_COVERAGE=$(perl -ne 'print "$1\n" if /id="totalcov"[^>]*>([0-9.]+)/' .out/index.html || echo "0")
 
   # Check if coverage meets minimum requirement
   MIN_COVERAGE=50
