@@ -1,12 +1,14 @@
 package validator
 
 import (
+	"flag"
 	log "github.com/sirupsen/logrus"
 	"github.com/softwareplace/goserve/cmd/goserve-generator/cmd"
 	"github.com/softwareplace/goserve/cmd/goserve-generator/config"
 	"github.com/softwareplace/goserve/cmd/goserve-generator/generator"
 	"github.com/softwareplace/goserve/cmd/goserve-generator/utils"
 	testutils "github.com/softwareplace/goserve/internal/utils"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"os"
 	"os/exec"
@@ -31,8 +33,25 @@ output-options:
 compatibility:
   apply-gorilla-middleware-first-to-last: true`
 
+func testCleanup(t *testing.T, args ...string) {
+	t.Cleanup(func() {
+		// Reset global vars after each test
+		config.ProjectName = ""
+		config.Username = ""
+		config.ReplaceCurrent = ""
+		config.GiInit = ""
+		config.CodeGenConfigFile = ""
+		config.GoServerVersion = ""
+	})
+}
+
+func setArgsForTest(t *testing.T, args ...string) {
+	fs := flag.NewFlagSet("test", flag.ContinueOnError)
+	err := config.InitFlagsWithSet(fs, args)
+	assert.NoError(t, err)
+}
+
 func TestValidateProjectValidation(t *testing.T) {
-	config.GiInit = "false"
 	rootProjectPath := testutils.ProjectBasePath()
 
 	t.Run("should create all declared directories and files", func(t *testing.T) {
@@ -40,19 +59,22 @@ func TestValidateProjectValidation(t *testing.T) {
 
 		baseProjectPath := utils.JoinPath(rootProjectPath, ".out/", config.ProjectName)
 		defer func() {
-			_ = os.RemoveAll(baseProjectPath)
-			config.Username = ""
-			config.ProjectName = ""
-			config.GoServerVersion = ""
+			//_ = os.RemoveAll(baseProjectPath)
+			testCleanup(t)
 		}()
 
-		config.Username = "test-user"
-		config.GoServerVersion = getGitCommitHash()
+		setArgsForTest(
+			t,
+			"-n", config.ProjectName,
+			"-u", "test-user",
+			"-gi", "false",
+			"-r", "true",
+			"-gsv", getGitCommitHash(),
+		)
 
 		generator.Execute(baseProjectPath)
-		utils.CreateFile(utils.JoinPath(baseProjectPath, "config/config.yaml"), configFile, utils.Replacement("${ROOT_PROJECT}", rootProjectPath))
-
-		log.Infof("go.mod \n%s", testutils.ReadFileContent(utils.JoinPath(baseProjectPath, "go.mod")))
+		configFilePath := utils.JoinPath(baseProjectPath, "config/config.yaml")
+		utils.CreateFile(configFilePath, configFile, utils.Replacement("${ROOT_PROJECT}", rootProjectPath))
 
 		ProjectValidate(baseProjectPath)
 	})
@@ -62,13 +84,19 @@ func TestValidateProjectValidation(t *testing.T) {
 
 		baseProjectPath := utils.JoinPath(rootProjectPath, ".out/", config.ProjectName)
 		defer func() {
-			_ = os.RemoveAll(baseProjectPath)
-			config.Username = ""
-			config.ProjectName = ""
-			config.GoServerVersion = ""
+			//_ = os.RemoveAll(baseProjectPath)
+			testCleanup(t)
 		}()
 
-		config.Username = "test-user"
+		setArgsForTest(
+			t,
+			"-n", config.ProjectName,
+			"-u", "test-user",
+			"-gi", "false",
+			"-r", "true",
+			"-gsv", getGitCommitHash(),
+		)
+
 		projectExists = func(dir string) error {
 			return os.ErrNotExist
 		}
