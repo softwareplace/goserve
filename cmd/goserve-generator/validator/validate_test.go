@@ -2,6 +2,7 @@ package validator
 
 import (
 	"flag"
+	"fmt"
 	log "github.com/sirupsen/logrus"
 	"github.com/softwareplace/goserve/cmd/goserve-generator/cmd"
 	"github.com/softwareplace/goserve/cmd/goserve-generator/config"
@@ -127,12 +128,33 @@ func TestValidateProjectValidation(t *testing.T) {
 		require.True(t, cmdMandatoryExecuted)
 	})
 }
-
 func getGitCommitHash() string {
-	command := exec.Command("git", "rev-parse", "HEAD")
-	output, err := command.Output()
+	// Get current branch name
+	branchCmd := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD")
+	branchOutput, err := branchCmd.Output()
 	if err != nil {
-		log.Errorf("Failed to get git commit hash: %v", err)
+		log.Errorf("Failed to get current branch name: %v", err)
+		return ""
 	}
-	return strings.TrimSpace(string(output))
+	branchName := strings.TrimSpace(string(branchOutput))
+
+	// Get local HEAD commit hash
+	localCmd := exec.Command("git", "rev-parse", "HEAD")
+	localOutput, err := localCmd.Output()
+	if err != nil {
+		log.Errorf("Failed to get local commit hash: %v", err)
+		return ""
+	}
+	localHash := strings.TrimSpace(string(localOutput))
+
+	// Get remote commit hash (from origin/branch)
+	remoteCmd := exec.Command("git", "rev-parse", fmt.Sprintf("origin/%s", branchName))
+	remoteOutput, err := remoteCmd.Output()
+	if err != nil {
+		log.Errorf("Failed to get remote commit hash: %v", err)
+		return localHash // Return at least the local hash
+	}
+	remoteHash := strings.TrimSpace(string(remoteOutput))
+
+	return remoteHash
 }
