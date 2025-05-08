@@ -92,15 +92,27 @@ func filesGenerator() []generatorFile {
 }
 
 func getGoModeReplacementEntries() []utils.ReplaceEntry {
-	goServerVersion := utils.Replacement(template.GoServeLatestVersionKey, version.GoServeLatest())
-	if config.GoServerVersion != "" {
-		goServerVersion = utils.Replacement(template.GoServeLatestVersionKey, config.GoServerVersion)
-	}
+	goServeLatest := getGoServeVersion()
+
+	goServerVersion := utils.Replacement(template.GoServeLatestVersionKey, goServeLatest)
 
 	log.Infof("Using custom GoServe version: %s", config.GoServerVersion)
 	return []utils.ReplaceEntry{
 		goServerVersion,
 	}
+}
+
+func getGoServeVersion() string {
+	var goServeLatest string
+
+	if config.GoServerVersion != "" {
+		goServeLatest = config.GoServerVersion
+	}
+
+	if goServeLatest == "" {
+		goServeLatest = version.GoServeLatest()
+	}
+	return goServeLatest
 }
 
 var (

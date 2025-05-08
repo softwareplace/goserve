@@ -14,11 +14,12 @@ type Release struct {
 }
 
 var (
-	url         = "https://api.github.com/repos/softwareplace/goserve/releases/latest"
-	extractBody = getBody
+	url           = "https://api.github.com/repos/softwareplace/goserve/releases/latest"
+	extractBody   = getBody
+	GoServeLatest = goServeLatest
 )
 
-func GoServeLatest() string {
+func goServeLatest() string {
 	latest, err := getLatest()
 	if err != nil {
 		log.Printf("Failed to fetch latest version: %v", err)
