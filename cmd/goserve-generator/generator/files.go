@@ -97,6 +97,7 @@ func getGoModeReplacementEntries() []utils.ReplaceEntry {
 		goServerVersion = utils.Replacement(template.GoServeLatestVersionKey, config.GoServerVersion)
 	}
 
+	log.Infof("Using custom GoServe version: %s", config.GoServerVersion)
 	return []utils.ReplaceEntry{
 		goServerVersion,
 	}
