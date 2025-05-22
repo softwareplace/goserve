@@ -5,6 +5,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/softwareplace/goserve/context"
 	goservereflect "github.com/softwareplace/goserve/reflect"
+	"github.com/softwareplace/goserve/utils"
 	"net/http"
 	"net/url"
 	"strings"
@@ -61,7 +62,7 @@ func BindRequestParams(r *http.Request, target interface{}) *RequestError {
 		},
 	)
 
-	err := StructValidation(target)
+	err := utils.StructValidation(target)
 
 	if err != nil {
 		return &RequestError{

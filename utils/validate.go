@@ -134,7 +134,9 @@ func StructValidation(target interface{}, setting ...ValidationSetting) error {
 		if errors.As(err, &validationErrors) {
 			var errorMessages []string
 			for _, e := range validationErrors {
-				errorMessages = append(errorMessages, e.Translate(trans))
+				translatedMessage := e.Translate(trans)
+				translatedMessage = strings.Trim(translatedMessage, " ")
+				errorMessages = append(errorMessages, translatedMessage)
 			}
 			return errors.New(strings.Join(errorMessages, finalSetting.SpecSeparator))
 		}

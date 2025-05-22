@@ -1,6 +1,7 @@
 package request
 
 import (
+	"encoding/json"
 	"github.com/gorilla/mux"
 	"github.com/softwareplace/goserve/context"
 	"github.com/stretchr/testify/require"
@@ -17,10 +18,10 @@ type MockFormBody struct {
 }
 
 type MockRequest struct {
-	XApiKey string       `name:"X-Api-Key" required:"true" validate:"required" error_message:"required header param [X-Api-Key]" header:"X-Api-Key" json:"X-Api-Key"`
-	Page    int          `name:"page" required:"true" validate:"required" error_message:"required query param [page]" query:"page" json:"page"`
-	Count   int          `name:"count" required:"true" validate:"required" error_message:"required query param [count]" query:"count" json:"count"`
-	UserId  int          `name:"userId" required:"true" validate:"required" error_message:"required path param [userId]" path:"userId" json:"userId"`
+	XApiKey string       `name:"X-Api-Key" required:"true" validate:"required" header:"X-Api-Key" json:"X-Api-Key"`
+	Page    int          `name:"page" required:"true" validate:"required" query:"page" json:"page"`
+	Count   int          `name:"count" required:"true" validate:"required" query:"count" json:"count"`
+	UserId  int          `name:"userId" required:"true" validate:"required" path:"userId" json:"userId"`
 	Body    MockFormBody `name:"body" json:"body" required:"true" validate:"required"`
 }
 
@@ -80,7 +81,7 @@ func TestRequest_BindRequestParams(t *testing.T) {
 			ctx = context.Of[*context.DefaultContext](w, r, "test")
 			errBind = BindRequestParams(r, &request)
 			if errBind != nil {
-				ctx.InternalServerError(errBind.Error())
+				ctx.InternalServerError(strings.Trim(errBind.Error(), " "))
 				return
 			}
 			ctx.Ok(request)
@@ -94,15 +95,12 @@ func TestRequest_BindRequestParams(t *testing.T) {
 
 		require.Equal(t, http.StatusInternalServerError, recorder.Code)
 
-		expected := []string{
-			"Key: required header param [X-Api-Key] Error:Field validation for required header param [X-Api-Key] failed on the required tag",
-			"Key: required query param [page] Error:Field validation for required query param [page] failed on the required tag",
-			"Key: required query param [count] Error:Field validation for required query param [count] failed on the required tag",
-			"Key: required path param [userId] Error:Field validation for required path param [userId] failed on the required tag",
-		}
+		expected := "XApiKey is a required field\nPage is a required field\nCount is a required field\nUserId is a required field"
 
-		for _, e := range expected {
-			require.True(t, strings.Contains(errBind.Error(), e), e)
-		}
+		var bodyData map[string]interface{}
+		err = json.Unmarshal(recorder.Body.Bytes(), &bodyData)
+		require.NoError(t, err)
+
+		require.Equal(t, expected, bodyData["message"])
 	})
 }
