@@ -1,141 +1,128 @@
 package encryptor
 
 import (
+	"bytes"
+	"crypto"
 	"crypto/rand"
+	"crypto/rsa"
+	"crypto/sha256"
+	"encoding/base64"
+	"errors"
 	"fmt"
 	log "github.com/sirupsen/logrus"
-	"github.com/softwareplace/goserve/utils"
-	"golang.org/x/crypto/bcrypt"
-	"math/big"
-	"os"
-	"strconv"
-	"time"
+	"strings"
 )
 
-// PasswordEncryptor is an interface for securely hashing and validating passwords using bcrypt.
-// It provides methods to generate hashed passwords, tokens, and salts, as well as to validate passwords.
-//
-// Environment Variables:
-//   - B_CRYPT_COST The cost factor for bcrypt hashing.  Default 10
-type PasswordEncryptor interface {
-	// EncodedPassword returns the hashed version of the password.
-	EncodedPassword() string
+const divider = "_"
+const chunksKey = "."
 
-	// Token returns a hashed token generated from the password and additional entropy.
-	Token() string
-
-	// Salt returns a hashed salt generated from the password and additional entropy.
-	Salt() string
-
-	// IsValidPassword checks if the provided plaintext password matches the stored hash.
-	IsValidPassword(encodedPassword string) bool
+type Encryptor struct {
+	privateKey       *rsa.PrivateKey
+	publicKey        *rsa.PublicKey
+	channelPublicKey *rsa.PublicKey
 }
 
-type _PasswordEncryptorImpl struct {
-	password        string
-	encodedPassword string
-	token           string
-	salt            string
-}
+func GenerateKeyPair() *rsa.PrivateKey {
+	privateKey, err := rsa.GenerateKey(rand.Reader, 2048)
 
-func (e *_PasswordEncryptorImpl) EncodedPassword() string {
-	return e.encodedPassword
-}
-
-func (e *_PasswordEncryptorImpl) Token() string {
-	return e.token
-}
-
-func (e *_PasswordEncryptorImpl) Salt() string {
-	return e.salt
-}
-
-// NewEncrypt creates a new PasswordEncryptor instance and generates hashed values for the password, token, and salt.
-//
-// Parameters:
-//   - password: The plaintext password to be hashed.
-//
-// Returns:
-//   - A PasswordEncryptor instance with the hashed password, token, and salt.
-func NewEncrypt(password string) PasswordEncryptor {
-	e := &_PasswordEncryptorImpl{password: password}
-	e.encodedPassword = e.hashPassword(password)
-	e.token = e.hashPassword(password + e.mixedString())
-	e.salt = e.hashPassword(password + e.mixedString())
-	return e
-}
-
-// hashPassword hashes the given password using bcrypt.
-//
-// Parameters:
-//   - password: The plaintext password to be hashed.
-//
-// Returns:
-//   - A string containing the hashed password.
-//
-// Notes:
-//   - The bcrypt cost is determined by the B_CRYPT_COST environment variable or defaults to bcrypt.DefaultCost.
-func (e *_PasswordEncryptorImpl) hashPassword(password string) string {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), getBcryptCost())
 	if err != nil {
-		log.Panicf("Failed to hash password: %v", err)
+		log.Fatalf("failed to generate private key: %v", err)
 	}
-	return string(hashedPassword)
+
+	return privateKey
 }
 
-// mixedString generates a random mixed string for additional entropy.
-//
-// Returns:
-// 	- A string containing a timestamp and a cryptographically secure random number.
-//
-// Notes:
-// 	- This method is used to add randomness to the token and salt generation process.
+func NewEncryptor(privateKey *rsa.PrivateKey) Encryptor {
+	return Encryptor{
+		privateKey: privateKey,
+		publicKey:  &privateKey.PublicKey,
+	}
+}
 
-func (e *_PasswordEncryptorImpl) mixedString() string {
-	randomResult, err := rand.Int(rand.Reader, big.NewInt(100000))
+func (b *Encryptor) GetPublicKey() *rsa.PublicKey {
+	return b.publicKey
+}
+
+func (b *Encryptor) SetChannelPublicKey(channelPublicKey *rsa.PublicKey) {
+	b.channelPublicKey = channelPublicKey
+}
+func (b *Encryptor) Encrypt(value string) (string, error) {
+	hash := sha256.Sum256([]byte(value))
+	signature, err := rsa.SignPKCS1v15(rand.Reader, b.privateKey, crypto.SHA256, hash[:])
 	if err != nil {
-		log.Panicf("Failed to generate random number: %v", err)
+		return "", err
 	}
-	return fmt.Sprintf("%d", time.Now().UnixNano()+randomResult.Int64())
+
+	maxChunkSize := b.channelPublicKey.Size() - 11
+	chunks := splitBytes([]byte(value), maxChunkSize)
+
+	var encChunks []string
+	for _, chunk := range chunks {
+		enc, err := rsa.EncryptPKCS1v15(rand.Reader, b.channelPublicKey, chunk)
+		if err != nil {
+			return "", err
+		}
+		encChunks = append(encChunks, base64.StdEncoding.EncodeToString(enc))
+	}
+
+	result := fmt.Sprintf("%s%s%s",
+		strings.Join(encChunks, chunksKey), // chunk separator
+		divider,
+		base64.StdEncoding.EncodeToString(signature),
+	)
+
+	return base64.StdEncoding.EncodeToString([]byte(result)), nil
 }
 
-// IsValidPassword checks if the provided plaintext password matches the stored hash.
-//
-// Parameters:
-// - encodedPassword: The hashed password to compare against.
-//
-// Returns:
-//   - A boolean indicating whether the plaintext password matches the hashed password.
-//
-// Notes:
-//   - This method uses bcrypt.CompareHashAndPassword for secure comparison.
-func (e *_PasswordEncryptorImpl) IsValidPassword(encodedPassword string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(encodedPassword), []byte(e.password))
-	return err == nil
+func (b *Encryptor) Decrypt(value string) (string, error) {
+	decodedValue, err := base64.StdEncoding.DecodeString(value)
+	parts := strings.Split(string(decodedValue), divider)
+
+	if len(parts) != 2 {
+		return "", errors.New("invalid encrypted value")
+	}
+	chunkEncoded := strings.Split(parts[0], chunksKey)
+	signature, err := base64.StdEncoding.DecodeString(parts[1])
+	if err != nil {
+		return "", err
+	}
+
+	var plainBuf bytes.Buffer
+	for _, encChunk := range chunkEncoded {
+		if len(encChunk) == 0 {
+			continue
+		}
+		cipherChunk, err := base64.StdEncoding.DecodeString(encChunk)
+		if err != nil {
+			return "", err
+		}
+		plainChunk, err := rsa.DecryptPKCS1v15(rand.Reader, b.privateKey, cipherChunk)
+		if err != nil {
+			return "", err
+		}
+		plainBuf.Write(plainChunk)
+	}
+	message := plainBuf.String()
+
+	// Verify the signature on the full message
+	hash2 := sha256.Sum256([]byte(message))
+	err = rsa.VerifyPKCS1v15(b.channelPublicKey, crypto.SHA256, hash2[:], signature)
+	if err != nil {
+		return "", errors.New("signature verification failed")
+	}
+
+	return message, nil
 }
 
-// getBcryptCost retrieves the bcrypt cost from the environment variable B_CRYPT_COST.
-// If the variable is not set or invalid, it defaults to bcrypt.DefaultCost.
-//
-// Returns:
-// - An integer representing the bcrypt cost.
-//
-// Notes:
-// - The cost must be between bcrypt.MinCost and bcrypt.MaxCost.
-// - If the environment variable is not set or invalid, the default cost is used.
-
-func getBcryptCost() int {
-	costStr := os.Getenv("B_CRYPT_COST")
-	if costStr == "" {
-		return bcrypt.DefaultCost
+func splitBytes(data []byte, chunkSize int) [][]byte {
+	var chunks [][]byte
+	for len(data) > 0 {
+		n := chunkSize
+		if len(data) < chunkSize {
+			n = len(data)
+		}
+		chunks = append(chunks, data[:n])
+		data = data[n:]
 	}
-	cost, err := strconv.Atoi(costStr)
-	if err != nil || cost < bcrypt.MinCost || cost > bcrypt.MaxCost {
-		return bcrypt.DefaultCost
-	}
-	return cost
-}
-
-func JwtClaimsEncryptionEnabled() bool {
-	return utils.GetBoolEnvOrDefault("JWT_CLAIMS_ENCRYPTION_ENABLED", true)
+	return chunks
 }
