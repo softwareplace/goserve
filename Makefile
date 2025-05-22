@@ -1,3 +1,4 @@
+APP_NAME=go-example
 update:
 	@./setup
 
@@ -22,9 +23,9 @@ install:
 	@go install github.com/softwareplace/goserve/cmd/goserve-generator@$(shell git rev-parse HEAD)
 
 goserve-generator:
-	@go run cmd/goserve-generator/main.go -n go-example -u softwareplace -r true -cgf internal/resource/test_config.yaml -gsv $(shell git rev-parse HEAD)
-	@cd go-example && git status
-	@rm -rf go-example
+	@go run cmd/goserve-generator/main.go -n $(APP_NAME) -u softwareplace -r true -cgf internal/resource/test_config.yaml -gsv $(shell git rev-parse HEAD)
+	@cd $(APP_NAME) && git status
+
 
 install-coverage-utils:
 	@go install github.com/axw/gocov/gocov@latest
