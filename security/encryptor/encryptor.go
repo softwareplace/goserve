@@ -18,7 +18,6 @@ const chunksKey = "."
 
 type Encryptor struct {
 	privateKey       *rsa.PrivateKey
-	publicKey        *rsa.PublicKey
 	channelPublicKey *rsa.PublicKey
 }
 
@@ -33,20 +32,26 @@ func GenerateKeyPair() *rsa.PrivateKey {
 }
 
 func NewEncryptor(privateKey *rsa.PrivateKey) Encryptor {
+	publicKey := &privateKey.PublicKey
+
 	return Encryptor{
-		privateKey: privateKey,
-		publicKey:  &privateKey.PublicKey,
+		privateKey:       privateKey,
+		channelPublicKey: publicKey,
 	}
 }
 
 func (b *Encryptor) GetPublicKey() *rsa.PublicKey {
-	return b.publicKey
+	return &b.privateKey.PublicKey
 }
 
 func (b *Encryptor) SetChannelPublicKey(channelPublicKey *rsa.PublicKey) {
 	b.channelPublicKey = channelPublicKey
 }
 func (b *Encryptor) Encrypt(value string) (string, error) {
+	if b.channelPublicKey == nil {
+		return "", errors.New("channel public key is not set")
+	}
+
 	hash := sha256.Sum256([]byte(value))
 	signature, err := rsa.SignPKCS1v15(rand.Reader, b.privateKey, crypto.SHA256, hash[:])
 	if err != nil {
@@ -75,6 +80,10 @@ func (b *Encryptor) Encrypt(value string) (string, error) {
 }
 
 func (b *Encryptor) Decrypt(value string) (string, error) {
+	if b.channelPublicKey == nil {
+		return "", errors.New("channel public key is not set")
+	}
+
 	decodedValue, err := base64.StdEncoding.DecodeString(value)
 	parts := strings.Split(string(decodedValue), divider)
 

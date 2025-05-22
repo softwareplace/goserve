@@ -33,4 +33,21 @@ func TestEncryptorValidator(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, message, decryptedMessage)
 	})
+
+	t.Run("should encrypt and decrypt message between from the same client", func(t *testing.T) {
+		client1 := NewClient()
+		client1.SetChannelPublicKey(client1.GetPublicKey())
+
+		message := "Hello encryptor"
+
+		encryptedMessage, err := client1.Encrypt(message)
+		require.NoError(t, err)
+		require.NotEqual(t, message, encryptedMessage)
+
+		decryptedMessage, err := client1.Decrypt(encryptedMessage)
+
+		require.NoError(t, err)
+		require.Equal(t, message, decryptedMessage)
+	})
+
 }
