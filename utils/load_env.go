@@ -1,7 +1,9 @@
 package utils
 
 import (
+	log "github.com/sirupsen/logrus"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -29,10 +31,119 @@ func GetEnvOrDefault(env string, defaultValue string) string {
 	return value
 }
 
+// GetBoolEnvOrDefault retrieves a boolean environment variable value or returns a default.
+// It converts the environment variable string value to a boolean, considering "true" (case-insensitive) as true
+// and all other values as false.
+//
+// Parameters:
+//   - env: The name of the environment variable to retrieve
+//   - defaultValue: The default boolean value to return if the environment variable is not set or empty
+//
+// Returns:
+//   - The boolean value of the environment variable if set and not empty
+//   - The defaultValue if the environment variable is not set or empty
 func GetBoolEnvOrDefault(env string, defaultValue bool) bool {
 	value, exists := os.LookupEnv(env)
 	if !exists || value == "" {
 		return defaultValue
 	}
 	return strings.ToLower(value) == "true"
+}
+
+// GetRequiredEnv retrieves a required environment variable value.
+// If the environment variable is not set or empty, it logs a fatal error and exits the program.
+//
+// Parameters:
+//   - key: The name of the required environment variable
+//
+// Returns:
+//   - The value of the environment variable if set and not empty
+//
+// Exits with log.Fatal if the environment variable is not set or empty
+func GetRequiredEnv(key string) string {
+	envValue, exists := os.LookupEnv(key)
+	if !exists || envValue == "" {
+		log.Panic(key + " environment variable is required")
+	}
+	return envValue
+}
+
+// GetRequiredIntEnv retrieves a required integer environment variable value.
+// If the environment variable is not set, empty, or cannot be converted to an integer,
+// it logs a fatal error and exits the program.
+//
+// Parameters:
+//   - key: The name of the required integer environment variable
+//
+// Returns:
+//   - The integer value of the environment variable
+//
+// Exits with log.Fatal if the environment variable is invalid
+func GetRequiredIntEnv(key string) int {
+	value := GetRequiredEnv(key)
+	intValue, err := strconv.Atoi(value)
+	if err != nil {
+		log.Panicf(key+" failed with error: ", err)
+	}
+	return intValue
+}
+
+// GetRequiredInt64Env retrieves a required 64-bit integer environment variable value.
+// If the environment variable is not set, empty, or cannot be converted to an int64,
+// it logs a fatal error and exits the program.
+//
+// Parameters:
+//   - key: The name of the required int64 environment variable
+//
+// Returns:
+//   - The int64 value of the environment variable
+//
+// Exits with log.Fatal if the environment variable is invalid
+func GetRequiredInt64Env(key string) int64 {
+	value := GetRequiredEnv(key)
+	intValue, err := strconv.ParseInt(value, 10, 64)
+	if err != nil {
+		log.Panicf(key+" failed with error: ", err)
+	}
+	return intValue
+}
+
+// GetRequiredFloat64Env retrieves a required 64-bit floating-point environment variable value.
+// If the environment variable is not set, empty, or cannot be converted to a float64,
+// it logs a fatal error and exits the program.
+//
+// Parameters:
+//   - key: The name of the required float64 environment variable
+//
+// Returns:
+//   - The float64 value of the environment variable
+//
+// Exits with log.Fatal if the environment variable is invalid
+func GetRequiredFloat64Env(key string) float64 {
+	value := GetRequiredEnv(key)
+	floatValue, err := strconv.ParseFloat(value, 64)
+	if err != nil {
+		log.Panicf(key+" failed with error: ", err)
+	}
+	return floatValue
+}
+
+// GetRequiredBoolEnv retrieves a required boolean environment variable value.
+// If the environment variable is not set, empty, or cannot be converted to a boolean,
+// it logs a fatal error and exits the program.
+//
+// Parameters:
+//   - key: The name of the required boolean environment variable
+//
+// Returns:
+//   - The boolean value of the environment variable
+//
+// Exits with log.Fatal if the environment variable is invalid
+func GetRequiredBoolEnv(key string) bool {
+	value := GetRequiredEnv(key)
+	boolValue, err := strconv.ParseBool(value)
+	if err != nil {
+		log.Panicf(key+" failed with error: ", err)
+	}
+	return boolValue
 }
