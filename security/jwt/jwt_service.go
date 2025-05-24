@@ -24,7 +24,8 @@ type Service[T goservectx.Principal] interface {
 	// It returns the generated Response or an error if the process fails.
 	Generate(user T, duration time.Duration) (*Response, error)
 
-	// From generates a Response containing a JWT for the given subject, roles, and duration or returns an error if it fails.
+	// From generating a Response containing a JWT for the given subject, roles
+	// and duration or returns an error if it fails.
 	From(sub string, roles []string, duration time.Duration) (*Response, error)
 
 	// Issuer returns the identifier of the entity responsible for issuing the JWT tokens in the service.
@@ -34,6 +35,19 @@ type Service[T goservectx.Principal] interface {
 	// It validates the token and parses its claims into a map[string]interface{}.
 	// Returns an error if the token is invalid or if the claims' structure is incorrect.
 	Decode(tokenString string) (map[string]interface{}, error)
+
+	// Decrypted extracts claims from a given JWT token string and attempts to decrypt ISS, SUB and AUD values.
+	// If JWT claims encryption is enabled, it will decrypt the encrypted ISS, SUB and AUD claims values.
+	// If encryption is disabled, it will return the original values.
+	//
+	// Parameters:
+	//   - jwt: The JWT token string to extract and decrypt claims from.
+	//
+	// Returns:
+	//   - map[string]interface{}: The claims map with decrypted values for ISS,
+	//     SUB and AUD if encryption is enabled
+	//   - error: An error if token parsing or decryption fails
+	Decrypted(jwt string) (map[string]interface{}, error)
 
 	// Parse parses and validates a JWT token string.
 	// It uses the secret key provided by the BaseService for token signing and validation.

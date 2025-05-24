@@ -33,3 +33,15 @@ func (a *serviceImpl) Encrypt(value string) (string, error) {
 func (a *serviceImpl) Decrypt(encrypted string) (string, error) {
 	return Decrypt(encrypted, a.ApiSecretAuthorization)
 }
+
+func (a *serviceImpl) DecryptAll(encrypted ...string) ([]string, error) {
+	var decrypted []string
+	for _, value := range encrypted {
+		decryptedValue, err := a.Decrypt(value)
+		if err != nil {
+			return nil, err
+		}
+		decrypted = append(decrypted, decryptedValue)
+	}
+	return decrypted, nil
+}

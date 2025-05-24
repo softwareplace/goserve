@@ -9,6 +9,10 @@ type Service struct {
 	TestDecrypt func(encrypted string) (string, error)
 }
 
+func (t Service) DecryptAll(encrypted ...string) ([]string, error) {
+	return t.Original.DecryptAll(encrypted...)
+}
+
 func (t Service) Secret() []byte {
 	if t.TesSecret != nil {
 		return t.TesSecret()

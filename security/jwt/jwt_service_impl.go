@@ -11,6 +11,55 @@ import (
 	"time"
 )
 
+func (a *impl[T]) Decrypted(jwt string) (map[string]interface{}, error) {
+	token, err := a.Decode(jwt)
+	if err != nil {
+		return nil, err
+	}
+	isJwtClaimsEncryptionEnabled := encryptor.JwtClaimsEncryptionEnabled()
+	if isJwtClaimsEncryptionEnabled {
+
+		if aud, containsKey := token[AUD].([]interface{}); containsKey {
+			var values []string
+			for _, audV := range aud {
+				decrypt, err := a.Decrypt(audV.(string))
+				if err != nil {
+					return nil, err
+				}
+				values = append(values, decrypt)
+			}
+			token[AUD] = values
+		}
+
+		sub, err := a.DecryptClaimsValue(SUB, token)
+
+		if err != nil {
+			return nil, err
+		}
+
+		token[SUB] = sub
+	}
+
+	return token, nil
+}
+
+func (a *impl[T]) DecryptClaimsValue(key string, claims map[string]interface{}) (interface{}, error) {
+	value, containsKey := claims[key]
+
+	if !containsKey {
+		return nil, fmt.Errorf("key %s not found", key)
+	}
+
+	if isJwtClaimsEncryptionEnabled := encryptor.JwtClaimsEncryptionEnabled(); isJwtClaimsEncryptionEnabled {
+		decrypt, err := a.Decrypt(value.(string))
+		if err != nil {
+			return nil, err
+		}
+		return decrypt, nil
+	}
+	return value, nil
+}
+
 func (a *impl[T]) ExtractJWTClaims(ctx *goservectx.Request[T]) bool {
 	token, err := a.Parse(ctx.Authorization)
 

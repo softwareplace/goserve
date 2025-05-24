@@ -279,7 +279,7 @@ func TestJwtValidation(t *testing.T) {
 		require.NoError(t, err)
 		require.NotEmpty(t, decode)
 
-		aud, ok := decode["aud"].([]interface{})
+		aud, ok := decode[AUD].([]interface{})
 
 		require.True(t, ok)
 		require.Equal(t, len(context.GetRoles()), len(aud))
@@ -288,11 +288,46 @@ func TestJwtValidation(t *testing.T) {
 			require.False(t, contains(context.GetRoles(), value.(string)))
 		}
 
-		require.NotEqual(t, context.GetId(), decode["sub"])
-		require.Equal(t, "goserve-test-runner", decode["iss"])
+		require.NotEqual(t, context.GetId(), decode[SUB])
+		require.Equal(t, "goserve-test-runner", decode[ISS])
 
-		require.NotEmpty(t, decode["iat"])
-		require.NotEmpty(t, decode["exp"])
+		require.NotEmpty(t, decode[IAT])
+		require.NotEmpty(t, decode[EXP])
+	})
+
+	t.Run("should return a jwt decrypted claims", func(t *testing.T) {
+		mockApiSecretKey := "iBID8F32zkN1a0d4hCdm4gVS"
+
+		service := New[*goservectx.DefaultContext](
+			mockApiSecretKey,
+			goserveerror.Default[*goservectx.DefaultContext](),
+		)
+
+		context := getDefaultCtx()
+
+		jwtData, err := service.Generate(context, 15*time.Minute)
+
+		require.NoError(t, err)
+		require.NotEmpty(t, jwtData)
+
+		decode, err := service.Decrypted(jwtData.JWT)
+		require.NoError(t, err)
+		require.NotEmpty(t, decode)
+
+		aud, ok := decode[AUD].([]string)
+
+		require.True(t, ok)
+		require.Equal(t, len(context.GetRoles()), len(aud))
+
+		for _, value := range aud {
+			require.True(t, contains(context.GetRoles(), value))
+		}
+
+		require.Equal(t, context.GetId(), decode[SUB])
+		require.Equal(t, "goserve-test-runner", decode[ISS])
+
+		require.NotEmpty(t, decode[IAT])
+		require.NotEmpty(t, decode[EXP])
 	})
 
 	t.Run("should generate a jwt with original data when JWT_CLAIMS_ENCRYPTION_ENABLED provided as false", func(t *testing.T) {
@@ -316,7 +351,7 @@ func TestJwtValidation(t *testing.T) {
 		require.NoError(t, err)
 		require.NotEmpty(t, decode)
 
-		aud, ok := decode["aud"].([]interface{})
+		aud, ok := decode[AUD].([]interface{})
 
 		require.True(t, ok)
 		require.Equal(t, len(context.GetRoles()), len(aud))
@@ -325,11 +360,11 @@ func TestJwtValidation(t *testing.T) {
 			require.True(t, contains(context.GetRoles(), value.(string)))
 		}
 
-		require.NotEmpty(t, decode["sub"])
-		require.Equal(t, context.GetId(), decode["sub"])
-		require.Equal(t, "goserve-test-runner", decode["iss"])
-		require.NotEmpty(t, decode["iat"])
-		require.NotEmpty(t, decode["exp"])
+		require.NotEmpty(t, decode[SUB])
+		require.Equal(t, context.GetId(), decode[SUB])
+		require.Equal(t, "goserve-test-runner", decode[ISS])
+		require.NotEmpty(t, decode[IAT])
+		require.NotEmpty(t, decode[EXP])
 	})
 
 	t.Run("should return err given an invalid jwt", func(t *testing.T) {
