@@ -1,0 +1,7 @@
+#!/bin/bash
+set -e
+
+rm ./internal/gen/api.gen.go || true
+mkdir -p ./internal/gen || true
+oapi-codegen --config ./internal/resource/config.yaml ./internal/resource/pet-store.yaml
+go mod tidy

@@ -1,5 +1,7 @@
 package encryptor
 
+import "fmt"
+
 type serviceImpl struct {
 	ApiSecretAuthorization []byte
 }
@@ -22,9 +24,24 @@ func (a *serviceImpl) Secret() []byte {
 }
 
 func (a *serviceImpl) Encrypt(value string) (string, error) {
+	if value == "" {
+		return "", fmt.Errorf("value cannot be empty")
+	}
 	return Encrypt(value, a.ApiSecretAuthorization)
 }
 
 func (a *serviceImpl) Decrypt(encrypted string) (string, error) {
 	return Decrypt(encrypted, a.ApiSecretAuthorization)
+}
+
+func (a *serviceImpl) DecryptAll(encrypted ...string) ([]string, error) {
+	var decrypted []string
+	for _, value := range encrypted {
+		decryptedValue, err := a.Decrypt(value)
+		if err != nil {
+			return nil, err
+		}
+		decrypted = append(decrypted, decryptedValue)
+	}
+	return decrypted, nil
 }

@@ -1,30 +1,58 @@
 package jwt
 
 import (
+	"github.com/golang-jwt/jwt/v5"
 	goservectx "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/security/encryptor"
-	"github.com/softwareplace/goserve/security/principal"
 	"time"
 )
 
 const (
-	IAT                = "iat"
-	EXP                = "exp"
-	AUD                = "aud"
-	SUB                = "sub"
-	ISS                = "iss"
-	LoadPrincipalError = "JWT/LOAD_PRINCIPAL_ERROR"
-	ExtractClaimsError = "JWT/EXTRACT_CLAIMS_ERROR"
+	IAT = "iat"
+	EXP = "exp"
+	AUD = "aud"
+	SUB = "sub"
+	ISS = "iss"
 )
-
-type Response struct {
-	JWT      string `json:"jwt"`
-	Expires  int    `json:"expires"`
-	IssuedAt int    `json:"issuedAt"`
-}
 
 type Service[T goservectx.Principal] interface {
 	encryptor.Service
+	Claims
+	Validate
+
+	// Generate creates a new JWT Response based on the provided user and duration.
+	// It returns the generated Response or an error if the process fails.
+	Generate(user T, duration time.Duration) (*Response, error)
+
+	// From generating a Response containing a JWT for the given subject, roles
+	// and duration or returns an error if it fails.
+	From(sub string, roles []string, duration time.Duration) (*Response, error)
+
+	// Issuer returns the identifier of the entity responsible for issuing the JWT tokens in the service.
+	Issuer() string
+
+	// Decode extracts claims from a given JWT token string.
+	// It validates the token and parses its claims into a map[string]interface{}.
+	// Returns an error if the token is invalid or if the claims' structure is incorrect.
+	Decode(tokenString string) (map[string]interface{}, error)
+
+	// Decrypted extracts claims from a given JWT token string and attempts to decrypt ISS, SUB and AUD values.
+	// If JWT claims encryption is enabled, it will decrypt the encrypted ISS, SUB and AUD claims values.
+	// If encryption is disabled, it will return the original values.
+	//
+	// Parameters:
+	//   - jwt: The JWT token string to extract and decrypt claims from.
+	//
+	// Returns:
+	//   - map[string]interface{}: The claims map with decrypted values for ISS,
+	//     SUB and AUD if encryption is enabled
+	//   - error: An error if token parsing or decryption fails
+	Decrypted(jwt string) (map[string]interface{}, error)
+
+	// Parse parses and validates a JWT token string.
+	// It uses the secret key provided by the BaseService for token signing and validation.
+	// Returns the parsed *jwt.Token or an error if the token cannot be parsed or is invalid.
+	Parse(tokenString string) (*jwt.Token, error)
 
 	// ExtractJWTClaims validates and extracts the JWT claims from the API request context.
 	//
@@ -46,17 +74,7 @@ type Service[T goservectx.Principal] interface {
 	// Notes:
 	// - This method relies on the `jwt-go` library for parsing and managing JWT tokens.
 	// - Decrypt and cryptographic methods used must ensure secure implementation.
-	ExtractJWTClaims(requestContext *goservectx.Request[T]) bool
-
-	// Generate creates a new JWT Response based on the provided user and duration.
-	// It returns the generated Response or an error if the process fails.
-	Generate(user T, duration time.Duration) (*Response, error)
-
-	// From generates a Response containing a JWT for the given subject, roles, and duration or returns an error if it fails.
-	From(sub string, roles []string, duration time.Duration) (*Response, error)
-
-	// Issuer returns the identifier of the entity responsible for issuing the JWT tokens in the service.
-	Issuer() string
+	ExtractJWTClaims(ctx *goservectx.Request[T]) bool
 
 	HandlerErrorOrElse(
 		ctx *goservectx.Request[T],
@@ -66,20 +84,21 @@ type Service[T goservectx.Principal] interface {
 	)
 }
 
-type BaseService[T goservectx.Principal] struct {
+type impl[T goservectx.Principal] struct {
+	Claims
+	Validate
 	encryptor.Service
-	PService     principal.Service[T]
 	ErrorHandler goservectx.ApiHandler[T]
 }
 
 func New[T goservectx.Principal](
-	pService principal.Service[T],
 	apiSecretKey string,
 	handler goservectx.ApiHandler[T],
 ) Service[T] {
-	return &BaseService[T]{
+	return &impl[T]{
 		Service:      encryptor.New([]byte(apiSecretKey)),
-		PService:     pService,
 		ErrorHandler: handler,
+		Claims:       &claimsImpl{},
+		Validate:     &validateImpl{[]byte(apiSecretKey)},
 	}
 }

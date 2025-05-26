@@ -7,35 +7,45 @@ import (
 	"strings"
 )
 
+var (
+	executableName        = "goserve-generator"
+	checkVersion          = CheckCurrentVersion
+	getLatestVersion      = GoServeLatest
+	extractCurrentVersion = extractVersion
+	gitTargetInstaller    = "github.com/softwareplace/goserve/cmd/goserve-generator@"
+	getPath               = exec.LookPath
+	runCmd                = exec.Command
+)
+
 func Update() {
-	targetResource := fmt.Sprintf("github.com/softwareplace/goserve/cmd/goserve-generator@%s", GoServeLatest())
-	cmd := exec.Command("go", "install", targetResource)
+	targetResource := fmt.Sprintf("%s%s", gitTargetInstaller, getLatestVersion())
+	cmd := runCmd("go", "install", targetResource)
 	_, err := cmd.CombinedOutput()
 
 	if err != nil {
-		log.Fatalf("Failed to update: %v", err)
+		log.Panicf("Failed to update: %v", err)
 	}
 
 	fmt.Print("✅  goserve-generator updated successfully")
-	CheckCurrentVersion()
+	checkVersion()
 }
 
 func CheckCurrentVersion() {
-	path, err := exec.LookPath("goserve-generator")
+	path, err := getPath(executableName)
 	fmt.Println("")
 
 	if err != nil {
-		log.Fatalf("Could not find goserve-generator: %v", err)
+		log.Panicf("Could not find goserve-generator: %v", err)
 	}
 
-	cmd := exec.Command("go", "version", "-m", path)
+	cmd := runCmd("go", "version", "-m", path)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		log.Fatalf("Failed to check version: %v", err)
+		log.Panicf("Failed to check version: %v", err)
 	}
 
 	// Parse the output to find the version
-	currentVersion := extractVersion(string(output))
+	currentVersion := extractCurrentVersion(string(output))
 	if currentVersion == "" {
 		fmt.Println("Could not determine version")
 		return
@@ -43,7 +53,7 @@ func CheckCurrentVersion() {
 
 	fmt.Printf("goserve-generator version: %s\n", currentVersion)
 
-	latestVersion := GoServeLatest()
+	latestVersion := getLatestVersion()
 	if latestVersion != currentVersion {
 		fmt.Printf("A new version of goserve-generator is available: %s\n", latestVersion)
 		fmt.Printf("goserve-generator update to get the latest version")

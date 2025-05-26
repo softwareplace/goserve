@@ -6,10 +6,9 @@ import (
 	"github.com/softwareplace/goserve/internal/service/provider"
 	"github.com/softwareplace/goserve/security"
 	"github.com/softwareplace/goserve/security/encryptor"
-	"github.com/softwareplace/goserve/security/jwt"
+	model2 "github.com/softwareplace/goserve/security/jwt"
 	"github.com/softwareplace/goserve/security/login"
-	"github.com/softwareplace/goserve/security/principal"
-	"github.com/softwareplace/goserve/security/secret"
+	"github.com/softwareplace/goserve/security/model"
 	"github.com/softwareplace/goserve/utils"
 	"sync"
 	"time"
@@ -39,7 +38,7 @@ func NewLoginService(
 	return loginServiceInstance
 }
 
-func NewPrincipalService() principal.Service[*goservectx.DefaultContext] {
+func NewPrincipalService() *PrincipalServiceImpl {
 	principalServiceService.Do(func() {
 		principalServiceInstance = &PrincipalServiceImpl{}
 	})
@@ -52,6 +51,7 @@ func (d *PrincipalServiceImpl) LoadPrincipal(ctx *goservectx.Request[*goservectx
 	}
 
 	context := goservectx.NewDefaultCtx()
+	context.SetRequesterId("081162586c7f4f77b877fbca0f09cb7f")
 	context.SetRoles("api:key:goserve-generator")
 	context.SetRoles("api:key:goserve-generator", "write:pets", "read:pets")
 	ctx.Principal = &context
@@ -65,18 +65,18 @@ func (l *Service) RequiredScopes() []string {
 	}
 }
 
-func (l *Service) GetApiJWTInfo(apiKeyEntryData secret.ApiKeyEntryData,
+func (l *Service) GetApiJWTInfo(apiKeyEntryData model.ApiKeyEntryData,
 	_ *goservectx.Request[*goservectx.DefaultContext],
-) (secret.Entry, error) {
-	return secret.Entry{
+) (model.Entry, error) {
+	return model.Entry{
 		Key:        apiKeyEntryData.ClientId,
 		Expiration: apiKeyEntryData.Expiration,
 		Roles:      provider.MockScopes,
 	}, nil
 }
 
-func (l *Service) OnGenerated(data jwt.Response,
-	jwtEntry secret.Entry,
+func (l *Service) OnGenerated(data model2.Response,
+	jwtEntry model.Entry,
 	ctx goservectx.SampleContext[*goservectx.DefaultContext],
 ) {
 	provider.MockStore[jwtEntry.Key] = *jwtEntry.PublicKey
@@ -85,7 +85,8 @@ func (l *Service) OnGenerated(data jwt.Response,
 }
 
 func (l *Service) Login(user login.User) (*goservectx.DefaultContext, error) {
-	result := &goservectx.DefaultContext{}
+	result := goservectx.NewDefaultCtx()
+	result.SetRequesterId("081162586c7f4f77b877fbca0f09cb7f")
 	fullAuthorization := utils.GetBoolEnvOrDefault("FULL_AUTHORIZATION", false)
 	if fullAuthorization {
 		result.SetRoles(provider.MockScopes...)
@@ -94,6 +95,7 @@ func (l *Service) Login(user login.User) (*goservectx.DefaultContext, error) {
 	}
 	password := encryptor.NewEncrypt(user.Password).EncodedPassword()
 	result.SetEncryptedPassword(password)
+
 	return result, nil
 }
 

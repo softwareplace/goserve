@@ -25,6 +25,7 @@ func init() {
 
 		log.Infof("API_SECRET_KEY: %s", randomString)
 		_ = os.Setenv("API_SECRET_KEY", randomString)
+		_ = os.Setenv("API_PRIVATE_KEY", "./internal/resource/secret/private.key")
 	}
 
 }

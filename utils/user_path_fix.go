@@ -13,14 +13,14 @@ import (
 //
 // Returns:
 //   - The resolved file path with '~' replaced by the user's home directory, or the original path if no substitution is needed.
-func UserHomePathFix(path string) string {
+func UserHomePathFix(path string) (string, error) {
 	if strings.HasPrefix(path, "~") {
 		homeDir, err := os.UserHomeDir()
 		if err != nil {
 			log.Printf("Error: Unable to resolve user home directory for path: %v", err)
-			os.Exit(1)
+			return "", err
 		}
 		path = strings.Replace(path, "~", homeDir, 1)
 	}
-	return path
+	return path, nil
 }

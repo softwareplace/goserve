@@ -5,14 +5,13 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
-	"fmt"
-	"github.com/golang-jwt/jwt/v5"
 	log "github.com/sirupsen/logrus"
 	goservectx "github.com/softwareplace/goserve/context"
 	goserveerror "github.com/softwareplace/goserve/error"
 	"github.com/softwareplace/goserve/security"
 	"github.com/softwareplace/goserve/security/encryptor"
 	goservejwt "github.com/softwareplace/goserve/security/jwt"
+	"github.com/softwareplace/goserve/security/model"
 	"github.com/softwareplace/goserve/security/router"
 	"github.com/softwareplace/goserve/utils"
 	"net/http"
@@ -45,7 +44,7 @@ func New[T goservectx.Principal](
 	secretKey := utils.GetEnvOrDefault("API_PRIVATE_KEY", "")
 
 	if secretKey == "" {
-		log.Fatalf("API_PRIVATE_KEY environment variable not set")
+		log.Panicf("API_PRIVATE_KEY environment variable not set")
 	}
 
 	handler := apiSecretHandlerImpl[T]{
@@ -53,11 +52,11 @@ func New[T goservectx.Principal](
 		Service:   service,
 		Provider:  provider,
 	}
-	handler.initAPISecretKey()
+	handler.InitAPISecretKey()
 	return &handler
 }
 
-func (a *apiSecretHandlerImpl[T]) Handler(ctx *goservectx.Request[T], apiKeyEntryData ApiKeyEntryData) {
+func (a *apiSecretHandlerImpl[T]) Handler(ctx *goservectx.Request[T], apiKeyEntryData model.ApiKeyEntryData) {
 	goserveerror.Handler(func() {
 		log.Infof("API/KEY/GENERATOR: requested by: %s", ctx.AccessId)
 
@@ -70,7 +69,9 @@ func (a *apiSecretHandlerImpl[T]) Handler(ctx *goservectx.Request[T], apiKeyEntr
 		}
 
 		if info.PublicKey == nil || *info.PublicKey == "" {
-			key, err := a.GeneratePubKey(a.SecretKey())
+			var key string
+
+			key, err = a.GeneratePubKey(a.SecretKey())
 			if err != nil {
 				log.Errorf("API/KEY/GENERATOR: Failed to generate public key: %v", err)
 				ctx.InternalServerError("Failed to generate JWT. Please try again later.")
@@ -114,82 +115,47 @@ func (a *apiSecretHandlerImpl[T]) HandlerSecretAccess(ctx *goservectx.Request[T]
 		return true
 	}
 
-	if !a.apiSecretKeyValidation(ctx) {
-		a.HandlerErrorOrElse(ctx, nil, AccessHandlerError, func() {
-			// ignore
-		})
+	if !a.ApiSecretKeyValidation(ctx) {
+		a.HandlerErrorOrElse(ctx, nil, AccessHandlerError, nil)
 		ctx.Error("You are not allowed to access this resource", http.StatusUnauthorized)
 		return false
 	}
 	return true
 }
 
-// initAPISecretKey initializes the API secret key by reading and parsing a private key file.
-//
-// This function performs the following steps:
-// - Reads the private key file specified by the `secretKey` field.
-// - Decodes the PEM block from the file data.
-// - Parses the private key from the PEM data using PKCS8 format.
-// - Validates the type of the private key (either ECDSA or RSA).
-// - Stores the private key in the `apiSecret` field of the `apiSecretHandlerImpl` struct.
-//
-// Logs an error and terminates the application if any of the above steps fail.
-func (a *apiSecretHandlerImpl[T]) initAPISecretKey() {
+func (a *apiSecretHandlerImpl[T]) InitAPISecretKey() {
 	// Load private key from the provided secretKey file path
 	privateKeyData, err := os.ReadFile(a.secretKey)
 	if err != nil {
-		log.Fatalf("Failed to read private key file: %+v", err)
+		log.Panicf("Failed to read private key file: %+v", err)
 	}
 
 	// Decode PEM block from the private key data
 	block, _ := pem.Decode(privateKeyData)
-	if block == nil || block.Type != "PRIVATE KEY" {
-		log.Fatalf("Failed to decode private key PEM block")
+
+	if block == nil || block.Type != "PRIVATE KEY" || block.Bytes == nil {
+		log.Panicf("Failed to decode private key PEM block")
+		return
 	}
 
 	// Parse the private key using ParsePKCS8PrivateKey
 	privateKey, err := x509.ParsePKCS8PrivateKey(block.Bytes)
 	if err != nil {
-		log.Fatalf("Failed to parse private key: %+v", err)
+		log.Panicf("Failed to parse private key: %+v", err)
 	}
 	a.apiSecret = privateKey
 
-	switch key := a.apiSecret.(type) {
+	switch a.apiSecret.(type) {
 	case *ecdsa.PrivateKey:
 		log.Println("Loaded ECDSA private key successfully")
 	case *rsa.PrivateKey:
 		log.Println("Loaded RSA private key successfully")
-	default:
-		log.Fatalf("Unsupported private key type: %T", key)
 	}
 }
 
-// apiSecretKeyValidation verifies the validity of a public key against the private key stored in the handler.
-//
-// This function performs the following steps:
-// - Extracts JWT claims from the request context using the Service.
-// - Loads the API secret using the provided `ApiSecretKeyServiceProvider`.
-// - Decrypts the API access key to retrieve the PEM-encoded public key.
-// - Decodes the PEM-encoded public key and parses it into a usable public key object.
-// - Validates the type of the parsed public key (ECDSA or RSA).
-// - Ensures the extracted public key corresponds to the private key stored in the `apiSecret` field.
-//
-// If any of the above steps fail, the function logs the error and returns `false`, indicating that
-// the public key validation has failed. Otherwise, it returns `true`.
-//
-// Args:
-//
-//	  ctx (*api_context.Request[T]):
-//		 - The context of the API request carrying the necessary data for validation.
-//
-// Returns:
-//
-//	  bool:
-//		 - `true` if the public key is valid and corresponds to the private key.
-//		 - `false` if the public key is invalid or the validation fails.
-func (a *apiSecretHandlerImpl[T]) apiSecretKeyValidation(ctx *goservectx.Request[T]) bool {
+func (a *apiSecretHandlerImpl[T]) ApiSecretKeyValidation(ctx *goservectx.Request[T]) bool {
 	// Decode the Base64-encoded public key
-	claims, err := a.JWTClaims(ctx)
+	claims, err := a.Decode(ctx.ApiKey)
 
 	if err != nil {
 		log.Errorf("JWT/CLAIMS_EXTRACT: AuthorizationHandler failed: %+v", err)
@@ -213,7 +179,7 @@ func (a *apiSecretHandlerImpl[T]) apiSecretKeyValidation(ctx *goservectx.Request
 
 	ctx.ApiKeyId = apiKey
 
-	apiAccessKey, err := a.Get(ctx)
+	apiAccessKey, err := a.GetPublicKey(ctx)
 	if err != nil {
 		log.Errorf("API_SECRET_LOADER: AuthorizationHandler failed: %v", err)
 		return false
@@ -276,48 +242,22 @@ func (a *apiSecretHandlerImpl[T]) apiSecretKeyValidation(ctx *goservectx.Request
 	return true
 }
 
-// GeneratePubKey generates an encrypted public key from a given private key file.
-//
-// This function performs the following steps:
-// - Reads the private key from the specified file path.
-// - Decodes the PEM block from the private key data.
-// - Parses the private key using the PKCS8 format.
-// - Determines the type of the private key (ECDSA or RSA).
-// - Marshals the corresponding public key into PEM format.
-// - Encrypts the generated PEM-encoded public key using the securityService's encryption logic.
-//
-// Arguments:
-//   - secretKey (string): The file path to the private key.
-//
-// Returns:
-//   - (string, error): An encrypted PEM-encoded public key and an error (if any occurred).
-//
-// Errors:
-//   - Fails if the private key file cannot be read, parsed, or if the key type is unsupported.
-//   - Fails if the public key cannot be marshaled or encrypted.
-//
-// Example:
-//
-//	 encryptedPubKey, err := handler.generatePubKey("path/to/private.key")
-//	 if err != nil {
-//		 log.Printf("Error generating public key: %v", err)
-//	 }
 func (a *apiSecretHandlerImpl[T]) GeneratePubKey(secretKey string) (string, error) {
 	privateKeyData, err := os.ReadFile(secretKey)
 	if err != nil {
-		log.Fatalf("Failed to read private key file: %+v", err)
+		log.Panicf("Failed to read private key file: %+v", err)
 	}
 
 	// Decode PEM block from the private key data
 	block, _ := pem.Decode(privateKeyData)
 	if block == nil || block.Type != "PRIVATE KEY" {
-		log.Fatalf("Failed to decode private key PEM block")
+		log.Panicf("Failed to decode private key PEM block")
 	}
 
 	// Parse the private key using ParsePKCS8PrivateKey
 	privateKey, err := x509.ParsePKCS8PrivateKey(block.Bytes)
 	if err != nil {
-		log.Fatalf("Failed to parse private key: %+v", err)
+		log.Panicf("Failed to parse private key: %+v", err)
 	}
 
 	// Generate and log the corresponding public key
@@ -327,16 +267,16 @@ func (a *apiSecretHandlerImpl[T]) GeneratePubKey(secretKey string) (string, erro
 		log.Println("Loaded ECDSA private key successfully")
 		publicKeyBytes, err = x509.MarshalPKIXPublicKey(&key.PublicKey)
 		if err != nil {
-			log.Fatalf("Failed to marshal ECDSA public key: %+v", err)
+			log.Panicf("Failed to marshal ECDSA public key: %+v", err)
 		}
 	case *rsa.PrivateKey:
 		log.Println("Loaded RSA private key successfully")
 		publicKeyBytes, err = x509.MarshalPKIXPublicKey(&key.PublicKey)
 		if err != nil {
-			log.Fatalf("Failed to marshal RSA public key: %+v", err)
+			log.Panicf("Failed to marshal RSA public key: %+v", err)
 		}
 	default:
-		log.Fatalf("Unsupported private key type: %T", key)
+		log.Panicf("Unsupported private key type: %T", key)
 	}
 
 	// Encode the public key in PEM format
@@ -345,27 +285,5 @@ func (a *apiSecretHandlerImpl[T]) GeneratePubKey(secretKey string) (string, erro
 		Bytes: publicKeyBytes,
 	})
 
-	encryptedKey, err := a.Encrypt(string(publicKeyPEM))
-
-	if err != nil {
-		log.Fatalf("Failed to encryptor public key: %+v", err)
-		return "", nil
-	}
-	return encryptedKey, err
-}
-
-func (a *apiSecretHandlerImpl[T]) JWTClaims(ctx *goservectx.Request[T]) (map[string]interface{}, error) {
-	token, err := jwt.Parse(ctx.ApiKey, func(token *jwt.Token) (interface{}, error) {
-		return a.Secret(), nil
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		return claims, nil
-	}
-
-	return nil, fmt.Errorf("failed to extract jwt claims")
+	return a.Encrypt(string(publicKeyPEM))
 }

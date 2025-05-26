@@ -54,6 +54,11 @@ func Default(
 // Returns:
 //   - Api[T]: An instance of the Api[T] interface with the configured router and default behaviors.
 func New[T goservectx.Principal](topMiddlewares ...ApiMiddleware[T]) Api[T] {
+	api := create[T](topMiddlewares...)
+	return api.NotFoundHandler()
+}
+
+func create[T goservectx.Principal](topMiddlewares ...ApiMiddleware[T]) *baseServer[T] {
 	router := mux.NewRouter()
 	router.Use(rootAppMiddleware[T])
 
@@ -71,7 +76,7 @@ func New[T goservectx.Principal](topMiddlewares ...ApiMiddleware[T]) Api[T] {
 	for _, middleware := range topMiddlewares {
 		api.RegisterMiddleware(middleware, "")
 	}
-	return api.NotFoundHandler()
+	return api
 }
 
 // NewWith initializes and returns a new instance of the Api[T] interface using a provided Gorilla mux router.

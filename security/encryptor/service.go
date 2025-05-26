@@ -28,4 +28,21 @@ type Service interface {
 	// - Ensure that any sensitive data involved in the decryption process is handled securely
 	//   and not exposed in logs or error messages.
 	Decrypt(encrypted string) (string, error)
+
+	// DecryptAll decrypts multiple encrypted strings using the secret associated with the apiSecurityServiceImpl instance.
+	// Returns an array of decrypted strings or an error if decryption fails for any value.
+	//
+	// Parameters:
+	// - encrypted: Variadic string argument containing one or more encrypted strings to decrypt
+	//
+	// Returns:
+	// - []string: Array containing the decrypted values in the same order as input
+	// - error: Error if decryption fails for any value
+	//
+	// Notes:
+	// - If any single decryption fails, the entire operation fails and returns an error
+	// - The decryption logic must use secure cryptographic mechanisms to ensure data safety
+	// - Ensure that any sensitive data involved in the decryption process is handled securely
+	//   and not exposed in logs or error messages
+	DecryptAll(encrypted ...string) ([]string, error)
 }

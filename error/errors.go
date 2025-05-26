@@ -11,6 +11,8 @@ import (
 const (
 	HandlerWrapper                  = "ERROR/HANDLER/WRAPPER"
 	SecurityValidatorResourceAccess = "SECURITY/VALIDATOR/RESOURCE_ACCESS"
+	LoadPrincipalError              = "JWT/LOAD_PRINCIPAL_ERROR"
+	ExtractClaimsError              = "JWT/EXTRACT_CLAIMS_ERROR"
 )
 
 func Handler(try func(), catch func(err error)) {
@@ -58,6 +60,10 @@ func (p *defaultHandlerImpl[T]) Handler(ctx *goservectx.Request[T], err error, s
 	}
 
 	if source == SecurityValidatorResourceAccess {
+		ctx.Unauthorized()
+	}
+
+	if source == LoadPrincipalError || source == ExtractClaimsError {
 		ctx.Unauthorized()
 	}
 }

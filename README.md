@@ -64,12 +64,16 @@ goserve-generator -n <project-name> -u <github-username> [-r true|false] [-gi tr
 
 ### Flags
 
-| Flag  | Description                  | Required | Default |
-|-------|------------------------------|----------|---------|
-| `-n`  | Name of your project         | ✅ Yes    |         |
-| `-u`  | Your GitHub username         | ✅ Yes    |         |
-| `-r`  | Force replace existing files | ❌ No     | false   |
-| `-gi` | Gi project initialization    | ❌ No     | true    |
+| Flag      | Description                           | Required | Default |
+|-----------|---------------------------------------|----------|---------|
+| `-n`      | Name of your project                  | ✅ Yes    |         |
+| `-u`      | Your GitHub username                  | ✅ Yes    |         |
+| `-r`      | Force replace existing files          | ❌ No     | false   |
+| `-gi`     | Gi project initialization             | ❌ No     | true    |
+| `-cgf`    | Template of the codegen config file   | ❌ No     |         |
+| `-gsv`    | Use a specific version of goserver    | ❌ No     |         |
+| `version` | Check current version                 | ❌ No     |         |
+| `update`  | Update to the latest released version | ❌ No     |         |
 
 ### Example
 
@@ -197,7 +201,7 @@ oapi-codegen --config path/to/config.yaml path/to/swagger.yaml
 ### Start server
 
 ```bash
-go run internal/main.go
+go run test/main.go
 ```
 
 Open [http://localhost:8080/swagger/index.html](http://localhost:8080/swagger/index.html)
@@ -207,7 +211,7 @@ Open [http://localhost:8080/swagger/index.html](http://localhost:8080/swagger/in
 ### Start in protected mode
 
 ```bash
-PROTECTED_API=true go run internal/main.go
+PROTECTED_API=true go run test/main.go
 ```
 
 Without token:

@@ -1,0 +1,7 @@
+/internal/gen/.*
+/internal/doc/.*
+/internal/resource/.*
+/internal/service/.*
+/internal/utils/.*
+/internal/main.go
+cmd/goserve-generator/main.go

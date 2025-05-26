@@ -13,7 +13,13 @@ type Release struct {
 	TagName string `json:"tag_name"`
 }
 
-func GoServeLatest() string {
+var (
+	url           = "https://api.github.com/repos/softwareplace/goserve/releases/latest"
+	extractBody   = getBody
+	GoServeLatest = goServeLatest
+)
+
+func goServeLatest() string {
 	latest, err := getLatest()
 	if err != nil {
 		log.Printf("Failed to fetch latest version: %v", err)
@@ -23,7 +29,6 @@ func GoServeLatest() string {
 }
 
 func getLatest() (string, error) {
-	url := "https://api.github.com/repos/softwareplace/goserve/releases/latest"
 	resp, err := http.Get(url)
 	if err != nil {
 		return "", fmt.Errorf("failed to fetch releases: %v", err)
@@ -36,7 +41,8 @@ func getLatest() (string, error) {
 		return "", fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
-	body, err := io.ReadAll(resp.Body)
+	body, err := extractBody(resp)
+
 	if err != nil {
 		return "", fmt.Errorf("failed to read response body: %v", err)
 	}
@@ -51,4 +57,8 @@ func getLatest() (string, error) {
 		return template.GoServeLatestVersion, nil
 	}
 	return release.TagName, nil
+}
+
+func getBody(resp *http.Response) ([]byte, error) {
+	return io.ReadAll(resp.Body)
 }

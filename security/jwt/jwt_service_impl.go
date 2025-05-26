@@ -1,59 +1,88 @@
 package jwt
 
 import (
+	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	log "github.com/sirupsen/logrus"
 	goservectx "github.com/softwareplace/goserve/context"
+	goserveerror "github.com/softwareplace/goserve/error"
 	"github.com/softwareplace/goserve/security/encryptor"
 	"github.com/softwareplace/goserve/utils"
-	"net/http"
 	"time"
 )
 
-func (a *BaseService[T]) Principal(
-	ctx *goservectx.Request[T],
-) bool {
-	success := a.PService.LoadPrincipal(ctx)
+func (a *impl[T]) Decrypted(jwt string) (map[string]interface{}, error) {
+	token, err := a.Decode(jwt)
+	if err != nil {
+		return nil, err
+	}
+	isJwtClaimsEncryptionEnabled := encryptor.JwtClaimsEncryptionEnabled()
+	if isJwtClaimsEncryptionEnabled {
 
-	if !success {
-		a.HandlerErrorOrElse(ctx, nil, LoadPrincipalError, func() {
-			ctx.Error("AuthorizationHandler failed", http.StatusForbidden)
-		})
+		if aud, containsKey := token[AUD].([]interface{}); containsKey {
+			var values []string
+			for _, audV := range aud {
+				decrypt, err := a.Decrypt(audV.(string))
+				if err != nil {
+					return nil, err
+				}
+				values = append(values, decrypt)
+			}
+			token[AUD] = values
+		}
 
-		return success
+		sub, err := a.DecryptClaimsValue(SUB, token)
+
+		if err != nil {
+			return nil, err
+		}
+
+		token[SUB] = sub
 	}
 
-	return success
+	return token, nil
 }
 
-func (a *BaseService[T]) ExtractJWTClaims(ctx *goservectx.Request[T]) bool {
+func (a *impl[T]) DecryptClaimsValue(key string, claims map[string]interface{}) (interface{}, error) {
+	value, containsKey := claims[key]
 
-	token, err := jwt.Parse(ctx.Authorization, func(token *jwt.Token) (interface{}, error) {
-		return a.Secret(), nil
-	})
+	if !containsKey {
+		return nil, fmt.Errorf("key %s not found", key)
+	}
+
+	if isJwtClaimsEncryptionEnabled := encryptor.JwtClaimsEncryptionEnabled(); isJwtClaimsEncryptionEnabled {
+		decrypt, err := a.Decrypt(value.(string))
+		if err != nil {
+			return nil, err
+		}
+		return decrypt, nil
+	}
+	return value, nil
+}
+
+func (a *impl[T]) ExtractJWTClaims(ctx *goservectx.Request[T]) bool {
+	token, err := a.Parse(ctx.Authorization)
 
 	if err != nil {
 		log.Errorf("JWT/PARSE: AuthorizationHandler failed: %+v", err)
+		a.HandlerErrorOrElse(ctx, err, goserveerror.ExtractClaimsError, nil)
 		return false
 	}
 
-	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+	if claims, ok := a.Get(token); ok {
 		ctx.AuthorizationClaims = claims
 
 		isJwtClaimsEncryptionEnabled := encryptor.JwtClaimsEncryptionEnabled()
 
-		var err error
 		requester := claims[SUB].(string)
 
 		if isJwtClaimsEncryptionEnabled {
-			requester, err = a.Decrypt(claims[SUB].(string))
+			requester, err = a.Decrypt(requester)
 		}
 
 		if err != nil {
-			log.Errorf("%s: AuthorizationHandler failed: %+v", ExtractClaimsError, err)
-			a.HandlerErrorOrElse(ctx, err, ExtractClaimsError, func() {
-				ctx.Error("AuthorizationHandler failed", http.StatusForbidden)
-			})
+			log.Errorf("%s: AuthorizationHandler failed: %+v", goserveerror.ExtractClaimsError, err)
+			a.HandlerErrorOrElse(ctx, err, goserveerror.ExtractClaimsError, nil)
 			return false
 		}
 
@@ -64,26 +93,27 @@ func (a *BaseService[T]) ExtractJWTClaims(ctx *goservectx.Request[T]) bool {
 
 	log.Errorf("JWT/CLAIMS_EXTRACT: failed with error: %+v", err)
 
-	a.HandlerErrorOrElse(ctx, err, ExtractClaimsError, func() {
-		ctx.Error("AuthorizationHandler failed", http.StatusForbidden)
-	})
-
+	a.HandlerErrorOrElse(ctx, err, goserveerror.ExtractClaimsError, nil)
 	return false
 }
 
-func (a *BaseService[T]) Generate(data T, duration time.Duration) (*Response, error) {
+func (a *impl[T]) Generate(data T, duration time.Duration) (*Response, error) {
 	return a.From(data.GetId(), data.GetRoles(), duration)
 }
 
-func (a *BaseService[T]) From(sub string, roles []string, duration time.Duration) (*Response, error) {
-	now := time.Now()
-	expiration := now.Add(duration).Unix()
+func (a *impl[T]) From(sub string, roles []string, duration time.Duration) (*Response, error) {
+	if sub == "" {
+		return nil, fmt.Errorf("sub cannot be empty")
+	}
+
+	iat := time.Now()
+	expiration := iat.Add(duration).Unix()
 
 	isJwtClaimsEncryptionEnabled := encryptor.JwtClaimsEncryptionEnabled()
 
 	var err error
 	var requestBy string
-	var encryptedRoles []string
+	var claimRoles []string
 
 	if isJwtClaimsEncryptionEnabled {
 		requestBy, err = a.Encrypt(sub)
@@ -92,27 +122,19 @@ func (a *BaseService[T]) From(sub string, roles []string, duration time.Duration
 		}
 
 		for _, role := range roles {
-			encryptedRole, err := a.Encrypt(role)
+			var encryptedRole string
+			encryptedRole, err = a.Encrypt(role)
 			if err != nil {
 				return nil, err
 			}
-			encryptedRoles = append(encryptedRoles, encryptedRole)
+			claimRoles = append(claimRoles, encryptedRole)
 		}
 	} else {
 		requestBy = sub
-		encryptedRoles = roles
+		claimRoles = roles
 	}
 
-	claims := jwt.MapClaims{
-		SUB: requestBy,
-		AUD: encryptedRoles,
-		EXP: expiration,
-		IAT: now.Unix(),
-	}
-
-	if issuer := a.Issuer(); issuer != "" {
-		claims[ISS] = issuer
-	}
+	claims := a.Create(requestBy, claimRoles, expiration, iat, a.Issuer())
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	signedToken, err := token.SignedString(a.Secret())
@@ -120,10 +142,56 @@ func (a *BaseService[T]) From(sub string, roles []string, duration time.Duration
 	return &Response{
 		JWT:      signedToken,
 		Expires:  int(expiration),
-		IssuedAt: int(now.Unix()),
+		IssuedAt: int(iat.Unix()),
 	}, err
 }
 
-func (a *BaseService[T]) Issuer() string {
+func (a *impl[T]) Issuer() string {
 	return utils.GetEnvOrDefault("JWT_ISSUER", "")
+}
+
+func (a *impl[T]) Decode(tokenString string) (map[string]interface{}, error) {
+	token, err := a.Parse(tokenString)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if claims, ok := a.Get(token); ok {
+		return claims, nil
+	}
+
+	return nil, fmt.Errorf("invalid token claims structure")
+}
+
+func (a *impl[T]) Parse(tokenString string) (*jwt.Token, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		return a.Secret(), nil
+	})
+
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse token: %v", err)
+	}
+
+	return token, nil
+}
+
+func (a *impl[T]) HandlerErrorOrElse(
+	ctx *goservectx.Request[T],
+	error error,
+	executionContext string,
+	handlerNotFound func(),
+) {
+	if a.ErrorHandler != nil {
+		a.ErrorHandler.Handler(ctx, error, executionContext)
+		return
+	}
+
+	if handlerNotFound != nil {
+		handlerNotFound()
+		return
+	}
+
+	log.Errorf("DEFAULT/ERROR/HANDLER:: Failed to handle the request. Error: %s", error.Error())
+	ctx.InternalServerError("Failed to handle the request. Please try again.")
 }

@@ -2,6 +2,8 @@ package reflect
 
 import (
 	"encoding/json"
+	"fmt"
+	log "github.com/sirupsen/logrus"
 	"reflect"
 	"strconv"
 	"strings"
@@ -26,6 +28,51 @@ type ParamsExtractorSource struct {
 // Returns an error if parameter extraction or JSON unmarshalling into the target struct fails.
 func ParamsExtract(target interface{}, source ...ParamsExtractorSource) error {
 	targetType := reflect.TypeOf(target)
+
+	jsonContent, err := ParseToJson(targetType, source...)
+	if err != nil {
+		return err
+	}
+
+	return json.Unmarshal(jsonContent, target)
+}
+
+func FormBodyExtract(target interface{}, source ...ParamsExtractorSource) {
+	targetType := reflect.TypeOf(target).Elem()
+
+	for i := 0; i < targetType.NumField(); i++ {
+		field := targetType.Field(i)
+		if field.Name == "Body" {
+			err := json.Unmarshal([]byte(`{"body": {}}`), &target)
+			if err != nil {
+				break
+			}
+
+			fieldInstance := reflect.ValueOf(target).Elem().FieldByName("Body").Interface()
+			targetBodyType := reflect.TypeOf(fieldInstance)
+
+			jsonContent, err := ParseToJson(targetBodyType, source...)
+
+			if err != nil {
+				log.Errorf("FormBodyExtract: %v", err)
+				break
+			}
+
+			err = json.Unmarshal([]byte(fmt.Sprintf(`{"body": %s}`, jsonContent)), &target)
+
+			if err != nil {
+				log.Errorf("FormBodyExtract: %v", err)
+			}
+
+			break
+		}
+	}
+}
+
+func ParseToJson(
+	targetType reflect.Type,
+	source ...ParamsExtractorSource,
+) ([]byte, error) {
 	params := make(map[string]interface{})
 
 	for _, values := range source {
@@ -45,12 +92,7 @@ func ParamsExtract(target interface{}, source ...ParamsExtractorSource) error {
 			}
 		}
 	}
-	jsonContent, err := json.Marshal(params)
-	if err != nil {
-		return err
-	}
-
-	return json.Unmarshal(jsonContent, target)
+	return json.Marshal(params)
 }
 
 // FindField identifies and retrieves a struct field based on its name or its JSON tag.

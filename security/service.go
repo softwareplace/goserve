@@ -75,7 +75,7 @@ func New[T goservectx.Principal](
 		ResourceAccessValidation: &defaultResourceAccessHandler[T]{
 			&defaultErrorHandler,
 		},
-		Service:  jwt.New(service, apiSecretKey, defaultErrorHandler),
+		Service:  jwt.New(apiSecretKey, defaultErrorHandler),
 		PService: service,
 	}
 }
@@ -101,7 +101,7 @@ func Create[T goservectx.Principal](
 ) Service[T] {
 	return &impl[T]{
 		ResourceAccessValidation: resourceValidation,
-		Service:                  jwt.New(service, apiSecretKey, handler),
+		Service:                  jwt.New(apiSecretKey, handler),
 		PService:                 service,
 	}
 }
