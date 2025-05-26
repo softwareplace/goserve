@@ -49,7 +49,7 @@ function runCoverage() {
   TOTAL_COVERAGE=$(perl -ne 'print "$1\n" if /id="totalcov"[^>]*>([0-9.]+)/' .out/index.html || echo "0")
 
   # Check if coverage meets minimum requirement
-  MIN_COVERAGE=50
+  MIN_COVERAGE=58
   if (( $(echo "$TOTAL_COVERAGE < $MIN_COVERAGE" | bc -l 2>/dev/null) )); then
       echo -e "\033[0;31mTotal Coverage: ${TOTAL_COVERAGE}%\033[0m"
       echo -e "\033[0;31m❌ Coverage is below minimum required (${MIN_COVERAGE}%)\033[0m"
