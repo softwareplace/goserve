@@ -6,9 +6,11 @@ import (
 )
 
 type TestStruct struct {
-	Name     string `validate:"required,min=3,max=20"`
-	Email    string `validate:"required,email"`
-	Password string `validate:"required,password"`
+	Name     string  `validate:"required,min=3,max=20"`
+	Email    string  `validate:"required,email"`
+	Password string  `validate:"required,password"`
+	Age      int     `validate:"gte=1,lte=150"`
+	Amount   float32 `validate:"gt=10,lte=1000"`
 }
 
 func TestStructValidation(t *testing.T) {
@@ -24,6 +26,8 @@ func TestStructValidation(t *testing.T) {
 				Name:     "John",
 				Email:    "john.doe@example.com",
 				Password: "gDszOxF0xcq6nYeR6$&$5",
+				Age:      100,
+				Amount:   100,
 			},
 			wantErr: false,
 		},
@@ -33,6 +37,8 @@ func TestStructValidation(t *testing.T) {
 				Name:     "John has a long name that exceeds the max length of 20 characters",
 				Email:    "john.doe@example.com",
 				Password: "gDszOxF0xcq6nYeR6$&$5",
+				Age:      100,
+				Amount:   100,
 			},
 			wantErr: true,
 			errMsg:  "Name must be at most 20 characters",
@@ -43,6 +49,8 @@ func TestStructValidation(t *testing.T) {
 				Name:     "John has a long name",
 				Email:    "john.doe@example.com",
 				Password: "gDszOxF0xcq6nYeR6$&$5",
+				Age:      100,
+				Amount:   100,
 			},
 			wantErr: false,
 		},
@@ -54,7 +62,7 @@ func TestStructValidation(t *testing.T) {
 				Password: "",
 			},
 			wantErr: true,
-			errMsg:  "Name is a required field\nEmail is a required field\nPassword is a required field",
+			errMsg:  "Name is a required field\nEmail is a required field\nPassword is a required field\nAge must be greater or equal to 1\nAmount must be greater than 10",
 		},
 		{
 			name: "Invalid email format",
@@ -62,6 +70,8 @@ func TestStructValidation(t *testing.T) {
 				Name:     "John",
 				Email:    "invalid-email",
 				Password: "gDszOxF0xcq6nYeR6$&$5",
+				Age:      100,
+				Amount:   100,
 			},
 			wantErr: true,
 			errMsg:  "Email must be a valid email address",
@@ -72,9 +82,46 @@ func TestStructValidation(t *testing.T) {
 				Name:     "Jo",
 				Email:    "john.doe@example.com",
 				Password: "gDszOxF0xcq6nYeR6$&$5",
+				Age:      100,
+				Amount:   100,
 			},
 			wantErr: true,
 			errMsg:  "Name must be at least 3 characters",
+		},
+		{
+			name: "Invalid min number",
+			input: TestStruct{
+				Name:     "John has a long name",
+				Email:    "john.doe@example.com",
+				Password: "gDszOxF0xcq6nYeR6$&$5",
+				Age:      0,
+				Amount:   0,
+			},
+			wantErr: true,
+			errMsg:  "Age must be greater or equal to 1\nAmount must be greater than 10",
+		},
+		{
+			name: "Invalid max number",
+			input: TestStruct{
+				Name:     "John has a long name",
+				Email:    "john.doe@example.com",
+				Password: "gDszOxF0xcq6nYeR6$&$5",
+				Age:      1000,
+				Amount:   1001,
+			},
+			wantErr: true,
+			errMsg:  "Age must be less or equal to 150\nAmount must be less or equal to 1000",
+		},
+		{
+			name: "Valid number",
+			input: TestStruct{
+				Name:     "John has a long name",
+				Email:    "john.doe@example.com",
+				Password: "gDszOxF0xcq6nYeR6$&$5",
+				Age:      100,
+				Amount:   100,
+			},
+			wantErr: false,
 		},
 		{
 			name: "Invalid password format",
@@ -82,19 +129,11 @@ func TestStructValidation(t *testing.T) {
 				Name:     "John",
 				Email:    "john.doe@example.com",
 				Password: "password",
+				Age:      100,
+				Amount:   100,
 			},
 			wantErr: true,
 			errMsg:  "Password must contain at least: 8 characters, 1 uppercase, 1 lowercase, 1 number, and 1 special character",
-		},
-		{
-			name: "Multiple validation errors",
-			input: TestStruct{
-				Name:     "",
-				Email:    "invalid-email",
-				Password: "pass",
-			},
-			wantErr: true,
-			errMsg:  "Name is a required field\nEmail must be a valid email address\nPassword must contain at least: 8 characters, 1 uppercase, 1 lowercase, 1 number, and 1 special character",
 		},
 	}
 

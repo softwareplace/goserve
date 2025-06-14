@@ -61,6 +61,34 @@ func DefaultTranslations() []RTranslation {
 			},
 		},
 		{
+			Tag:     "gte",
+			Message: "{0} must be greater or equal to {1}",
+			Validation: func(fe validator.FieldError) []string {
+				return []string{fe.Field(), fe.Param()}
+			},
+		},
+		{
+			Tag:     "gt",
+			Message: "{0} must be greater than {1}",
+			Validation: func(fe validator.FieldError) []string {
+				return []string{fe.Field(), fe.Param()}
+			},
+		},
+		{
+			Tag:     "lte",
+			Message: "{0} must be less or equal to {1}",
+			Validation: func(fe validator.FieldError) []string {
+				return []string{fe.Field(), fe.Param()}
+			},
+		},
+		{
+			Tag:     "lt",
+			Message: "{0} must be less than {1}",
+			Validation: func(fe validator.FieldError) []string {
+				return []string{fe.Field(), fe.Param()}
+			},
+		},
+		{
 			Tag:     "max",
 			Message: "{0} must be at most {1} characters",
 			Validation: func(fe validator.FieldError) []string {
