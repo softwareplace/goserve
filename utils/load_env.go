@@ -147,3 +147,26 @@ func GetRequiredBoolEnv(key string) bool {
 	}
 	return boolValue
 }
+
+// GetIntEnvOrElseDefault retrieves an integer environment variable value or returns a default.
+// If the environment variable is not set or cannot be converted to an integer,
+// it returns the provided default value.
+//
+// Parameters:
+//   - key: The name of the environment variable to retrieve
+//   - defaultValue: The default integer value to return if the environment variable is not set or empty
+func GetIntEnvOrElseDefault(key string, defaultValue int) int {
+	value, exists := os.LookupEnv(key)
+	if !exists || value == "" {
+		return defaultValue
+	}
+
+	intValue, err := strconv.Atoi(value)
+
+	if err != nil {
+		log.Warnf("Failed to parse %s as int: %v", key, err)
+		return defaultValue
+	}
+
+	return intValue
+}

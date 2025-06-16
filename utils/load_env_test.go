@@ -374,3 +374,59 @@ func TestGetRequiredBoolEnv(t *testing.T) {
 		})
 	}
 }
+
+func TestGetIntEnvOrElseDefault(t *testing.T) {
+	tests := []struct {
+		name         string
+		envKey       string
+		envValue     string
+		setEnv       bool
+		defaultValue int
+		want         int
+	}{
+		{
+			name:         "unset env returns default",
+			envKey:       "TEST_INT_1",
+			setEnv:       false,
+			defaultValue: 42,
+			want:         42,
+		},
+		{
+			name:         "empty env returns default",
+			envKey:       "TEST_INT_2",
+			envValue:     "",
+			setEnv:       true,
+			defaultValue: 99,
+			want:         99,
+		},
+		{
+			name:         "valid int env returns value",
+			envKey:       "TEST_INT_3",
+			envValue:     "123",
+			setEnv:       true,
+			defaultValue: 7,
+			want:         123,
+		},
+		{
+			name:         "invalid int env returns default",
+			envKey:       "TEST_INT_4",
+			envValue:     "notanint",
+			setEnv:       true,
+			defaultValue: 55,
+			want:         55,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.setEnv {
+				os.Setenv(tt.envKey, tt.envValue)
+				defer os.Unsetenv(tt.envKey)
+			} else {
+				os.Unsetenv(tt.envKey)
+			}
+			got := GetIntEnvOrElseDefault(tt.envKey, tt.defaultValue)
+			require.Equal(t, tt.want, got)
+		})
+	}
+}
