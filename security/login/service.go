@@ -1,8 +1,9 @@
 package login
 
 import (
-	goservectx "github.com/softwareplace/goserve/context"
 	"time"
+
+	goservectx "github.com/softwareplace/goserve/context"
 )
 
 type User struct {
@@ -27,9 +28,11 @@ type Service[T goservectx.Principal] interface {
 	// TokenDuration specifies the duration for which a generated JWT token remains valid.
 	// This value defines the time-to-live (TTL) for the token, ensuring secure and proper session management.
 	//
+	// Parameters:
+	//   - principal: The principal context of type T.
 	// Returns:
 	//   - time.Duration: The duration for which a generated token is valid.
-	TokenDuration() time.Duration
+	TokenDuration(principal T) time.Duration
 
 	// IsValidPassword validates the user-provided plaintext password against the stored encrypted password.
 	//

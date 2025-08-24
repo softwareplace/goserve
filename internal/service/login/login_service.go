@@ -1,7 +1,11 @@
 package login
 
 import (
+	"sync"
+	"time"
+
 	log "github.com/sirupsen/logrus"
+
 	goservectx "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/internal/service/provider"
 	"github.com/softwareplace/goserve/security"
@@ -10,8 +14,6 @@ import (
 	"github.com/softwareplace/goserve/security/login"
 	"github.com/softwareplace/goserve/security/model"
 	"github.com/softwareplace/goserve/utils"
-	"sync"
-	"time"
 )
 
 type PrincipalServiceImpl struct {
@@ -99,7 +101,7 @@ func (l *Service) Login(user login.User) (*goservectx.DefaultContext, error) {
 	return result, nil
 }
 
-func (l *Service) TokenDuration() time.Duration {
+func (l *Service) TokenDuration(principal *goservectx.DefaultContext) time.Duration {
 	return time.Minute * 15
 }
 

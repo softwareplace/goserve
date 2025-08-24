@@ -2,6 +2,7 @@ package server
 
 import (
 	log "github.com/sirupsen/logrus"
+
 	goservectx "github.com/softwareplace/goserve/context"
 	goserveerror "github.com/softwareplace/goserve/error"
 	"github.com/softwareplace/goserve/request"
@@ -41,7 +42,7 @@ func (a *baseServer[T]) loginDataHandler(ctx *goservectx.Request[T], user login.
 			return
 		}
 
-		jwt, err := a.securityService.Generate(principal, a.loginService.TokenDuration())
+		jwt, err := a.securityService.Generate(principal, a.loginService.TokenDuration(principal))
 
 		if err != nil {
 			log.Printf("LOGIN/JWT: Failed to generate JWT: %v", err)
