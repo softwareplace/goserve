@@ -1,7 +1,6 @@
 package router
 
 import (
-	goservectx "github.com/softwareplace/goserve/context"
 	"regexp"
 	"strings"
 )
@@ -14,20 +13,21 @@ import (
 //
 // Parameters:
 //
-//	ctx - The API request context containing request metadata.
+//	- method: The HTTP method of the request.
+//	- path: The path of the request.
 //
 // Returns:
 //
-//	[]string - A slice of required roles for the path or nil if no roles are defined.
-//	bool - True if roles are required for the path, false otherwise.
-func GetRolesForPath[T goservectx.Principal](ctx goservectx.Request[T]) ([]string, bool) {
-	path := ctx.Request.Method + "::" + ctx.Request.URL.Path
+//	- []string: A slice of required roles for the path or nil if no roles are defined.
+//	- bool: True if roles are required for the path, false otherwise.
+func GetRolesForPath(method, path string) ([]string, bool) {
+	resource := method + "::" + path
 
 	for pattern, requiredRoles := range roles {
 		regexPattern := convertPathToRegex(pattern)
 		regex := regexp.MustCompile(regexPattern)
 
-		if regex.MatchString(path) || path == pattern {
+		if regex.MatchString(resource) || resource == pattern {
 			return requiredRoles, true
 		}
 	}
@@ -42,18 +42,18 @@ func GetRolesForPath[T goservectx.Principal](ctx goservectx.Request[T]) ([]strin
 // that do not require any roles to access.
 //
 // Parameters:
-//
-//	ctx - The API request context containing request metadata.
+//	 - method: The HTTP method of the request.
+//	 - path: The path of the request.
 //
 // Returns:
 //
-//	bool - True if the path is a public route, false otherwise.
-func IsPublicPath[T goservectx.Principal](ctx goservectx.Request[T]) bool {
-	path := ctx.Request.Method + "::" + ctx.Request.URL.Path
+//	- bool: True if the path is a public route, false otherwise.
+func IsPublicPath(method, path string) bool {
+	resource := method + "::" + path
 	for _, openPath := range openPaths {
 		regexPattern := convertPathToRegex(openPath)
 		regex := regexp.MustCompile(regexPattern)
-		if regex.MatchString(path) || path == openPath {
+		if regex.MatchString(resource) || resource == openPath {
 			return true
 		}
 	}

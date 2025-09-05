@@ -1,10 +1,6 @@
 package router
 
 import (
-	goservectx "github.com/softwareplace/goserve/context"
-	"net/http"
-	"net/http/httptest"
-	"net/url"
 	"reflect"
 	"strconv"
 	"testing"
@@ -70,15 +66,8 @@ func TestGetRolesForPath(t *testing.T) {
 	for _, tt := range tests {
 		t.Run("given__"+tt.path+"==>"+tt.requestPath+"__must_return__"+strconv.FormatBool(tt.expectedExists), func(t *testing.T) {
 
-			// Create a mock request
-
-			ctx := goservectx.Of[*goservectx.DefaultContext](httptest.NewRecorder(), &http.Request{
-				Method: tt.method,
-				URL:    &url.URL{Path: tt.requestPath},
-			}, "")
-
 			// Call the function
-			gotRoles, gotExists := GetRolesForPath(*ctx)
+			gotRoles, gotExists := GetRolesForPath(tt.method, tt.requestPath)
 
 			// Compare results
 			if !reflect.DeepEqual(gotRoles, tt.expectedRoles) {
@@ -136,13 +125,8 @@ func TestForPublicPaths(t *testing.T) {
 		for _, tt := range tests {
 			t.Run("given__"+tt.path+"==>"+tt.requestPath+"__must_return__"+strconv.FormatBool(tt.expectedResult), func(t *testing.T) {
 
-				// Create mock request
-				ctx := goservectx.Of[*goservectx.DefaultContext](httptest.NewRecorder(), &http.Request{
-					Method: tt.method,
-					URL:    &url.URL{Path: tt.requestPath},
-				}, "")
 				// Call the function
-				isPublic := IsPublicPath(*ctx)
+				isPublic := IsPublicPath(tt.method, tt.requestPath)
 				// Compare results
 				if isPublic != tt.expectedResult {
 					t.Errorf("expected public %v, got %v", tt.expectedResult, isPublic)

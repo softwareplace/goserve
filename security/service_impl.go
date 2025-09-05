@@ -6,7 +6,7 @@ import (
 )
 
 func (a *impl[T]) AuthorizationHandler(ctx *goservectx.Request[T]) (doNext bool) {
-	if router.IsPublicPath[T](*ctx) {
+	if router.IsPublicPath(ctx.Request.Method, ctx.Request.URL.Path) {
 		return true
 	}
 

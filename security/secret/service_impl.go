@@ -110,7 +110,7 @@ func (a *apiSecretHandlerImpl[T]) DisableForPublicPath(ignore bool) Service[T] {
 }
 
 func (a *apiSecretHandlerImpl[T]) HandlerSecretAccess(ctx *goservectx.Request[T]) bool {
-	isPublicPath := router.IsPublicPath[T](*ctx)
+	isPublicPath := router.IsPublicPath(ctx.Request.Method, ctx.Request.URL.Path)
 	if a.ignoreValidationForPublicPaths && isPublicPath {
 		return true
 	}
