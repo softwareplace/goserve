@@ -2,13 +2,15 @@ package server
 
 import (
 	"fmt"
+	"os"
+	"strings"
+
 	"github.com/getkin/kin-openapi/openapi3"
 	log "github.com/sirupsen/logrus"
 	goservectx "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/security/router"
+	"github.com/softwareplace/goserve/utils"
 	httpSwagger "github.com/swaggo/http-swagger"
-	"os"
-	"strings"
 )
 
 func SwaggerDocLoader(swaggerFile string) (swagger *openapi3.T, err error) {
@@ -78,6 +80,11 @@ func (a *baseServer[T]) SwaggerDocProvider(getSwagger func() (swagger *openapi3.
 }
 
 func (a *baseServer[T]) SwaggerDocHandler(swaggerFile string) Api[T] {
+	swaggerResourceEnabled := utils.GetBoolEnvOrDefault("SWAGGER_RESURCE_ENABLED", true)
+	if !swaggerResourceEnabled {
+		return a
+	}
+
 	return a.SwaggerDocProvider(func() (swagger *openapi3.T, err error) {
 		return SwaggerDocLoader(swaggerFile)
 	})

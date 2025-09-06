@@ -10,21 +10,21 @@ adhering to best practices in server development.
 
 Before using goserve, make sure you have the following installed:
 
-1. **Go Programming Language**  
-   👉 [Install Go](https://go.dev/doc/install)  
+1. **Go Programming Language**
+   👉 [Install Go](https://go.dev/doc/install)
    ✅ Verify installation:
    ```bash
    go version
    ```
 
-2. **Git** (Version Control System)  
-   👉 [Install Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)  
+2. **Git** (Version Control System)
+   👉 [Install Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
    ✅ Verify installation:
    ```bash
    git --version
    ```
 
-3. **Environment Setup**  
+3. **Environment Setup**
    Add Go binaries to your `PATH`:
    ```bash
    export PATH="$HOME/go/bin:$PATH"
@@ -65,7 +65,7 @@ goserve-generator -n <project-name> -u <github-username> [-r true|false] [-gi tr
 ### Flags
 
 | Flag      | Description                           | Required | Default |
-|-----------|---------------------------------------|----------|---------|
+| --------- | ------------------------------------- | -------- | ------- |
 | `-n`      | Name of your project                  | ✅ Yes    |         |
 | `-u`      | Your GitHub username                  | ✅ Yes    |         |
 | `-r`      | Force replace existing files          | ❌ No     | false   |
@@ -97,7 +97,7 @@ goserve-generator -n goserve-example -u myuser -r true -gi false
 ## 🛡️ Environment Variables
 
 | Variable Name                   | Required? | Default      | Description                          |
-|---------------------------------|-----------|--------------|--------------------------------------|
+| ------------------------------- | --------- | ------------ | ------------------------------------ |
 | `CONTEXT_PATH`                  | No        | `/`          | Base path for all endpoints          |
 | `PORT`                          | No        | `8080`       | Port the server listens on           |
 | `API_SECRET_KEY`                | Yes*      |              | Used in encryption/authentication    |
@@ -109,6 +109,7 @@ goserve-generator -n goserve-example -u myuser -r true -gi false
 | `LOG_FILE_NAME_DATE_FORMAT`     | No        | `2006-01-02` | Date format for log filenames        |
 | `JWT_ISSUER`                    | No        |              | JWT issuer name                      |
 | `JWT_CLAIMS_ENCRYPTION_ENABLED` | No        | `true`       | Encrypt claims inside JWT            |
+| `SWAGGER_RESURCE_ENABLED`       | No        | `true`       | Enable swagger resource              |
 
 \* Required only if using `security.Service`
 
