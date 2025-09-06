@@ -7,6 +7,10 @@ import (
 	"strings"
 )
 
+var (
+	// HealthResourcePath is the path for the health check endpoint.
+	HealthResourcePath = GetEnvOrDefault("HEALTH_RESOURCE_PATH", APIContextPath()+"health")
+)
 
 // APIContextPath returns the API context path from the environment variable "CONTEXT_PATH".
 // If the environment variable is not set or is empty, it returns "/".
@@ -17,11 +21,12 @@ func APIContextPath() string {
 	return "/"
 }
 
+// ContextPathFix ensures the context path starts with a forward slash and ends with a forward slash.
+// It also trims any leading or trailing forward slashes.
 func ContextPathFix(contextPath string) string {
 	contextPath = "/" + strings.TrimPrefix(contextPath, "/")
 	return strings.TrimSuffix(contextPath, "/") + "/"
 }
-
 
 // GetEnvOrDefault retrieves the value of an environment variable.
 // If the environment variable is not set or is empty, it returns the provided default value.

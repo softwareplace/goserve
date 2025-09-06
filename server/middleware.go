@@ -7,14 +7,9 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	"github.com/softwareplace/goserve/utils"
 	goservectx "github.com/softwareplace/goserve/context"
 	goserveerror "github.com/softwareplace/goserve/error"
-	utils "github.com/softwareplace/goserve/utils"
-)
-
-var (
-	healthResourceEnable = utils.GetBoolEnvOrDefault("HEALTH_RESOURCE_ENABLE", true)
-	healthResourcePath   = utils.GetEnvOrDefault("HEALTH_RESOURCE_PATH", utils.APIContextPath()+"health")
 )
 
 func (a *baseServer[T]) RegisterMiddleware(middleware ApiMiddleware[T], name string) Api[T] {
@@ -32,32 +27,33 @@ func (a *baseServer[T]) RegisterMiddleware(middleware ApiMiddleware[T], name str
 // rootAppMiddleware logs each incoming request's method, path, and remote address
 func rootAppMiddleware[T goservectx.Principal](next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if healthResourceEnable && r.URL.Path == healthResourcePath {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`{"status": "ok"}`))
-			return
-		}
-
 		var ctx *goservectx.Request[T]
 
 		goserveerror.Handler(func() {
+
 			start := time.Now() // Record the start time
 			ctx = goservectx.Of[T](w, r, "MIDDLEWARE/ROOT_APP")
 
 			uri := r.URL.RequestURI()
-			log.Printf("[%s]:: Incoming request: %s %s from %s", ctx.GetSessionId(), r.Method, uri, r.RemoteAddr)
+
+			isHelthCheckPath := r.URL.Path == utils.HealthResourcePath
+
+			if !isHelthCheckPath {
+				log.Printf("[%s]:: Incoming request: %s %s from %s", ctx.GetSessionId(), r.Method, uri, r.RemoteAddr)
+			}
 
 			ctx.Next(next)
 
 			duration := time.Since(start)
 
-			log.Printf("[%s]:: => request processed: %s %s in %v",
-				ctx.GetSessionId(),
-				r.Method,
-				uri,
-				duration,
-			)
+			if !isHelthCheckPath {
+				log.Printf("[%s]:: => request processed: %s %s in %v",
+					ctx.GetSessionId(),
+					r.Method,
+					uri,
+					duration,
+				)
+			}
 
 		}, func(err error) {
 			onError(err, w)

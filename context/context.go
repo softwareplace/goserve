@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 	"github.com/softwareplace/goserve/security/router"
+	"github.com/softwareplace/goserve/utils"
 )
 
 const (
@@ -159,7 +160,12 @@ func createNewContext[T Principal](
 		IsRequiredRoles: isRequiredRoles,
 	}
 
-	log.Printf("%s -> initialized a context with session id: %s", reference, ctx.sessionId)
+	isHelthCheckPath := r.URL.Path == utils.HealthResourcePath
+
+	if !isHelthCheckPath {
+		log.Printf("%s -> initialized a context with session id: %s", reference, ctx.sessionId)
+	}
+	
 	ctx.updateContext(r)
 	return &ctx
 }

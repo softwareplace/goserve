@@ -59,8 +59,10 @@ func (a *baseServer[T]) Port(port string) Api[T] {
 
 func (a *baseServer[T]) ContextPath(contextPath string) Api[T] {
 	a.contextPath = utils.ContextPathFix(contextPath)
+	utils.HealthResourcePath = a.contextPath + "health"
 	return a
 }
+
 
 func (a *baseServer[T]) StartServerInGoroutine() Api[T] {
 	a.HealthResource()
