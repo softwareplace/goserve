@@ -3,6 +3,8 @@ package server
 import (
 	"os"
 	"testing"
+
+	utils "github.com/softwareplace/goserve/utils"
 )
 
 func TestApiContextPath(t *testing.T) {
@@ -48,7 +50,7 @@ func TestApiContextPath(t *testing.T) {
 			}
 
 			// Execute the function
-			result := apiContextPath()
+			result := utils.APIContextPath()
 
 			// Assert the result
 			if result != test.expectedPath {

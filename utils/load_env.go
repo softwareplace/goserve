@@ -7,6 +7,22 @@ import (
 	"strings"
 )
 
+
+// APIContextPath returns the API context path from the environment variable "CONTEXT_PATH".
+// If the environment variable is not set or is empty, it returns "/".
+func APIContextPath() string {
+	if contextPath := os.Getenv("CONTEXT_PATH"); contextPath != "" {
+		return ContextPathFix(contextPath)
+	}
+	return "/"
+}
+
+func ContextPathFix(contextPath string) string {
+	contextPath = "/" + strings.TrimPrefix(contextPath, "/")
+	return strings.TrimSuffix(contextPath, "/") + "/"
+}
+
+
 // GetEnvOrDefault retrieves the value of an environment variable.
 // If the environment variable is not set or is empty, it returns the provided default value.
 //

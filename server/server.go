@@ -3,24 +3,14 @@ package server
 import (
 	"context"
 	"errors"
-	log "github.com/sirupsen/logrus"
 	"net/http"
 	"os"
 	"strings"
 	"time"
+
+	log "github.com/sirupsen/logrus"
+	"github.com/softwareplace/goserve/utils"
 )
-
-func apiContextPath() string {
-	if contextPath := os.Getenv("CONTEXT_PATH"); contextPath != "" {
-		return contextPathFix(contextPath)
-	}
-	return "/"
-}
-
-func contextPathFix(contextPath string) string {
-	contextPath = "/" + strings.TrimPrefix(contextPath, "/")
-	return strings.TrimSuffix(contextPath, "/") + "/"
-}
 
 func apiPort() string {
 	if port := os.Getenv("PORT"); port != "" {
@@ -39,7 +29,8 @@ func (a *baseServer[T]) NotFoundHandler() Api[T] {
 
 			isSwaggerPath := strings.TrimSuffix(r.URL.Path, "/") == swaggerPath
 
-			if a.swaggerIsEnabled && (r.URL.Path == a.contextPath || r.URL.Path == a.contextPath[:len(a.contextPath)-1] || isSwaggerPath) {
+			if a.swaggerIsEnabled && (r.URL.Path == a.contextPath ||
+				r.URL.Path == a.contextPath[:len(a.contextPath)-1] || isSwaggerPath) {
 				a.goToSwaggerUi(w, r)
 				return
 			}
@@ -67,7 +58,7 @@ func (a *baseServer[T]) Port(port string) Api[T] {
 }
 
 func (a *baseServer[T]) ContextPath(contextPath string) Api[T] {
-	a.contextPath = contextPathFix(contextPath)
+	a.contextPath = utils.ContextPathFix(contextPath)
 	return a
 }
 
@@ -81,7 +72,7 @@ func (a *baseServer[T]) StartServerInGoroutine() Api[T] {
 	}
 
 	if a.contextPath == "" {
-		a.contextPath = apiContextPath()
+		a.contextPath = utils.APIContextPath()
 	}
 
 	addr := a.getAddr()
@@ -112,7 +103,7 @@ func (a *baseServer[T]) StartServer() {
 	}
 
 	if a.contextPath == "" {
-		a.contextPath = apiContextPath()
+		a.contextPath = utils.APIContextPath()
 	}
 
 	addr := a.getAddr()

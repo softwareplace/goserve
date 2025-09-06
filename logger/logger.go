@@ -1,14 +1,16 @@
 package logger
 
 import (
+	"io"
+	"os"
+	"path/filepath"
+	"strings"
+	"time"
+
 	nested "github.com/antonfisher/nested-logrus-formatter"
 	log "github.com/sirupsen/logrus"
 	"github.com/softwareplace/goserve/utils"
 	"gopkg.in/natefinch/lumberjack.v2"
-	"io"
-	"os"
-	"path/filepath"
-	"time"
 )
 
 var (
@@ -21,6 +23,11 @@ var (
 	LogReportCaller       = false            // LogReportCaller determines whether the logger includes caller information (file and line number) in log messages.
 	LumberjackLogger      *lumberjack.Logger // LumberjackLogger is initialized as the default rotating logger for log file management via DefaultLumberjackLogger.
 	Formatter             log.Formatter      // Formatter defines the formatter used for structuring log messages.
+)
+
+var (
+	ignoringLogsFrom = utils.GetEnvOrDefault("REQUEST_LOGGING_IGNORE", "")
+	IgnoringLogsFromSlice = strings.Split(ignoringLogsFrom, ",")
 )
 
 func init() {

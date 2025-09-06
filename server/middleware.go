@@ -2,11 +2,19 @@ package server
 
 import (
 	"encoding/json"
-	log "github.com/sirupsen/logrus"
-	goservectx "github.com/softwareplace/goserve/context"
-	goserveerror "github.com/softwareplace/goserve/error"
 	"net/http"
 	"time"
+
+	log "github.com/sirupsen/logrus"
+
+	goservectx "github.com/softwareplace/goserve/context"
+	goserveerror "github.com/softwareplace/goserve/error"
+	utils "github.com/softwareplace/goserve/utils"
+)
+
+var (
+	healthResourceEnable = utils.GetBoolEnvOrDefault("HEALTH_RESOURCE_ENABLE", true)
+	healthResourcePath   = utils.GetEnvOrDefault("HEALTH_RESOURCE_PATH", utils.APIContextPath()+"health")
 )
 
 func (a *baseServer[T]) RegisterMiddleware(middleware ApiMiddleware[T], name string) Api[T] {
@@ -24,6 +32,13 @@ func (a *baseServer[T]) RegisterMiddleware(middleware ApiMiddleware[T], name str
 // rootAppMiddleware logs each incoming request's method, path, and remote address
 func rootAppMiddleware[T goservectx.Principal](next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if healthResourceEnable && r.URL.Path == healthResourcePath {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte(`{"status": "ok"}`))
+			return
+		}
+
 		var ctx *goservectx.Request[T]
 
 		goserveerror.Handler(func() {

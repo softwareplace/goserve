@@ -1,14 +1,16 @@
 package server
 
 import (
+	"net/http"
+	"sync"
+
 	"github.com/gorilla/mux"
 	goservectx "github.com/softwareplace/goserve/context"
 	goserveerror "github.com/softwareplace/goserve/error"
 	"github.com/softwareplace/goserve/security"
 	"github.com/softwareplace/goserve/security/login"
 	"github.com/softwareplace/goserve/security/secret"
-	"net/http"
-	"sync"
+	utils "github.com/softwareplace/goserve/utils"
 )
 
 type baseServer[T goservectx.Principal] struct {
@@ -67,7 +69,7 @@ func create[T goservectx.Principal](topMiddlewares ...ApiMiddleware[T]) *baseSer
 		apiSecretKeyGeneratorResourceEnable: true,
 		loginResourceEnable:                 true,
 		healthResourceEnable:                true,
-		contextPath:                         apiContextPath(),
+		contextPath:                         utils.APIContextPath(),
 		port:                                apiPort(),
 	}
 
@@ -96,7 +98,7 @@ func NewWith[T goservectx.Principal](router mux.Router) Api[T] {
 		apiSecretKeyGeneratorResourceEnable: true,
 		healthResourceEnable:                true,
 		loginResourceEnable:                 true,
-		contextPath:                         apiContextPath(),
+		contextPath:                         utils.APIContextPath(),
 		port:                                apiPort(),
 	}
 
