@@ -3,9 +3,11 @@ package error
 import (
 	"errors"
 	"fmt"
-	log "github.com/sirupsen/logrus"
-	goservectx "github.com/softwareplace/goserve/context"
 	"runtime"
+
+	log "github.com/sirupsen/logrus"
+
+	goservectx "github.com/softwareplace/goserve/context"
 )
 
 const (

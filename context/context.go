@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
+
 	"github.com/softwareplace/goserve/security/router"
 	"github.com/softwareplace/goserve/utils"
 )
@@ -165,7 +166,6 @@ func createNewContext[T Principal](
 	if !isHelthCheckPath {
 		log.Printf("%s -> initialized a context with session id: %s", reference, ctx.sessionId)
 	}
-	
 	ctx.updateContext(r)
 	return &ctx
 }

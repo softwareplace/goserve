@@ -1,11 +1,30 @@
 package utils
 
 import (
-	goserveerror "github.com/softwareplace/goserve/error"
-	"github.com/stretchr/testify/require"
 	"os"
+	"errors"
+	"fmt"
+	"runtime"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
+
+func errorHandler(try func(), catch func(err error)) {
+	defer func() {
+		if r := recover(); r != nil {
+			_, file, line, ok := runtime.Caller(2) // Adjust caller depth to log where the error originates
+			var errMessage = fmt.Sprintf("panic occurred at %s:%d - %v", file, line, r)
+
+			if !ok {
+				errMessage = fmt.Sprintf("panic occurred - %v", r)
+			}
+
+			catch(errors.New(errMessage))
+		}
+	}()
+	try()
+}
 
 // testFatal is a helper function to test if a function calls log.Fatal
 func testFatal(t *testing.T, fn func()) (panicked bool) {
@@ -150,7 +169,7 @@ func TestGetRequiredEnv(t *testing.T) {
 
 		failed := false
 
-		goserveerror.Handler(func() {
+		errorHandler(func() {
 			GetRequiredEnv("NONEXISTENT_ENV")
 		}, func(err error) {
 			failed = true
@@ -165,7 +184,7 @@ func TestGetRequiredEnv(t *testing.T) {
 
 		failed := false
 
-		goserveerror.Handler(func() {
+		errorHandler(func() {
 			GetRequiredEnv("EMPTY_ENV")
 		}, func(err error) {
 			failed = true
