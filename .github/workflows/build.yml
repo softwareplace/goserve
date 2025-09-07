@@ -61,7 +61,7 @@ jobs:
       - name: oapi-codegen installer
         run: |
           go install github.com/oapi-codegen/oapi-codegen/v2/cmd/oapi-codegen@latest
-          go install github.com/axw/gocov/gocov@latest
+          go install github.com/gozelle/gocov/gocov@latest
           go install github.com/matm/gocov-html/cmd/gocov-html@latest
       - name: Project setup
         run: |
