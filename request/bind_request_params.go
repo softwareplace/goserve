@@ -31,6 +31,7 @@ func (e *RequestError) Error() string {
 	return fmt.Sprintf("%s %s", e.Source, e.Message)
 }
 
+// FormValues returns the form values of the request
 func FormValues(r *http.Request) url.Values {
 	if r.Form == nil {
 		err := r.ParseMultipartForm(defaultMaxMemory)
@@ -41,7 +42,8 @@ func FormValues(r *http.Request) url.Values {
 	return r.Form
 }
 
-// BindRequestParams extracts and binds request parameters such as query, form data, headers, or route vars into a target struct.
+// BindRequestParams extracts and binds request parameters such as query, form data,
+// headers, or route vars into a target struct.
 // It validates the target struct and returns a RequestError with details on validation failure, or nil on success.
 func BindRequestParams(r *http.Request, target interface{}) *RequestError {
 	contentType := r.Header.Get(context.ContentType)

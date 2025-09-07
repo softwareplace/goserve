@@ -1,10 +1,11 @@
 package server
 
 import (
+	"net/http"
 	"github.com/gorilla/mux"
+
 	goservectx "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/security/login"
-	"net/http"
 )
 
 func (a *baseServer[T]) RegisterCustomMiddleware(middleware func(next http.Handler) http.Handler) Api[T] {

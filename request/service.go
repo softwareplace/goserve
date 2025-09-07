@@ -8,15 +8,17 @@ import (
 	"net/http"
 )
 
+// Config represents a request configuration
 type Config struct {
 	Host               string
 	Path               string
 	Headers            map[string]string
-	Query              map[string]string
+	Query              map[string][]string
 	Body               any
 	ExpectedStatusCode int
 }
 
+// Service represents a request service
 type Service interface {
 	// Get sends an HTTP GET request with the provided configuration and returns the HTTP response or an error.
 	Get(config *Config) (*http.Response, error)
@@ -53,6 +55,7 @@ type Service interface {
 	Close()
 }
 
+// NewService creates a new request service
 func NewService() Service {
 	i := new(_impl)
 	return i
@@ -63,12 +66,16 @@ type _impl struct {
 }
 
 func (i *_impl) Close() {
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
+	defer func() {
+		if i.response == nil {
+			return
+		}
+
+		err := i.response.Body.Close()
 		if err != nil {
 			log.Errorf("Failed to close response body: %v", err)
 		}
-	}(i.response.Body)
+	}()
 }
 
 func (i *_impl) ToString() (string, error) {
@@ -115,23 +122,27 @@ func Build(host string) *Config {
 	config.Host = host
 	config.Path = ""
 	config.Headers = map[string]string{}
-	config.Query = map[string]string{}
+	config.Query = map[string][]string{}
 	config.Body = nil
 	config.ExpectedStatusCode = 200
 	config.WithHeader("Content-Type", "application/json")
 	return config
 }
 
+// WithPath adds a path to the request
 func (config *Config) WithPath(path string) *Config {
 	config.Path = path
 	return config
 }
 
+// WithQuery adds a query parameter to the request
+// WithQuery adds a query parameter to the request
 func (config *Config) WithQuery(name string, value any) *Config {
-	config.Query[name] = fmt.Sprintf("%v", value)
+	config.Query[name] = []string{fmt.Sprintf("%v", value)}
 	return config
 }
 
+// WithQueries adds multiple query parameters to the request
 func (config *Config) WithQueries(queries map[string]any) *Config {
 	for name, value := range queries {
 		config.WithQuery(name, value)
@@ -139,11 +150,13 @@ func (config *Config) WithQueries(queries map[string]any) *Config {
 	return config
 }
 
+// WithHeader adds a header to the request
 func (config *Config) WithHeader(name string, value any) *Config {
 	config.Headers[name] = fmt.Sprintf("%v", value)
 	return config
 }
 
+// WithHeaders adds multiple headers to the request
 func (config *Config) WithHeaders(headers map[string]any) *Config {
 	for name, value := range headers {
 		config.WithHeader(name, value)
@@ -151,11 +164,13 @@ func (config *Config) WithHeaders(headers map[string]any) *Config {
 	return config
 }
 
+// WithBody adds a body to the request
 func (config *Config) WithBody(body any) *Config {
 	config.Body = body
 	return config
 }
 
+// WithExpectedStatusCode adds an expected status code to the request
 func (config *Config) WithExpectedStatusCode(expectedStatusCode int) *Config {
 	config.ExpectedStatusCode = expectedStatusCode
 	return config

@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"io"
 	"net/http"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 )
 
 func (i *_impl) build(method string, config *Config) (*http.Request, error) {
@@ -41,9 +42,14 @@ func (i *_impl) build(method string, config *Config) (*http.Request, error) {
 
 	// Add query parameters to the URL
 	query := req.URL.Query()
+
 	for key, value := range config.Query {
-		query.Set(key, value)
+		for _, v := range value {
+			query.Add(key, v)
+		}
 	}
+
+	req.URL.RawQuery = query.Encode()
 
 	return req, nil
 }
