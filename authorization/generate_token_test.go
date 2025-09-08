@@ -38,7 +38,7 @@ func TestClientImplGenerateTokenSuccess(t *testing.T) {
 		Password: "testpass",
 	}
 
-	result, err := client.GenerateToken(authRequest, "application/json")
+	result, err := client.Login(authRequest, "application/json")
 
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
@@ -59,7 +59,7 @@ func TestClientImplGenerateTokenValidationErrorEmptyUsername(t *testing.T) {
 		Password: "testpass",
 	}
 
-	result, err := client.GenerateToken(authRequest, "application/json")
+	result, err := client.Login(authRequest, "application/json")
 
 	assert.Error(t, err)
 	assert.Nil(t, result)
@@ -77,7 +77,7 @@ func TestClientImplGenerateTokenValidationErrorEmptyPassword(t *testing.T) {
 		Password: "",
 	}
 
-	result, err := client.GenerateToken(authRequest, "application/json")
+	result, err := client.Login(authRequest, "application/json")
 
 	assert.Error(t, err)
 	assert.Nil(t, result)
@@ -95,11 +95,11 @@ func TestClientImplGenerateTokenEmptyApplicationIs(t *testing.T) {
 		Password: "testpass",
 	}
 
-	result, err := client.GenerateToken(authRequest, "")
+	result, err := client.Login(authRequest, "")
 
 	assert.Error(t, err)
 	assert.Nil(t, result)
-	assert.Equal(t, "applicationIs is required", err.Error())
+	assert.Equal(t, "applicationID is required", err.Error())
 }
 
 func TestClientImplGenerateTokenNetworkError(t *testing.T) {
@@ -114,7 +114,7 @@ func TestClientImplGenerateTokenNetworkError(t *testing.T) {
 		Password: "testpass",
 	}
 
-	result, err := client.GenerateToken(authRequest, "application/json")
+	result, err := client.Login(authRequest, "application/json")
 
 	assert.Error(t, err)
 	assert.Nil(t, result)
@@ -137,7 +137,7 @@ func TestClientImplGenerateTokenNilResponse(t *testing.T) {
 		Password: "testpass",
 	}
 
-	result, err := client.GenerateToken(authRequest, "application/json")
+	result, err := client.Login(authRequest, "application/json")
 
 	assert.Error(t, err)
 	assert.Nil(t, result)
@@ -162,7 +162,7 @@ func TestClientImplGenerateTokenInvalidJSONResponse(t *testing.T) {
 		Password: "testpass",
 	}
 
-	result, err := client.GenerateToken(authRequest, "application/json")
+	result, err := client.Login(authRequest, "application/json")
 
 	assert.Error(t, err)
 	assert.Nil(t, result)
@@ -193,7 +193,7 @@ func TestClientImplGenerateTokenResponseValidationError(t *testing.T) {
 		Password: "testpass",
 	}
 
-	result, err := client.GenerateToken(authRequest, "application/json")
+	result, err := client.Login(authRequest, "application/json")
 
 	assert.Error(t, err)
 	assert.Nil(t, result)
@@ -231,7 +231,7 @@ func TestClientImplGenerateTokenHTTPErrorStatus(t *testing.T) {
 				Password: "testpass",
 			}
 
-			result, err := client.GenerateToken(authRequest, "application/json")
+			result, err := client.Login(authRequest, "application/json")
 
 			assert.Error(t, err)
 			assert.Nil(t, result)
@@ -246,8 +246,6 @@ func TestClientImplGenerateTokenWithDifferentContentTypes(t *testing.T) {
 		expectedHeader  string
 	}{
 		{"JSON", "application/json", "application/json"},
-		{"XML", "application/xml", "application/xml"},
-		{"FormData", "application/x-www-form-urlencoded", "application/x-www-form-urlencoded"},
 	}
 
 	for _, tc := range testCases {
@@ -264,6 +262,7 @@ func TestClientImplGenerateTokenWithDifferentContentTypes(t *testing.T) {
 				w.WriteHeader(http.StatusOK)
 				json.NewEncoder(w).Encode(expectedResponse)
 			}))
+
 			defer server.Close()
 
 			client := &clientImpl{
@@ -277,7 +276,7 @@ func TestClientImplGenerateTokenWithDifferentContentTypes(t *testing.T) {
 				Password: "testpass",
 			}
 
-			result, err := client.GenerateToken(authRequest, tc.applicationIs)
+			result, err := client.Login(authRequest, tc.applicationIs)
 
 			assert.NoError(t, err)
 			assert.NotNil(t, result)

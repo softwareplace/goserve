@@ -78,24 +78,43 @@ func ParseToJson(
 	for _, values := range source {
 		if values.Tree != nil {
 			for name, value := range values.Tree {
-				formatedName := strings.ReplaceAll(name, "-", "")
-				if field, ok := FindField(targetType, formatedName); ok {
-					attrValue := ConvertValues(value, field)
-					params[formatedName] = attrValue
+				ok := loadFromValues(targetType, name, value, params)
+				if !ok {
+					formatedName := strings.ReplaceAll(name, "-", "")
+					_ = loadFromValues(targetType, formatedName, value, params)
 				}
 			}
 		}
 
 		if values.Source != nil {
 			for name, value := range values.Source {
-				formatedName := strings.ReplaceAll(name, "-", "")
-				if field, ok := FindField(targetType, formatedName); ok {
-					params[formatedName] = ConvertValue(value, field.Type)
+				ok := loadFromSource(targetType, name, value, params)
+				if !ok {
+					formatedName := strings.ReplaceAll(name, "-", "")
+					_ = loadFromSource(targetType, formatedName, value, params)
 				}
 			}
 		}
 	}
 	return json.Marshal(params)
+}
+
+func loadFromValues(targetType reflect.Type, name string, value []string, params map[string]interface{}) bool {
+	if field, ok := FindField(targetType, name); ok {
+		attrValue := ConvertValues(value, field)
+		params[name] = attrValue
+		return true
+	}
+	return false
+}
+
+func loadFromSource(targetType reflect.Type, name string, value string, params map[string]interface{}) bool {
+	if field, ok := FindField(targetType, name); ok {
+		attrValue := ConvertValue(value, field.Type)
+		params[name] = attrValue
+		return true
+	}
+	return false
 }
 
 // FindField identifies and retrieves a struct field based on its name or its JSON tag.
