@@ -1,7 +1,7 @@
 package template
 
 const Dockerfile = `# Use the official Golang image
-FROM golang:1.24.2-alpine as builder
+FROM golang:1.25-alpine as builder
 
 # Set the working directory
 WORKDIR /app
