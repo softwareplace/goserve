@@ -54,12 +54,15 @@ func BindRequestParams(r *http.Request, target interface{}) *RequestError {
 				Tree: FormValues(r),
 			})
 	}
+	
 	_ = goservereflect.ParamsExtract(target,
 		goservereflect.ParamsExtractorSource{
 			Tree: r.URL.Query(),
-		}, goservereflect.ParamsExtractorSource{
+		},
+		goservereflect.ParamsExtractorSource{
 			Tree: r.Header,
-		}, goservereflect.ParamsExtractorSource{
+		},
+		goservereflect.ParamsExtractorSource{
 			Source: mux.Vars(r),
 		},
 	)

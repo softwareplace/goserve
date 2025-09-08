@@ -78,16 +78,19 @@ func ParseToJson(
 	for _, values := range source {
 		if values.Tree != nil {
 			for name, value := range values.Tree {
-				if field, ok := FindField(targetType, name); ok {
-					params[name] = ConvertValues(value, field)
+				formatedName := strings.ReplaceAll(name, "-", "")
+				if field, ok := FindField(targetType, formatedName); ok {
+					attrValue := ConvertValues(value, field)
+					params[formatedName] = attrValue
 				}
 			}
 		}
 
 		if values.Source != nil {
 			for name, value := range values.Source {
-				if field, ok := FindField(targetType, name); ok {
-					params[name] = ConvertValue(value, field.Type)
+				formatedName := strings.ReplaceAll(name, "-", "")
+				if field, ok := FindField(targetType, formatedName); ok {
+					params[formatedName] = ConvertValue(value, field.Type)
 				}
 			}
 		}
@@ -115,14 +118,18 @@ func FindField(t reflect.Type, name string) (reflect.StructField, bool) {
 		if strings.EqualFold(field.Name, name) {
 			return field, true
 		}
+
 		// Check for json tag
-		if jsonTag := field.Tag.Get("json"); jsonTag != "" {
+		jsonTag := field.Tag.Get("json")
+
+		if jsonTag != "" {
 			jsonName := strings.Split(jsonTag, ",")[0]
 			if strings.EqualFold(jsonName, name) {
 				return field, true
 			}
 		}
 	}
+
 	return reflect.StructField{}, false
 }
 

@@ -8,6 +8,14 @@ import (
 	"net/http"
 )
 
+const (
+	RequestClientID = "Request-Client-Id"
+	AccessClientID  = "Access-Client-Id"
+	Authorization   = "Authorization"
+	ContentType     = "Content-Type"
+	ApplicationJSON = "application/json"
+)
+
 // Config represents a request configuration
 type Config struct {
 	Host               string
@@ -125,7 +133,7 @@ func Build(host string) *Config {
 	config.Query = map[string][]string{}
 	config.Body = nil
 	config.ExpectedStatusCode = 200
-	config.WithHeader("Content-Type", "application/json")
+	config.WithHeader(ContentType, ApplicationJSON)
 	return config
 }
 
