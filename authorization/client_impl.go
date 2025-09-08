@@ -48,9 +48,8 @@ func (c *clientImpl) validate(config *request.Config) (bool, error) {
 	client := request.NewService()
 	response, err := client.Get(config)
 
-	go func() {
-		client.Close()
-	}()
+	defer client.Close()
+
 
 	if response == nil {
 		return false, fmt.Errorf("no response available")
