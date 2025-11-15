@@ -1,4 +1,4 @@
-package jwt
+package claims
 
 import (
 	"time"
@@ -36,33 +36,4 @@ type Claims interface {
 		iat time.Time,
 		iss string,
 	) jwt.MapClaims
-}
-
-type claimsImpl struct {
-}
-
-func (a *claimsImpl) Create(
-	sub string,
-	aud []string,
-	exp int64,
-	iat time.Time,
-	iss string,
-) jwt.MapClaims {
-	claims := jwt.MapClaims{
-		SUB: sub,
-		AUD: aud,
-		EXP: exp,
-		IAT: iat.Unix(),
-	}
-
-	if iss != "" {
-		claims[ISS] = iss
-	}
-
-	return claims
-}
-
-func (a *claimsImpl) Get(token *jwt.Token) (jwt.MapClaims, bool) {
-	claims, ok := token.Claims.(jwt.MapClaims)
-	return claims, ok
 }

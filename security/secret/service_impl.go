@@ -16,7 +16,7 @@ import (
 	goserveerror "github.com/softwareplace/goserve/error"
 	"github.com/softwareplace/goserve/security"
 	"github.com/softwareplace/goserve/security/encryptor"
-	goservejwt "github.com/softwareplace/goserve/security/jwt"
+	goservejwt "github.com/softwareplace/goserve/security/jwt/constants"
 	"github.com/softwareplace/goserve/security/model"
 	"github.com/softwareplace/goserve/security/router"
 )

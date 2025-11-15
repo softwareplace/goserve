@@ -11,7 +11,7 @@ import (
 	"github.com/softwareplace/goserve/internal/service/provider"
 	"github.com/softwareplace/goserve/security"
 	"github.com/softwareplace/goserve/security/encryptor"
-	model2 "github.com/softwareplace/goserve/security/jwt"
+	model2 "github.com/softwareplace/goserve/security/jwt/response"
 	"github.com/softwareplace/goserve/security/login"
 	"github.com/softwareplace/goserve/security/model"
 )

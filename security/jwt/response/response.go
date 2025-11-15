@@ -1,4 +1,4 @@
-package jwt
+package response
 
 type Response struct {
 	JWT      string `json:"jwt"`

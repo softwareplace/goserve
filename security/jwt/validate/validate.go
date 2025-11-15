@@ -1,6 +1,4 @@
-package jwt
-
-import "github.com/golang-jwt/jwt/v5"
+package validate
 
 type Validate interface {
 
@@ -13,16 +11,4 @@ type Validate interface {
 	// Returns:
 	//   - True if the token is successfully parsed and is valid; otherwise, false.
 	IsValid(tokenString string) bool
-}
-
-type validateImpl struct {
-	secret []byte
-}
-
-func (v *validateImpl) IsValid(tokenString string) bool {
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return v.secret, nil
-	})
-
-	return err == nil && token.Valid
 }

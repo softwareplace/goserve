@@ -7,28 +7,24 @@ import (
 
 	goservectx "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/security/encryptor"
-)
-
-const (
-	IAT = "iat"
-	EXP = "exp"
-	AUD = "aud"
-	SUB = "sub"
-	ISS = "iss"
+	"github.com/softwareplace/goserve/security/jwt/claims"
+	"github.com/softwareplace/goserve/security/jwt/internal/impl"
+	"github.com/softwareplace/goserve/security/jwt/response"
+	"github.com/softwareplace/goserve/security/jwt/validate"
 )
 
 type Service[T goservectx.Principal] interface {
 	encryptor.Service
-	Claims
-	Validate
+	claims.Claims
+	validate.Validate
 
 	// Generate creates a new JWT Response based on the provided user and duration.
 	// It returns the generated Response or an error if the process fails.
-	Generate(user T, duration time.Duration) (*Response, error)
+	Generate(user T, duration time.Duration) (*response.Response, error)
 
 	// From generating a Response containing a JWT for the given subject, roles
 	// and duration or returns an error if it fails.
-	From(sub string, roles []string, duration time.Duration) (*Response, error)
+	From(sub string, roles []string, duration time.Duration) (*response.Response, error)
 
 	// Issuer returns the identifier of the entity responsible for issuing the JWT tokens in the service.
 	Issuer() string
@@ -86,21 +82,24 @@ type Service[T goservectx.Principal] interface {
 	)
 }
 
-type impl[T goservectx.Principal] struct {
-	Claims
-	Validate
-	encryptor.Service
-	ErrorHandler goservectx.ApiHandler[T]
+func NewClaims() claims.Claims {
+	return impl.NewClaims()
+}
+
+func NewValidate(secret []byte) validate.Validate {
+	return impl.NewValidate(secret)
 }
 
 func New[T goservectx.Principal](
 	apiSecretKey string,
 	handler goservectx.ApiHandler[T],
 ) Service[T] {
-	return &impl[T]{
-		Service:      encryptor.New([]byte(apiSecretKey)),
-		ErrorHandler: handler,
-		Claims:       &claimsImpl{},
-		Validate:     &validateImpl{[]byte(apiSecretKey)},
-	}
+	secret := []byte(apiSecretKey)
+
+	return impl.NewJwtServiceImpl(
+		NewClaims(),
+		NewValidate(secret),
+		encryptor.New(secret),
+		handler,
+	)
 }

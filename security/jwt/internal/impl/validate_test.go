@@ -1,4 +1,4 @@
-package jwt
+package impl
 
 import (
 	"testing"
@@ -8,6 +8,7 @@ import (
 
 	goservectx "github.com/softwareplace/goserve/context"
 	goserveerror "github.com/softwareplace/goserve/error"
+	"github.com/softwareplace/goserve/security/encryptor"
 )
 
 func TestIsValid(t *testing.T) {
@@ -15,9 +16,12 @@ func TestIsValid(t *testing.T) {
 		jwtData := generateJwt(t, 1*time.Second)
 
 		mockApiSecretKey := "iBID8F32zkN1a0d4hCdm4gVS"
+		secret := []byte(mockApiSecretKey)
 
-		service := New[*goservectx.DefaultContext](
-			mockApiSecretKey,
+		service := NewJwtServiceImpl(
+			NewClaims(),
+			NewValidate(secret),
+			encryptor.New(secret),
 			goserveerror.Default[*goservectx.DefaultContext](),
 		)
 
@@ -30,8 +34,12 @@ func TestIsValid(t *testing.T) {
 
 	t.Run("should return false when token has no a valid signature", func(t *testing.T) {
 		mockApiSecretKey := "iBID8F32zkN1a0d4hCdm4gVS"
-		service := New[*goservectx.DefaultContext](
-			mockApiSecretKey,
+		secret := []byte(mockApiSecretKey)
+
+		service := NewJwtServiceImpl(
+			NewClaims(),
+			NewValidate(secret),
+			encryptor.New(secret),
 			goserveerror.Default[*goservectx.DefaultContext](),
 		)
 
@@ -45,8 +53,12 @@ func TestIsValid(t *testing.T) {
 
 		mockApiSecretKey := "iBID8F32zkN1a0d4hCdm4gVS"
 
-		service := New[*goservectx.DefaultContext](
-			mockApiSecretKey,
+		secret := []byte(mockApiSecretKey)
+
+		service := NewJwtServiceImpl(
+			NewClaims(),
+			NewValidate(secret),
+			encryptor.New(secret),
 			goserveerror.Default[*goservectx.DefaultContext](),
 		)
 

@@ -4,6 +4,7 @@ import (
 	"sync"
 
 	log "github.com/sirupsen/logrus"
+
 	"github.com/softwareplace/goserve/internal/gen"
 
 	goservectx "github.com/softwareplace/goserve/context"

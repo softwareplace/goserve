@@ -1,37 +1,25 @@
-package jwt
+package impl
 
 import (
 	"testing"
 	"time"
 
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/require"
 
 	goservectx "github.com/softwareplace/goserve/context"
 	goserveerror "github.com/softwareplace/goserve/error"
+	"github.com/softwareplace/goserve/security/encryptor"
 )
-
-type mockClaimsServiceImpl struct {
-	returnStatus bool
-	Claims
-}
-
-func newMockClaimsService(returnStatus bool) *mockClaimsServiceImpl {
-	return &mockClaimsServiceImpl{
-		Claims:       &claimsImpl{},
-		returnStatus: returnStatus,
-	}
-}
-
-func (m *mockClaimsServiceImpl) Get(token *jwt.Token) (jwt.MapClaims, bool) {
-	return nil, m.returnStatus
-}
 
 func TestClaimsValidation(t *testing.T) {
 	t.Run("should return true when is a valid jwt", func(t *testing.T) {
 		mockApiSecretKey := "iBID8F32zkN1a0d4hCdm4gVS"
-		service := New[*goservectx.DefaultContext](
-			mockApiSecretKey,
+		secret := []byte(mockApiSecretKey)
+
+		service := NewJwtServiceImpl(
+			NewClaims(),
+			NewValidate(secret),
+			encryptor.New(secret),
 			goserveerror.Default[*goservectx.DefaultContext](),
 		)
 
@@ -42,7 +30,7 @@ func TestClaimsValidation(t *testing.T) {
 		require.NoError(t, err)
 		require.NotNil(t, token)
 
-		claimsService := claimsImpl{}
+		claimsService := NewClaims()
 
 		claims, isValid := claimsService.Get(token)
 
@@ -51,7 +39,7 @@ func TestClaimsValidation(t *testing.T) {
 	})
 
 	t.Run("should return expected jwt claims", func(t *testing.T) {
-		claimsService := claimsImpl{}
+		claimsService := NewClaims()
 		aud := []string{
 			"test-role",
 			"test-role2",

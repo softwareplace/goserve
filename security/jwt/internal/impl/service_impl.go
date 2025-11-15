@@ -1,4 +1,4 @@
-package jwt
+package impl
 
 import (
 	"fmt"
@@ -11,9 +11,34 @@ import (
 	"github.com/softwareplace/goserve/env"
 	goserveerror "github.com/softwareplace/goserve/error"
 	"github.com/softwareplace/goserve/security/encryptor"
+	"github.com/softwareplace/goserve/security/jwt/claims"
+	"github.com/softwareplace/goserve/security/jwt/constants"
+	"github.com/softwareplace/goserve/security/jwt/response"
+	"github.com/softwareplace/goserve/security/jwt/validate"
 )
 
-func (a *impl[T]) Decrypted(jwt string) (map[string]interface{}, error) {
+type jwtServiceImpl[T goservectx.Principal] struct {
+	claims.Claims
+	validate.Validate
+	encryptor.Service
+	ErrorHandler goservectx.ApiHandler[T]
+}
+
+func NewJwtServiceImpl[T goservectx.Principal](
+	claims claims.Claims,
+	validate validate.Validate,
+	encryptorService encryptor.Service,
+	errorHandler goservectx.ApiHandler[T],
+) *jwtServiceImpl[T] {
+	return &jwtServiceImpl[T]{
+		Claims:       claims,
+		Validate:     validate,
+		Service:      encryptorService,
+		ErrorHandler: errorHandler,
+	}
+}
+
+func (a *jwtServiceImpl[T]) Decrypted(jwt string) (map[string]interface{}, error) {
 	token, err := a.Decode(jwt)
 	if err != nil {
 		return nil, err
@@ -21,7 +46,7 @@ func (a *impl[T]) Decrypted(jwt string) (map[string]interface{}, error) {
 	isJwtClaimsEncryptionEnabled := encryptor.JwtClaimsEncryptionEnabled()
 	if isJwtClaimsEncryptionEnabled {
 
-		if aud, containsKey := token[AUD].([]interface{}); containsKey {
+		if aud, containsKey := token[constants.AUD].([]interface{}); containsKey {
 			var values []string
 			for _, audV := range aud {
 				decrypt, err := a.Decrypt(audV.(string))
@@ -30,22 +55,22 @@ func (a *impl[T]) Decrypted(jwt string) (map[string]interface{}, error) {
 				}
 				values = append(values, decrypt)
 			}
-			token[AUD] = values
+			token[constants.AUD] = values
 		}
 
-		sub, err := a.DecryptClaimsValue(SUB, token)
+		sub, err := a.DecryptClaimsValue(constants.SUB, token)
 
 		if err != nil {
 			return nil, err
 		}
 
-		token[SUB] = sub
+		token[constants.SUB] = sub
 	}
 
 	return token, nil
 }
 
-func (a *impl[T]) DecryptClaimsValue(key string, claims map[string]interface{}) (interface{}, error) {
+func (a *jwtServiceImpl[T]) DecryptClaimsValue(key string, claims map[string]interface{}) (interface{}, error) {
 	value, containsKey := claims[key]
 
 	if !containsKey {
@@ -62,7 +87,7 @@ func (a *impl[T]) DecryptClaimsValue(key string, claims map[string]interface{}) 
 	return value, nil
 }
 
-func (a *impl[T]) ExtractJWTClaims(ctx *goservectx.Request[T]) bool {
+func (a *jwtServiceImpl[T]) ExtractJWTClaims(ctx *goservectx.Request[T]) bool {
 	token, err := a.Parse(ctx.Authorization)
 
 	if err != nil {
@@ -76,7 +101,7 @@ func (a *impl[T]) ExtractJWTClaims(ctx *goservectx.Request[T]) bool {
 
 		isJwtClaimsEncryptionEnabled := encryptor.JwtClaimsEncryptionEnabled()
 
-		requester := claims[SUB].(string)
+		requester := claims[constants.SUB].(string)
 
 		if isJwtClaimsEncryptionEnabled {
 			requester, err = a.Decrypt(requester)
@@ -99,11 +124,11 @@ func (a *impl[T]) ExtractJWTClaims(ctx *goservectx.Request[T]) bool {
 	return false
 }
 
-func (a *impl[T]) Generate(data T, duration time.Duration) (*Response, error) {
+func (a *jwtServiceImpl[T]) Generate(data T, duration time.Duration) (*response.Response, error) {
 	return a.From(data.GetId(), data.GetRoles(), duration)
 }
 
-func (a *impl[T]) From(sub string, roles []string, duration time.Duration) (*Response, error) {
+func (a *jwtServiceImpl[T]) From(sub string, roles []string, duration time.Duration) (*response.Response, error) {
 	if sub == "" {
 		return nil, fmt.Errorf("sub cannot be empty")
 	}
@@ -141,18 +166,18 @@ func (a *impl[T]) From(sub string, roles []string, duration time.Duration) (*Res
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	signedToken, err := token.SignedString(a.Secret())
 
-	return &Response{
+	return &response.Response{
 		JWT:      signedToken,
 		Expires:  int(expiration),
 		IssuedAt: int(iat.Unix()),
 	}, err
 }
 
-func (a *impl[T]) Issuer() string {
+func (a *jwtServiceImpl[T]) Issuer() string {
 	return env.GetEnvOrDefault("JWT_ISSUER", "")
 }
 
-func (a *impl[T]) Decode(tokenString string) (map[string]interface{}, error) {
+func (a *jwtServiceImpl[T]) Decode(tokenString string) (map[string]interface{}, error) {
 	token, err := a.Parse(tokenString)
 
 	if err != nil {
@@ -166,7 +191,7 @@ func (a *impl[T]) Decode(tokenString string) (map[string]interface{}, error) {
 	return nil, fmt.Errorf("invalid token claims structure")
 }
 
-func (a *impl[T]) Parse(tokenString string) (*jwt.Token, error) {
+func (a *jwtServiceImpl[T]) Parse(tokenString string) (*jwt.Token, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		return a.Secret(), nil
 	})
@@ -178,7 +203,7 @@ func (a *impl[T]) Parse(tokenString string) (*jwt.Token, error) {
 	return token, nil
 }
 
-func (a *impl[T]) HandlerErrorOrElse(
+func (a *jwtServiceImpl[T]) HandlerErrorOrElse(
 	ctx *goservectx.Request[T],
 	error error,
 	executionContext string,
