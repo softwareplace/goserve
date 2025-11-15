@@ -7,8 +7,8 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-
 	goservectx "github.com/softwareplace/goserve/context"
+	"github.com/softwareplace/goserve/env"
 	goserveerror "github.com/softwareplace/goserve/error"
 )
 
@@ -36,7 +36,7 @@ func rootAppMiddleware[T goservectx.Principal](next http.Handler) http.Handler {
 
 			uri := r.URL.RequestURI()
 
-			isHelthCheckPath := r.URL.Path == utils.HealthResourcePath
+			isHelthCheckPath := r.URL.Path == env.HealthResourcePath
 
 			if !isHelthCheckPath {
 				log.Printf("[%s]:: Incoming request: %s %s from %s", ctx.GetSessionId(), r.Method, uri, r.RemoteAddr)

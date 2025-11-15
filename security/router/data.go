@@ -3,8 +3,6 @@ package router
 import (
 	"regexp"
 	"strings"
-
-	goservectx "github.com/softwareplace/goserve/context"
 )
 
 // GetRolesForPath retrieves the roles associated with a request path.
@@ -15,13 +13,13 @@ import (
 //
 // Parameters:
 //
-//	- method: The HTTP method of the request.
-//	- path: The path of the request.
+//   - method: The HTTP method of the request.
+//   - path: The path of the request.
 //
 // Returns:
 //
-//	- []string: A slice of required roles for the path or nil if no roles are defined.
-//	- bool: True if roles are required for the path, false otherwise.
+//   - []string: A slice of required roles for the path or nil if no roles are defined.
+//   - bool: True if roles are required for the path, false otherwise.
 func GetRolesForPath(method, path string) ([]string, bool) {
 	resource := method + "::" + path
 
@@ -44,12 +42,12 @@ func GetRolesForPath(method, path string) ([]string, bool) {
 // that do not require any roles to access.
 //
 // Parameters:
-//	 - method: The HTTP method of the request.
-//	 - path: The path of the request.
+//   - method: The HTTP method of the request.
+//   - path: The path of the request.
 //
 // Returns:
 //
-//	- bool: True if the path is a public route, false otherwise.
+//   - bool: True if the path is a public route, false otherwise.
 func IsPublicPath(method, path string) bool {
 	resource := method + "::" + path
 	for _, openPath := range openPaths {

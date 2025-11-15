@@ -5,8 +5,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/softwareplace/goserve/request"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/softwareplace/goserve/request"
 )
 
 func TestClientImplCheckTokenSuccess(t *testing.T) {

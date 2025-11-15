@@ -1,6 +1,6 @@
 package authorization
 
-import "github.com/softwareplace/goserve/utils"
+import "github.com/softwareplace/goserve/env"
 
 // OauthConfig struct
 type OauthConfig struct {
@@ -11,6 +11,6 @@ type OauthConfig struct {
 // NewOauthConfig creates a new oauth config
 func NewOauthConfig() OauthConfig {
 	return OauthConfig{
-		ServerHost: utils.GetRequiredEnv("OAUTH_SERVER_HOST"),
+		ServerHost: env.GetRequiredEnv("OAUTH_SERVER_HOST"),
 	}
 }

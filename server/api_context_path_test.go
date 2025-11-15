@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	utils "github.com/softwareplace/goserve/utils"
+	"github.com/softwareplace/goserve/env"
 )
 
 func TestApiContextPath(t *testing.T) {
@@ -50,7 +50,7 @@ func TestApiContextPath(t *testing.T) {
 			}
 
 			// Execute the function
-			result := utils.APIContextPath()
+			result := env.APIContextPath()
 
 			// Assert the result
 			if result != test.expectedPath {

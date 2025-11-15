@@ -7,7 +7,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/softwareplace/goserve/request"
-	"github.com/softwareplace/goserve/utils"
+	"github.com/softwareplace/goserve/validator"
 )
 
 // clientImpl struct
@@ -73,7 +73,7 @@ func (c *clientImpl) Login(
 	authRequest AuhtorizationRequest,
 	applicationID string,
 ) (*AuthorizationResponse, error) {
-	if err := utils.StructValidation(authRequest); err != nil {
+	if err := validator.StructValidation(authRequest); err != nil {
 		return nil, err
 	}
 
@@ -112,7 +112,7 @@ func (c *clientImpl) Login(
 		return nil, err
 	}
 
-	if err := utils.StructValidation(responseData); err != nil {
+	if err := validator.StructValidation(responseData); err != nil {
 		return nil, fmt.Errorf("failed to validate response data: %v", err)
 	}
 
