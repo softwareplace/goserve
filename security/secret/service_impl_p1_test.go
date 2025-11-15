@@ -19,7 +19,7 @@ import (
 	"github.com/softwareplace/goserve/internal/service/provider"
 	testutils "github.com/softwareplace/goserve/internal/utils"
 	"github.com/softwareplace/goserve/security"
-	model2 "github.com/softwareplace/goserve/security/jwt/response"
+	"github.com/softwareplace/goserve/security/jwt/response"
 	"github.com/softwareplace/goserve/security/model"
 	"github.com/softwareplace/goserve/security/router"
 )
@@ -171,7 +171,7 @@ func TestSecretImplValidation(t *testing.T) {
 		var expectedEntry *model.Entry
 
 		secretProvider.TestOnGenerated = func(
-			data model2.Response,
+			data response.Response,
 			jwtEntry model.Entry,
 			ctx goservectx.SampleContext[*goservectx.DefaultContext],
 		) {
@@ -214,7 +214,7 @@ func TestSecretImplValidation(t *testing.T) {
 
 		require.Equal(t, http.StatusOK, rr.Code)
 
-		var response model2.Response
+		var response response.Response
 
 		err = json.NewDecoder(rr.Body).Decode(&response)
 		require.NoError(t, err)
@@ -389,7 +389,7 @@ func TestSecretImplValidation(t *testing.T) {
 
 	t.Run("should return true when ignoreValidationForPublicPaths is false and is not public path but is authorized", func(t *testing.T) {
 		var expectedEntry model.Entry
-		var data model2.Response
+		var data response.Response
 
 		generateJwtForTest(t, &expectedEntry, &data)
 
@@ -416,7 +416,7 @@ func TestSecretImplValidation(t *testing.T) {
 
 }
 
-func generateJwtForTest(t *testing.T, expectedEntry *model.Entry, targetData *model2.Response) {
+func generateJwtForTest(t *testing.T, expectedEntry *model.Entry, targetData *response.Response) {
 	secretProvider := provider.NewSecretProvider()
 	secretService := New[*goservectx.DefaultContext](
 		secretProvider,
@@ -438,7 +438,7 @@ func generateJwtForTest(t *testing.T, expectedEntry *model.Entry, targetData *mo
 	}
 
 	secretProvider.TestOnGenerated = func(
-		data model2.Response,
+		data response.Response,
 		jwtEntry model.Entry,
 		ctx goservectx.SampleContext[*goservectx.DefaultContext],
 	) {

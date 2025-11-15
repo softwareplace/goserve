@@ -11,7 +11,7 @@ import (
 	"github.com/softwareplace/goserve/internal/service/provider"
 	"github.com/softwareplace/goserve/security"
 	"github.com/softwareplace/goserve/security/encryptor"
-	model2 "github.com/softwareplace/goserve/security/jwt/response"
+	"github.com/softwareplace/goserve/security/jwt/response"
 	"github.com/softwareplace/goserve/security/login"
 	"github.com/softwareplace/goserve/security/model"
 )
@@ -77,7 +77,7 @@ func (l *Service) GetApiJWTInfo(apiKeyEntryData model.ApiKeyEntryData,
 	}, nil
 }
 
-func (l *Service) OnGenerated(data model2.Response,
+func (l *Service) OnGenerated(data response.Response,
 	jwtEntry model.Entry,
 	ctx goservectx.SampleContext[*goservectx.DefaultContext],
 ) {

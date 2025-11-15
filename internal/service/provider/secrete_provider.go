@@ -4,7 +4,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	goservectx "github.com/softwareplace/goserve/context"
-	model2 "github.com/softwareplace/goserve/security/jwt/response"
+	"github.com/softwareplace/goserve/security/jwt/response"
 	"github.com/softwareplace/goserve/security/model"
 )
 
@@ -14,7 +14,7 @@ type TestSecretProviderImpl struct {
 		_ *goservectx.Request[*goservectx.DefaultContext],
 	) (model.Entry, error)
 
-	TestOnGenerated func(data model2.Response,
+	TestOnGenerated func(data response.Response,
 		jwtEntry model.Entry,
 		ctx goservectx.SampleContext[*goservectx.DefaultContext],
 	)
@@ -62,7 +62,7 @@ func (s *TestSecretProviderImpl) GetJwtEntry(apiKeyEntryData model.ApiKeyEntryDa
 	}, nil
 }
 
-func (s *TestSecretProviderImpl) OnGenerated(data model2.Response,
+func (s *TestSecretProviderImpl) OnGenerated(data response.Response,
 	jwtEntry model.Entry,
 	ctx goservectx.SampleContext[*goservectx.DefaultContext],
 ) {
