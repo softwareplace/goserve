@@ -17,17 +17,17 @@ func (rh *resourceHandlerImpl[T]){{$opid}}(ctx *goservectx.Request[T]) {
     {{$contentType := .ContentType -}}
         goserveerror.Handler(func() {
             requestBody := {{.Schema.TypeDecl}}{}
-            request.GetRequestBody(ctx, requestBody, func(ctx *goservectx.Request[T], body {{.Schema.TypeDecl}}) {
+            goservehttp.GetRequestBody(ctx, requestBody, func(ctx *goservectx.Request[T], body {{.Schema.TypeDecl}}) {
             clientRequest := {{$entry.OperationId}}ClientRequest{
                                     Body: body,
                                 }
-            {{if or $hasParams }}err := request.BindRequestParams(ctx.Request, &clientRequest)
+            {{if or $hasParams }}err := goservehttp.BindRequestParams(ctx.Request, &clientRequest)
                 contentType := ctx.Request.Header.Get(goservectx.ContentType)
                 // Try to load form param to the body struct. File form will be ignored.
                 if err == nil && strings.Contains(contentType, goservectx.MultipartFormData) {
                     _ = goservereflect.ParamsExtract(&clientRequest.Body,
                         goservereflect.ParamsExtractorSource{
-                            Tree: request.FormValues(ctx.Request),
+                            Tree: goservehttp.FormValues(ctx.Request),
                         },
                     )
                 }
@@ -62,7 +62,7 @@ func (rh *resourceHandlerImpl[T]){{$opid}}(ctx *goservectx.Request[T]) {
             {{if or $hasParams }}
             clientRequest := {{$entry.OperationId}}ClientRequest{
             }
-            err := request.BindRequestParams(ctx.Request, &clientRequest)
+            err := goservehttp.BindRequestParams(ctx.Request, &clientRequest)
                 if err != nil {
                     log.Errorf("Failed to bind {{$entry.OperationId}}ClientRequest request params: %+v", err)
                     ctx.Error(err.Error(), err.Code)

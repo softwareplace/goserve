@@ -6,13 +6,13 @@ import (
 	"github.com/softwareplace/goserve/authorization/internal/impl"
 	authrequest "github.com/softwareplace/goserve/authorization/request"
 	"github.com/softwareplace/goserve/authorization/response"
-	"github.com/softwareplace/goserve/request"
+	"github.com/softwareplace/goserve/http"
 )
 
 // Client struct
 type Client interface {
 	CheckToken(input input.Input) (bool, error)
-	CheckTokenCustom(config *request.Config) (bool, error)
+	CheckTokenCustom(config *http.Config) (bool, error)
 	Login(request authrequest.AuhtorizationRequest, applicationID string) (*response.AuthorizationResponse, error)
 }
 

@@ -1,4 +1,4 @@
-package request
+package http
 
 import (
 	"fmt"
@@ -56,7 +56,7 @@ func BindRequestParams(r *http.Request, target interface{}) *RequestError {
 				Tree: FormValues(r),
 			})
 	}
-	
+
 	_ = goservereflect.ParamsExtract(target,
 		goservereflect.ParamsExtractorSource{
 			Tree: r.URL.Query(),

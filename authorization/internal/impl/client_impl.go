@@ -11,7 +11,7 @@ import (
 	authrequest "github.com/softwareplace/goserve/authorization/request"
 	"github.com/softwareplace/goserve/authorization/response"
 	authresponse "github.com/softwareplace/goserve/authorization/response"
-	"github.com/softwareplace/goserve/request"
+	goservehttp "github.com/softwareplace/goserve/http"
 	"github.com/softwareplace/goserve/validator"
 )
 
@@ -22,7 +22,7 @@ type ClientImpl struct {
 
 // CheckToken checks if the token is valid
 func (c *ClientImpl) CheckToken(input input.Input) (bool, error) {
-	config := request.Build(c.OauthConfig.ServerHost).
+	config := goservehttp.Build(c.OauthConfig.ServerHost).
 		WithPath("authorization")
 
 	for name, header := range input.Headers {
@@ -47,12 +47,12 @@ func (c *ClientImpl) CheckToken(input input.Input) (bool, error) {
 }
 
 // ChecktokenCustom checks if the token is valid
-func (c *ClientImpl) CheckTokenCustom(config *request.Config) (bool, error) {
+func (c *ClientImpl) CheckTokenCustom(config *goservehttp.Config) (bool, error) {
 	return c.validate(config)
 }
 
-func (c *ClientImpl) validate(config *request.Config) (bool, error) {
-	client := request.NewService()
+func (c *ClientImpl) validate(config *goservehttp.Config) (bool, error) {
+	client := goservehttp.NewService()
 	response, err := client.Get(config)
 
 	defer client.Close()
@@ -86,12 +86,12 @@ func (c *ClientImpl) Login(
 		return nil, fmt.Errorf("applicationID is required")
 	}
 
-	config := request.Build(c.OauthConfig.ServerHost).
+	config := goservehttp.Build(c.OauthConfig.ServerHost).
 		WithPath("login").
-		WithHeader(request.RequestClientID, applicationID).
+		WithHeader(goservehttp.RequestClientID, applicationID).
 		WithBody(authRequest)
 
-	client := request.NewService()
+	client := goservehttp.NewService()
 
 	defer client.Close()
 

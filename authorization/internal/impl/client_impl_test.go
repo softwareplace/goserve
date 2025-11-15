@@ -9,7 +9,7 @@ import (
 
 	"github.com/softwareplace/goserve/authorization/config"
 	"github.com/softwareplace/goserve/authorization/input"
-	"github.com/softwareplace/goserve/request"
+	goservehttp "github.com/softwareplace/goserve/http"
 )
 
 func TestClientImplCheckTokenSuccess(t *testing.T) {
@@ -101,7 +101,7 @@ func TestClientImplChecktokenCustomSuccess(t *testing.T) {
 		},
 	}
 
-	config := &request.Config{
+	config := &goservehttp.Config{
 		Host:    server.URL,
 		Path:    "/validate",
 		Headers: map[string]string{"Authorization": "Bearer token123"},
@@ -126,7 +126,7 @@ func TestClientImplChecktokenCustomFailure(t *testing.T) {
 		},
 	}
 
-	config := &request.Config{
+	config := &goservehttp.Config{
 		Host:    server.URL,
 		Path:    "/validate",
 		Headers: map[string]string{"Authorization": "Bearer invalid_token"},
@@ -146,7 +146,7 @@ func TestClientImplValidateNetworkError(t *testing.T) {
 		},
 	}
 
-	config := &request.Config{
+	config := &goservehttp.Config{
 		Host:    "http://invalid-host-that-does-not-exist.com",
 		Path:    "/validate",
 		Headers: map[string]string{},
@@ -171,7 +171,7 @@ func TestClientImplValidateStatusOK(t *testing.T) {
 		},
 	}
 
-	config := &request.Config{
+	config := &goservehttp.Config{
 		Host:    server.URL,
 		Path:    "/validate",
 		Headers: map[string]string{},
@@ -209,7 +209,7 @@ func TestClientImplValidateStatusNotOK(t *testing.T) {
 				},
 			}
 
-			config := &request.Config{
+			config := &goservehttp.Config{
 				Host:    server.URL,
 				Path:    "/validate",
 				Headers: map[string]string{},

@@ -5,7 +5,7 @@ import (
 
 	goservectx "github.com/softwareplace/goserve/context"
 	goserveerror "github.com/softwareplace/goserve/error"
-	"github.com/softwareplace/goserve/request"
+	"github.com/softwareplace/goserve/http"
 	"github.com/softwareplace/goserve/security/login"
 )
 
@@ -13,7 +13,7 @@ import (
 // delegating to the loginDataHandler function. It ensures proper error
 // handling in cases where the request body cannot be loaded.
 func (a *baseServer[T]) Login(ctx *goservectx.Request[T]) {
-	request.GetRequestBody(ctx, login.User{}, a.loginDataHandler, request.FailedToLoadBody[T])
+	http.GetRequestBody(ctx, login.User{}, a.loginDataHandler, http.FailedToLoadBody[T])
 }
 
 func (a *baseServer[T]) loginDataHandler(ctx *goservectx.Request[T], user login.User) {
