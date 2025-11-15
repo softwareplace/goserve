@@ -3,10 +3,12 @@ package version
 import (
 	"encoding/json"
 	"fmt"
-	log "github.com/sirupsen/logrus"
-	"github.com/softwareplace/goserve/cmd/goserve-generator/template"
 	"io"
 	"net/http"
+
+	log "github.com/sirupsen/logrus"
+
+	"github.com/softwareplace/goserve/cmd/goserve-generator/template"
 )
 
 type Release struct {

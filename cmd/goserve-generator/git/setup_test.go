@@ -1,11 +1,13 @@
 package git
 
 import (
-	"github.com/softwareplace/goserve/cmd/goserve-generator/cmd"
-	"github.com/softwareplace/goserve/cmd/goserve-generator/config"
-	"github.com/stretchr/testify/require"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/require"
+
+	"github.com/softwareplace/goserve/cmd/goserve-generator/cmd"
+	"github.com/softwareplace/goserve/cmd/goserve-generator/config"
 )
 
 func TestGitSetupValidation(t *testing.T) {

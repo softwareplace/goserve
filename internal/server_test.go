@@ -1,13 +1,14 @@
 package main
 
 import (
-	"github.com/softwareplace/goserve/internal/service/apiservice"
-	"github.com/softwareplace/goserve/logger"
-	"github.com/softwareplace/goserve/server"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/softwareplace/goserve/internal/service/apiservice"
+	"github.com/softwareplace/goserve/logger"
+	"github.com/softwareplace/goserve/server"
 )
 
 func init() {

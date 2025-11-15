@@ -1,9 +1,11 @@
 package file
 
 import (
-	goservectx "github.com/softwareplace/goserve/context"
-	"github.com/softwareplace/goserve/internal/gen"
 	"sync"
+
+	"github.com/softwareplace/goserve/internal/gen"
+
+	goservectx "github.com/softwareplace/goserve/context"
 )
 
 type Service struct {

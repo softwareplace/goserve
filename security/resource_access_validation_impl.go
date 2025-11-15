@@ -1,12 +1,14 @@
 package security
 
 import (
+	"net/http"
+	"strings"
+
 	log "github.com/sirupsen/logrus"
+
 	goservectx "github.com/softwareplace/goserve/context"
 	goserveerror "github.com/softwareplace/goserve/error"
 	"github.com/softwareplace/goserve/security/router"
-	"net/http"
-	"strings"
 )
 
 type defaultResourceAccessHandler[T goservectx.Principal] struct {

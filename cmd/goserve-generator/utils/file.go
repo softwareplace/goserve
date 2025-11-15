@@ -1,12 +1,13 @@
 package utils
 
 import (
-	"github.com/softwareplace/goserve/cmd/goserve-generator/config"
-	"github.com/softwareplace/goserve/cmd/goserve-generator/template"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/softwareplace/goserve/cmd/goserve-generator/config"
+	"github.com/softwareplace/goserve/cmd/goserve-generator/template"
 )
 
 type ReplaceEntry struct {

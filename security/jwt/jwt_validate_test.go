@@ -1,11 +1,13 @@
 package jwt
 
 import (
-	goservectx "github.com/softwareplace/goserve/context"
-	goserveerror "github.com/softwareplace/goserve/error"
-	"github.com/stretchr/testify/require"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/require"
+
+	goservectx "github.com/softwareplace/goserve/context"
+	goserveerror "github.com/softwareplace/goserve/error"
 )
 
 func TestIsValid(t *testing.T) {

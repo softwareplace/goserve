@@ -1,10 +1,11 @@
 package git
 
 import (
-	"github.com/softwareplace/goserve/cmd/goserve-generator/cmd"
-	"github.com/softwareplace/goserve/cmd/goserve-generator/config"
 	"log"
 	"os"
+
+	"github.com/softwareplace/goserve/cmd/goserve-generator/cmd"
+	"github.com/softwareplace/goserve/cmd/goserve-generator/config"
 )
 
 var (

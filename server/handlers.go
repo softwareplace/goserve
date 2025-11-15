@@ -1,10 +1,12 @@
 package server
 
 import (
+	"net/http"
+
 	log "github.com/sirupsen/logrus"
+
 	goservectx "github.com/softwareplace/goserve/context"
 	goserveerror "github.com/softwareplace/goserve/error"
-	"net/http"
 )
 
 func (a *baseServer[T]) errorHandlerWrapper(next http.Handler) http.Handler {

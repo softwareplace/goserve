@@ -2,9 +2,10 @@ package version
 
 import (
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"os/exec"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 )
 
 var (

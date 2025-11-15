@@ -1,9 +1,10 @@
-package utils
+package path
 
 import (
-	"github.com/stretchr/testify/require"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestUserHomePathFix(t *testing.T) {

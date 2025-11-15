@@ -1,9 +1,12 @@
 package apiservice
 
 import (
+	"sync"
+
 	log "github.com/sirupsen/logrus"
-	goservectx "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/internal/gen"
+
+	goservectx "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/internal/service/file"
 	"github.com/softwareplace/goserve/internal/service/inventory"
 	"github.com/softwareplace/goserve/internal/service/order"
@@ -11,7 +14,6 @@ import (
 	"github.com/softwareplace/goserve/internal/service/user"
 	"github.com/softwareplace/goserve/logger"
 	"github.com/softwareplace/goserve/server"
-	"sync"
 )
 
 type fileService struct {

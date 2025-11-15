@@ -9,7 +9,8 @@ import (
 	"time"
 
 	log "github.com/sirupsen/logrus"
-	"github.com/softwareplace/goserve/utils"
+
+	"github.com/softwareplace/goserve/env"
 )
 
 func apiPort() string {
@@ -58,8 +59,8 @@ func (a *baseServer[T]) Port(port string) Api[T] {
 }
 
 func (a *baseServer[T]) ContextPath(contextPath string) Api[T] {
-	a.contextPath = utils.ContextPathFix(contextPath)
-	utils.HealthResourcePath = a.contextPath + "health"
+	a.contextPath = env.ContextPathFix(contextPath)
+	env.HealthResourcePath = a.contextPath + "health"
 	return a
 }
 
@@ -74,7 +75,7 @@ func (a *baseServer[T]) StartServerInGoroutine() Api[T] {
 	}
 
 	if a.contextPath == "" {
-		a.contextPath = utils.APIContextPath()
+		a.contextPath = env.APIContextPath()
 	}
 
 	addr := a.getAddr()
@@ -105,7 +106,7 @@ func (a *baseServer[T]) StartServer() {
 	}
 
 	if a.contextPath == "" {
-		a.contextPath = utils.APIContextPath()
+		a.contextPath = env.APIContextPath()
 	}
 
 	addr := a.getAddr()

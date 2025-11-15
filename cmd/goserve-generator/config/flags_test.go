@@ -2,10 +2,12 @@ package config
 
 import (
 	"flag"
-	"github.com/softwareplace/goserve/cmd/goserve-generator/version"
-	"github.com/stretchr/testify/require"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/require"
+
+	"github.com/softwareplace/goserve/cmd/goserve-generator/version"
 
 	"github.com/stretchr/testify/assert"
 )

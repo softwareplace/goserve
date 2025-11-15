@@ -1,12 +1,14 @@
 package generator
 
 import (
+	"os"
+
 	log "github.com/sirupsen/logrus"
+
 	"github.com/softwareplace/goserve/cmd/goserve-generator/config"
 	"github.com/softwareplace/goserve/cmd/goserve-generator/template"
 	"github.com/softwareplace/goserve/cmd/goserve-generator/utils"
 	"github.com/softwareplace/goserve/cmd/goserve-generator/version"
-	"os"
 )
 
 type generatorFile struct {

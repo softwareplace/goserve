@@ -5,18 +5,20 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
+	"net/http"
+	"os"
+	"time"
+
 	log "github.com/sirupsen/logrus"
+
 	goservectx "github.com/softwareplace/goserve/context"
+	"github.com/softwareplace/goserve/env"
 	goserveerror "github.com/softwareplace/goserve/error"
 	"github.com/softwareplace/goserve/security"
 	"github.com/softwareplace/goserve/security/encryptor"
 	goservejwt "github.com/softwareplace/goserve/security/jwt"
 	"github.com/softwareplace/goserve/security/model"
 	"github.com/softwareplace/goserve/security/router"
-	"github.com/softwareplace/goserve/utils"
-	"net/http"
-	"os"
-	"time"
 )
 
 // New creates and initializes a new instance of Service interface implementation,
@@ -41,7 +43,7 @@ func New[T goservectx.Principal](
 	provider Provider[T],
 	service security.Service[T],
 ) Service[T] {
-	secretKey := utils.GetEnvOrDefault("API_PRIVATE_KEY", "")
+	secretKey := env.GetEnvOrDefault("API_PRIVATE_KEY", "")
 
 	if secretKey == "" {
 		log.Panicf("API_PRIVATE_KEY environment variable not set")

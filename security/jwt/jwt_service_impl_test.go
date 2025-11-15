@@ -2,16 +2,18 @@ package jwt
 
 import (
 	"errors"
-	goservectx "github.com/softwareplace/goserve/context"
-	goserveerror "github.com/softwareplace/goserve/error"
-	"github.com/softwareplace/goserve/internal/service/testencryptor"
-	"github.com/softwareplace/goserve/security/encryptor"
-	"github.com/stretchr/testify/require"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/require"
+
+	goservectx "github.com/softwareplace/goserve/context"
+	goserveerror "github.com/softwareplace/goserve/error"
+	"github.com/softwareplace/goserve/internal/service/testencryptor"
+	"github.com/softwareplace/goserve/security/encryptor"
 )
 
 func getDefaultCtx() *goservectx.DefaultContext {

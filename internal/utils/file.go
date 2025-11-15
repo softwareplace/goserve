@@ -1,8 +1,9 @@
 package utils
 
 import (
-	log "github.com/sirupsen/logrus"
 	"os"
+
+	log "github.com/sirupsen/logrus"
 )
 
 func ReadFileContent(path string) string {

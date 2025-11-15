@@ -1,13 +1,15 @@
 package server
 
 import (
+	"net/http"
+
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/gorilla/mux"
+
 	goservectx "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/security"
 	"github.com/softwareplace/goserve/security/login"
 	"github.com/softwareplace/goserve/security/secret"
-	"net/http"
 )
 
 type ApiContextHandler[T goservectx.Principal] func(ctx *goservectx.Request[T])

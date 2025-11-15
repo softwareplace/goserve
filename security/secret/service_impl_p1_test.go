@@ -3,9 +3,17 @@ package secret
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"testing"
+
 	"github.com/google/uuid"
 	log "github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/require"
+
 	goservectx "github.com/softwareplace/goserve/context"
+	"github.com/softwareplace/goserve/env"
 	goserveerror "github.com/softwareplace/goserve/error"
 	"github.com/softwareplace/goserve/internal/service/login"
 	"github.com/softwareplace/goserve/internal/service/provider"
@@ -14,12 +22,6 @@ import (
 	model2 "github.com/softwareplace/goserve/security/jwt"
 	"github.com/softwareplace/goserve/security/model"
 	"github.com/softwareplace/goserve/security/router"
-	"github.com/softwareplace/goserve/utils"
-	"github.com/stretchr/testify/require"
-	"net/http"
-	"net/http/httptest"
-	"os"
-	"testing"
 )
 
 var secretFilePath = testutils.TestSecretFilePath()
@@ -54,7 +56,7 @@ func forTest(
 	service security.Service[*goservectx.DefaultContext],
 	testEncrypt func(value string) (string, error),
 ) testSecretHandlerImpl {
-	secretKey := utils.GetEnvOrDefault("API_PRIVATE_KEY", "")
+	secretKey := env.GetEnvOrDefault("API_PRIVATE_KEY", "")
 
 	if secretKey == "" {
 		log.Panicf("API_PRIVATE_KEY environment variable not set")

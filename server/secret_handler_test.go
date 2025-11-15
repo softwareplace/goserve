@@ -1,12 +1,14 @@
 package server
 
 import (
-	goservectx "github.com/softwareplace/goserve/context"
-	"github.com/stretchr/testify/require"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/require"
+
+	goservectx "github.com/softwareplace/goserve/context"
 )
 
 func TestApiSecretHandlerValidation(t *testing.T) {

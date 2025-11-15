@@ -1,15 +1,16 @@
 package server
 
 import (
+	"os"
+	"reflect"
+	"time"
+
 	goservectx "github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/internal/service/login"
 	"github.com/softwareplace/goserve/internal/service/provider"
 	"github.com/softwareplace/goserve/internal/utils"
 	"github.com/softwareplace/goserve/security"
 	"github.com/softwareplace/goserve/security/secret"
-	"os"
-	"reflect"
-	"time"
 )
 
 func forTest(a Api[*goservectx.DefaultContext]) baseServer[*goservectx.DefaultContext] {

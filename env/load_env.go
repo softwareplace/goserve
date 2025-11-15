@@ -1,10 +1,11 @@
-package utils
+package env
 
 import (
-	log "github.com/sirupsen/logrus"
 	"os"
 	"strconv"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 )
 
 var (

@@ -1,8 +1,9 @@
 package generator
 
 import (
-	"github.com/softwareplace/goserve/cmd/goserve-generator/utils"
 	"log"
+
+	"github.com/softwareplace/goserve/cmd/goserve-generator/utils"
 )
 
 var (

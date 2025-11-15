@@ -7,13 +7,15 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
-	goservectx "github.com/softwareplace/goserve/context"
-	goserveerror "github.com/softwareplace/goserve/error"
-	"github.com/softwareplace/goserve/internal/utils"
-	"github.com/stretchr/testify/require"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/stretchr/testify/require"
+
+	goservectx "github.com/softwareplace/goserve/context"
+	goserveerror "github.com/softwareplace/goserve/error"
+	"github.com/softwareplace/goserve/internal/utils"
 )
 
 // Helper function to generate a temporary RSA key file

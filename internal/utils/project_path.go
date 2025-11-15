@@ -2,9 +2,10 @@ package utils
 
 import (
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"path/filepath"
 	"runtime"
+
+	log "github.com/sirupsen/logrus"
 )
 
 func TestSecretFilePath() string {

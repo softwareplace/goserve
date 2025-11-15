@@ -1,10 +1,11 @@
 package server
 
 import (
-	goservectx "github.com/softwareplace/goserve/context"
-	"github.com/softwareplace/goserve/security/router"
 	"net/http"
 	"strings"
+
+	goservectx "github.com/softwareplace/goserve/context"
+	"github.com/softwareplace/goserve/security/router"
 )
 
 func (a *baseServer[T]) PublicRouter(handler ApiContextHandler[T], path string, method string) Api[T] {

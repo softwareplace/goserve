@@ -1,10 +1,11 @@
 package validator
 
 import (
-	"github.com/softwareplace/goserve/cmd/goserve-generator/cmd"
 	"log"
 	"os"
 	"os/exec"
+
+	"github.com/softwareplace/goserve/cmd/goserve-generator/cmd"
 )
 
 const oapiCodegen = "github.com/deepmap/oapi-codegen/v2/Execute/oapi-codegen@v2.2.0"

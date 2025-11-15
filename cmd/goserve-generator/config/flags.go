@@ -3,9 +3,10 @@ package config
 import (
 	"flag"
 	"fmt"
-	"github.com/softwareplace/goserve/cmd/goserve-generator/version"
 	"log"
 	"os"
+
+	"github.com/softwareplace/goserve/cmd/goserve-generator/version"
 )
 
 // disable log do add date on log

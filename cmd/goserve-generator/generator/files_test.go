@@ -1,14 +1,16 @@
 package generator
 
 import (
+	"os"
+	"testing"
+
+	"github.com/stretchr/testify/require"
+
 	"github.com/softwareplace/goserve/cmd/goserve-generator/config"
 	"github.com/softwareplace/goserve/cmd/goserve-generator/template"
 	"github.com/softwareplace/goserve/cmd/goserve-generator/utils"
 	"github.com/softwareplace/goserve/cmd/goserve-generator/version"
 	testutils "github.com/softwareplace/goserve/internal/utils"
-	"github.com/stretchr/testify/require"
-	"os"
-	"testing"
 )
 
 const configFile = `package: gen

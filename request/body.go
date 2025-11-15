@@ -2,10 +2,11 @@ package request
 
 import (
 	"encoding/json"
-	goservectx "github.com/softwareplace/goserve/context"
-	goserveerror "github.com/softwareplace/goserve/error"
 	"net/http"
 	"strings"
+
+	goservectx "github.com/softwareplace/goserve/context"
+	goserveerror "github.com/softwareplace/goserve/error"
 )
 
 type OnSuccess[B any, T goservectx.Principal] func(ctx *goservectx.Request[T], body B)

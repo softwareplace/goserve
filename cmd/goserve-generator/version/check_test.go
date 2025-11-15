@@ -2,10 +2,11 @@ package version
 
 import (
 	"errors"
-	"github.com/stretchr/testify/require"
 	"os/exec"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"

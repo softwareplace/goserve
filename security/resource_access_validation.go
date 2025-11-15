@@ -1,8 +1,9 @@
 package security
 
 import (
-	goservectx "github.com/softwareplace/goserve/context"
 	"net/http"
+
+	goservectx "github.com/softwareplace/goserve/context"
 )
 
 type ResourceAccessValidation[T goservectx.Principal] interface {

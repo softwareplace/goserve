@@ -2,11 +2,12 @@ package security
 
 import (
 	log "github.com/sirupsen/logrus"
+
 	goservectx "github.com/softwareplace/goserve/context"
+	"github.com/softwareplace/goserve/env"
 	goserveerror "github.com/softwareplace/goserve/error"
 	"github.com/softwareplace/goserve/security/jwt"
 	"github.com/softwareplace/goserve/security/principal"
-	"github.com/softwareplace/goserve/utils"
 )
 
 const (
@@ -65,7 +66,7 @@ func New[T goservectx.Principal](
 	service principal.Service[T],
 ) Service[T] {
 	defaultErrorHandler := goserveerror.Default[T]()
-	apiSecretKey := utils.GetEnvOrDefault("API_SECRET_KEY", "")
+	apiSecretKey := env.GetEnvOrDefault("API_SECRET_KEY", "")
 
 	if apiSecretKey == "" {
 		log.Fatal("API_SECRET_KEY environment variable is not set")

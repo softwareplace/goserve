@@ -2,13 +2,15 @@ package request
 
 import (
 	"encoding/json"
-	"github.com/gorilla/mux"
-	"github.com/softwareplace/goserve/context"
-	"github.com/stretchr/testify/require"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/gorilla/mux"
+	"github.com/stretchr/testify/require"
+
+	"github.com/softwareplace/goserve/context"
 )
 
 type MockFormBody struct {

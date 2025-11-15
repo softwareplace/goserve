@@ -2,11 +2,13 @@ package utils
 
 import (
 	"fmt"
-	"github.com/softwareplace/goserve/cmd/goserve-generator/config"
-	testutils "github.com/softwareplace/goserve/internal/utils"
-	"github.com/stretchr/testify/require"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/require"
+
+	"github.com/softwareplace/goserve/cmd/goserve-generator/config"
+	testutils "github.com/softwareplace/goserve/internal/utils"
 )
 
 func TestGeneratePathsValidation(t *testing.T) {

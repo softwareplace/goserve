@@ -2,11 +2,13 @@ package petstore
 
 import (
 	"fmt"
-	goservectx "github.com/softwareplace/goserve/context"
-	"github.com/softwareplace/goserve/internal/gen"
-	"github.com/softwareplace/goserve/internal/service/base"
 	"net/http"
 	"sync"
+
+	"github.com/softwareplace/goserve/internal/gen"
+
+	goservectx "github.com/softwareplace/goserve/context"
+	"github.com/softwareplace/goserve/internal/service/base"
 )
 
 type Service struct {

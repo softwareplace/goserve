@@ -1,14 +1,16 @@
 package server
 
 import (
-	goservectx "github.com/softwareplace/goserve/context"
-	"github.com/softwareplace/goserve/security/secret"
-	"github.com/stretchr/testify/require"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/require"
+
+	goservectx "github.com/softwareplace/goserve/context"
+	"github.com/softwareplace/goserve/security/secret"
 )
 
 func TestLoginResourceHandlerValidation(t *testing.T) {

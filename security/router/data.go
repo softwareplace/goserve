@@ -3,6 +3,8 @@ package router
 import (
 	"regexp"
 	"strings"
+
+	goservectx "github.com/softwareplace/goserve/context"
 )
 
 // GetRolesForPath retrieves the roles associated with a request path.

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/softwareplace/goserve/cmd/goserve-generator/config"
 	"github.com/softwareplace/goserve/cmd/goserve-generator/generator"
 	"github.com/softwareplace/goserve/cmd/goserve-generator/git"

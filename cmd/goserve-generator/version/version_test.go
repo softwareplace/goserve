@@ -2,11 +2,13 @@ package version
 
 import (
 	"fmt"
-	"github.com/softwareplace/goserve/cmd/goserve-generator/template"
-	"github.com/stretchr/testify/require"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/stretchr/testify/require"
+
+	"github.com/softwareplace/goserve/cmd/goserve-generator/template"
 
 	"github.com/stretchr/testify/assert"
 )

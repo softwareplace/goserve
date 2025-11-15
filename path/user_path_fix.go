@@ -1,9 +1,10 @@
-package utils
+package path
 
 import (
-	log "github.com/sirupsen/logrus"
 	"os"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // UserHomePathFix resolves a path that starts with '~' to the user's home directory.

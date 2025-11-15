@@ -1,9 +1,10 @@
 package login
 
 import (
+	"testing"
+
 	"github.com/softwareplace/goserve/context"
 	"github.com/softwareplace/goserve/security/encryptor"
-	"testing"
 )
 
 // MockPrincipal is a mock implementation of goservectx.Principal interface

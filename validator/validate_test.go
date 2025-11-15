@@ -1,8 +1,9 @@
-package utils
+package validator
 
 import (
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 type TestStruct struct {

@@ -3,18 +3,20 @@ package validator
 import (
 	"flag"
 	"fmt"
+	"os"
+	"os/exec"
+	"strings"
+	"testing"
+
 	log "github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
 	"github.com/softwareplace/goserve/cmd/goserve-generator/cmd"
 	"github.com/softwareplace/goserve/cmd/goserve-generator/config"
 	"github.com/softwareplace/goserve/cmd/goserve-generator/generator"
 	"github.com/softwareplace/goserve/cmd/goserve-generator/utils"
 	testutils "github.com/softwareplace/goserve/internal/utils"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
-	"os"
-	"os/exec"
-	"strings"
-	"testing"
 )
 
 const configFile = `package: gen

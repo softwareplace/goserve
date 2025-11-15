@@ -7,13 +7,13 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	goservectx "github.com/softwareplace/goserve/context"
+	"github.com/softwareplace/goserve/env"
 	"github.com/softwareplace/goserve/internal/service/provider"
 	"github.com/softwareplace/goserve/security"
 	"github.com/softwareplace/goserve/security/encryptor"
 	model2 "github.com/softwareplace/goserve/security/jwt"
 	"github.com/softwareplace/goserve/security/login"
 	"github.com/softwareplace/goserve/security/model"
-	"github.com/softwareplace/goserve/utils"
 )
 
 type PrincipalServiceImpl struct {
@@ -89,7 +89,7 @@ func (l *Service) OnGenerated(data model2.Response,
 func (l *Service) Login(user login.User) (*goservectx.DefaultContext, error) {
 	result := goservectx.NewDefaultCtx()
 	result.SetRequesterId("081162586c7f4f77b877fbca0f09cb7f")
-	fullAuthorization := utils.GetBoolEnvOrDefault("FULL_AUTHORIZATION", false)
+	fullAuthorization := env.GetBoolEnvOrDefault("FULL_AUTHORIZATION", false)
 	if fullAuthorization {
 		result.SetRoles(provider.MockScopes...)
 	} else {

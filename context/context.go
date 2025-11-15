@@ -8,8 +8,8 @@ import (
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 
+	"github.com/softwareplace/goserve/env"
 	"github.com/softwareplace/goserve/security/router"
-	"github.com/softwareplace/goserve/utils"
 )
 
 const (
@@ -149,19 +149,19 @@ func createNewContext[T Principal](
 	resourceRoles, isRequiredRoles := router.GetRolesForPath(r.Method, r.URL.Path)
 
 	ctx := Request[T]{
-		Writer:        &w,
-		Request:       r,
-		PathValues:    mux.Vars(r),
-		QueryValues:   r.URL.Query(),
-		Headers:       r.Header,
-		sessionId:     uuid.New().String(),
-		ApiKey:        r.Header.Get(XApiKey),
-		Authorization: r.Header.Get(Authorization),
-		ResourceRoles: resourceRoles,
+		Writer:          &w,
+		Request:         r,
+		PathValues:      mux.Vars(r),
+		QueryValues:     r.URL.Query(),
+		Headers:         r.Header,
+		sessionId:       uuid.New().String(),
+		ApiKey:          r.Header.Get(XApiKey),
+		Authorization:   r.Header.Get(Authorization),
+		ResourceRoles:   resourceRoles,
 		IsRequiredRoles: isRequiredRoles,
 	}
 
-	isHelthCheckPath := r.URL.Path == utils.HealthResourcePath
+	isHelthCheckPath := r.URL.Path == env.HealthResourcePath
 
 	if !isHelthCheckPath {
 		log.Printf("%s -> initialized a context with session id: %s", reference, ctx.sessionId)

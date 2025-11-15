@@ -9,8 +9,9 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 )
 
 const divider = "_"

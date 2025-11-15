@@ -1,8 +1,12 @@
 package main
 
 import (
+	"os"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/softwareplace/go-password/pkg/str"
+
+	"github.com/softwareplace/goserve/env"
 	"github.com/softwareplace/goserve/internal/service/apiservice"
 	"github.com/softwareplace/goserve/internal/service/login"
 	"github.com/softwareplace/goserve/internal/service/provider"
@@ -10,8 +14,6 @@ import (
 	"github.com/softwareplace/goserve/security"
 	"github.com/softwareplace/goserve/security/secret"
 	"github.com/softwareplace/goserve/server"
-	"github.com/softwareplace/goserve/utils"
-	"os"
 )
 
 func init() {
@@ -19,7 +21,7 @@ func init() {
 	// Reload log file target reference based on `LOG_FILE_NAME_DATE_FORMAT`
 	logger.LogSetup()
 
-	if secretKey := utils.GetEnvOrDefault("API_SECRET_KEY", ""); secretKey == "" {
+	if secretKey := env.GetEnvOrDefault("API_SECRET_KEY", ""); secretKey == "" {
 		randomString := str.New().
 			Generate()
 

@@ -3,13 +3,15 @@ package encryptor
 import (
 	"crypto/rand"
 	"fmt"
-	log "github.com/sirupsen/logrus"
-	"github.com/softwareplace/goserve/utils"
-	"golang.org/x/crypto/bcrypt"
 	"math/big"
 	"os"
 	"strconv"
 	"time"
+
+	log "github.com/sirupsen/logrus"
+	"golang.org/x/crypto/bcrypt"
+
+	"github.com/softwareplace/goserve/env"
 )
 
 // PasswordEncryptor is an interface for securely hashing and validating passwords using bcrypt.
@@ -137,5 +139,5 @@ func getBcryptCost() int {
 }
 
 func JwtClaimsEncryptionEnabled() bool {
-	return utils.GetBoolEnvOrDefault("JWT_CLAIMS_ENCRYPTION_ENABLED", true)
+	return env.GetBoolEnvOrDefault("JWT_CLAIMS_ENCRYPTION_ENABLED", true)
 }

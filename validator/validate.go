@@ -1,12 +1,13 @@
-package utils
+package validator
 
 import (
 	"errors"
+	"regexp"
+	"strings"
+
 	"github.com/go-playground/locales/en"
 	ut "github.com/go-playground/universal-translator"
 	"github.com/go-playground/validator/v10"
-	"regexp"
-	"strings"
 )
 
 type RTranslation struct {

@@ -1,11 +1,12 @@
 package encryptor
 
 import (
-	"golang.org/x/crypto/bcrypt"
 	"os"
 	"strconv"
 	"testing"
 	"time"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 // TestNewEncrypt tests the NewEncrypt function.

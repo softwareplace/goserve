@@ -1,4 +1,4 @@
-package utils
+package slice
 
 // BatchSlice splits a slice 'arr' into batches of size 'batchSize'.
 // The last batch may be smaller if arr's length is not a multiple of batchSize.

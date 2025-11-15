@@ -2,13 +2,15 @@ package jwt
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/golang-jwt/jwt/v5"
 	log "github.com/sirupsen/logrus"
+
 	goservectx "github.com/softwareplace/goserve/context"
+	"github.com/softwareplace/goserve/env"
 	goserveerror "github.com/softwareplace/goserve/error"
 	"github.com/softwareplace/goserve/security/encryptor"
-	"github.com/softwareplace/goserve/utils"
-	"time"
 )
 
 func (a *impl[T]) Decrypted(jwt string) (map[string]interface{}, error) {
@@ -147,7 +149,7 @@ func (a *impl[T]) From(sub string, roles []string, duration time.Duration) (*Res
 }
 
 func (a *impl[T]) Issuer() string {
-	return utils.GetEnvOrDefault("JWT_ISSUER", "")
+	return env.GetEnvOrDefault("JWT_ISSUER", "")
 }
 
 func (a *impl[T]) Decode(tokenString string) (map[string]interface{}, error) {

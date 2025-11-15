@@ -9,8 +9,10 @@ import (
 
 	nested "github.com/antonfisher/nested-logrus-formatter"
 	log "github.com/sirupsen/logrus"
-	"github.com/softwareplace/goserve/utils"
 	"gopkg.in/natefinch/lumberjack.v2"
+
+	"github.com/softwareplace/goserve/env"
+	"github.com/softwareplace/goserve/path"
 )
 
 var (
@@ -26,24 +28,24 @@ var (
 )
 
 var (
-	ignoringLogsFrom = utils.GetEnvOrDefault("REQUEST_LOGGING_IGNORE", "")
+	ignoringLogsFrom = env.GetEnvOrDefault("REQUEST_LOGGING_IGNORE", "")
 	IgnoringLogsFromSlice = strings.Split(ignoringLogsFrom, ",")
 )
 
 func init() {
-	logFileNameDateFormat = utils.GetEnvOrDefault("LOG_FILE_NAME_DATE_FORMAT", "2006-01-02")
-	logDirPath = utils.GetEnvOrDefault("LOG_DIR", "./.log/")
+	logFileNameDateFormat = env.GetEnvOrDefault("LOG_FILE_NAME_DATE_FORMAT", "2006-01-02")
+	logDirPath = env.GetEnvOrDefault("LOG_DIR", "./.log/")
 
 	var err error
 
-	logDirPath, err = utils.UserHomePathFix(logDirPath)
+	logDirPath, err = path.UserHomePathFix(logDirPath)
 
 	if err != nil {
 		os.Exit(1)
 	}
 
-	appName = utils.GetEnvOrDefault("LOG_APP_NAME", "")
-	LogReportCaller = utils.GetBoolEnvOrDefault("LOG_REPORT_CALLER", false)
+	appName = env.GetEnvOrDefault("LOG_APP_NAME", "")
+	LogReportCaller = env.GetBoolEnvOrDefault("LOG_REPORT_CALLER", false)
 	LumberjackLogger = DefaultLumberjackLogger()
 	Formatter = NestedLogFormatter()
 }

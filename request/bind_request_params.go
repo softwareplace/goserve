@@ -2,13 +2,15 @@ package request
 
 import (
 	"fmt"
-	"github.com/gorilla/mux"
-	"github.com/softwareplace/goserve/context"
-	goservereflect "github.com/softwareplace/goserve/reflect"
-	"github.com/softwareplace/goserve/utils"
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/gorilla/mux"
+
+	"github.com/softwareplace/goserve/context"
+	goservereflect "github.com/softwareplace/goserve/reflect"
+	"github.com/softwareplace/goserve/validator"
 )
 
 const (
@@ -67,7 +69,7 @@ func BindRequestParams(r *http.Request, target interface{}) *RequestError {
 		},
 	)
 
-	err := utils.StructValidation(target)
+	err := validator.StructValidation(target)
 
 	if err != nil {
 		return &RequestError{
