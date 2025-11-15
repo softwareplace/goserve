@@ -2,20 +2,20 @@ package template
 
 const AppConfig = `package config
 
-import "github.com/softwareplace/goserve/utils"
+import goserverenv "github.com/softwareplace/goserve/env"
 
 var (
-	SwaggerFile = utils.GetEnvOrDefault(
+	SwaggerFile = goserverenv.GetEnvOrDefault(
 		"SWAGGER_FILE",
 		"./api/swagger.yaml",
 	)
 
-	ContextPath = utils.GetEnvOrDefault(
+	ContextPath = goserverenv.GetEnvOrDefault(
 		"CONTEXT_PATH",
 		"/api/${PROJECT}/v1/",
 	)
 
-	Port = utils.GetEnvOrDefault(
+	Port = goserverenv.GetEnvOrDefault(
 		"PORT",
 		"8080",
 	)

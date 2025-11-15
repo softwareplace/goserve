@@ -3,10 +3,12 @@ package template
 const HandlerService = `package handler
 
 import (
-	"github.com/${USERNAME}/${PROJECT}/internal/adapter/handler/gen"
-	"github.com/${USERNAME}/${PROJECT}/internal/application"
-	"github.com/softwareplace/goserve/server"
 	"sync"
+
+	"github.com/softwareplace/goserve/server"
+
+	"github.com/test-user/test-execution-validate-01/internal/adapter/handler/gen"
+	"github.com/test-user/test-execution-validate-01/internal/application"
 )
 
 type Service struct {
@@ -34,10 +36,12 @@ const HandlerImpl = `package handler
 
 import (
 	"fmt"
-	"github.com/${USERNAME}/${PROJECT}/internal/adapter/handler/gen"
-	"github.com/${USERNAME}/${PROJECT}/internal/application"
-	goservectx "github.com/softwareplace/goserve/context"
 	"time"
+
+	goservectx "github.com/softwareplace/goserve/context"
+
+	"github.com/test-user/test-execution-validate-01/internal/adapter/handler/gen"
+	"github.com/test-user/test-execution-validate-01/internal/application"
 )
 
 func (s *Service) Hello(request gen.HelloClientRequest, ctx *goservectx.Request[*application.Principal]) {

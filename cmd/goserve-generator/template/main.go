@@ -3,15 +3,17 @@ package template
 const GoServeMainTest = `package main
 
 import (
-	log "github.com/sirupsen/logrus"
-	"github.com/${USERNAME}/${PROJECT}/internal/adapter/handler"
-	"github.com/${USERNAME}/${PROJECT}/internal/application"
-	"github.com/softwareplace/goserve/server"
-	"github.com/stretchr/testify/require"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	log "github.com/sirupsen/logrus"
+	"github.com/softwareplace/goserve/server"
+	"github.com/stretchr/testify/require"
+
+	"github.com/test-user/test-execution-validate-01/internal/adapter/handler"
+	"github.com/test-user/test-execution-validate-01/internal/application"
 )
 
 func TestMockServer(t *testing.T) {
@@ -89,11 +91,12 @@ func TestMockServer(t *testing.T) {
 const GoServeMain = `package main
 
 import (
-	"github.com/${USERNAME}/${PROJECT}/internal/adapter/handler"
-	"github.com/${USERNAME}/${PROJECT}/internal/application"
-	"github.com/${USERNAME}/${PROJECT}/internal/application/config"
 	"github.com/softwareplace/goserve/logger"
 	"github.com/softwareplace/goserve/server"
+
+	"github.com/test-user/test-execution-validate-01/internal/adapter/handler"
+	"github.com/test-user/test-execution-validate-01/internal/application"
+	"github.com/test-user/test-execution-validate-01/internal/application/config"
 )
 
 func init() {
