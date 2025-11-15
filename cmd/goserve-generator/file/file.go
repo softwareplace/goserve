@@ -1,4 +1,4 @@
-package utils
+package file
 
 import (
 	"log"
@@ -8,12 +8,8 @@ import (
 
 	"github.com/softwareplace/goserve/cmd/goserve-generator/config"
 	"github.com/softwareplace/goserve/cmd/goserve-generator/template"
+	goservestring "github.com/softwareplace/goserve/string"
 )
-
-type ReplaceEntry struct {
-	Key   string
-	Value string
-}
 
 var (
 	// JoinPath is a utility variable that points to filepath.Join for constructing file paths in a platform-independent way.
@@ -29,7 +25,7 @@ var (
 func CreateFile(
 	path string,
 	content string,
-	entries ...ReplaceEntry,
+	entries ...goservestring.ReplaceEntry,
 ) {
 	if config.ReplaceCurrent == "false" {
 		if _, err := os.Stat(path); err == nil {
@@ -40,8 +36,8 @@ func CreateFile(
 
 	entries = append(
 		entries,
-		Replacement(template.UsernameKey, config.Username),
-		Replacement(template.ProjectKey, config.ProjectName),
+		goservestring.Replacement(template.UsernameKey, config.Username),
+		goservestring.Replacement(template.ProjectKey, config.ProjectName),
 	)
 
 	for _, entry := range entries {

@@ -14,9 +14,10 @@ import (
 
 	"github.com/softwareplace/goserve/cmd/goserve-generator/cmd"
 	"github.com/softwareplace/goserve/cmd/goserve-generator/config"
+	"github.com/softwareplace/goserve/cmd/goserve-generator/file"
 	"github.com/softwareplace/goserve/cmd/goserve-generator/generator"
-	"github.com/softwareplace/goserve/cmd/goserve-generator/utils"
 	testutils "github.com/softwareplace/goserve/internal/utils"
+	goservestring "github.com/softwareplace/goserve/string"
 )
 
 const configFile = `package: gen
@@ -60,7 +61,7 @@ func TestValidateProjectValidation(t *testing.T) {
 	t.Run("should create all declared directories and files", func(t *testing.T) {
 		config.ProjectName = "test-execution-validate-01"
 
-		baseProjectPath := utils.JoinPath(rootProjectPath, ".out/", config.ProjectName)
+		baseProjectPath := file.JoinPath(rootProjectPath, ".out/", config.ProjectName)
 		defer func() {
 			_ = os.RemoveAll(baseProjectPath)
 			testCleanup(t)
@@ -76,8 +77,8 @@ func TestValidateProjectValidation(t *testing.T) {
 		)
 
 		generator.Execute(baseProjectPath)
-		configFilePath := utils.JoinPath(baseProjectPath, "config/config.yaml")
-		utils.CreateFile(configFilePath, configFile, utils.Replacement("${ROOT_PROJECT}", rootProjectPath))
+		configFilePath := file.JoinPath(baseProjectPath, "config/config.yaml")
+		file.CreateFile(configFilePath, configFile, goservestring.Replacement("${ROOT_PROJECT}", rootProjectPath))
 
 		ProjectValidate(baseProjectPath)
 	})
@@ -85,7 +86,7 @@ func TestValidateProjectValidation(t *testing.T) {
 	t.Run("should exit with panic when project does not exists", func(t *testing.T) {
 		config.ProjectName = "test-execution-validate-02"
 
-		baseProjectPath := utils.JoinPath(rootProjectPath, ".out/", config.ProjectName)
+		baseProjectPath := file.JoinPath(rootProjectPath, ".out/", config.ProjectName)
 		defer func() {
 			_ = os.RemoveAll(baseProjectPath)
 			testCleanup(t)

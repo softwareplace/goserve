@@ -7,12 +7,12 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/softwareplace/goserve/cmd/goserve-generator/utils"
+	"github.com/softwareplace/goserve/cmd/goserve-generator/file"
 	testutils "github.com/softwareplace/goserve/internal/utils"
 )
 
 func TestGeneratePathsValidation(t *testing.T) {
-	baseProjectPath := utils.JoinPath(testutils.ProjectBasePath(), ".out/generate-test-execution")
+	baseProjectPath := file.JoinPath(testutils.ProjectBasePath(), ".out/generate-test-execution")
 	defer func(path string) {
 		_ = os.RemoveAll(path)
 	}(baseProjectPath)
@@ -21,7 +21,7 @@ func TestGeneratePathsValidation(t *testing.T) {
 		require.NotPanics(t, func() {
 			Execute(baseProjectPath)
 			for _, fileEntry := range filesGenerator() {
-				require.FileExists(t, utils.JoinPath(baseProjectPath, fileEntry.Path))
+				require.FileExists(t, file.JoinPath(baseProjectPath, fileEntry.Path))
 			}
 		})
 	})
@@ -29,10 +29,10 @@ func TestGeneratePathsValidation(t *testing.T) {
 	t.Run("should run panic when failed to create a dir", func(t *testing.T) {
 		require.NotPanics(t, func() {
 			defer func() {
-				utils.MkdirAll = os.MkdirAll
+				file.MkdirAll = os.MkdirAll
 			}()
 
-			utils.MkdirAll = func(path string, perm os.FileMode) error {
+			file.MkdirAll = func(path string, perm os.FileMode) error {
 				return fmt.Errorf("failed to create dir %s, %v", path, perm)
 			}
 			require.Panics(t, func() {

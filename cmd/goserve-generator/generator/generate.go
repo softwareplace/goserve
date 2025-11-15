@@ -3,7 +3,7 @@ package generator
 import (
 	"log"
 
-	"github.com/softwareplace/goserve/cmd/goserve-generator/utils"
+	"github.com/softwareplace/goserve/cmd/goserve-generator/file"
 )
 
 var (
@@ -59,8 +59,8 @@ func Execute(projectName string) {
 // - projectName: The name of the project for which filesGenerator will be generated.
 func createBaseProjectDirAndFiles(projectName string) {
 	for _, fileEntry := range filesGenerator() {
-		utils.CreateFile(
-			utils.JoinPath(projectName, fileEntry.Path),
+		file.CreateFile(
+			file.JoinPath(projectName, fileEntry.Path),
 			fileEntry.Content,
 			fileEntry.Entries...,
 		)
@@ -77,8 +77,8 @@ func createBaseProjectDirAndFiles(projectName string) {
 // - projectName: The name of the project whose directory structure will be created.
 func createProjectDir(projectName string) {
 	for _, dir := range dirs {
-		path := utils.JoinPath(projectName, dir)
-		if err := utils.MkdirAll(path, 0755); err != nil {
+		path := file.JoinPath(projectName, dir)
+		if err := file.MkdirAll(path, 0755); err != nil {
 			log.Panicf("❌ Failed to create directory %s: %v", path, err)
 		}
 	}

@@ -7,14 +7,14 @@ import (
 
 	"github.com/softwareplace/goserve/cmd/goserve-generator/config"
 	"github.com/softwareplace/goserve/cmd/goserve-generator/template"
-	"github.com/softwareplace/goserve/cmd/goserve-generator/utils"
 	"github.com/softwareplace/goserve/cmd/goserve-generator/version"
+	goserverstring "github.com/softwareplace/goserve/string"
 )
 
 type generatorFile struct {
 	Path    string
 	Content string
-	Entries []utils.ReplaceEntry
+	Entries []goserverstring.ReplaceEntry
 }
 
 // filesGenerator is a collection of predefined files
@@ -93,13 +93,13 @@ func filesGenerator() []generatorFile {
 	}
 }
 
-func getGoModeReplacementEntries() []utils.ReplaceEntry {
+func getGoModeReplacementEntries() []goserverstring.ReplaceEntry {
 	goServeLatest := getGoServeVersion()
 
-	goServerVersion := utils.Replacement(template.GoServeLatestVersionKey, goServeLatest)
+	goServerVersion := goserverstring.Replacement(template.GoServeLatestVersionKey, goServeLatest)
 
 	log.Infof("Using custom GoServe version: %s", config.GoServerVersion)
-	return []utils.ReplaceEntry{
+	return []goserverstring.ReplaceEntry{
 		goServerVersion,
 	}
 }

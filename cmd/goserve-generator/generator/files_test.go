@@ -7,8 +7,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/softwareplace/goserve/cmd/goserve-generator/config"
+	"github.com/softwareplace/goserve/cmd/goserve-generator/file"
 	"github.com/softwareplace/goserve/cmd/goserve-generator/template"
-	"github.com/softwareplace/goserve/cmd/goserve-generator/utils"
 	"github.com/softwareplace/goserve/cmd/goserve-generator/version"
 	testutils "github.com/softwareplace/goserve/internal/utils"
 )
@@ -60,16 +60,16 @@ func TestGetFileContent(t *testing.T) {
 
 	t.Run("should return provided goserve gen config file wen config.CodeGenConfigFile was set", func(t *testing.T) {
 		config.ProjectName = "file-config-test-execution"
-		baseProjectPath := utils.JoinPath(testutils.ProjectBasePath(), ".out/"+config.ProjectName)
+		baseProjectPath := file.JoinPath(testutils.ProjectBasePath(), ".out/"+config.ProjectName)
 		defer func(path string) {
 			_ = os.RemoveAll(path)
 			config.CodeGenConfigFile = ""
 			config.ProjectName = ""
 		}(baseProjectPath)
 
-		configPath := utils.JoinPath(baseProjectPath, "config.yaml")
+		configPath := file.JoinPath(baseProjectPath, "config.yaml")
 
-		utils.CreateFile(configPath, configFile)
+		file.CreateFile(configPath, configFile)
 
 		config.CodeGenConfigFile = configPath
 

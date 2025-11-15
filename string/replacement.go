@@ -1,4 +1,9 @@
-package utils
+package string
+
+type ReplaceEntry struct {
+	Key   string
+	Value string
+}
 
 func Replacement(key string, value string) ReplaceEntry {
 	return ReplaceEntry{
