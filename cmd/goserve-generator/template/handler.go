@@ -7,8 +7,8 @@ import (
 
 	"github.com/softwareplace/goserve/server"
 
-	"github.com/test-user/test-execution-validate-01/internal/adapter/handler/gen"
-	"github.com/test-user/test-execution-validate-01/internal/application"
+	"github.com/${USERNAME}/${PROJECT}/internal/adapter/handler/gen"
+	"github.com/${USERNAME}/${PROJECT}/internal/application"
 )
 
 type Service struct {
@@ -40,8 +40,8 @@ import (
 
 	goservectx "github.com/softwareplace/goserve/context"
 
-	"github.com/test-user/test-execution-validate-01/internal/adapter/handler/gen"
-	"github.com/test-user/test-execution-validate-01/internal/application"
+	"github.com/${USERNAME}/${PROJECT}/internal/adapter/handler/gen"
+	"github.com/${USERNAME}/${PROJECT}/internal/application"
 )
 
 func (s *Service) Hello(request gen.HelloClientRequest, ctx *goservectx.Request[*application.Principal]) {

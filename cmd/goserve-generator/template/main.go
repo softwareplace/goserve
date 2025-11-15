@@ -12,8 +12,8 @@ import (
 	"github.com/softwareplace/goserve/server"
 	"github.com/stretchr/testify/require"
 
-	"github.com/test-user/test-execution-validate-01/internal/adapter/handler"
-	"github.com/test-user/test-execution-validate-01/internal/application"
+	"github.com/${USERNAME}/${PROJECT}/internal/adapter/handler"
+	"github.com/${USERNAME}/${PROJECT}/internal/application"
 )
 
 func TestMockServer(t *testing.T) {
@@ -94,9 +94,9 @@ import (
 	"github.com/softwareplace/goserve/logger"
 	"github.com/softwareplace/goserve/server"
 
-	"github.com/test-user/test-execution-validate-01/internal/adapter/handler"
-	"github.com/test-user/test-execution-validate-01/internal/application"
-	"github.com/test-user/test-execution-validate-01/internal/application/config"
+	"github.com/${USERNAME}/${PROJECT}/internal/adapter/handler"
+	"github.com/${USERNAME}/${PROJECT}/internal/application"
+	"github.com/${USERNAME}/${PROJECT}/internal/application/config"
 )
 
 func init() {
