@@ -7,10 +7,14 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+
+	"github.com/softwareplace/goserve/authorization/config"
+	"github.com/softwareplace/goserve/authorization/request"
+	"github.com/softwareplace/goserve/authorization/response"
 )
 
 func TestClientImplGenerateTokenSuccess(t *testing.T) {
-	expectedResponse := AuthorizationResponse{
+	expectedResponse := response.AuthorizationResponse{
 		Jwt:      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.test",
 		Expires:  1757353374,
 		IssuedAt: 1757353374,
@@ -27,13 +31,13 @@ func TestClientImplGenerateTokenSuccess(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client := &clientImpl{
-		oauthConfig: OauthConfig{
+	client := NewClient(
+		config.OauthConfig{
 			ServerHost: server.URL,
 		},
-	}
+	)
 
-	authRequest := AuhtorizationRequest{
+	authRequest := request.AuhtorizationRequest{
 		Username: "testuser",
 		Password: "testpass",
 	}
@@ -48,13 +52,13 @@ func TestClientImplGenerateTokenSuccess(t *testing.T) {
 }
 
 func TestClientImplGenerateTokenValidationErrorEmptyUsername(t *testing.T) {
-	client := &clientImpl{
-		oauthConfig: OauthConfig{
+	client := NewClient(
+		config.OauthConfig{
 			ServerHost: "http://localhost:8080",
 		},
-	}
+	)
 
-	authRequest := AuhtorizationRequest{
+	authRequest := request.AuhtorizationRequest{
 		Username: "",
 		Password: "testpass",
 	}
@@ -66,13 +70,13 @@ func TestClientImplGenerateTokenValidationErrorEmptyUsername(t *testing.T) {
 }
 
 func TestClientImplGenerateTokenValidationErrorEmptyPassword(t *testing.T) {
-	client := &clientImpl{
-		oauthConfig: OauthConfig{
+	client := NewClient(
+		config.OauthConfig{
 			ServerHost: "http://localhost:8080",
 		},
-	}
+	)
 
-	authRequest := AuhtorizationRequest{
+	authRequest := request.AuhtorizationRequest{
 		Username: "testuser",
 		Password: "",
 	}
@@ -84,13 +88,13 @@ func TestClientImplGenerateTokenValidationErrorEmptyPassword(t *testing.T) {
 }
 
 func TestClientImplGenerateTokenEmptyApplicationIs(t *testing.T) {
-	client := &clientImpl{
-		oauthConfig: OauthConfig{
+	client := NewClient(
+		config.OauthConfig{
 			ServerHost: "http://localhost:8080",
 		},
-	}
+	)
 
-	authRequest := AuhtorizationRequest{
+	authRequest := request.AuhtorizationRequest{
 		Username: "testuser",
 		Password: "testpass",
 	}
@@ -103,13 +107,13 @@ func TestClientImplGenerateTokenEmptyApplicationIs(t *testing.T) {
 }
 
 func TestClientImplGenerateTokenNetworkError(t *testing.T) {
-	client := &clientImpl{
-		oauthConfig: OauthConfig{
-			ServerHost: "http://invalid-host-that-does-not-exist.com",
+	client := NewClient(
+		config.OauthConfig{
+			ServerHost: "http://localhost:8080",
 		},
-	}
+	)
 
-	authRequest := AuhtorizationRequest{
+	authRequest := request.AuhtorizationRequest{
 		Username: "testuser",
 		Password: "testpass",
 	}
@@ -126,13 +130,13 @@ func TestClientImplGenerateTokenNilResponse(t *testing.T) {
 	}))
 	server.Close()
 
-	client := &clientImpl{
-		oauthConfig: OauthConfig{
-			ServerHost: server.URL,
+	client := NewClient(
+		config.OauthConfig{
+			ServerHost: "http://localhost:8080",
 		},
-	}
+	)
 
-	authRequest := AuhtorizationRequest{
+	authRequest := request.AuhtorizationRequest{
 		Username: "testuser",
 		Password: "testpass",
 	}
@@ -151,13 +155,13 @@ func TestClientImplGenerateTokenInvalidJSONResponse(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client := &clientImpl{
-		oauthConfig: OauthConfig{
-			ServerHost: server.URL,
+	client := NewClient(
+		config.OauthConfig{
+			ServerHost: "http://localhost:8080",
 		},
-	}
+	)
 
-	authRequest := AuhtorizationRequest{
+	authRequest := request.AuhtorizationRequest{
 		Username: "testuser",
 		Password: "testpass",
 	}
@@ -169,7 +173,7 @@ func TestClientImplGenerateTokenInvalidJSONResponse(t *testing.T) {
 }
 
 func TestClientImplGenerateTokenResponseValidationError(t *testing.T) {
-	invalidResponse := AuthorizationResponse{
+	invalidResponse := response.AuthorizationResponse{
 		Jwt:      "short",
 		Expires:  100,
 		IssuedAt: 100,
@@ -182,13 +186,13 @@ func TestClientImplGenerateTokenResponseValidationError(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client := &clientImpl{
-		oauthConfig: OauthConfig{
+	client := NewClient(
+		config.OauthConfig{
 			ServerHost: server.URL,
 		},
-	}
+	)
 
-	authRequest := AuhtorizationRequest{
+	authRequest := request.AuhtorizationRequest{
 		Username: "testuser",
 		Password: "testpass",
 	}
@@ -220,13 +224,13 @@ func TestClientImplGenerateTokenHTTPErrorStatus(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := &clientImpl{
-				oauthConfig: OauthConfig{
-					ServerHost: server.URL,
+			client := NewClient(
+				config.OauthConfig{
+					ServerHost: "http://localhost:8080",
 				},
-			}
+			)
 
-			authRequest := AuhtorizationRequest{
+			authRequest := request.AuhtorizationRequest{
 				Username: "testuser",
 				Password: "testpass",
 			}
@@ -241,16 +245,16 @@ func TestClientImplGenerateTokenHTTPErrorStatus(t *testing.T) {
 
 func TestClientImplGenerateTokenWithDifferentContentTypes(t *testing.T) {
 	testCases := []struct {
-		name            string
-		applicationIs   string
-		expectedHeader  string
+		name           string
+		applicationIs  string
+		expectedHeader string
 	}{
 		{"JSON", "application/json", "application/json"},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			expectedResponse := AuthorizationResponse{
+			expectedResponse := response.AuthorizationResponse{
 				Jwt:      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.test",
 				Expires:  1757353374,
 				IssuedAt: 1757353374,
@@ -265,13 +269,13 @@ func TestClientImplGenerateTokenWithDifferentContentTypes(t *testing.T) {
 
 			defer server.Close()
 
-			client := &clientImpl{
-				oauthConfig: OauthConfig{
+			client := NewClient(
+				config.OauthConfig{
 					ServerHost: server.URL,
 				},
-			}
+			)
 
-			authRequest := AuhtorizationRequest{
+			authRequest := request.AuhtorizationRequest{
 				Username: "testuser",
 				Password: "testpass",
 			}

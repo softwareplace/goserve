@@ -1,4 +1,4 @@
-package authorization
+package impl
 
 import (
 	"net/http"
@@ -7,6 +7,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/softwareplace/goserve/authorization/config"
+	"github.com/softwareplace/goserve/authorization/input"
 	"github.com/softwareplace/goserve/request"
 )
 
@@ -16,13 +18,13 @@ func TestClientImplCheckTokenSuccess(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client := &clientImpl{
-		oauthConfig: OauthConfig{
+	client := &ClientImpl{
+		OauthConfig: config.OauthConfig{
 			ServerHost: server.URL,
 		},
 	}
 
-	input := Input{
+	input := input.Input{
 		Headers: map[string]string{
 			"Authorization": "Bearer token123",
 			"Content-Type":  "application/json",
@@ -45,13 +47,13 @@ func TestClientImplCheckTokenFailureNonOKStatus(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client := &clientImpl{
-		oauthConfig: OauthConfig{
+	client := &ClientImpl{
+		OauthConfig: config.OauthConfig{
 			ServerHost: server.URL,
 		},
 	}
 
-	input := Input{
+	input := input.Input{
 		Headers: map[string]string{
 			"Authorization": "Bearer invalid_token",
 		},
@@ -70,13 +72,13 @@ func TestClientImplCheckTokenWithEmptyInput(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client := &clientImpl{
-		oauthConfig: OauthConfig{
+	client := &ClientImpl{
+		OauthConfig: config.OauthConfig{
 			ServerHost: server.URL,
 		},
 	}
 
-	input := Input{
+	input := input.Input{
 		Headers:     map[string]string{},
 		QueryParams: map[string][]string{},
 	}
@@ -93,8 +95,8 @@ func TestClientImplChecktokenCustomSuccess(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client := &clientImpl{
-		oauthConfig: OauthConfig{
+	client := &ClientImpl{
+		OauthConfig: config.OauthConfig{
 			ServerHost: "http://example.com",
 		},
 	}
@@ -106,7 +108,7 @@ func TestClientImplChecktokenCustomSuccess(t *testing.T) {
 		Query:   map[string][]string{"scope": {"read"}},
 	}
 
-	result, err := client.ChecktokenCustom(config)
+	result, err := client.CheckTokenCustom(config)
 
 	assert.NoError(t, err)
 	assert.True(t, result)
@@ -118,8 +120,8 @@ func TestClientImplChecktokenCustomFailure(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client := &clientImpl{
-		oauthConfig: OauthConfig{
+	client := &ClientImpl{
+		OauthConfig: config.OauthConfig{
 			ServerHost: "http://example.com",
 		},
 	}
@@ -131,15 +133,15 @@ func TestClientImplChecktokenCustomFailure(t *testing.T) {
 		Query:   map[string][]string{},
 	}
 
-	result, err := client.ChecktokenCustom(config)
+	result, err := client.CheckTokenCustom(config)
 
 	assert.NoError(t, err)
 	assert.False(t, result)
 }
 
 func TestClientImplValidateNetworkError(t *testing.T) {
-	client := &clientImpl{
-		oauthConfig: OauthConfig{
+	client := &ClientImpl{
+		OauthConfig: config.OauthConfig{
 			ServerHost: "http://invalid-host-that-does-not-exist.com",
 		},
 	}
@@ -163,8 +165,8 @@ func TestClientImplValidateStatusOK(t *testing.T) {
 	}))
 	defer server.Close()
 
-	client := &clientImpl{
-		oauthConfig: OauthConfig{
+	client := &ClientImpl{
+		OauthConfig: config.OauthConfig{
 			ServerHost: server.URL,
 		},
 	}
@@ -201,8 +203,8 @@ func TestClientImplValidateStatusNotOK(t *testing.T) {
 			}))
 			defer server.Close()
 
-			client := &clientImpl{
-				oauthConfig: OauthConfig{
+			client := &ClientImpl{
+				OauthConfig: config.OauthConfig{
 					ServerHost: server.URL,
 				},
 			}
@@ -236,13 +238,13 @@ func TestClientImplCheckTokenHeadersAndQueryParams(t *testing.T) {
 
 	defer server.Close()
 
-	client := &clientImpl{
-		oauthConfig: OauthConfig{
+	client := &ClientImpl{
+		OauthConfig: config.OauthConfig{
 			ServerHost: server.URL,
 		},
 	}
 
-	input := Input{
+	input := input.Input{
 		Headers: map[string]string{
 			"Authorization": "Bearer token123",
 			"Content-Type":  "application/json",

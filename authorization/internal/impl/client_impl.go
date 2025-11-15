@@ -1,4 +1,4 @@
-package authorization
+package impl
 
 import (
 	"fmt"
@@ -6,18 +6,23 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	"github.com/softwareplace/goserve/authorization/config"
+	"github.com/softwareplace/goserve/authorization/input"
+	authrequest "github.com/softwareplace/goserve/authorization/request"
+	"github.com/softwareplace/goserve/authorization/response"
+	authresponse "github.com/softwareplace/goserve/authorization/response"
 	"github.com/softwareplace/goserve/request"
 	"github.com/softwareplace/goserve/validator"
 )
 
-// clientImpl struct
-type clientImpl struct {
-	oauthConfig OauthConfig
+// ClientImpl struct
+type ClientImpl struct {
+	OauthConfig config.OauthConfig
 }
 
 // CheckToken checks if the token is valid
-func (c *clientImpl) CheckToken(input Input) (bool, error) {
-	config := request.Build(c.oauthConfig.ServerHost).
+func (c *ClientImpl) CheckToken(input input.Input) (bool, error) {
+	config := request.Build(c.OauthConfig.ServerHost).
 		WithPath("authorization")
 
 	for name, header := range input.Headers {
@@ -42,11 +47,11 @@ func (c *clientImpl) CheckToken(input Input) (bool, error) {
 }
 
 // ChecktokenCustom checks if the token is valid
-func (c *clientImpl) ChecktokenCustom(config *request.Config) (bool, error) {
+func (c *ClientImpl) CheckTokenCustom(config *request.Config) (bool, error) {
 	return c.validate(config)
 }
 
-func (c *clientImpl) validate(config *request.Config) (bool, error) {
+func (c *ClientImpl) validate(config *request.Config) (bool, error) {
 	client := request.NewService()
 	response, err := client.Get(config)
 
@@ -69,10 +74,10 @@ func (c *clientImpl) validate(config *request.Config) (bool, error) {
 	return false, nil
 }
 
-func (c *clientImpl) Login(
-	authRequest AuhtorizationRequest,
+func (c *ClientImpl) Login(
+	authRequest authrequest.AuhtorizationRequest,
 	applicationID string,
-) (*AuthorizationResponse, error) {
+) (*response.AuthorizationResponse, error) {
 	if err := validator.StructValidation(authRequest); err != nil {
 		return nil, err
 	}
@@ -81,7 +86,7 @@ func (c *clientImpl) Login(
 		return nil, fmt.Errorf("applicationID is required")
 	}
 
-	config := request.Build(c.oauthConfig.ServerHost).
+	config := request.Build(c.OauthConfig.ServerHost).
 		WithPath("login").
 		WithHeader(request.RequestClientID, applicationID).
 		WithBody(authRequest)
@@ -104,7 +109,7 @@ func (c *clientImpl) Login(
 		return nil, fmt.Errorf("failed to login with response status code: %v", response.StatusCode)
 	}
 
-	responseData := AuthorizationResponse{}
+	responseData := authresponse.AuthorizationResponse{}
 
 	err = client.BodyDecode(&responseData)
 
