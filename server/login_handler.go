@@ -19,10 +19,14 @@ func (a *baseServer[T]) Login(ctx *goservectx.Request[T]) {
 func (a *baseServer[T]) loginDataHandler(ctx *goservectx.Request[T], user login.User) {
 
 	goserveerror.Handler(func() {
+		encryptedPass := false
+		originalRequestPassword := user.Password
+
 		decrypt, err := a.securityService.Decrypt(user.Password)
 		if err != nil {
 			log.Printf("LOGIN/DECRYPT: Failed to decrypt encryptor: %v", err)
 		} else {
+			encryptedPass = true
 			user.Password = decrypt
 		}
 
@@ -35,6 +39,12 @@ func (a *baseServer[T]) loginDataHandler(ctx *goservectx.Request[T], user login.
 		}
 
 		isValidPassword := a.loginService.IsValidPassword(user, principal)
+
+		if encryptedPass && !isValidPassword {
+			// Retry validation with the original requested password
+			user.Password = originalRequestPassword
+			isValidPassword = a.loginService.IsValidPassword(user, principal)
+		}
 
 		if !isValidPassword {
 			log.Printf("LOGIN/LOGIN: Failed to login: %v", err)
